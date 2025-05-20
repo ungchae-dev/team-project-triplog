@@ -1,0 +1,29 @@
+# yml
+# 야믈 (YAML)
+# Spring Boot 프로젝트의 설정 파일, 애플리케이션이 실행될 때 이 파일을 읽음.
+# DB 연결 정보, 서버 포트, 로깅 설정, 사용자 정의 설정 등을 적용.
+spring:
+  application:
+    name: triplog
+
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@localhost:1521:xe  # 본인 Oracle 설정에 맞게 수정
+    username: javago
+    password: 12345
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      # 또는 validate, create 등
+      # 프로젝트를 실행할 때 엔티티를 기반으로 자동으로 테이블을 생성하거나 수정
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.Oracle12cDialect
+    # 오라클 12c 이후(18c, 19c, 21c 등)는 대부분 Oracle12cDialect 또는 OracleDialect 로 통합해서 사용
+
+# 서버 포트 지정
+server:
+  port: 8085
