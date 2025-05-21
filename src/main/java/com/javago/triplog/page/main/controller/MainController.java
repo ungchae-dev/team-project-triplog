@@ -22,6 +22,6 @@ public class MainController {
         model.addAttribute("tourism", mainService.getTop4ByRegionAndCategory(region, CategoryType.TOURISM));
         model.addAttribute("food", mainService.getTop4ByRegionAndCategory(region, CategoryType.FOOD));
         model.addAttribute("selectedRegion", region);
-        return "/page/mainpage";
+        return "../../../../../resources/template/page/mainpage";
     }
 }
