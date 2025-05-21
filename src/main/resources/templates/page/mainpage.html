@@ -1,103 +1,84 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Triplog 메인</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Bootstrap CDN -->
-    <link href="/css/main.css" rel="stylesheet">
-    <style>
-        .hero {
-            background-color: #6dcf9c;
-            color: white;
-            padding: 60px 0;
-            text-align: center;
-        }
-        .feature-icons i {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-        .category-btn {
-            margin: 5px;
-        }
-    </style>
+    <title>Triplog 메인 페이지</title>
+    <link rel="stylesheet" href="../../static/css/main.css">
 </head>
 <body>
+<header>
+    <h1><a th:href="@{/}">Triplog</a></h1>
+    <a th:href="@{/}" class="logo-link">
+        <img src="../../static/images/logo.png" alt="Triploglogo" />
+    </a>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container">
-        <a class="navbar-brand fw-bold text-success" href="#">Triplog</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navMenu">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="#">플래너</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">유럽항공권</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">AI맞춤여행</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">숙소추천</a></li>
-            </ul>
-            <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="#">로그인</a></li>
-                <li class="nav-item"><a class="btn btn-outline-success" href="#">회원가입</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
+    <nav>
+        <a th:href="@{/my-blog}">내 블로그</a>
+        <a th:href="@{/search}">글 검색</a>
+        <a th:href="@{/category?type=EVENT}">행사</a>
+        <a th:href="@{/category?type=TOURISM}">관광</a>
+        <a th:href="@{/category?type=FOOD}">맛집</a>
+        <a th:if="${session.user == null}" th:href="@{/login}">로그인</a>
+        <a th:if="${session.user != null}" href="#" onclick="logout()">로그아웃</a>
+        <a th:href="@{/signup}">회원가입</a>
+    </nav>
+</header>
 
-<!-- Hero Section -->
-<section class="hero">
-    <div class="container">
-        <h2>셀프 유럽여행자를 위한 트립로그</h2>
-        <p class="lead">복잡한 여행 일정, 전문가처럼 쉽게 만들어보세요</p>
-
-        <div class="row justify-content-center mt-4">
-            <div class="col-6 col-sm-2">루트 짜기</div>
-            <div class="col-6 col-sm-2">항공권</div>
-            <div class="col-6 col-sm-2">도시 이동</div>
-            <div class="col-6 col-sm-2">숙소 선택</div>
-            <div class="col-6 col-sm-2">일정 짜기</div>
-        </div>
-
-        <div class="mt-4">
-            <a href="#" class="btn btn-danger me-2">플래너 시작하기</a>
-            <a href="#" class="btn btn-dark">AI 맞춤여행</a>
+<section>
+    <h2>주간 베스트</h2>
+    <div>
+        <div th:each="post : ${weeklyBest}">
+            <a th:href="${post.url}">
+                <img th:src="${post.imageUrl}" alt="image"/>
+                <p th:text="${post.title}"></p>
+            </a>
         </div>
     </div>
 </section>
 
-<!-- Routes in Progress -->
-<section class="py-5 text-center">
-    <div class="container">
-        <h4>이런 루트가 만들어지고 있습니다</h4>
-        <div class="mb-3">
-            <button class="btn btn-outline-secondary category-btn">최신</button>
-            <button class="btn btn-outline-secondary category-btn">아이돌과</button>
-            <button class="btn btn-outline-secondary category-btn">커플/신혼</button>
-            <button class="btn btn-outline-secondary category-btn">부모님과</button>
-            <button class="btn btn-outline-secondary category-btn">남자끼리</button>
-        </div>
+<section>
+    <label>지역 선택:
+        <select onchange="location.href='/?region=' + this.value">
+            <option>서울</option>
+            <option>부산</option>
+            <option>대구</option>
+        </select>
+    </label>
 
-        <!-- 루트 카드 예시 -->
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <img src="https://via.placeholder.com/300x200" class="img-fluid rounded" alt="루트1">
-                <p>파리 → 런던 → 암스테르담</p>
-            </div>
-            <div class="col-md-4 mb-4">
-                <img src="https://via.placeholder.com/300x200" class="img-fluid rounded" alt="루트2">
-                <p>프라하 → 빈 → 부다페스트</p>
-            </div>
-            <div class="col-md-4 mb-4">
-                <img src="https://via.placeholder.com/300x200" class="img-fluid rounded" alt="루트3">
-                <p>로마 → 피렌체 → 밀라노</p>
-            </div>
-        </div>
+    <h3>행사</h3>
+    <div th:each="e : ${events}">
+        <a th:href="${e.url}">
+            <img th:src="${e.imageUrl}"/>
+            <p th:text="${e.title}"></p>
+        </a>
     </div>
+    <a th:href="@{/category(type='EVENT', region=${selectedRegion})}">더보기</a>
+
+    <h3>관광지</h3>
+    <div th:each="t : ${tourism}">
+        <a th:href="${t.url}">
+            <img th:src="${t.imageUrl}"/>
+            <p th:text="${t.title}"></p>
+        </a>
+    </div>
+    <a th:href="@{/category(type='TOURISM', region=${selectedRegion})}">더보기</a>
+
+    <h3>맛집</h3>
+    <div th:each="f : ${food}">
+        <a th:href="${f.url}">
+            <img th:src="${f.imageUrl}"/>
+            <p th:text="${f.title}"></p>
+        </a>
+    </div>
+    <a th:href="@{/category(type='FOOD', region=${selectedRegion})}">더보기</a>
 </section>
 
-<!-- Bootstrap JS -->
-<script src="/js/main.js"></script>
+<script>
+    function logout() {
+        if (confirm("로그아웃 하시겠습니까?")) {
+            location.href = '/logout';
+        }
+    }
+</script>
 </body>
 </html>
