@@ -1,6 +1,6 @@
 const signInBtn = document.getElementById("signIn");
 const signUpBtn = document.getElementById("signUp");
-const fistForm = document.getElementById("form1");
+const firstForm = document.getElementById("form1");
 const secondForm = document.getElementById("form2");
 const container = document.querySelector(".container");
 
@@ -12,7 +12,7 @@ signUpBtn.addEventListener("click", () => {
     container.classList.add("right-panel-active");
 });
 
-fistForm.addEventListener("submit", (e) => e.preventDefault());
+firstForm.addEventListener("submit", (e) => e.preventDefault());
 secondForm.addEventListener("submit", (e) => e.preventDefault());
 
 document.getElementById("form1").addEventListener("submit", function(e) {
