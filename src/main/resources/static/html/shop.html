@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>상점 – 여행 블로그</title>
+  <style>
+    :root {
+      --color-blue:  #2b6cb0;
+      --color-white: #ffffff;
+      --tab-width:     100px;
+      --tab-height:    40px;
+      --tab-gap:       8px;
+      --tab-font-size: 14px;
+    }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: sans-serif;
+      background: #f9f9f9;
+    }
+    .section-title { font-size: 24px; color: var(--color-blue); margin-bottom: 10px; }
+    .shop-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+    .shop-tab-btn {
+      padding: 6px 12px;
+      background: #fff;
+      border: 1px solid var(--color-blue);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--color-blue);
+      transition: background 0.2s;
+    }
+    .shop-tab-btn.active {
+      background: var(--color-blue);
+      color: #fff;
+    }
+    .shop-section { display: none; }
+    .shop-section.active { display: block; }
+    /* 스킨 활성화 영역 */
+    .shop-skin img { width: 80px; height: 60px; object-fit: cover; margin-right: 10px; cursor: pointer; border: 2px solid transparent; border-radius: 5px; }
+    .shop-skin img.selected { border-color: var(--color-blue); }
+    #reset-skin { margin-left: auto; padding: 5px 8px; font-size: 12px; border: 1px solid #888; background: #fff; cursor: pointer; border-radius: 3px; }
+    /* 이모티콘 영역 */
+    .emoticon-list { display: flex; flex-wrap: wrap; gap: 10px; }
+    .emoticon-item { width: 60px; height: 60px; background: #eee; border-radius: 8px; }
+    /* 음악 상세 영역 */
+    .shop-music p { font-size: 16px; }
+  </style>
+</head>
+<body>
+<div class="section">
+  <div class="section-title">상점</div>
+  <div class="shop-tabs">
+    <button class="shop-tab-btn active" data-shop-tab="skin">스킨 활성화</button>
+    <button class="shop-tab-btn" data-shop-tab="emoticon">이모티콘</button>
+    <button class="shop-tab-btn" data-shop-tab="music">음악</button>
+  </div>
+  <div class="shop-content">
+    <div class="shop-section shop-skin active">
+      <div style="display:flex;align-items:center;">
+        <img src="../images/sakura.jpg" data-skin="sakura.jpg" class="skin-option" alt="벚꽃 스킨">
+        <button id="reset-skin">기본 배경</button>
+      </div>
+    </div>
+    <div class="shop-section shop-emoticon">
+      <div class="emoticon-list">
+        <div class="emoticon-item"></div>
+        <div class="emoticon-item"></div>
+        <div class="emoticon-item"></div>
+      </div>
+    </div>
+    <div class="shop-section shop-music">
+      <p>음악 상세 정보가 여기에 표시됩니다.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // shop 서브탭 초기화
+    document.querySelectorAll('.shop-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelector('.shop-tab-btn.active').classList.remove('active');
+        btn.classList.add('active');
+        const tab = btn.dataset.shopTab;
+        document.querySelectorAll('.shop-section').forEach(sec => {
+          sec.classList.toggle('active', sec.classList.contains('shop-' + tab));
+        });
+      });
+    });
+
+    // 스킨 선택 로직 (단순예시)
+    document.querySelectorAll('.skin-option').forEach(img => {
+      img.addEventListener('click', () => {
+        document.querySelectorAll('.skin-option').forEach(i => i.classList.remove('selected'));
+        img.classList.add('selected');
+        // 실제 도토리 사용 로직은 추후 추가
+      });
+    });
+
+    // 리셋 버튼
+    document.getElementById('reset-skin').addEventListener('click', () => {
+      document.querySelectorAll('.skin-option').forEach(i => i.classList.remove('selected'));
+      // 기본 배경 복원 로직 추후 추가
+    });
+  });
+</script>
+</body>
+</html>

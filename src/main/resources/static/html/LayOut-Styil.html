@@ -1,0 +1,53 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>메인 홈페이지</title>
+  <style>
+    body {
+      background: #444;
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .home-btn {
+      padding: 12px 20px;
+      background: #2b6cb0;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <button class="home-btn" onclick="openHome()">홈피</button>
+
+  <script>
+    function openHome() {
+      window.open(
+        'popup.html',
+        'homePopup',
+        [
+          'width=1200',
+          'height=800',
+          'top=50',
+          'left=50',
+          'resizable=no',
+          'toolbar=no',
+          'menubar=no',
+          'status=no',
+          'location=no',
+          'scrollbars=yes'
+        ].join(',')
+      );
+    }
+  </script>
+</body>
+</html>

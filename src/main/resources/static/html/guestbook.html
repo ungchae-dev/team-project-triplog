@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>방명록</title>
+  <style>
+    body {
+      background: #444;
+      margin: 0;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: sans-serif;
+    }
+    .container {
+      width: 1000px;
+      height: 600px;
+      background: #c2e7f3;
+      border-radius: 20px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .container h2 {
+      margin: 0 0 10px;
+      font-size: 24px;
+      color: #333;
+      border-bottom: 2px solid #2b6cb0;
+      padding-bottom: 5px;
+    }
+    .guestbook-content {
+      background: #fff;
+      border-radius: 10px;
+      padding: 15px;
+      height: calc(100% - 40px);
+      overflow: auto;
+      box-sizing: border-box;
+    }
+    .guestbook-content ul {
+      list-style: none;
+      padding: 0;
+    }
+    .guestbook-content li {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>방명록</h2>
+    <div class="guestbook-content">
+      <ul>
+        <li>nick1: 안녕하세요!</li>
+        <li>nick2: 잘 보고 갑니다.</li>
+        <li>nick3: 즐거운 하루 되세요.</li>
+        <li>nick4: 좋은 사진 감사합니다.</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

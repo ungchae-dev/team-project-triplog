@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>팝업 – 여행 블로그</title>
+  <style>
+    :root {
+      --color-blue:  #2b6cb0;
+      --color-white: #ffffff;
+      --tab-width:     100px;
+      --tab-height:    40px;
+      --tab-gap:       8px;
+      --tab-font-size: 14px;
+    }
+    html, body {
+      width: 100%; height: 100%; margin: 0; padding: 0;
+      font-family: sans-serif;
+      background: #444 center/cover no-repeat;
+      display: flex; justify-content: center; align-items: center;
+      overflow: hidden;
+    }
+    .book {
+      position: relative;
+      width: 100%; max-width: 1000px; height: 600px;
+      background: #c2e7f3;
+      border-radius: 20px;
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex; overflow: visible;
+    }
+    .page { background: #fff; border-radius: 10px; margin: 0 10px; padding: 15px;
+      box-sizing: border-box; overflow-y: auto; flex: 1; position: relative; }
+    .page.left-page { flex: 0 0 200px; }
+    .counter-banner { background: #eee; padding: 5px 10px; text-align: center;
+      font-weight: bold; margin-bottom: 10px; border-radius: 5px; }
+    .mood-banner { background: #fff0f0; padding: 5px 10px; margin-bottom: 10px;
+      border: 1px solid #f88; border-radius: 5px; display: flex; align-items: center; }
+    .mood-banner .mood { margin-left: 5px; color: #d33; font-weight: bold; }
+    .profile-pic { width: 150px; height: 150px; margin: 0 auto 10px;
+      border: 2px solid #ccc; border-radius: 10px; overflow: hidden; }
+    .profile-pic img { width: 100%; height: 100%; object-fit: cover; }
+    .intro-text { background: #f9f9f9; padding: 10px; border-radius: 5px;
+      min-height: 80px; margin-bottom: 10px; }
+    .history { margin-bottom: 10px; }
+    .history-header { display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 4px; }
+    .history-header .nickname { font-weight: bold; font-size: 14px; }
+    .neighbor-btn { padding: 2px 6px; font-size: 12px;
+      background: #e0f0ff; color: #06c; border: 1px solid #06c;
+      border-radius: 3px; cursor: pointer; transition: background 0.2s; }
+    .neighbor-btn:hover { background: #cce4ff; }
+    .history-details { font-size: 13px; }
+    .history-details .edit { margin-left: 5px; font-size: 11px;
+      padding: 1px 3px; background: #e9ecef; border: 1px solid #06c;
+      border-radius: 3px; color: #06c; text-decoration: none; }
+    .received-url input { width: 100%; padding: 5px; margin-bottom: 10px;
+      border: 1px solid #ccc; border-radius: 3px; }
+    .neighbor-dropdown button { width: 100%; padding: 8px;
+      background: #e0f0ff; border: 1px solid #06c; border-radius: 3px; }
+    .tab-nav { position: absolute; top: 50px; right: -90px;
+      display: flex; flex-direction: column; gap: var(--tab-gap); z-index: 100; }
+    .tab-nav button {
+      box-sizing: border-box; width: var(--tab-width);
+      height: var(--tab-height); line-height: var(--tab-height);
+      font-size: var(--tab-font-size);
+      background: var(--color-blue); color: var(--color-white);
+      border: 1px solid var(--color-blue); cursor: pointer;
+      text-align: left; padding-left: 12px;
+      clip-path: polygon(0 0,100% 0,70% 50%,100% 100%,0 100%);
+      transition: background 0.2s, color 0.2s; }
+    .tab-nav button.active { background: var(--color-white);
+      color: var(--color-blue); border-color: var(--color-blue); }
+    .tab-nav button:hover { filter: brightness(1.1); }
+    .header-handle { display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 10px; padding-bottom: 5px;
+      border-bottom: 2px solid var(--color-blue); }
+    .header-handle h2 { margin: 0; font-size: 24px; }
+    .music-widget { background: #f0f0f0; border: 1px solid #ccc;
+      border-radius: 5px; padding: 6px 10px; font-size: 14px; max-width: 320px; }
+    .music-widget .controls { display: flex; gap: 8px; justify-content: flex-end; }
+    .music-widget .controls button { background: none; border: none;
+      cursor: pointer; font-size: 16px; }
+    #right-content { height: calc(100% - 40px); overflow-y: auto; }
+    .section { background: #fafafa; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 15px; }
+    .section-title { color: var(--color-blue); margin-bottom: 8px; }
+    .photo-section .photos { display: flex; gap: 10px; }
+    .photo-card { flex: 1; border: 2px solid #000;
+      border-radius: 15px; text-align: center; padding: 10px; }
+    .photo-card .photo { height: 150px; background: #eee;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 5px; }
+    .photo-card .caption { font-weight: bold; }
+    /* 추가 또는 기존 스타일에 다음을 넣기 */
+    .top-row {
+      display: flex;
+      gap: 20px; /* 요소 사이 간격 */
+      margin-bottom: 15px; /* 아래 여백 */
+    }
+
+    /* 상점 2분할 영역 스타일 */
+    .shop-content-part { width: 100%; height: 100%; display: flex; flex-direction: column; gap: 14px; }
+    .emoticon-sell-area, .music-sell-area { flex: 1; background: #f8fafd; border-radius: 13px; box-shadow: 0 1px 7px rgba(40,80,120,0.04); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 15px 0 0 0; }
+    .music-sell-area { background: #f7f9fd; }
+    .emoticon-list { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .emoticon-item { width: 60px; height: 60px; background: #fff; border-radius: 9px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 1px 7px rgba(30,50,80,0.06); cursor: pointer; border: 2px solid #e4e4e4; margin: 2px 0; transition: border-color 0.2s, background 0.15s; }
+    .buy-btn { margin-top: 6px; font-size: 12px; padding: 3px 12px; border-radius: 5px; border: 1px solid #2b6cb0; background: #2b6cb0; color: #fff; cursor: pointer; font-weight: bold; transition: background 0.14s, color 0.14s; }
+    .music-list { display: flex; flex-direction: column; gap: 9px; margin-top: 5px; }
+    .music-item { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid #ccd; border-radius: 7px; padding: 7px 11px; font-size: 14px; cursor: pointer; transition: background 0.17s; }
+    .music-item:hover { background: #eef7ff; }
+    .music-item .buy-btn { margin: 0; }
+    .emoticon-list,.music-list {
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      justify-content: flex-start;
+      /* 한 줄에 5개 */
+    }
+    .emoticon-item,.music-item {
+      width: 126px;
+      height: 126px;
+      max-width: 126px;
+      max-height: 126px;
+      min-width: 126px;
+      min-height: 126px;
+      /* 중앙 정렬, 기존 스타일 유지 */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .emoticon-item.empty,
+    .music-item.empty {
+      background: none;
+      border: none;
+      box-shadow: none;
+      pointer-events: none;
+    }
+    .shop-nav-btns {
+      display: flex;
+      gap: 8px;                 /* 버튼 사이 간격 더 좁게 */
+      justify-content: flex-end; /* 오른쪽 정렬 */
+      margin-bottom: 14px;
+      padding-right: 12px;       /* 오른쪽 살짝 띄우기(선택) */
+    }
+    .shop-nav-btn {
+      background: #2b6cb0;
+      color: #fff;
+      border: none;
+      border-radius: 7px;        /* 둥글기 조금 줄임 */
+      font-weight: 600;
+      font-size: 13px;           /* 폰트 더 작게 */
+      padding: 5px 14px;         /* 버튼 높이, 너비 줄임 */
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .shop-nav-btn.active,
+    .shop-nav-btn:hover {
+      background: #1976d2;
+      color: #fff;
+    }
+
+
+  </style>
+</head>
+<body>
+<div class="book">
+  <div class="page left-page">
+    <div class="counter-banner">TODAY 2000 | TOTAL 100000</div>
+    <div class="mood-banner">TODAY is <span class="mood">🌸 행복</span></div>
+    <div class="profile-pic"><img src="https://via.placeholder.com/170" alt=""></div>
+    <div class="intro-text">간단한 자기소개가 들어갑니다...</div>
+    <div class="history">
+      <div class="history-header">
+        <span class="nickname">닉네임(♂/♀)</span>
+        <button id="neighbor-btn" class="neighbor-btn">+이웃추가</button>
+      </div>
+      <div class="history-details">가입일: 00월 00일 <a href="#" class="edit">EDIT</a></div>
+    </div>
+    <div class="received-url"><input placeholder="<받아온 URL>"></div>
+    <div class="neighbor-dropdown"><button>이웃 파도타기 ▼</button></div>
+  </div>
+  <div class="page right-page">
+    <div class="header-handle">
+      <h2 id="page-title">홈피 – 여행 블로그</h2>
+      <div class="music-widget">
+        <div class="track">Sweetbox – Life Is Cool</div>
+        <div class="controls">
+          <button>⏮</button><button>⏸</button><button>⏭</button><button>🔊</button><button id="list-btn">LIST</button>
+        </div>
+      </div>
+    </div>
+    <div id="right-content">
+      <div class="top-row">
+        <div class="section" style="flex:1;">
+          <div class="section-title">방명록</div>
+          <ul>
+            <li>nick1: 메시지</li>
+            <li>nick2: 메시지</li>
+            <li>nick3: 메시지</li>
+            <li>nick4: 메시지</li>
+          </ul>
+        </div>
+        <div class="section" style="flex:1;">
+          <div class="section-title">친구 최신글</div>
+          <ul>
+            <li><strong>alice</strong> 여행준비 완료!</li>
+            <li><strong>bob</strong> 맛집 탐방 후기</li>
+            <li><strong>carol</strong> 오늘의 사진</li>
+            <li><strong>dave</strong> 바다에서 힐링</li>
+          </ul>
+        </div>
+      </div>
+      <div class="photo-section">
+        <div class="section-title">대표 사진 & 제목</div>
+        <div class="photos">
+          <div class="photo-card"><div class="photo">사진1</div><div class="caption">사진 제목 1</div></div>
+          <div class="photo-card"><div class="photo">사진2</div><div class="caption">사진 제목 2</div></div>
+          <div class="photo-card"><div class="photo">사진3</div><div class="caption">사진 제목 3</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-nav">
+    <button data-page="home" class="active">홈</button>
+    <button data-page="shop">상점</button>
+    <button data-page="profile">프로필</button>
+    <button data-page="board">게시판</button>
+    <button data-page="jukebox">주크박스</button>
+    <button data-page="mylog">마이로그</button>
+    <button data-page="guestbook">방명록</button>
+  </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // [1] 페이지 상단 타이틀 요소 (변경될 타이틀)
+    const titleEl = document.getElementById('page-title');
+    // [2] 오른쪽 컨텐츠 영역
+    const contentEl = document.getElementById('right-content');
+    // 이모티콘/음악 데이터
+    const emoticons = [
+      { emoji: "😀", title: "스마일" },
+      { emoji: "🥳", title: "파티" },
+      { emoji: "😎", title: "선글라스" }
+      // ... 필요하면 더 추가
+    ];
+    const musics = [
+      { name: "Life Is Cool" },
+      { name: "Fly High" }
+      // ... 필요하면 더 추가
+    ];
+// 5개가 안될 때 빈칸 채우기 함수
+    function padToFive(arr, htmlFunc) {
+      let html = '';
+      for (let i = 0; i < 5; i++) {
+        if (arr[i]) {
+          html += htmlFunc(arr[i]);
+        } else {
+          // 빈 칸
+          html += `<div class="emoticon-item empty"></div>`;
+        }
+      }
+      return html;
+    }
+    // 상점 분할 뷰용 HTML
+    const shopHTML =  `
+  <div class="shop-nav-btns">
+     <button class="shop-nav-btn" data-target="skin" id="skin-activate-btn">스킨 활성화</button>
+    <button class="shop-nav-btn active" data-target="emoticon">이모티콘</button>
+    <button class="shop-nav-btn" data-target="music">음악</button>
+  </div>
+  <div class='shop-content-part shop-emoticon-music-part active' style="display: flex; flex-direction: column; height: 370px; gap: 14px;">
+    <div class='emoticon-sell-area'>
+      <div style="font-weight: bold; color: #2b6cb0; font-size: 17px; margin-bottom: 10px;">이모티콘 상점</div>
+      <div class='emoticon-list'>
+        ${padToFive(emoticons, em =>
+            `<div class='emoticon-item' title="${em.title}">${em.emoji}<button class="buy-btn">구매</button></div>`
+    )}
+      </div>
+    </div>
+    <div class='music-sell-area'>
+      <div style="font-weight: bold; color: #2b6cb0; font-size: 17px; margin-bottom: 10px;">음악 상점</div>
+      <div class="music-list">
+        ${padToFive(musics, mu =>
+            `<div class="music-item">${mu.name} <button class="buy-btn">구매</button></div>`
+    )}
+      </div>
+    </div>
+  </div>
+`;
+
+    // 탭 컨텐츠 정의
+    const mainPages = {
+      home: contentEl.innerHTML,
+      shop: shopHTML,
+      profile: `<div class='section'><div class='section-title'>내 프로필</div><p>닉네임: 예시닉</p><p>가입일: 05월 11일</p><p>자기소개:<br>안녕하세요!</p></div>`,
+      board: `<div class='section'><div class='section-title'>게시판 글</div><ul><li>글1: 여행 후기</li><li>글2: 사진 공유</li><li>글3: 팁 나눔</li></ul></div>`,
+      jukebox: `<div class='section'><div class='section-title'>주크박스 플레이리스트</div><ul><li>Life Is Cool</li><li>Fly High</li><li>Ocean Breeze</li></ul></div>`,
+      mylog: `<div class='section'><div class='section-title'>마이로그</div><p>2025-05-19: 글 작성</p><p>2025-05-18: 사진 업로드</p></div>`,
+      guestbook: `<div class='section'><div class='section-title'>방명록</div><ul><li>nick1: 안녕하세요!</li><li>nick2: 잘 보고 갑니다.</li></ul></div>`
+    };
+
+    // [3] 탭별로 보여줄 타이틀 매핑
+    const mainTitles = {
+      home: "홈피 – 여행 블로그",
+      shop: "상점",
+      profile: "프로필",
+      board: "게시판",
+      jukebox: "주크박스",
+      mylog: "마이로그",
+      guestbook: "방명록"
+    };
+
+    // [4] 탭 네비게이션 버튼 클릭 시 동작
+    document.querySelectorAll('.tab-nav button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelector('.tab-nav button.active').classList.remove('active');
+        btn.classList.add('active');
+        const page = btn.dataset.page;
+        if (mainPages[page]) {
+          if (page === 'shop') {
+            contentEl.innerHTML = shopHTML;
+            setupShopTab(); // ← 상점 탭 진입시만 함수 호출
+          } else {
+            contentEl.innerHTML = mainPages[page];
+          }
+        }
+        // [5] 타이틀도 변경
+        if (mainTitles[page]) {
+          titleEl.textContent = mainTitles[page];
+        }
+      });
+    });
+
+    function setupShopTab() {
+      const emoticonBtn = document.querySelector('.shop-nav-btn[data-target="emoticon"]');
+      const musicBtn = document.querySelector('.shop-nav-btn[data-target="music"]');
+      const emoticonArea = document.querySelector('.emoticon-sell-area');
+      const musicArea = document.querySelector('.music-sell-area');
+      const skinBtn = document.getElementById('skin-activate-btn');
+      // 초기값
+      emoticonBtn.classList.add('active');
+      emoticonArea.classList.add('active');
+      musicBtn.classList.remove('active');
+      musicArea.classList.remove('active');
+      emoticonBtn.onclick = () => {
+        emoticonBtn.classList.add('active');
+        musicBtn.classList.remove('active');
+        emoticonArea.classList.add('active');
+        musicArea.classList.remove('active');
+      };
+      musicBtn.onclick = () => {
+        musicBtn.classList.add('active');
+        emoticonBtn.classList.remove('active');
+        musicArea.classList.add('active');
+        emoticonArea.classList.remove('active');
+      };
+      if (skinBtn) {
+        skinBtn.onclick = function() {
+          if (confirm('스킨 활성화 하시겠습니까?')) {
+            // 구매 선택 시
+            alert('스킨이 활성화 되었습니다.');
+            skinBtn.style.display = 'none'; // 버튼 숨김
+          }
+          // 취소 시 아무 것도 하지 않음
+        };
+      }
+    }
+    // ----- [이웃추가 버튼] -----
+    const neighborBtn = document.getElementById('neighbor-btn');
+    if (neighborBtn) {
+      neighborBtn.addEventListener('click', () => {
+        alert('이웃으로 추가되었습니다!');
+        // 실제 이웃추가 기능이 있다면 ajax, fetch 등으로 처리
+      });
+    }
+
+    // ----- [LIST 버튼] -----
+    const listBtn = document.getElementById('list-btn');
+    if (listBtn) {
+      listBtn.addEventListener('click', () => {
+        // 1. 주크박스 탭 버튼을 찾음
+        const jukeboxTab = document.querySelector('.tab-nav button[data-page="jukebox"]');
+        if (jukeboxTab) {
+          jukeboxTab.click(); // "주크박스" 탭 클릭 트리거!
+        }
+      });
+    }
+  });
+</script>
+</body>
+</html>
