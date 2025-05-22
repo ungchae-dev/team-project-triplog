@@ -1,30 +1,41 @@
 package com.javago.triplog.domain.post.service;
 
 import com.javago.triplog.domain.post.dto.AddPostRequest;
+import com.javago.triplog.domain.post.dto.PostListResponse;
 import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.repository.PostRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @Service
+@RequiredArgsConstructor
 public class PostService {
 
     private final PostRepository postRepository;
-
-    @Autowired
-    public PostService(PostRepository postRepository) {
-        this.postRepository = postRepository;
-    }
+    // 로그 확인을 위한 객체
+    private static final Logger logger = Logger.getLogger(PostService.class.getName());
 
     // 게시판에 새 글 작성
     public Post save(AddPostRequest addPostRequest) {
         return postRepository.save(addPostRequest.toEntity());
     }
 
-    public List<Post> findAll() {
-        return postRepository.findAll();
+    // 게시판 글 리스트 불러오기
+    public List<Post> findPostList() {
+        List<Post> postList = postRepository.findPostList();
+        // 로그로 확인
+        logger.info("Retrieved post list: " + postList);  // postList 객체 출력
+        return postList;
+    }
+
+    public List<Post> findAll(){
+        List<Post> postList = postRepository.findAll();
+        // 로그로 확인
+        logger.info("Retrieved post list: " + postList);  // postList 객체 출력
+        return postList;
     }
 
 }

@@ -15,22 +15,24 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class Post_Image {
 
+    // 게시판에 올린 이미지 테이블
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "image_id", updatable = false)
     private Long image_id;
 
-    @Column(name = "post_id", updatable = false, nullable = false)
-    private Long post_id;
-
     @Column(name = "image_path", updatable = false, nullable = false)
     private String image_path;
 
     @Column(name = "is_thumbnail", nullable = false)
-    private int is_thumbnail;
+    private char is_thumbnail;
 
     @CreatedDate
     @Column(name = "upload_date", updatable = false, nullable = false)
     private LocalDateTime upload_date;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", updatable = false, nullable = false)
+    private Post post;
 
 }

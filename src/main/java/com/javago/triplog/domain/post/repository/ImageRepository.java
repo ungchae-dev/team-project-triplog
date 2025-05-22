@@ -2,6 +2,8 @@ package com.javago.triplog.domain.post.repository;
 
 import com.javago.triplog.domain.post.entity.Post_Image;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface PostImageRepository extends JpaRepository<Post_Image, Long> {
+@Repository("ImageRepository")
+public interface ImageRepository extends JpaRepository<Post_Image, Long> {
 }

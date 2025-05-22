@@ -7,19 +7,15 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 
 @Getter
-@RequiredArgsConstructor
 public class PostListResponse {
 
-    private final long post_id;
-    private final String title;
-    private final String visibility;
-    private final LocalDateTime created_at;
+    private final Post post;
+    private final String thumbnail;
 
-    public PostListResponse(Post post) {
-        this.post_id = post.getPost_id();
-        this.title = post.getTitle();
-        this.visibility = post.getVisibility();
-        this.created_at = post.getCreated_at();
+    // 작성된 글 + 썸네일 url
+    public PostListResponse(Post post, String thumbnail) {
+        this.post = post;
+        this.thumbnail = thumbnail;
     }
 
 }

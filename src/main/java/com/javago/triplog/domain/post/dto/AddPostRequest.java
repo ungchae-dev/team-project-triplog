@@ -6,17 +6,15 @@ import lombok.Getter;
 @Getter
 public class AddPostRequest {
 
-    String title;
-    String content;
-    String visibility;
-    Long blog_id;
+    private String title;
+    private String content;
+    private String visibility;
 
     public Post toEntity(){
         return Post.builder()
                 .title(title)
                 .content(content)
-                .visibility(visibility)
-                .blog_id(blog_id).build();
+                .visibility(visibility).build();
     }
 
 }

@@ -4,7 +4,7 @@ package com.javago.triplog.page.main.model;
 import lombok.*;
 import jakarta.persistence.*;
 
-@Entity
+@Entity(name = "tour")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
