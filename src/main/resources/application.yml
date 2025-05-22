@@ -27,3 +27,8 @@ spring:
 # 서버 포트 지정
 server:
   port: 8085
+
+# 결제 API키 연결
+portone:
+  api-key: tosstest
+  secret-key: channel-key-8c3e9cfb-a553-471c-bea5-148c3270fea1
