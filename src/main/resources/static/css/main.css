@@ -487,6 +487,15 @@ progress {
     display: none !important;
 }
 
+
+
+.logo-img {
+    height: 30px;                 /* 실제 크기 */
+    transform: scale(4.0);        /* 시각적으로 확대 */
+    transform-origin: center;     /* 중심 기준 확대 */
+    display: inline-block;
+}
+
 .lead {
     font-size: 1.25rem;
     font-weight: 300;
@@ -11077,7 +11086,7 @@ footer a:hover, footer a:active, footer a:focus {
 }
 
 .masthead {
-    background-color: #f8f9fa;
+    background-color: #faebd7;
     padding-top: 9.5rem;
     padding-bottom: 5rem;
 }
@@ -11158,5 +11167,11 @@ footer a:hover, footer a:active, footer a:focus {
     }
     .masthead .masthead-device-mockup .device-wrapper {
         max-width: 17rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .logo-img {
+        transform: scale(1.2); /* 모바일에서 약간만 키움 */
     }
 }

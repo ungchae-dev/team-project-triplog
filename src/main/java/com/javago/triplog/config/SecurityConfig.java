@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+//spring security 기반 로그인/로그아웃 초안 (0522 동영 작성)
 @Configuration
 public class SecurityConfig {
 
