@@ -20,26 +20,59 @@
 <body id="page-top">
 <!-- Navigation-->
 <nav class="navbar navbar-expand-lg navbar-light fixed-top shadow-sm" id="mainNav">
-    <div class="container px-5">
-        <a class="navbar-brand fw-bold" href="#page-top">Start Bootstrap</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-            Menu
-            <i class="bi-list"></i>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarResponsive">
-            <ul class="navbar-nav ms-auto me-4 my-3 my-lg-0">
-                <li class="nav-item"><a class="nav-link me-lg-3" href="#features">Features</a></li>
-                <li class="nav-item"><a class="nav-link me-lg-3" href="#download">Download</a></li>
-            </ul>
-            <button class="btn btn-primary rounded-pill px-3 mb-2 mb-lg-0" data-bs-toggle="modal" data-bs-target="#feedbackModal">
-                        <span class="d-flex align-items-center">
-                            <i class="bi-chat-text-fill me-2"></i>
-                            <span class="small">Send Feedback</span>
-                        </span>
-            </button>
+    <div class="container px-5 d-flex justify-content-between align-items-center">
+
+        <!-- 중앙 Triplog 로고 -->
+        <a class="navbar-brand mx-auto fw-bold" href="/">
+            <img src="../../static/images/page/logo.png" alt="Triplog" height="40">
+        </a>
+
+        <!-- 오른쪽 메뉴 아이콘들 -->
+        <div class="d-flex align-items-center gap-3">
+
+            <!-- 내 블로그 -->
+            <div class="text-center">
+                <a href="/my-blog" class="nav-link p-0">
+                    <img src="../../static/images/page/myblog.png" alt="내 블로그" width="32">
+                    <div class="small">내 블로그</div>
+                </a>
+            </div>
+
+            <!-- 글 검색 -->
+            <div class="text-center">
+                <a href="/search" class="nav-link p-0">
+                    <img src="../../static/images/page/search.png" alt="글 검색" width="32">
+                    <div class="small">글 검색</div>
+                </a>
+            </div>
+
+            <!-- 행사/관광/맛집 -->
+            <div class="text-center">
+                <a href="/places" class="nav-link p-0">
+                    <img src="../../static/images/page/tour.png" alt="행사/관광/맛집" width="32">
+                    <div class="small">행사/관광/맛집</div>
+                </a>
+            </div>
+
+            <!-- 로그인/로그아웃 -->
+            <div class="text-center">
+                <a href="/login" class="nav-link p-0">
+                    <img src="/img/icon_login.png" alt="로그인" width="32">
+                    <div class="small">로그인</div>
+                </a>
+            </div>
+
+            <!-- 회원가입 -->
+            <div class="text-center">
+                <a href="/signup" class="nav-link p-0">
+                    <img src="/img/icon_signup.png" alt="회원가입" width="32">
+                    <div class="small">회원가입</div>
+                </a>
+            </div>
         </div>
     </div>
 </nav>
+
 <!-- Mashead header-->
 <header class="masthead">
     <div class="container px-5">
