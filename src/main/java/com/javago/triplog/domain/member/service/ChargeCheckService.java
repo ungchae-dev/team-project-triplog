@@ -11,7 +11,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class ChargeService {
+public class ChargeCheckService {
 
     @Value("${portone.api-key}")
     private String apiKey;
