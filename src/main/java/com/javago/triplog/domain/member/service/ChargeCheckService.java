@@ -13,39 +13,20 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ChargeCheckService {
 
+    private final RestTemplate restTemplate;
+
     @Value("${portone.api-key}")
     private String apiKey;
 
     @Value("${portone.secret-key}")
     private String secretKey;
 
-    private final RestTemplate restTemplate = new RestTemplate();
-
-    public String getAccessToken() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        Map<String, String> body = new HashMap<>();
-        body.put("apiKey", apiKey);
-        body.put("secretKey", secretKey);
-
-        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
-
-        ResponseEntity<Map> response = restTemplate.postForEntity(
-                "https://api.portone.io/auth/token", request, Map.class
-        );
-
-        Map data = (Map) response.getBody().get("data");
-        return (String) data.get("accessToken");
-    }
-
     public Map<String, Object> getPaymentInfo(String paymentId) {
         String accessToken = getAccessToken();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
-
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
+        headers.setBearerAuth(accessToken); // "Authorization: Bearer xxx"
+        HttpEntity<?> entity = new HttpEntity<>(headers);
 
         ResponseEntity<Map> response = restTemplate.exchange(
                 "https://api.portone.io/payments/" + paymentId,
@@ -57,5 +38,23 @@ public class ChargeCheckService {
         return (Map<String, Object>) response.getBody().get("data");
     }
 
-}
+    private String getAccessToken() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
+        Map<String, String> payload = new HashMap<>();
+        payload.put("apiKey", apiKey);
+        payload.put("secretKey", secretKey);
+
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(payload, headers);
+
+        ResponseEntity<Map> response = restTemplate.postForEntity(
+                "https://api.portone.io/auth/token",
+                request,
+                Map.class
+        );
+
+        Map data = (Map) response.getBody().get("data");
+        return (String) data.get("accessToken");
+    }
+}
