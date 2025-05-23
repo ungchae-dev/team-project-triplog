@@ -21,6 +21,21 @@
 
 </head>
 
+<style>
+    dialog {
+        border: none;
+        border-radius: 8px;
+        padding: 20px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    dialog::backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+</style>
+
 <body id="page-top">
 <!-- Navigation-->
 <nav class="navbar navbar-expand-lg navbar-light fixed-top shadow-sm" id="mainNav">
@@ -116,14 +131,19 @@
 
 </header>
 
-<!-- 지역 선택 및 결과 출력 파트-->
+<!-- 지역 선택 및 결과 출력 파트 -->
 <aside class="container mt-4" style="height: 550px; overflow: hidden;">
 
-    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#regionModal">
+    <!-- 지역 선택 버튼 -->
+    <button id="openRegionDialogBtn" class="btn btn-outline-primary">
         지역
     </button>
+    <span class="selectedRegionName" class="ms-2 fw-bold">서울</span>
+
+    <!-- 행사 목록 출력 -->
     <div id="eventList" class="row row-cols-4 g-4"></div>
 
+    <!-- 페이지 버튼 및 더보기 -->
     <div class="d-flex justify-content-between mt-3">
         <button id="prevPageBtn" class="btn btn-secondary">이전</button>
         <button id="nextPageBtn" class="btn btn-secondary">다음</button>
@@ -133,52 +153,40 @@
 
 
 
-<!-- 지역 선택 모달 -->
-<div class="modal fade" id="regionModal" tabindex="-1" aria-labelledby="regionModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="regionModalLabel">지역 선택</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body d-flex">
-                <!-- 왼쪽: 지역 버튼 목록 -->
-                <div class="w-50 px-3">
-                    <h6>광역시/도</h6>
-                    <div class="d-flex flex-wrap gap-2">
-                        <button class="btn btn-outline-primary region-btn" data-code="1">서울</button>
-                        <button class="btn btn-outline-primary region-btn" data-code="2">인천</button>
-                        <button class="btn btn-outline-primary region-btn" data-code="3">대전</button>
-                        <button class="btn btn-outline-primary region-btn" data-code="4">대구</button>
-                        <button class="btn btn-outline-primary region-btn" data-code="5">광주</button>
-                        <button class="btn btn-outline-primary region-btn" data-code="6">부산</button>
-                        <button class="btn btn-outline-primary region-btn" data-code="7">울산</button>
-                        <button class="btn btn-outline-primary region-btn" data-code="8">세종</button>
-                        <button class="btn btn-outline-primary region-btn" data-code="31">경기</button>
-                        <button class="btn btn-outline-primary region-btn" data-code="32">강원</button>
-                        <button class="btn btn-outline-primary region-btn" data-code="33">충북</button>
-                        <button class="btn btn-outline-primary region-btn" data-code="34">충남</button>
-                        <button class="btn btn-outline-primary region-btn" data-code="35">경북</button>
-                        <button class="btn btn-outline-primary region-btn" data-code="36">경남</button>
-                        <button class="btn btn-outline-primary region-btn" data-code="37">전북</button>
-                        <button class="btn btn-outline-primary region-btn" data-code="38">전남</button>
-                        <button class="btn btn-outline-primary region-btn" data-code="39">제주</button>
-                    </div>
-                </div>
 
-                <!-- 오른쪽: 선택 정보 및 확인 버튼 -->
-                <div class="w-50 p-3 d-flex flex-column justify-content-center align-items-center border-start">
-                    <p class="mb-3">
-                        선택한 지역: <strong id="selectedRegionName">없음</strong>
-                    </p>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-primary" id="confirmRegionBtn">확인</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!--지역 선택 다이얼로그 -->
+<dialog id="regionDialog">
+    <h5>지역을 선택하세요</h5>
+    <div id="regionButtons" class="mb-3">
+        <!-- 지역 버튼들 -->
+
+        <button class="region-btn btn btn-outline-secondary m-1 active" data-code="1">서울</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="2">인천</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="3">대전</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="4">대구</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="5">광주</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="6">부산</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="7">울산</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="8">세종</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="31">경기도</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="32">강원</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="33">충북</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="34">충남</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="35">경북</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="36">경남</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="37">전북</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="38">전남</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="39">제주도</button>
+
     </div>
-</div>
+
+    <div class="mb-3">선택된 지역: <span id="selectedRegionName">서울</span></div>
+
+    <div class="d-flex justify-content-end gap-2">
+        <button id="cancelRegionBtn" class="btn btn-secondary">취소</button>
+        <button id="confirmRegionBtn" class="btn btn-primary">확인</button>
+    </div>
+</dialog>
 
 
 <!-- App features section-->
