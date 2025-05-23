@@ -1,4 +1,4 @@
-async function requestPayments() {
+async function requestPayments() {  /*상품설정 및 결제창 연동*/
     const item = {
         id: "acorn_100",
         name: "도토리 100개",
