@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>글 조회</title>
+</head>
+<body>
+    <h2>글 작성</h2>
+
+    <label>제목</label><br>
+    <div id="title" th:text="${post.title}"></div><br>
+
+    <label>내용</label><br>
+    <div id="content" th:text="${post.content}"></div><br>
+

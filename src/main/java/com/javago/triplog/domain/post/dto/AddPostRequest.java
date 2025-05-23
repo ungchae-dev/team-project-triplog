@@ -9,12 +9,14 @@ public class AddPostRequest {
     private String title;
     private String content;
     private String visibility;
+    private Long blog_id;
 
     public Post toEntity(){
         return Post.builder()
                 .title(title)
                 .content(content)
-                .visibility(visibility).build();
+                .visibility(visibility)
+                .build();
     }
 
 }

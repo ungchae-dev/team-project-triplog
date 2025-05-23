@@ -1,5 +1,6 @@
 package com.javago.triplog.domain.post.entity;
 
+import com.javago.triplog.domain.blog.entity.Blog;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,6 +55,10 @@ public class Post {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post_Image> post_image = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "blog_id", updatable = false, nullable = false)
+    private Blog blog;
 
     @Builder
     private Post(String title, String content, String visibility) {

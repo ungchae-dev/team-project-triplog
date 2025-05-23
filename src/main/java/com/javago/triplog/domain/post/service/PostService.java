@@ -4,6 +4,7 @@ import com.javago.triplog.domain.post.dto.AddPostRequest;
 import com.javago.triplog.domain.post.dto.PostListResponse;
 import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.repository.PostRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,11 +33,15 @@ public class PostService {
         return postList;
     }
 
-    public List<Post> findAll(){
-        List<Post> postList = postRepository.findAll();
-        // 로그로 확인
-        logger.info("Retrieved post list: " + postList);  // postList 객체 출력
-        return postList;
+    // 게시판 글 조회
+    @Transactional
+    public Post findById(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 글이 없습니다. ID : " + id));
+        if(post != null) {
+            postRepository.updateViewCount(id);
+        }
+        logger.info("Retrieved post: " + post);
+        return post;
     }
 
 }

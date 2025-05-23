@@ -123,15 +123,17 @@
     const title = document.getElementById('title').value;
     const content = editor.innerHTML;
     const visibility = document.querySelector('input[name="visibility"]:checked').value;
+    // 확인용 블로그 아이디 설정
+    const blog_Id = 1;
 
     const data = {
       title,
       content,
-      visibility
+      visibility,
+      blog_Id
     };
 
-    // 확인용 블로그 아이디 설정
-    // const blog_Id = 1;
+
 
     const res = await fetch(`/api/write`, {
       method: 'POST',
@@ -141,7 +143,7 @@
 
     if (res.ok) {
       alert('글 작성 완료!');
-      location.href = `list`;
+      location.replace = `post/list`;
     } else {
       alert('작성 실패');
     }
