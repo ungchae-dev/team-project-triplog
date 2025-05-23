@@ -10,13 +10,13 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class MainService {
-    private final PostRepository postRepository;
+    private final MainRepository mainRepository;
 
-    public List<Post> getWeeklyBestPosts() {
-        return postRepository.findTop4ByOrderByLikesDesc();
+    public List<Main> getWeeklyBestPosts() {
+        return mainRepository.findTop4ByOrderByLikesDesc();
     }
 
-    public List<Post> getTop4ByRegionAndCategory(String region, CategoryType category) {
-        return postRepository.findTop4ByRegionAndCategoryOrderByTitleAsc(region, category);
+    public List<Main> getTop4ByRegionAndCategory(String region, CategoryType category) {
+        return mainRepository.findTop4ByRegionAndCategoryOrderByTitleAsc(region, category);
     }
 }

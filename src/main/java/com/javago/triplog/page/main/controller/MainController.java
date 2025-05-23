@@ -15,13 +15,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class MainController {
     private final MainService mainService;
 
+    //메인페이지로 mapping
     @GetMapping("/")
     public String mainPage(@RequestParam(defaultValue = "서울") String region, Model model) {
-        model.addAttribute("weeklyBest", mainService.getWeeklyBestPosts());
-        model.addAttribute("events", mainService.getTop4ByRegionAndCategory(region, CategoryType.EVENT));
-        model.addAttribute("tourism", mainService.getTop4ByRegionAndCategory(region, CategoryType.TOURISM));
-        model.addAttribute("food", mainService.getTop4ByRegionAndCategory(region, CategoryType.FOOD));
-        model.addAttribute("selectedRegion", region);
-        return "../../../../../resources/template/page/mainpage";
+        //List<PostDto> bestPosts = postService.findTop4ByLikes(); // 좋아요 많은 순으로 정렬된 4개
+        //model.addAttribute("bestPosts", bestPosts);
+        return "mainpage";
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
     }
 }

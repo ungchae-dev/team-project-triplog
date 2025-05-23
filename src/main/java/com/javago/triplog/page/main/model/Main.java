@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class Post {
+public class Main {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
