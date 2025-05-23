@@ -487,7 +487,11 @@ progress {
     display: none !important;
 }
 
-
+.region-btn.active {
+    background-color: #faebd7;   /* Bootstrap primary */
+    color: white;
+    font-weight: bold;
+}
 
 .logo-img {
     height: 30px;                 /* 실제 크기 */
@@ -2855,19 +2859,19 @@ textarea.form-control-lg {
 
 .btn-primary {
     --bs-btn-color: #fff;
-    --bs-btn-bg: #2937f0;
-    --bs-btn-border-color: #2937f0;
+    --bs-btn-bg: #faebd7;
+    --bs-btn-border-color: #faebd7;
     --bs-btn-hover-color: #fff;
-    --bs-btn-hover-bg: #232fcc;
-    --bs-btn-hover-border-color: #212cc0;
+    --bs-btn-hover-bg: #d2b48c;
+    --bs-btn-hover-border-color: #d2b48c;
     --bs-btn-focus-shadow-rgb: 73, 85, 242;
     --bs-btn-active-color: #fff;
-    --bs-btn-active-bg: #212cc0;
-    --bs-btn-active-border-color: #1f29b4;
+    --bs-btn-active-bg: #d2b48c;
+    --bs-btn-active-border-color: #d2b48c;
     --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
     --bs-btn-disabled-color: #fff;
-    --bs-btn-disabled-bg: #2937f0;
-    --bs-btn-disabled-border-color: #2937f0;
+    --bs-btn-disabled-bg: #faebd7;
+    --bs-btn-disabled-border-color: #faebd7;
 }
 
 .btn-secondary {
@@ -2990,19 +2994,19 @@ textarea.form-control-lg {
 }
 
 .btn-outline-primary {
-    --bs-btn-color: #2937f0;
-    --bs-btn-border-color: #2937f0;
+    --bs-btn-color: #faebd7;
+    --bs-btn-border-color: #faebd7;
     --bs-btn-hover-color: #fff;
-    --bs-btn-hover-bg: #2937f0;
-    --bs-btn-hover-border-color: #2937f0;
+    --bs-btn-hover-bg: #faebd7;
+    --bs-btn-hover-border-color: #faebd7;
     --bs-btn-focus-shadow-rgb: 41, 55, 240;
     --bs-btn-active-color: #fff;
-    --bs-btn-active-bg: #2937f0;
-    --bs-btn-active-border-color: #2937f0;
+    --bs-btn-active-bg: #faebd7;
+    --bs-btn-active-border-color: #faebd7;
     --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-    --bs-btn-disabled-color: #2937f0;
+    --bs-btn-disabled-color: #faebd7;
     --bs-btn-disabled-bg: transparent;
-    --bs-btn-disabled-border-color: #2937f0;
+    --bs-btn-disabled-border-color: #faebd7;
     --bs-gradient: none;
 }
 
@@ -10843,7 +10847,7 @@ html {
 }
 
 .bg-gradient-primary-to-secondary {
-    background: linear-gradient(45deg, #2937f0, #9f1ae2) !important;
+
 }
 
 .font-alt {
