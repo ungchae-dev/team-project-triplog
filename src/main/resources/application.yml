@@ -27,3 +27,11 @@ spring:
 # 서버 포트 지정
 server:
   port: 8085
+
+# 결제 API키 연결
+portone:
+  imp-key: "5202336544001223"
+  imp-secret: "ftSR1sAELSvBytxpz7B3dAk5hEOs7C1LZ9h7oqwvvirOoxi8rjtfALpV7jlRbfrQVUNygsrUcrkTqFCo"
+  store-id: "store-4e640aa5-588e-43a9-acf5-ebaeff70b074"
+  channel-key: "channel-key-8c3e9cfb-a553-471c-bea5-148c3270fea1"
+
