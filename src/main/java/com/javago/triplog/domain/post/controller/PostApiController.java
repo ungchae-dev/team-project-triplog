@@ -58,7 +58,7 @@ public class PostApiController {
             image.setPost_id(post.getPost_id());
             image.setImage_path(url);
             if(i == 0){
-                image.setIs_thumbnail(1);
+                image.setIs_thumbnail("N");
             }
             postImageRepository.save(image);
         }
