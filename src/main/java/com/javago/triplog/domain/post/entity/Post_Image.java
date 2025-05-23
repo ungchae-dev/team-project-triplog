@@ -17,10 +17,12 @@ public class Post_Image {
 
     // 게시판에 올린 이미지 테이블
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_image_seq")
+    @SequenceGenerator(name = "post_image_seq", sequenceName = "post_image_seq", allocationSize = 1)
     @Column(name = "image_id", updatable = false)
     private Long image_id;
 
+    @Lob
     @Column(name = "image_path", updatable = false, nullable = false)
     private String image_path;
 

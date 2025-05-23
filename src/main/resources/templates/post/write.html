@@ -44,8 +44,8 @@
 
   <input type="file" id="imageInput" accept="image/*"><br><br>
 
-  <input type="radio" name="visibility" value="public" checked>전체 공개
-  <input type="radio" name="visibility" value="private">비공개
+  <input type="radio" name="visibility" value="PUBLIC" checked>전체 공개
+  <input type="radio" name="visibility" value="PRIVATE">비공개
 
   <button type="submit">작성</button>
 </form>
@@ -123,17 +123,14 @@
     const title = document.getElementById('title').value;
     const content = editor.innerHTML;
     const visibility = document.querySelector('input[name="visibility"]:checked').value;
-    // 확인용 블로그 아이디 설정
-    const blog_Id = 1;
 
     const data = {
       title,
       content,
       visibility,
-      blog_Id
+      // 확인용 블로그 아이디 설정
+      blogId: 1
     };
-
-
 
     const res = await fetch(`/api/write`, {
       method: 'POST',
@@ -143,7 +140,7 @@
 
     if (res.ok) {
       alert('글 작성 완료!');
-      location.replace = `post/list`;
+      location.replace('post/list');
     } else {
       alert('작성 실패');
     }

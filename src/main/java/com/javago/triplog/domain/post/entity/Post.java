@@ -17,12 +17,13 @@ import java.util.List;
 @Entity
 @Getter
 @Check(constraints = "visibility IN ('PUBLIC', 'PRIVATE')")
-//@EntityListeners(AuditingEntityListener.class)
+@EntityListeners(AuditingEntityListener.class)
 public class Post {
 
     // 게시판 작성글 테이블
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_seq")
+    @SequenceGenerator(name = "post_seq", sequenceName = "post_seq", allocationSize = 1)
     @Column(name = "post_id", updatable = false)
     private Long post_id;
 
@@ -56,15 +57,16 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post_Image> post_image = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "blog_id", updatable = false, nullable = false)
     private Blog blog;
 
     @Builder
-    private Post(String title, String content, String visibility) {
+    private Post(String title, String content, String visibility, Blog blog) {
         this.title = title;
         this.content = content;
         this.visibility = visibility;
+        this.blog = blog;
     }
 
     public Post() {

@@ -5,6 +5,7 @@ import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.entity.Post_Image;
 import com.javago.triplog.domain.post.repository.ImageRepository;
 import com.javago.triplog.domain.post.service.PostService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -28,6 +29,7 @@ public class PostApiController {
 
     // 나중에 추가 @PathVariable long blog_id
     // 게시판 글 작성
+    //@Transactional
     @PostMapping("/api/write")
     public ResponseEntity<Post> addPost(@RequestBody AddPostRequest request) {
         Post addPost = postService.save(request);
