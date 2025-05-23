@@ -1,9 +1,8 @@
-async function requestPay() {
+async function requestPayments() {
     const item = {
         id: "acorn_100",
         name: "도토리 100개",
         price: 10000,
-        currency: "KRW"
     }
 
     const paymentId = crypto.randomUUID();
@@ -14,36 +13,16 @@ async function requestPay() {
         paymentId: paymentId,
         orderName: item.name,
         totalAmount: item.price,
-        currency: item.currency,
+        currency: "CURRENCY_KRW",
         payMethod: "EASY_PAY",
         customData: {
             item: item.id
         }
     });
 
-    console.log("✅ 결제된 paymentId:", payment.paymentId);
-    console.log("✅ 전체 응답 내용:", payment);
+    console.log("결제 응답:", payment);
 
-    if (payment.code !== undefined) {
-        alert("결제 실패: " + payment.message);
-        return;
-    }
 
-    const response = await fetch("/api/payment/complete", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ paymentId: payment.paymentId })
-    });
+    alert("도토리가 충전되었습니다!");
 
-    if (response.ok) {
-        const result = await response.json();
-        if (result.status === "PAID") {
-            alert(`결제 성공! 도토리 ${result.charged}개가 충전되었습니다.`);
-            location.href = "";
-        }
-    } else {
-        alert("결제 검증 실패");
-    }
 }
