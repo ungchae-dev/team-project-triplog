@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <title>커뮤니티 글 작성</title>
@@ -140,7 +140,7 @@
 
     if (res.ok) {
       alert('글 작성 완료!');
-      location.replace('post/list');
+      location.replace('/post/list');
     } else {
       alert('작성 실패');
     }

@@ -35,12 +35,12 @@
         <div>
             <!-- 썸네일이 있으면 보여주고, 없으면 기본 이미지를 출력 -->
             <img th:if="${post.thumbnail != null}" th:src="@{${post.thumbnail}}" alt="썸네일" class="thumbnail"/>
-            <img th:if="${post.thumbnail == null}" th:src="@{/images/default-thumbnail.jpg}" alt="기본 썸네일" class="thumbnail"/>
         </div>
         <div class="title">
             <!-- 게시글 제목 -->
             <a th:href="@{'/post/' + ${post.post.post_id}}" th:text="${post.post.title}">게시글 제목</a>
         </div>
+        <div th:text="'조회수 | ' + ${post.post.view_count}"></div>
         <div class="meta" th:text="${post.post.created_at}">작성일</div>
     </div>
 </div>

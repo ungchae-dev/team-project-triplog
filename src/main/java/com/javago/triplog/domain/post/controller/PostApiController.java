@@ -29,7 +29,7 @@ public class PostApiController {
 
     // 나중에 추가 @PathVariable long blog_id
     // 게시판 글 작성
-    //@Transactional
+    @Transactional
     @PostMapping("/api/write")
     public ResponseEntity<Post> addPost(@RequestBody AddPostRequest request) {
         Post addPost = postService.save(request);

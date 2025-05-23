@@ -21,14 +21,10 @@ public class PostViewController {
     private static final Logger logger = Logger.getLogger(PostViewController.class.getName());
 
     // 게시판 글 목록
-    @GetMapping("post/list")
+    @GetMapping("/post/list")
     public String list(Model model) {
         // List<Post> postList = postService.findPostList();
         List<PostListResponse> postList = postService.findPostList();
-
-        // 로그로 확인
-        logger.info("Post List for view: " + postList);  // postList 객체 출력
-
         model.addAttribute("postList", postList);
         return "post/list";
     }
@@ -37,15 +33,13 @@ public class PostViewController {
     @GetMapping("/post/{id}")
     public String getArticle(@PathVariable Long id, Model model) {
         Post post = postService.findById(id);
-
-        logger.info("Post: " + post);
         model.addAttribute("post", post);
         return "post/detail";
     }
 
     @GetMapping("/write")
     public String write(Model model) {
-        Post post = new Post();
+        model.addAttribute("post", new Post());
         return "post/write";
     }
 
