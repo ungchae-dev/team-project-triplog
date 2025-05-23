@@ -37,6 +37,7 @@ public class PostViewController {
         return "post/detail";
     }
 
+    // 게시판 글 작성
     @GetMapping("/write")
     public String write(Model model) {
         model.addAttribute("post", new Post());
