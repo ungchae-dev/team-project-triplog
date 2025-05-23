@@ -23,11 +23,12 @@ public class Post_Image {
     @Column(name = "post_id", updatable = false, nullable = false)
     private Long post_id;
 
+    @Lob
     @Column(name = "image_path", updatable = false, nullable = false)
     private String image_path;
 
-    @Column(name = "is_thumbnail", nullable = false)
-    private int is_thumbnail;
+    @Column(name = "is_thumbnail", columnDefinition = "CHAR", nullable = false)
+    private String is_thumbnail;
 
     @CreatedDate
     @Column(name = "upload_date", updatable = false, nullable = false)

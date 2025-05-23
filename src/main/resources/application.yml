@@ -14,9 +14,9 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
-      # 또는 validate, create 등
-      # 프로젝트를 실행할 때 엔티티를 기반으로 자동으로 테이블을 생성하거나 수정
+      ddl-auto: validate
+      # 또는 update, create 등
+      # validate: 엔티티와 DB 테이블 구조가 다르면 애플리케이션 시작 시 에러 발생
     show-sql: true
     properties:
       hibernate:
