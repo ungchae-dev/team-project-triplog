@@ -16,7 +16,7 @@ import java.util.List;
 @Entity
 @Getter
 @Check(constraints = "visibility IN ('PUBLIC', 'PRIVATE')")
-@EntityListeners(AuditingEntityListener.class)
+//@EntityListeners(AuditingEntityListener.class)
 public class Post {
 
     // 게시판 작성글 테이블

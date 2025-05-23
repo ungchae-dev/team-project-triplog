@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 public class PostService {
 
     private final PostRepository postRepository;
+
     // 로그 확인을 위한 객체
     private static final Logger logger = Logger.getLogger(PostService.class.getName());
 
@@ -24,8 +25,8 @@ public class PostService {
     }
 
     // 게시판 글 리스트 불러오기
-    public List<Post> findPostList() {
-        List<Post> postList = postRepository.findPostList();
+    public List<PostListResponse> findPostList() {
+        List<PostListResponse> postList = postRepository.findPostList();
         // 로그로 확인
         logger.info("Retrieved post list: " + postList);  // postList 객체 출력
         return postList;

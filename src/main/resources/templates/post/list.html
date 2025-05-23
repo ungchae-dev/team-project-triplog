@@ -38,7 +38,7 @@
             <!-- 게시글 제목 -->
             <a th:href="@{'/post/' + ${post.post.post_id}}" th:text="${post.post.title}">게시글 제목</a>
         </div>
-        <div class="meta" th:text="${post.post.createdAt}">작성일</div>
+        <div class="meta" th:text="${post.post.created_at}">작성일</div>
     </div>
 </div>
 </body>

@@ -23,7 +23,7 @@ public class PostViewController {
     @GetMapping("/list")
     public String list(Model model) {
         // List<Post> postList = postService.findPostList();
-        List<Post> postList = postService.findAll();
+        List<PostListResponse> postList = postService.findPostList();
 
         // 로그로 확인
         logger.info("Post List for view: " + postList);  // postList 객체 출력
