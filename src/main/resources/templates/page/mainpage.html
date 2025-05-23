@@ -16,7 +16,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;1,400&amp;display=swap" rel="stylesheet" />
     <!-- Core theme CSS (includes Bootstrap)-->
     <link href="../../static/css/main.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </head>
+
+<style>
+    dialog {
+        border: none;
+        border-radius: 8px;
+        padding: 20px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    dialog::backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+</style>
+
 <body id="page-top">
 <!-- Navigation-->
 <nav class="navbar navbar-expand-lg navbar-light fixed-top shadow-sm" id="mainNav">
@@ -111,17 +130,65 @@
     </section>
 
 </header>
-<!-- Quote/testimonial aside-->
-<aside class="text-center bg-gradient-primary-to-secondary">
-    <div class="container px-5">
-        <div class="row gx-5 justify-content-center">
-            <div class="col-xl-8">
-                <div class="h2 fs-1 text-white mb-4">"An intuitive solution to a common problem that we all face, wrapped up in a single app!"</div>
-                <img src="assets/img/tnw-logo.svg" alt="..." style="height: 3rem" />
-            </div>
-        </div>
+
+<!-- 지역 선택 및 결과 출력 파트 -->
+<aside class="container mt-4" style="height: 550px; overflow: hidden;">
+
+    <!-- 지역 선택 버튼 -->
+    <button id="openRegionDialogBtn" class="btn btn-outline-primary">
+        지역
+    </button>
+    <span class="selectedRegionName" class="ms-2 fw-bold">서울</span>
+
+    <!-- 행사 목록 출력 -->
+    <div id="eventList" class="row row-cols-4 g-4"></div>
+
+    <!-- 페이지 버튼 및 더보기 -->
+    <div class="d-flex justify-content-between mt-3">
+        <button id="prevPageBtn" class="btn btn-secondary">이전</button>
+        <button id="nextPageBtn" class="btn btn-secondary">다음</button>
+        <button onclick="location.href='tourpage.html'" class="btn btn-primary">더보기</button>
     </div>
 </aside>
+
+
+
+
+<!--지역 선택 다이얼로그 -->
+<dialog id="regionDialog">
+    <h5>지역을 선택하세요</h5>
+    <div id="regionButtons" class="mb-3">
+        <!-- 지역 버튼들 -->
+
+        <button class="region-btn btn btn-outline-secondary m-1 active" data-code="1">서울</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="2">인천</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="3">대전</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="4">대구</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="5">광주</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="6">부산</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="7">울산</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="8">세종</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="31">경기도</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="32">강원</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="33">충북</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="34">충남</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="35">경북</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="36">경남</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="37">전북</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="38">전남</button>
+        <button class="region-btn btn btn-outline-secondary m-1" data-code="39">제주도</button>
+
+    </div>
+
+    <div class="mb-3">선택된 지역: <span id="selectedRegionName">서울</span></div>
+
+    <div class="d-flex justify-content-end gap-2">
+        <button id="cancelRegionBtn" class="btn btn-secondary">취소</button>
+        <button id="confirmRegionBtn" class="btn btn-primary">확인</button>
+    </div>
+</dialog>
+
+
 <!-- App features section-->
 <section id="features">
     <div class="container px-5">
@@ -322,5 +389,6 @@
 <!-- * * Activate your form at https://startbootstrap.com/solution/contact-forms * *-->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
 <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
+<script src="../../static/js/main_regionselect.js"></script>
 </body>
 </html>
