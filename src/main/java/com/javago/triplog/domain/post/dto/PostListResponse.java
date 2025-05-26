@@ -2,9 +2,6 @@ package com.javago.triplog.domain.post.dto;
 
 import com.javago.triplog.domain.post.entity.Post;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Getter
 public class PostListResponse {

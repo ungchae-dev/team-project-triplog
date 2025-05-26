@@ -13,17 +13,12 @@
     <label>게시글 ID</label><br>
     <div id="post_id" th:text="${post.post_id}"></div><br>
 
-    <label>제목</label><br>
-    <div id="title" th:text="${post.title} + '&nbsp&nbsp&nbsp&nbsp조회수 | ' + ${post.view_count}"></div><br>
+    <label hidden>제목</label><br>
+    <div id="title" th:text="'제목 | ' + ${post.title} + '&nbsp;&nbsp;조회수 | ' + ${post.view_count}"></div><br>
 
     <label>내용</label><br>
     <div id="content" th:utext="${post.content}"></div><br>
 
-    <script>
-        function stripHtml(html) {
-            const tempDiv = document.createElement("div");
-            tempDiv.innerHTML = html;
-            return tempDiv.textContent || tempDiv.innerText || "";
-        }
-    </script>
+    <button type="button" th:onclick="|location.href='@{/post/{id}/edit(id=${post.post_id})}'|">수정</button>
 </body>
+</html>

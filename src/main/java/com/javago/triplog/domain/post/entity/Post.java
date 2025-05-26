@@ -69,7 +69,25 @@ public class Post {
         this.blog = blog;
     }
 
+    public void update(String title, String content, String visibility) {
+        this.title = title;
+        this.content = content;
+        this.visibility = visibility;
+    }
+
     public Post() {
 
     }
+
+    public Post(Post post){
+        this.post_id = post.post_id;
+        this.title = post.title;
+        this.content = post.content;
+        this.created_at = post.created_at;
+        this.updated_at = post.updated_at;
+        this.visibility = post.visibility;
+        this.view_count = post.view_count;
+        this.blog = post.blog;
+    }
+
 }

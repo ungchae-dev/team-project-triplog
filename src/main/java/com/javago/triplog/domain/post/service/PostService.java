@@ -4,6 +4,7 @@ import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.blog.repository.BlogRepository;
 import com.javago.triplog.domain.post.dto.AddPostRequest;
 import com.javago.triplog.domain.post.dto.PostListResponse;
+import com.javago.triplog.domain.post.dto.UpdatePostRequest;
 import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.repository.PostRepository;
 import jakarta.transaction.Transactional;
@@ -45,6 +46,13 @@ public class PostService {
             postRepository.updateViewCount(id);
         }
         logger.info("Retrieved post: " + post);
+        return post;
+    }
+
+    // 게시판 글 수정
+    public Post updatePost(Long id, UpdatePostRequest request) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Post not found"));
+        post.update(request.getTitle(), request.getContent(), request.getVisibility());
         return post;
     }
 

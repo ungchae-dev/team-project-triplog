@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <title>커뮤니티 글 작성</title>
@@ -63,18 +63,20 @@
 </head>
 <body>
 <h2>글 작성</h2>
-<form id="postForm">
+<form id="postForm" th:attr="data-id=${post.post_id}">
   <label>제목</label><br>
-  <div id="title" contenteditable="true"></div><br>
+  <div id="title" contenteditable="true" th:utext="${post.title}"></div><br>
 
   <label>내용</label><br>
-  <div id="editor" contenteditable="true"></div><br>
+  <div id="editor" contenteditable="true" th:utext="${post.content}"></div><br>
   <button id="deleteBtn" class="delete-btn" type="button">×</button>
 
   <input type="file" id="imageInput" accept="image/*"><br><br>
 
-  <input type="radio" name="visibility" value="PUBLIC" checked>전체 공개
-  <input type="radio" name="visibility" value="PRIVATE">비공개
+  <input type="radio" name="visibility" value="PUBLIC"
+       th:attr="checked=${post.visibility == null or post.visibility == 'PUBLIC'}">전체 공개
+  <input type="radio" name="visibility" value="PRIVATE"
+       th:attr="checked=${post.visibility == 'PRIVATE'}">비공개
   <br>
 
   <button type="submit">작성</button>
@@ -159,7 +161,13 @@
     const title = document.getElementById('title').innerText.trim();
     const content = editor.innerHTML;
     const text = editor.innerText.trim();
-    const visibility = document.querySelector('input[name="visibility"]:checked').value;
+    const visibilityInput = document.querySelector('input[name="visibility"]:checked');
+    const visibility = visibilityInput.value;
+
+    if(!visibility){
+      alert("공개 여부를 설정해주세요");
+      return;
+    }
 
     if (!title){
       alert("제목을 입력해주세요");
@@ -178,15 +186,21 @@
       blogId: 1
     };
 
-    const res = await fetch(`/api/write`, {
-      method: 'POST',
+    console.log(title, content, visibility);
+
+    const postForm = document.getElementById("postForm");
+    const postId = postForm.dataset.id;
+    const isModify = !!postId;
+
+    const res = await fetch(isModify ? `/api/write/${postId}` : `/api/write`, {
+      method: isModify ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
 
     if (res.ok) {
       alert('글 작성 완료!');
-      location.replace('/post/list');
+      location.replace(isModify ? `/post/${postId}` : `/post/list`);
     } else {
       alert('작성 실패');
     }

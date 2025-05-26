@@ -28,7 +28,7 @@
 <body>
 <h2>게시글 목록</h2>
 
-<button th:onclick="|location.href='@{/write}'|" type="button">글 작성</button>
+<button th:onclick="|location.href='@{/post/write}'|" type="button">글 작성</button>
 
 <div>
     <div th:each="post : ${postList}" class="post">
@@ -42,6 +42,7 @@
         </div>
         <div th:text="'조회수 | ' + ${post.post.view_count}"></div>
         <div class="meta" th:text="${post.post.created_at}">작성일</div>
+        <div th:text="${post.post.updated_at}">수정일</div>
     </div>
 </div>
 </body>

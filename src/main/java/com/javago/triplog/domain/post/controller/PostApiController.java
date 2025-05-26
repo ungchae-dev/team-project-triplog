@@ -1,6 +1,7 @@
 package com.javago.triplog.domain.post.controller;
 
 import com.javago.triplog.domain.post.dto.AddPostRequest;
+import com.javago.triplog.domain.post.dto.UpdatePostRequest;
 import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.entity.Post_Image;
 import com.javago.triplog.domain.post.repository.ImageRepository;
@@ -13,7 +14,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,6 +39,17 @@ public class PostApiController {
         List<String> imgurl = parseImageUrl(request.getContent());
         saveimage(imgurl, addPost);
         return ResponseEntity.status(HttpStatus.CREATED).body(addPost);
+    }
+
+    // 게시판 글 수정
+    @Transactional
+    @PutMapping("/api/write/{id}")
+    public ResponseEntity<Post> updatePost(@PathVariable("id") Long id, @RequestBody UpdatePostRequest request) {
+        Post updatePost = postService.updatePost(id, request);
+        imageRepository.deleteByPost(updatePost);
+        List<String> imgurl = parseImageUrl(request.getContent());
+        saveimage(imgurl, updatePost);
+        return ResponseEntity.ok().body(updatePost);
     }
 
     // 글 내용 html 그대로 저장, 태그로 이미지 url 추출

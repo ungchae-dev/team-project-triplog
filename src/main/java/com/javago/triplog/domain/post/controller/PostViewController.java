@@ -31,16 +31,24 @@ public class PostViewController {
 
     // 하나의 게시판 글 반환
     @GetMapping("/post/{id}")
-    public String getArticle(@PathVariable Long id, Model model) {
+    public String getArticle(@PathVariable("id") Long id, Model model) {
         Post post = postService.findById(id);
         model.addAttribute("post", post);
         return "post/detail";
     }
 
     // 게시판 글 작성
-    @GetMapping("/write")
+    @GetMapping("/post/write")
     public String write(Model model) {
         model.addAttribute("post", new Post());
+        return "post/write";
+    }
+
+    // 게시판 글 수정
+    @GetMapping("/post/{id}/edit")
+    public String modify(@PathVariable("id") Long id, Model model) {
+        Post post = postService.findById(id);
+        model.addAttribute("post", new Post(post));
         return "post/write";
     }
 
