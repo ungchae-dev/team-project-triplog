@@ -29,6 +29,10 @@ spring:
     livereload:
       enabled: true
 
+  # Thymeleaf cache 사용 중지 => 캐싱 기능을 false로 설정
+  thymeleaf:
+    cache: false
+
 # 서버 포트 지정
 server:
   port: 8085
