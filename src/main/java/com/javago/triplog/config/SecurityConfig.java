@@ -15,30 +15,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests((auth) -> auth
-                        .anyRequest().permitAll()
-                )
-                .formLogin((form) -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
-                        .permitAll()
-                )
-                .logout((logout) -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
-                );
-
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         return http.build();
     }
-
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails user = User
-                .withUsername("user")
-                .password("{noop}password")
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(user);
-    }
 }
-
