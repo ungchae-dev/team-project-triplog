@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // API 호출 함수
     function fetchEventsByAreaCode(areaCode) {
-        fetch(`https://apis.data.go.kr/B551011/KorService1/searchFestival1?numOfRows=12&pageNo=1&MobileOS=ETC&MobileApp=AppTest&_type=json&eventStartDate=20250615&areaCode=${areaCode}&serviceKey=WE8zMSHqcnIgkNM8%2BArCN71r3exZEj%2FG4cPNj9NW8bb4quc1fmi2oxTpPF1C1aWmDl%2FXeAWBqQO6XMjJlShceg%3D%3D`)
+        fetch(`https://apis.data.go.kr/B551011/KorService1/searchFestival1?numOfRows=12&pageNo=1&MobileOS=ETC&MobileApp=AppTest&_type=json&eventStartDate=20250101&areaCode=${areaCode}&serviceKey=WE8zMSHqcnIgkNM8%2BArCN71r3exZEj%2FG4cPNj9NW8bb4quc1fmi2oxTpPF1C1aWmDl%2FXeAWBqQO6XMjJlShceg%3D%3D`)
             .then(res => res.json())
             .then(data => {
                 eventsData = data.response.body.items.item || [];
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(err => console.error("API 요청 실패:", err));
     }
 
-    // 이벤트 렌더링
+    // 행사 정보 렌더링
     function renderEventList() {
         const start = (currentPage - 1) * eventsPerPage;
         const end = start + eventsPerPage;
