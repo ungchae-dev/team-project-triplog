@@ -20,11 +20,11 @@ public class MainController {
     public String mainPage(@RequestParam(defaultValue = "서울") String region, Model model) {
         //List<PostDto> bestPosts = postService.findTop4ByLikes(); // 좋아요 많은 순으로 정렬된 4개
         //model.addAttribute("bestPosts", bestPosts);
-        return "mainpage";
+        return "page/mainpage";
     }
 
     @GetMapping("/login")
     public String login() {
-        return "login";
+        return "member/register_login";
     }
 }
