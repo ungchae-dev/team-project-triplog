@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="../../static/css/register_login.css" rel="stylesheet">
+  <title>회원가입·로그인</title>
+</head>
+<body>
+
+<div class="container right-panel-active">
+      <!-- 회원가입, Sign Up -->
+      <div class="container__form container--signup">
+        <form action="#" class="form" id="form1">
+          <h2 class="form__title">회원가입</h2>
+
+      <input type="text" name="member_id" placeholder="아이디" class="input" required />
+      <input type="text" name="name" placeholder="이름" class="input" required />
+      <input type="text" name="ssn" placeholder="주민등록번호( - 포함 앞: 6자리, 뒤: 7자리)" class="input" maxlength="14" required />
+      <input type="text" name="nickname" placeholder="닉네임" class="input" required />
+      <input type="email" name="email" placeholder="이메일 (예: abcd@example.com)" class="input" required />
+      <input type="password" name="password" placeholder="비밀번호 (특수문자 1자리 이상, 영문, 숫자 포함)" class="input" required />
+      <input type="password" name="passwordCheck" placeholder="비밀번호 확인" class="input" required />
+      <input type="tel" name="phone" placeholder="전화번호( - 포함 최대 13자리)" class="input" maxlength="13" required />
+
+      <div style="display: flex; gap: 10px; margin-top: 1rem">
+        <button type="submit" class="btn">회원가입</button>
+        <button type="reset" class="btn" style="background-color: #999;">초기화</button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- 로그인, Sign In -->
+  <div class="container__form container--signin">
+    <form action="#" class="form" id="form2">
+      <h2 class="form__title">로그인</h2>
+      <input type="text" name="member_id" placeholder="아이디" class="input" />
+      <input type="password" name="password" placeholder="비밀번호" class="input" />
+      <a href="#" class="link">비밀번호를 잊으셨나요?</a>
+      <button class="btn">로그인</button>
+    </form>
+  </div>
+
+  <!-- Overlay: 데이터나 인스트럭션 블록을 다른 블록으로 교체 -->
+  <div class="container__overlay">
+    <div class="overlay">
+      <div class="overlay__panel overlay--left">
+        <button class="btn" id="signIn">로그인</button>
+      </div>
+      <div class="overlay__panel overlay--right">
+        <button class="btn" id="signUp">회원가입</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../../static/js/register_login.js"></script>
+
+</body>
+</html>
