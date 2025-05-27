@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>글 조회</title>
+</head>
+<body>
+    <h2>글 조회</h2>
+
+    <label>블로그 ID</label><br>
+    <div id="blog_id" th:text="${post.blog.blogId}"></div><br>
+
+    <label>게시글 ID</label><br>
+    <div id="post_id" th:text="${post.post_id}"></div><br>
+
+    <label hidden>제목</label><br>
+    <div id="title" th:text="'제목 | ' + ${post.title} + '&nbsp;&nbsp;조회수 | ' + ${post.view_count}"></div><br>
+
+    <label>내용</label><br>
+    <div id="content" th:utext="${post.content}"></div><br>
+
+    <button type="button" th:onclick="|location.href='@{/post/{id}/edit(id=${post.post_id})}'|">수정</button>
+</body>
+</html>

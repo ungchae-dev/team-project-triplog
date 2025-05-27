@@ -3,6 +3,18 @@ const signUpButton = document.getElementById('signUp');
 const signInButton = document.getElementById('signIn');
 const container = document.querySelector('.container');
 
+// URL 파라미터로 초기 상태 설정
+window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const type = urlParams.get('type');
+    
+    if(type === 'signin') {
+        container.classList.remove('right-panel-active'); // 로그인 폼 보여주기
+    } else if (type === 'signup') {
+        container.classList.add('right-panel-active') // 회원가입 폼 보여주기
+    }
+});
+
 // 회원가입 폼으로 전환
 signUpButton.addEventListener('click', () => {
     container.classList.add('right-panel-active');
