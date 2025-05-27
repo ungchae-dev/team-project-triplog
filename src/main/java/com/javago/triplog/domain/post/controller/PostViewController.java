@@ -1,6 +1,7 @@
 package com.javago.triplog.domain.post.controller;
 
 import com.javago.triplog.domain.post.dto.PostListResponse;
+import com.javago.triplog.domain.post.dto.PostResponse;
 import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.service.PostService;
 
@@ -45,7 +46,7 @@ public class PostViewController {
     // 게시판 글 수정
     @GetMapping("/post/{id}/edit")
     public String modify(@PathVariable("id") Long id, Model model) {
-        Post post = postService.findById(id);
+        Post post = postService.findtoUpdate(id);
         model.addAttribute("post", new Post(post));
         return "post/write";
     }

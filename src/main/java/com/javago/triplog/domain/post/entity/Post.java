@@ -10,6 +10,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.javago.triplog.domain.blog.entity.Blog;
+import com.javago.triplog.domain.comment.entity.Comments;
+import com.javago.triplog.domain.tag.entity.Post_Hashtag_people;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -53,9 +55,31 @@ public class Post {
     @Builder.Default
     private Long view_count = 0L;
 
+    // 게시글-이미지
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post_Image> post_image = new ArrayList<>();
 
+    // 게시글-댓글
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Comments> comments = new ArrayList<>();
+
+    // 게시글-해시태그 관계
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Post_Hashtag_people> post_hashtag_people = new ArrayList<>();
+
+    // 게시글-마이로그
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Post_Mylog> post_mylog = new ArrayList<>();
+
+    // 게시글-투어
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Post_tour> post_tour = new ArrayList<>();
+
+    // 게시글-좋아요
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Post_Like> post_like = new ArrayList<>();
+
+    // 블로그-게시글
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "blog_id", updatable = false, nullable = false)
     private Blog blog;

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>댓글 프래그먼트</title>
+    <style>
+        #commentList {
+            margin-top: 20px;
+        }
+        .comment {
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 댓글 fragment -->
+    <div th:fragment="commentSection">
+        <!-- 댓글 입력 -->
+        <input type="text" id="username" placeholder="이름" />
+        <input type="text" id="commentInput" placeholder="댓글을 입력하세요" />
+        <select id="is_secret">
+            <option value="Y">전체 공개</option>
+            <option value="N">비공개</option>
+        </select>
+        <button id="submitComment">등록</button>
+
+        <!-- 댓글 리스트 -->
+        <div id="commentList"></div>
+
+        <script>
+        // 댓글 등록 함수
+        function addCommentToList(comment) {
+            const commentDiv = document.createElement('div');
+            commentDiv.classList.add('comment');
+            commentDiv.dataset.commentId = comment.id;
+
+            commentDiv.innerHTML = `
+                <strong>${comment.username}</strong>: 
+                <span class="comment-content">${comment.content}</span> 
+                <button class="edit-btn">수정</button>
+            `;
+
+            // 수정 버튼 이벤트 추가
+            commentDiv.querySelector('.edit-btn').addEventListener('click', () => {
+                const contentSpan = commentDiv.querySelector('.comment-content');
+                const currentContent = contentSpan.textContent;
+
+                // 수정 input, 저장 버튼 생성
+                contentSpan.innerHTML = `
+                    <input type="text" class="edit-input" value="${currentContent}" />
+                    <button class="save-btn">저장</button>
+                    <button class="cancel-btn">취소</button>
+                `;
+
+                // 저장 버튼 클릭 시 서버에 수정 요청
+                commentDiv.querySelector('.save-btn').addEventListener('click', () => {
+                    const newContent = commentDiv.querySelector('.edit-input').value.trim();
+                    if (!newContent) {
+                        alert('댓글 내용을 입력해주세요.');
+                        return;
+                    }
+
+                    fetch(`/comments/${comment.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ content: newContent })
+                    })
+                    .then(res => {
+                        if (!res.ok) throw new Error('댓글 수정 실패');
+                        return res.json();
+                    })
+                    .then(updatedComment => {
+                        contentSpan.textContent = updatedComment.content;
+                    })
+                    .catch(err => alert(err.message));
+                });
+
+                // 취소 버튼 클릭 시 원래 내용 복구
+                commentDiv.querySelector('.cancel-btn').addEventListener('click', () => {
+                    contentSpan.textContent = currentContent;
+                });
+            });
+
+            document.getElementById('commentList').appendChild(commentDiv);
+        }
+
+        // 등록 버튼 이벤트
+        document.getElementById('submitComment').addEventListener('click', function () {
+            const username = document.getElementById('username').value.trim();
+            const content = document.getElementById('commentInput').value.trim();
+            if (!content) {
+                alert('댓글을 입력해주세요.');
+                return;
+            }
+
+            fetch('/comments', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    username: username,
+                    content: content,
+                    postId: /* 현재 글 ID 넣기 예: [[${post.post_id}]] */
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('댓글 등록 실패');
+                return res.json();
+            })
+            .then(data => {
+                addCommentToList(data);
+                document.getElementById('username').value = '';
+                document.getElementById('commentInput').value = '';
+            })
+            .catch(err => alert(err.message));
+        });
+    </script>
+    </div>
+</body>
+</html>

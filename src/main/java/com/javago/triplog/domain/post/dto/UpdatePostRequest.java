@@ -1,10 +1,10 @@
 package com.javago.triplog.domain.post.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UpdatePostRequest {
     
     private String title;
