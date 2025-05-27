@@ -1,5 +1,7 @@
 package com.javago.triplog.domain.member.dto;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,5 +25,8 @@ public class MemberFormDto {
     private String password; // 비밀번호
     private String passwordCheck; // 비밀번호 확인
     private String phone; // 휴대폰 번호
+
+    // 프로필 이미지 파일 첨부
+    private MultipartFile profileImageFile; 
     
 }
