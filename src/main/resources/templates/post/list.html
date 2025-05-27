@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>게시글 목록</title>
+    <style>
+        .post {
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+
+        .thumbnail {
+            width: 150px;
+            height: auto;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .meta {
+            color: gray;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+<h2>게시글 목록</h2>
+
+<button th:onclick="|location.href='@{/post/write}'|" type="button">글 작성</button>
+
+<div>
+    <div th:each="post : ${postList}" class="post">
+        <div>
+            <!-- 썸네일이 있으면 보여주고, 없으면 기본 이미지를 출력 -->
+            <img th:if="${post.thumbnail != null}" th:src="@{${post.thumbnail}}" alt="썸네일" class="thumbnail"/>
+        </div>
+        <div class="title">
+            <!-- 게시글 제목 -->
+            <a th:href="@{'/post/' + ${post.post.post_id}}" th:text="${post.post.title}">게시글 제목</a>
+        </div>
+        <div th:text="'조회수 | ' + ${post.post.view_count}"></div>
+        <div class="meta" th:text="${post.post.created_at}">작성일</div>
+        <div th:text="${post.post.updated_at}">수정일</div>
+    </div>
+</div>
+</body>
+</html>

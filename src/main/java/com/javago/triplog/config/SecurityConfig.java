@@ -15,6 +15,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .csrf().disable() // 개발 중 CSRF 보호 임시 해제 (나중에 삭제할 것)
                 .authorizeHttpRequests((auth) -> auth
                         .anyRequest().permitAll()
                 )
