@@ -10,6 +10,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("unchecked")
 public class SpotifyMusicService {
 
     private final SpotifyTokenService tokenService;
@@ -25,16 +26,19 @@ public class SpotifyMusicService {
 
         HttpEntity<Void> request = new HttpEntity<>(headers);
 
-        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                request,
-                new ParameterizedTypeReference<>() {}
-        );
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(url, HttpMethod.GET, request,
+                new ParameterizedTypeReference<>() {
+                });
 
-        List<Map<String, Object>> tracks = (List<Map<String, Object>>)
-                ((Map<String, Object>) response.getBody().get("tracks")).get("items");
+        // ✅ null 체크 추가
+        Map<String, Object> body = response.getBody();
+        if (body == null || !body.containsKey("tracks")) {
+            return Collections.emptyList(); // 또는 예외 처리
+        }
 
+        Map<String, Object> tracksMap = (Map<String, Object>) body.get("tracks");
+        List<Map<String, Object>> tracks = (List<Map<String, Object>>) tracksMap.get("items");
         return tracks;
+
     }
 }
