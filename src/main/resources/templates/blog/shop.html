@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>상점 – 여행 블로그</title>
+  <link rel="stylesheet" href="/css/shop.css" />
+</head>
+<body>
+<div class="book">
+  <!-- 좌측 프로필 영역 -->
+  <div class="page left-page">
+    <div class="counter-banner">상점</div>
+    <div class="profile-pic">
+      <img src="https://via.placeholder.com/170" alt="프로필 사진" />
+    </div>
+    <div class="intro-text">상점에 오신 것을 환영합니다!</div>
+    <div class="history">
+      <div class="history-header">
+        <span class="nickname">닉네임</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 우측 상점 콘텐츠 영역 -->
+  <div class="page right-page">
+    <div class="header-handle">
+      <h2 id="page-title">상점</h2>
+      <!-- 상단 뮤직바 -->
+      <div class="music-widget">
+        <div class="track">Sweetbox – Life Is Cool</div>
+        <div class="controls">
+          <button>⏮</button>
+          <button>⏸</button>
+          <button>⏭</button>
+          <button>🔊</button>
+          <button id="list-btn">LIST</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="shop-content">
+      <!-- 탭 버튼들 오른쪽 정렬 -->
+      <div class="shop-inner-tab-list" style="display:flex; justify-content:flex-end; gap:12px; margin-bottom:16px;">
+        <button id="btn-emoticon" class="shop-inner-tab active">이모티콘</button>
+        <button id="btn-music" class="shop-inner-tab">음악</button>
+        <button id="btn-skin-activate" class="shop-inner-tab">스킨 활성화</button>
+      </div>
+
+      <!-- 이모티콘 상점 -->
+      <div class="shop-tab-content shop-emoticon active">
+        <div class="section-title">이모티콘 상점</div>
+        <div class="emoticon-list" id="emoticon-list"></div>
+        <div class="pagination" id="emoticon-pagination"></div>
+      </div>
+
+      <!-- 음악 상점 -->
+      <div class="shop-tab-content shop-music">
+        <div class="section-title">음악 상점</div>
+        <div class="music-list" id="music-list"></div>
+        <div class="pagination" id="music-pagination"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/shop.js"></script>
+</body>
+</html>
