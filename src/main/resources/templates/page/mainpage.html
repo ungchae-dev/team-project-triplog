@@ -15,7 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,300;0,500;0,600;0,700;1,300;1,500;1,600;1,700&amp;display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;1,400&amp;display=swap" rel="stylesheet" />
     <!-- Core theme CSS (includes Bootstrap)-->
-    <link href="../../static/css/main.css" rel="stylesheet" />
+    <link href="/css/main.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -42,8 +42,8 @@
     <div class="container px-5 d-flex justify-content-between align-items-center">
 
         <!-- 중앙 Triplog 로고 -->
-        <a class="navbar-brand mx-auto fw-bold" href="/mainpage">
-            <img src="../../static/images/page/logo.png" alt="Triplog" class="logo-img">
+        <a class="navbar-brand mx-auto fw-bold" href="/">
+            <img src="/images/page/logo.png" alt="Triplog" class="logo-img">
         </a>
 
         <!-- 오른쪽 메뉴 아이콘들 -->
@@ -52,7 +52,7 @@
             <!-- 내 블로그 -->
             <div class="text-center">
                 <a href="/myblog" class="nav-link p-0">
-                    <img src="../../static/images/page/myblog.png" alt="내 블로그" width="36">
+                    <img src="/images/page/myblog.png" alt="내 블로그" width="36">
                     <div class="small">내 블로그</div>
                 </a>
             </div>
@@ -60,7 +60,7 @@
             <!-- 글 검색 -->
             <div class="text-center">
                 <a href="/searchpage" class="nav-link p-0">
-                    <img src="../../static/images/page/search.png" alt="글 검색" width="36">
+                    <img src="/images/page/search.png" alt="글 검색" width="36">
                     <div class="small">글 검색</div>
                 </a>
             </div>
@@ -68,15 +68,15 @@
             <!-- 행사/관광/맛집 -->
             <div class="text-center">
                 <a href="/tourpage" class="nav-link p-0">
-                    <img src="../../static/images/page/tour.png" alt="행사/관광/맛집" width="36">
+                    <img src="/images/page/tour.png" alt="행사/관광/맛집" width="36">
                     <div class="small">행사/관광/맛집</div>
                 </a>
             </div>
 
             <!-- 로그인 상태가 아니면 로그인만 보여줌 -->
             <div th:if="${not #authorization.expression('isAuthenticated()')}">
-                <a th:href="@{/login}">
-                    <img src="../../static/images/page/login.png" alt="로그인 아이콘" width="36"/>
+                <a th:href="@{/login(type='signin')}">
+                    <img src="/images/page/login.png" alt="로그인 아이콘" width="36"/>
                     <div class="small">로그인</div>
                 </a>
             </div>
@@ -84,15 +84,15 @@
             <!-- 로그인 상태면 로그아웃만 보여줌 -->
             <div th:if="${#authorization.expression('isAuthenticated()')}">
                 <a th:href="@{/logout}">
-                    <img src="../../static/images/page/logout.png" alt="로그아웃 아이콘" width="36"/>
+                    <img src="/images/page/logout.png" alt="로그아웃 아이콘" width="36"/>
                     <div class="small">로그아웃</div>
                 </a>
             </div>
 
             <!-- 회원가입 -->
             <div class="text-center">
-                <a href="/signup" class="nav-link p-0">
-                    <img src="../../static/images/page/memberjoin.png" alt="회원가입" width="36">
+                <a th:href="@{/login(type='signup')}" class="nav-link p-0">
+                    <img src="/images/page/memberjoin.png" alt="회원가입" width="36">
                     <div class="small">회원가입</div>
                 </a>
             </div>
@@ -109,11 +109,11 @@
             <div class="card shadow-sm border rounded position-relative" style="width: 23%;"
                  th:each="post, iterStat : ${bestPosts}">
                 <!-- 등수별 메달 아이콘 왼쪽 상단 고정 -->
-                <img th:if="${iterStat.index == 0}" src="../../static/images/page/gold.png" class="position-absolute"
+                <img th:if="${iterStat.index == 0}" src="/images/page/gold.png" class="position-absolute"
                      style="top: 0px; left: 0px; width: 40px; height: 40px; z-index: 10;" alt="Gold Medal">
-                <img th:if="${iterStat.index == 1}" src="../../static/images/page/silver.png" class="position-absolute"
+                <img th:if="${iterStat.index == 1}" src="/images/page/silver.png" class="position-absolute"
                      style="top: 0px; left: 0px; width: 40px; height: 40px; z-index: 10;" alt="Silver Medal">
-                <img th:if="${iterStat.index == 2}" src="../../static/images/page/bronze.png" class="position-absolute"
+                <img th:if="${iterStat.index == 2}" src="/images/page/bronze.png" class="position-absolute"
                      style="top: 0px; left: 0px; width: 40px; height: 40px; z-index: 10;" alt="Bronze Medal">
 
                 <!-- 대표 이미지 -->
@@ -138,7 +138,6 @@
     <button id="openRegionDialogBtn" class="btn btn-outline-primary">
         지역
     </button>
-    <span class="selectedRegionName" class="ms-2 fw-bold">서울</span>
 
     <!-- 행사 목록 출력 -->
     <div id="eventList" class="row row-cols-4 g-4"></div>
@@ -383,12 +382,12 @@
 <!-- Bootstrap core JS-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Core theme JS-->
-<script src="../../static/js/main.js"></script>
+<script src="/js/main.js"></script>
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
 <!-- * *                               SB Forms JS                               * *-->
 <!-- * * Activate your form at https://startbootstrap.com/solution/contact-forms * *-->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
 <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
-<script src="../../static/js/main_regionselect.js"></script>
+<script src="/js/main_regionselect.js"></script>
 </body>
 </html>
