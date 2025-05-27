@@ -2,10 +2,13 @@ package com.javago.triplog.domain.post.service;
 
 import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.blog.repository.BlogRepository;
+import com.javago.triplog.domain.comment.repository.CommentsRepository;
 import com.javago.triplog.domain.post.dto.AddPostRequest;
 import com.javago.triplog.domain.post.dto.PostListResponse;
+import com.javago.triplog.domain.post.dto.PostResponse;
 import com.javago.triplog.domain.post.dto.UpdatePostRequest;
 import com.javago.triplog.domain.post.entity.Post;
+import com.javago.triplog.domain.post.repository.PostLikeRepository;
 import com.javago.triplog.domain.post.repository.PostRepository;
 
 
@@ -29,6 +32,8 @@ public class PostService {
     }
 
     private final BlogRepository blogRepository;
+    private final PostLikeRepository postLikeRepository;
+    private final CommentsRepository commentsRepository;
 
 
     // 게시판에 새 글 작성
@@ -47,10 +52,16 @@ public class PostService {
     @Transactional
     public Post findById(Long id) {
         Post post = postRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 글이 없습니다. ID : " + id));
-        if(post != null) {
-            postRepository.updateViewCount(id);
-        }
+        postRepository.updateViewCount(id);
+        Long countPostLike = postLikeRepository.countPostLike(id);
+        commentsRepository.commentList(id);
+        PostResponse postResponse = new PostResponse(post, countPostLike);
+        return post;
+    }
 
+    // 게시글 수정시 데이터 불러오기
+    public Post findtoUpdate(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 글이 없습니다. ID : " + id));
         return post;
     }
 

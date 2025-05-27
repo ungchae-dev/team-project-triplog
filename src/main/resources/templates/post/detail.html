@@ -19,6 +19,12 @@
     <label>내용</label><br>
     <div id="content" th:utext="${post.content}"></div><br>
 
+    <label>좋아요</label><input type="checkbox" id="postLike"><br>
+    <div th:text="${post.post_like.size() != null ? post.post_like.size() : 0}"></div><br>
+
+    <label>댓글</label>
+    <div th:insert="comment/fragment :: commentSection"></div><br>
+
     <button type="button" th:onclick="|location.href='@{/post/{id}/edit(id=${post.post_id})}'|">수정</button>
 </body>
 </html>

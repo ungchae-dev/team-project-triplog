@@ -41,8 +41,9 @@
             <a th:href="@{'/post/' + ${post.post.post_id}}" th:text="${post.post.title}">게시글 제목</a>
         </div>
         <div th:text="'조회수 | ' + ${post.post.view_count}"></div>
-        <div class="meta" th:text="${post.post.created_at}">작성일</div>
-        <div th:text="${post.post.updated_at}">수정일</div>
+        <div class="meta" th:text="${#temporals.format(post.post.created_at, 'yyyy-MM-dd HH:mm')}">작성일</div>
+        <div th:text="${#temporals.format(post.post.updated_at, 'yyyy-MM-dd HH:mm')}">수정일</div>
+        <div th:text="${post.post.post_like.size() != null ? post.post.post_like.size() : 0}">좋아요</div>
     </div>
 </div>
 </body>
