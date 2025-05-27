@@ -142,11 +142,13 @@ document.addEventListener("DOMContentLoaded", function () {
         tourcontainer.innerHTML = "";
 
         currentTour.forEach(item => {
+            const tourcontentId = item.contentid;
+            const tourcontentTypeId = item.contenttypeid;
             const tourimageUrl = item.firstimage || "/images/page/noimage.png";
             const tourtitle = item.title;
             const tourhtml = `
                 <div class="col">
-                    <div class="card h-100">
+                    <div class="card h-100" onclick="openPopup(${tourcontentId},${tourcontentTypeId})">
                         <img src="${tourimageUrl}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="${tourtitle}">
                         <div class="card-body p-2">
                             <h6 class="card-title mb-0 text-truncate">${tourtitle}</h6>
@@ -169,15 +171,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const foodcontainer = document.getElementById("foodList");
         foodcontainer.innerHTML = "";
-
-
-
         currentFood.forEach(item => {
+            const foodcontentId = item.contentid;
+            const foodcontentTypeId = item.contenttypeid;
             const foodimageUrl = item.firstimage || "/images/page/noimage.png";
             const foodtitle = item.title;
             const foodhtml = `
                 <div class="col">
-                    <div class="card h-100">
+                    <div class="card h-100" onclick="openPopup(${foodcontentId},${foodcontentTypeId})">
                         <img src="${foodimageUrl}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="${foodtitle}">
                         <div class="card-body p-2">
                             <h6 class="card-title mb-0 text-truncate">${foodtitle}</h6>
