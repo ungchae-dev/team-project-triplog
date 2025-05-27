@@ -67,7 +67,7 @@
 
             <!-- 행사/관광/맛집 -->
             <div class="text-center">
-                <a href="/tourpage" class="nav-link p-0">
+                <a class="nav-link p-0" href="/tour">
                     <img src="/images/page/tour.png" alt="행사/관광/맛집" width="36">
                     <div class="small">행사/관광/맛집</div>
                 </a>
@@ -155,6 +155,8 @@
         <button id="nextPageBtn" class="btn btn-secondary">다음</button>
         <button onclick="location.href='tourpage.html'" class="btn btn-primary">더보기</button>
     </div>
+
+
 </aside>
 
 
@@ -193,6 +195,12 @@
         <button id="confirmRegionBtn" class="btn btn-primary">확인</button>
     </div>
 </dialog>
+
+
+<!-- 중앙 정렬된 구분선 -->
+<div class="my-divider-wrapper">
+    <div class="my-divider"></div>
+</div>
 
 
 <!--관광지, 맛집 카테고리 -->
@@ -317,5 +325,18 @@
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
 <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
 <script src="/js/main_regionselect.js"></script>
+<script>
+    function openPopup(contentId, contentTypeId) {
+        const w = 800, h = 600;
+        const left = (screen.width - w) / 2;
+        const top = (screen.height - h) / 2;
+
+        window.open(
+            `/popup?contentId=${contentId}&contentTypeId=${contentTypeId}`,
+            'detailPopup',
+            `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`
+        );
+    }
+</script>
 </body>
 </html>

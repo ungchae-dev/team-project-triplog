@@ -506,6 +506,19 @@ progress {
     display: none !important;
 }
 
+.my-divider-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0; /* 위아래 간격 */
+}
+
+.my-divider {
+    width: 60%;
+    height: 2px;
+    background-color: #faebd7; /* 원하는 색상 */
+    border-radius: 1px;
+}
+
 .region-btn.active {
     background-color: #faebd7;   /* Bootstrap primary */
     color: white;
