@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
         container.innerHTML = "";
 
         currentEvents.forEach(event => {
-            const imageUrl = event.firstimage || "../images/page/noimage.png";
+            const imageUrl = event.firstimage || "/images/page/noimage.png";
             const title = event.title;
             const html = `
                 <div class="col">
@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 관광지 정보 렌더링
     function renderTourList() {
-        if (!tourData) return;
+        if (!tourData) return; // 또는 기본 빈 배열 할당
         const tourstart = (currentTourPage - 1) * tourPerPage;
         const tourend = tourstart + tourPerPage;
         const currentTour = tourData.slice(tourstart, tourend);
@@ -160,13 +160,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 맛집 정보 렌더링
     function renderFoodList() {
-        if (!foodData) return;
+        if (!foodData) return;// 또는 기본 빈 배열 할당
         const foodstart = (currentFoodPage - 1) * foodPerPage;
         const foodend = foodstart + foodPerPage;
         const currentFood = foodData.slice(foodstart, foodend);
 
         const foodcontainer = document.getElementById("foodList");
         foodcontainer.innerHTML = "";
+
+
 
         currentFood.forEach(item => {
             const foodimageUrl = item.firstimage || "/images/page/noimage.png";
@@ -183,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
             foodcontainer.insertAdjacentHTML('beforeend', foodhtml);
         });
 
-        document.getElementById("prevFoodPageBtn").disabled = currentPage === 1;
+        document.getElementById("prevFoodPageBtn").disabled = currentFoodPage === 1;
         document.getElementById("nextFoodPageBtn").disabled = foodend >= foodData.length;
     }
 

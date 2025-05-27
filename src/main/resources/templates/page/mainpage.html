@@ -34,6 +34,7 @@
     dialog::backdrop {
         background-color: rgba(0, 0, 0, 0.5);
     }
+
 </style>
 
 <body id="page-top">
@@ -75,7 +76,7 @@
 
             <!-- 로그인 상태가 아니면 로그인만 보여줌 -->
             <div th:if="${not #authorization.expression('isAuthenticated()')}">
-                <a th:href="@{/login(type='signin')}">
+                <a th:href="@{/login(type='signin')}" style="text-decoration: none; color: inherit;">
                     <img src="/images/page/login.png" alt="로그인 아이콘" width="36"/>
                     <div class="small">로그인</div>
                 </a>
@@ -83,7 +84,7 @@
 
             <!-- 로그인 상태면 로그아웃만 보여줌 -->
             <div th:if="${#authorization.expression('isAuthenticated()')}">
-                <a th:href="@{/logout}">
+                <a th:href="@{/logout}" style="text-decoration: none; color: inherit;">
                     <img src="/images/page/logout.png" alt="로그아웃 아이콘" width="36"/>
                     <div class="small">로그아웃</div>
                 </a>
@@ -91,7 +92,7 @@
 
             <!-- 회원가입 -->
             <div class="text-center">
-                <a th:href="@{/login(type='signup')}">
+                <a th:href="@{/login(type='signup')}" style="text-decoration: none; color: inherit;">
                     <img src="/images/page/memberjoin.png" alt="회원가입" width="36">
                     <div class="small">회원가입</div>
                 </a>
@@ -132,13 +133,18 @@
 </header>
 
 <!-- 지역 선택 및 결과 출력 파트 -->
-<aside class="container mt-4" style="height: 550px; overflow: hidden;">
+<aside class="container" style="height: 550px; overflow: hidden;">
 
     <!-- 지역 선택 버튼 -->
     <div class="d-flex justify-content-center" style="margin-bottom: 30px;">
         <button id="openRegionDialogBtn" class="btn btn-outline-primary">
             지역
         </button>
+
+    </div>
+
+    <div style="color: saddlebrown">
+        <h5>어떤 행사가 있을까요?</h5>
     </div>
 
     <!-- 행사 목록 출력 -->
@@ -191,12 +197,12 @@
 
 
 <!--관광지, 맛집 카테고리 -->
-<section class="container mt-5">
-    <div class="row">
+<section class="container mt-0 pt-0">
+    <div class="row m-0 p-0">
         <!-- 관광지 영역 -->
         <div class="col-md-6">
             <div class="d-flex justify-content-between align-items-center mb-2">
-
+                <h5 style="color: saddlebrown">같이 가보기 좋아요 !</h5>
                 <button class="btn btn-sm btn-primary" onclick="location.href='tourpage.html'">더보기</button>
             </div>
             <!-- 관광지 목록 출력 -->
@@ -210,7 +216,7 @@
         <!-- 맛집 영역 -->
         <div class="col-md-6">
             <div class="d-flex justify-content-between align-items-center mb-2">
-
+                <h5 style="color: saddlebrown">이런 맛집도 있어요~</h5>
                 <button class="btn btn-sm btn-primary" onclick="location.href='tourpage.html'">더보기</button>
             </div>
             <!-- 맛집 목록 출력 -->
