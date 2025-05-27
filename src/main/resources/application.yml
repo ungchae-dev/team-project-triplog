@@ -14,16 +14,39 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
-      # 또는 validate, create 등
-      # 프로젝트를 실행할 때 엔티티를 기반으로 자동으로 테이블을 생성하거나 수정
+      ddl-auto: validate
+      # 또는 update, create 등
+      # validate: 엔티티와 DB 테이블 구조가 다르면 애플리케이션 시작 시 에러 발생
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-    database-platform: org.hibernate.dialect.Oracle12cDialect
+    database-platform: org.hibernate.dialect.OracleDialect
     # 오라클 12c 이후(18c, 19c, 21c 등)는 대부분 Oracle12cDialect 또는 OracleDialect 로 통합해서 사용
+  
+  # Live Reload 기능 활성화
+  devtools:
+    livereload:
+      enabled: true
+
+  # Thymeleaf cache 사용 중지 => 캐싱 기능을 false로 설정
+  thymeleaf:
+    cache: false
 
 # 서버 포트 지정
 server:
   port: 8085
+
+# 결제 API키 연결
+portone:
+  imp-key: "5202336544001223"
+  imp-secret: "ftSR1sAELSvBytxpz7B3dAk5hEOs7C1LZ9h7oqwvvirOoxi8rjtfALpV7jlRbfrQVUNygsrUcrkTqFCo"
+  store-id: "store-4e640aa5-588e-43a9-acf5-ebaeff70b074"
+  channel-key: "channel-key-8c3e9cfb-a553-471c-bea5-148c3270fea1"
+
+# 스포티파이 API키 연결
+spotify:
+  client-id: 2c8e088cc800489a8b2f747e7aa514b3
+  client-secret: 3ce4c4814bdd472e845848994e7d7c30
+
+
