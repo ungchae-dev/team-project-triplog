@@ -8,8 +8,10 @@ import com.javago.triplog.domain.post.dto.UpdatePostRequest;
 import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.repository.PostRepository;
 
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
 
 import org.springframework.stereotype.Service;
 
@@ -20,7 +22,14 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
+
+
+    public PostService(PostRepository postRepository) {
+        this.postRepository = postRepository;
+    }
+
     private final BlogRepository blogRepository;
+
 
     // 게시판에 새 글 작성
     public Post save(AddPostRequest addPostRequest) {
