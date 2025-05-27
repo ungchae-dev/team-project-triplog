@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.javago.constant.Role;
+//import com.javago.constant.Role;
 import com.javago.triplog.domain.member.dto.MemberFormDto;
 
 import jakarta.persistence.Column;
@@ -85,8 +85,8 @@ public class Member {
     // Enum 사용 시, 기본적으로 순서가 저장되는데, 
     // enum의 순서가 바뀔 경우 문제가 발생할 수 있으므로 "EnumType.STRING" 옵션을 통해
     // String으로 저장하는 걸 권장함.
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    //@Enumerated(EnumType.STRING)
+    //private Role role;
 
     // Member 엔티티를 생성하는 메서드 creatMember
     // Member 엔티티에 회원을 생성하는 메서드를 만들어 관리하면
@@ -109,7 +109,7 @@ public class Member {
         // 비밀번호 암호화 후 저장
         String password = passwordEncoder.encode(memberFormDto.getPassword());
         member.setPassword(password);
-        member.setRole(Role.USER); // 기본 권한은 USER로 지정
+        //member.setRole(Role.USER); // 기본 권한은 USER로 지정
 
         return member;
     }

@@ -14,8 +14,10 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create
       # 또는 update, create 등
+      # update: 누락된 컬럼이나 제약 조건을 Hibernate가 자동으로 수정하려고 시도함(개발 중엔 가능)
+      # => 개발 후엔 validate나 none으로 설정해야함.
       # validate: 엔티티와 DB 테이블 구조가 다르면 애플리케이션 시작 시 에러 발생
     show-sql: true
     properties:
@@ -43,3 +45,9 @@ portone:
   imp-secret: "ftSR1sAELSvBytxpz7B3dAk5hEOs7C1LZ9h7oqwvvirOoxi8rjtfALpV7jlRbfrQVUNygsrUcrkTqFCo"
   store-id: "store-4e640aa5-588e-43a9-acf5-ebaeff70b074"
   channel-key: "channel-key-8c3e9cfb-a553-471c-bea5-148c3270fea1"
+
+# SQL문(DDL) 로그에 출력
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql: trace
