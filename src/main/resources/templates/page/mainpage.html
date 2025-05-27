@@ -317,5 +317,18 @@
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
 <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
 <script src="/js/main_regionselect.js"></script>
+<script>
+    function openPopup(contentId, contentTypeId) {
+        const w = 800, h = 600;
+        const left = (screen.width - w) / 2;
+        const top = (screen.height - h) / 2;
+
+        window.open(
+            `/popup?contentId=${contentId}&contentTypeId=${contentTypeId}`,
+            'detailPopup',
+            `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`
+        );
+    }
+</script>
 </body>
 </html>

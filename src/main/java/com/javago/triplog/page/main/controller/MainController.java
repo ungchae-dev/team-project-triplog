@@ -27,4 +27,14 @@ public class MainController {
     public String login() {
         return "member/register_login"; // templates/member/register_login.html
     }
+
+    //팝업 페이지로 매핑
+    @GetMapping("/popup")
+    public String popup(@RequestParam("contentId") String contentId,
+                        @RequestParam("contentTypeId") String contentTypeId,
+                        Model model) {
+        model.addAttribute("contentId", contentId);
+        model.addAttribute("contentTypeId", contentTypeId);
+        return "page/popup"; // popup.html
+    }
 }
