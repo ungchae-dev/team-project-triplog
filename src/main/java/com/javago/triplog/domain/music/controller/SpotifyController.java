@@ -14,6 +14,7 @@ public class SpotifyController {
 
     private final SpotifyMusicService musicService;
 
+    // 임시 포워딩 // 추후에 프론트와 통신할 때는 이 부분을 수정해야 합니다.
     @GetMapping("/musicsearch")
     public List<Map<String, Object>> searchMusic(@RequestParam("q") String query) {
         return musicService.searchTracks(query);

@@ -5,13 +5,25 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
+import org.hibernate.annotations.Check;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "post_image")
 @Getter
 @Setter
+
 @NoArgsConstructor
+
+@Table(name = "post_image")
+@Check(constraints = "is_thumbnail IN ('Y', 'N')")
+@EntityListeners(AuditingEntityListener.class)
+
 public class Post_Image {
 
     @Id
