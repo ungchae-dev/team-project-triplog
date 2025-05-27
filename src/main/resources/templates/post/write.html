@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>커뮤니티 글 작성</title>
+  <style>
+    #title {
+      border: 2px solid #ccc;
+      padding: 12px;
+      font-size: 20px;
+      font-weight: bold;
+      width: 70%;
+      margin-bottom: 20px;
+      outline: none;
+      border-radius: 4px;
+    }
+
+    #title:focus {
+      border-color: #4a90e2;
+      background-color: #f8faff;
+    }
+
+    #editor {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      min-height: 300px;
+      width: 70%;
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.6;
+      background-color: #fff;
+      outline: none;
+      overflow-y: auto;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    #editor:focus {
+      border-color: #4a90e2;
+      background-color: #f8faff;
+    }
+
+    #editor img {
+      max-width: 600px;
+      height: auto;
+    }
+
+    .delete-btn {
+      position: fixed;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 12px;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+      text-align: center;
+      cursor: pointer;
+      z-index: 1000;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<h2>글 작성</h2>
+<form id="postForm" th:attr="data-id=${post.post_id}">
+  <label>제목</label><br>
+  <div id="title" contenteditable="true" th:utext="${post.title}"></div><br>
+
+  <label>내용</label><br>
+  <div id="editor" contenteditable="true" th:utext="${post.content}"></div><br>
+  <button id="deleteBtn" class="delete-btn" type="button">×</button>
+
+  <input type="file" id="imageInput" accept="image/*"><br><br>
+
+  <input type="radio" name="visibility" value="PUBLIC"
+       th:attr="checked=${post.visibility == null or post.visibility == 'PUBLIC'}">전체 공개
+  <input type="radio" name="visibility" value="PRIVATE"
+       th:attr="checked=${post.visibility == 'PRIVATE'}">비공개
+  <br>
+
+  <button type="submit">작성</button>
+</form>
+
+<script>
+  const editor = document.getElementById('editor');
+  const imageInput = document.getElementById('imageInput');
+  const deleteBtn = document.getElementById('deleteBtn');
+  let currentImage = null;
+
+  // 이미지 삽입 이벤트
+  imageInput.addEventListener('change', () => {
+    const file = imageInput.files[0];
+    if (!file) return;
+
+    // 이미지 사이즈 제한 (예: 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('이미지 크기는 최대 2MB까지 가능합니다.');
+      imageInput.value = '';
+      return;
+    }
+
+    // 이미지 생성 후 이미지 뒤에 커서 위치 고정
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.style.maxWidth = '600px';
+      img.style.height = 'auto';
+
+      const br = document.createElement('br');
+      insertAtCursor(br);
+      insertAtCursor(img);
+      insertAtCursor(document.createElement('br'));
+
+      imageInput.value = '';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // 커서 위치에 이미지 생성
+  function insertAtCursor(node) {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+    const range = selection.getRangeAt(0);
+    range.deleteContents();
+    range.insertNode(node);
+
+    range.setStartAfter(node);
+    range.setEndAfter(node);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+
+  // 이미지 삭제 버튼(x) 위치 고정
+  editor.addEventListener('click', function (e) {
+    if (e.target.tagName === 'IMG') {
+      currentImage = e.target;
+      const rect = e.target.getBoundingClientRect();
+      deleteBtn.style.top = `${rect.top}px`;
+      deleteBtn.style.left = `${rect.left + rect.width - 10}px`;
+      deleteBtn.style.display = 'block';
+    } else {
+      deleteBtn.style.display = 'none';
+      currentImage = null;
+    }
+  });
+
+  // 이미지 삭제 버튼 이벤트
+  deleteBtn.addEventListener('click', function () {
+    if (currentImage) {
+      currentImage.remove();
+      deleteBtn.style.display = 'none';
+      currentImage = null;
+    }
+  });
+
+  // 작성 버튼 이벤트
+  document.getElementById('postForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const title = document.getElementById('title').innerText.trim();
+    const content = editor.innerHTML;
+    const text = editor.innerText.trim();
+    const visibilityInput = document.querySelector('input[name="visibility"]:checked');
+    const visibility = visibilityInput.value;
+
+    if(!visibility){
+      alert("공개 여부를 설정해주세요");
+      return;
+    }
+
+    if (!title){
+      alert("제목을 입력해주세요");
+      return;
+    }
+
+    if (!text){
+      alert("내용을 입력해주세요");
+      return;
+    }
+    const data = {
+      title,
+      content,
+      visibility,
+      // 확인용 블로그 아이디 설정
+      blogId: 1
+    };
+
+    const postForm = document.getElementById("postForm");
+    const postId = postForm.dataset.id;
+    const isModify = !!postId;
+
+    const res = await fetch(isModify ? `/api/write/${postId}` : `/api/write`, {
+      method: isModify ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (res.ok) {
+      alert('글 작성 완료!');
+      location.replace(isModify ? `/post/${postId}` : `/post/list`);
+    } else {
+      alert('작성 실패');
+    }
+  });
+</script>
+</body>
+</html>

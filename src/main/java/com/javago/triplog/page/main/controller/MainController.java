@@ -22,9 +22,25 @@ public class MainController {
         return "page/mainpage"; //  templates/page/mainpage.html
     }
 
+    //행사,관광지,맛집페이지로 매핑
+    @GetMapping("/tour")
+    public String tourPage(@RequestParam(defaultValue = "서울") String region, Model model) {
+        return "page/tourpage";
+    }
+
     // 회원가입·로그인 페이지로 매핑 
     @GetMapping("/login")
     public String login() {
         return "member/register_login"; // templates/member/register_login.html
+    }
+
+    //팝업 페이지로 매핑
+    @GetMapping("/popup")
+    public String popup(@RequestParam("contentId") String contentId,
+                        @RequestParam("contentTypeId") String contentTypeId,
+                        Model model) {
+        model.addAttribute("contentId", contentId);
+        model.addAttribute("contentTypeId", contentTypeId);
+        return "page/popup"; // popup.html
     }
 }

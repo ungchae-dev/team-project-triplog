@@ -1,22 +1,23 @@
 package com.javago.triplog.domain.post.dto;
 
+import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.post.entity.Post;
 import lombok.Getter;
 
 @Getter
 public class AddPostRequest {
 
-    String title;
-    String content;
-    String visibility;
-    Long blog_id;
+    private String title;
+    private String content;
+    private String visibility;
+    private Long blogId;
 
-    public Post toEntity(){
+    public Post toEntity(Blog blog){
         return Post.builder()
                 .title(title)
                 .content(content)
                 .visibility(visibility)
-                .blog_id(blog_id).build();
+                .blog(blog).build();
     }
 
 }
