@@ -1,0 +1,441 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Noto Sans KR', sans-serif;
+    background: #444;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 1200px;
+}
+
+.container {
+    display: flex;
+    justify-content: center; /* 필요에 따라 조절 */
+    align-items: flex-start;
+    gap: 10px; /* book과 tab-nav 간 간격 */
+    min-height: 300px; /* book 높이에 맞춰 조절 */
+}
+.book {
+    display: flex;
+    width: 1000px;
+    height: auto;        /* 고정 높이 제거하고 자동 높이로 */
+    min-height: 600px;   /* 필요하면 최소 높이 지정 */
+    background: #EDDFCC;
+    border-radius: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.page.left-page {
+    flex: 0 0 200px;
+    background: #fff;
+    border-radius: 10px;
+    margin-right: 10px;
+    padding: 15px 10px 15px 15px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.counter-banner {
+    background: #eee;
+    padding: 5px 10px;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    font-size: 13px;
+}
+.mood-banner {
+    background: #fff0f0;
+    padding: 5px 10px;
+    margin-bottom: 10px;
+    border: 1px solid #f88;
+    border-radius: 5px;
+    font-size: 14px;
+}
+.mood-banner .mood {
+    color: #d33;
+    font-weight: bold;
+}
+.profile-pic {
+    width: 170px;
+    height: 170px;
+    margin: 0 auto 10px;
+    border-radius: 10px;
+    border: 2px solid #ccc;
+    overflow: hidden;
+}
+.profile-pic img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.intro-text {
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 5px;
+    min-height: 80px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+.history {
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.2;
+}
+.history .edit {
+    margin-left: 10px;
+    color: #06c;
+    text-decoration: none;
+    font-size: 13px;
+}
+.received-url input {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.neighbor-dropdown button {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #06c;
+    background: #e0f0ff;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.page.right-page {
+    flex: 1;
+    background: #fff;
+    border-radius: 10px;
+    margin-left: 10px;
+    padding: 15px 20px 15px 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    position: relative;
+}
+
+.header-handle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #CC8D7C;
+    user-select: none;
+}
+
+.header-handle h2 {
+    margin: 0;
+    font-size: 22px;
+    color: #333;
+    font-weight: 700;
+}
+
+.music-widget {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 6px 10px;
+    font-size: 14px;
+    max-width: 300px;
+}
+.music-widget .track {
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    text-align: right;
+}
+.music-widget .controls {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    width: 100%;
+}
+.music-widget .controls button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+    padding: 0;
+    line-height: 1;
+}
+
+/* 탭 네비 */
+.tab-nav {
+    position: static;
+    top: 25%;
+    right: 0;
+    transform: translateY(-25%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 999;
+}
+
+.tab-btn {
+    position: relative;
+    width: 120px;
+    height: 44px;
+    background: #CC8D7C;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 18px;
+    transition: background 0.13s, color 0.13s;
+    outline: none;
+    user-select: none;
+    clip-path: polygon(0% 0%, 100% 0%, 90% 50%, 100% 100%, 0% 100%);
+    /* border-right 대신 box-shadow 사용 */
+
+}
+
+
+.tab-btn.active {
+    background: #fff;
+    color: #CC8D7C;
+}
+
+
+.tab-btn:hover:not(.active),
+.tab-btn:focus-visible:not(.active) {
+    background: #1b3962;
+    color: #fff;
+}
+
+.tab-btn:focus-visible {
+    outline: 2px solid #71a2df;
+    outline-offset: 2px;
+}
+
+
+.main-content {
+    flex: 1;
+}
+
+.section {
+    background: #fafafa;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.photo-section .photos {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.photo-card {
+    flex: 1;
+    border: 2px solid #000;
+    border-radius: 15px;
+    padding: 10px;
+    text-align: center;
+}
+
+.photo-card .photo {
+    height: 110px;
+    margin-bottom: 5px;
+    background: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.photo-card img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 8px;
+}
+
+.photo-card .caption {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* shop-inner-tab-list */
+.shop-inner-tab-list {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.shop-inner-tab {
+    background: #2768b2;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.shop-inner-tab.active {
+    background: #17497b;
+}
+
+.shop-inner-tab:hover:not(.active) {
+    background: #1b3962;
+}
+
+/* emoticon-list, music-list 스타일 */
+.emoticon-list, .music-list {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+.emoticon-list.expanded, .music-list.expanded {
+    grid-template-rows: repeat(4, 60px);
+    max-height: none;
+    overflow: visible;
+}
+
+.emoticon-item, .music-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #e8f4fd;
+    border-radius: 7px;
+    padding: 7px 2px 4px 2px;
+    font-size: 20px;
+    color: #257ab7;
+    font-weight: bold;
+    border: 1.2px solid #d0e5f7;
+}
+
+.buy-btn {
+    margin-top: 4px;
+    padding: 3px 10px;
+    background-color: #2b6cb0;
+    color: #fff;
+    border: none;
+    border-radius: 13px;
+    font-weight: 500;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.buy-btn:hover {
+    background-color: #215083;
+}
+
+.pagination {
+    margin-top: 8px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.pagination button {
+    padding: 4px 12px;
+    border: 1.5px solid #2b6cb0;
+    background: #f7faff;
+    color: #2b6cb0;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.pagination button.active,
+.pagination button:hover {
+    background: #2b6cb0;
+    color: #fff;
+}
+.top-sections {
+    display: flex;
+    gap: 20px;
+}
+.top-sections > .section {
+    flex: 1;
+    min-width: 0;
+}
+.photo-section.section {
+    width: 100%;
+}
+.jukebox-content {
+    display: flex;
+    gap: 24px;
+    padding: 20px;
+}
+.track-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.track-item {
+    background: #fff;
+    padding: 12px;
+    border-radius: 10px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.track-item:hover {
+    transform: translateY(-4px);
+}
+.track-cover {
+    width: 100%;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+.track-title {
+    font-weight: bold;
+}
+.track-artist {
+    font-size: 0.9em;
+    color: #777;
+}
+
+#pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+#pagination button.active {
+    background-color: #333;
+    color: white;
+}
+#search-box {
+    margin-top: 20px;
+    text-align: center;
+}
+#search-box input {
+    padding: 6px 10px;
+    width: 200px;
+}
+#search-box button {
+    padding: 6px 12px;
+    margin-left: 6px;
+}
+

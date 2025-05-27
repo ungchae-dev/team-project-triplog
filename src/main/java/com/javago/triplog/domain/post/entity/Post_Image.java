@@ -2,43 +2,45 @@ package com.javago.triplog.domain.post.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 
 import org.hibernate.annotations.Check;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "post_image")
 @Getter
 @Setter
+
+@NoArgsConstructor
+
 @Table(name = "post_image")
 @Check(constraints = "is_thumbnail IN ('Y', 'N')")
 @EntityListeners(AuditingEntityListener.class)
+
 public class Post_Image {
 
-    // 게시판에 올린 이미지 테이블
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_image_seq")
-    @SequenceGenerator(name = "post_image_seq", sequenceName = "post_image_seq", allocationSize = 1)
-    @Column(name = "image_id", updatable = false)
-    private Long image_id;
-
-    @Lob
-    @Column(name = "image_path", updatable = false, nullable = false)
-    private String image_path;
-
-    @Column(name = "is_thumbnail", nullable = false)
-    private char is_thumbnail;
-
-    @CreatedDate
-    @Column(name = "upload_date", updatable = false, nullable = false)
-    private LocalDateTime upload_date;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "image_id")
+    private Long imageId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", updatable = false, nullable = false)
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-}
+    @Column(name = "image_path", length = 200)  // DB는 image_path, Java는 imagePath
+    private String imagePath;
 
+    @Column(name = "is_thumbnail")
+    private Character isThumbnail;
+
+    @Column(name = "upload_date")
+    private LocalDateTime uploadDate = LocalDateTime.now();  // 기본값 설정
+}
