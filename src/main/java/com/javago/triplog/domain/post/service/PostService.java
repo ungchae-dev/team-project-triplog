@@ -3,7 +3,6 @@ package com.javago.triplog.domain.post.service;
 import com.javago.triplog.domain.post.dto.AddPostRequest;
 import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.repository.PostRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +12,6 @@ public class PostService {
 
     private final PostRepository postRepository;
 
-    @Autowired
     public PostService(PostRepository postRepository) {
         this.postRepository = postRepository;
     }
