@@ -1,7 +1,6 @@
 package com.javago.triplog.domain.post.controller;
 
 import com.javago.triplog.domain.post.dto.PostListResponse;
-import com.javago.triplog.domain.post.dto.PostResponse;
 import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.service.PostService;
 

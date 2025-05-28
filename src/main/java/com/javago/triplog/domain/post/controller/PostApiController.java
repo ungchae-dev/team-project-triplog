@@ -3,9 +3,9 @@ package com.javago.triplog.domain.post.controller;
 import com.javago.triplog.domain.post.dto.AddPostRequest;
 import com.javago.triplog.domain.post.dto.UpdatePostRequest;
 import com.javago.triplog.domain.post.entity.Post;
-import com.javago.triplog.domain.post.entity.Post_Image;
-import com.javago.triplog.domain.post.repository.PostImageRepository;
 import com.javago.triplog.domain.post.service.PostService;
+import com.javago.triplog.domain.post_image.entity.Post_Image;
+import com.javago.triplog.domain.post_image.repository.PostImageRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
