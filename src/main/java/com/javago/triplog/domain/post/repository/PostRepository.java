@@ -19,7 +19,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     SELECT new com.javago.triplog.domain.post.dto.PostListResponse(p, i.imagePath)
     FROM Post p
     LEFT JOIN Post_Image i ON i.post = p AND i.isThumbnail = 'Y'
-    ORDER BY p.updated_at DESC, p.created_at DESC
+    ORDER BY p.updatedAt DESC, p.createdAt DESC
     
 """)
     List<PostListResponse> findPostList();
@@ -27,7 +27,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 게시글 조회시 조회수 증가
     @Modifying
-    @Query(value = "UPDATE Post p SET p.view_count = (p.view_count + 1) WHERE p.post_id = :post_id")
-    void updateViewCount(@Param("post_id") Long post_id);
+    @Query(value = "UPDATE Post p SET p.viewCount = (p.viewCount + 1) WHERE p.postId = :postId")
+    void updateViewCount(@Param("postId") Long postId);
 
 }

@@ -1,8 +1,11 @@
-package com.javago.triplog.domain.post.entity;
+package com.javago.triplog.domain.post_like.entity;
 
+import java.time.LocalDateTime;
+
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.javago.triplog.domain.mylog.entity.Mylog_tour;
+import com.javago.triplog.domain.post.entity.Post;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -18,24 +21,30 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.Getter;
 
-@Table(name = "post_tour")
+@Table(name = "post_like")
 @Entity
 @Getter
 @EntityListeners(AuditingEntityListener.class)
-public class Post_tour {
+public class Post_Like {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_tour_seq")
-    @SequenceGenerator(name = "post_tour_seq", sequenceName = "post_tour_seq", allocationSize = 1)
-    @Column(name = "post_tour_id", updatable = false)
-    private Long post_tour_id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_like_seq")
+    @SequenceGenerator(name = "post_like_seq", sequenceName = "post_like_seq", allocationSize = 1)
+    @Column(name = "like_id", updatable = false)
+    private Long likeId;
+
+    @CreatedDate
+    @Column(name = "liked_at", nullable = false, updatable = false)
+    private LocalDateTime likedAt;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "post_id", updatable = false, nullable = false)
     private Post post;
 
+    /* Member 연동 시 주석 해제
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "item_id", updatable = false, nullable = false)
-    private Mylog_tour mylog_tour;
-    
+    @JoinColumn(name = "member_id", updatable = false, nullable = false)
+    private Member member;
+    */
+
 }

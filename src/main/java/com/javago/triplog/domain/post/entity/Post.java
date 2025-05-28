@@ -10,8 +10,12 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.javago.triplog.domain.blog.entity.Blog;
-import com.javago.triplog.domain.comment.entity.Comments;
-import com.javago.triplog.domain.tag.entity.Post_Hashtag_people;
+//import com.javago.triplog.domain.comments.entity.Comments;
+//import com.javago.triplog.domain.post_hashtag_people.entity.Post_Hashtag_people;
+import com.javago.triplog.domain.post_image.entity.Post_Image;
+import com.javago.triplog.domain.post_like.entity.Post_Like;
+//import com.javago.triplog.domain.post_mylog.entity.Post_Mylog;
+//import com.javago.triplog.domain.post_tour.entity.Post_tour;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,7 +33,7 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_seq")
     @SequenceGenerator(name = "post_seq", sequenceName = "post_seq", allocationSize = 1)
     @Column(name = "post_id", updatable = false)
-    private Long post_id;
+    private Long postId;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -41,43 +45,43 @@ public class Post {
     // 생성 시간 저장
     @CreatedDate
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     // 수정 시간 저장
     @LastModifiedDate
     @Column(name = "updated_at")
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 
     @Column(name = "visibility", nullable = false)
     private String visibility;
 
     @Column(name = "view_count")
     @Builder.Default
-    private Long view_count = 0L;
+    private Long viewCount = 0L;
 
     // 게시글-이미지
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Post_Image> post_image = new ArrayList<>();
+    private List<Post_Image> postImage = new ArrayList<>();
 
     // 게시글-댓글
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Comments> comments = new ArrayList<>();
+    //@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    //private List<Comments> comments = new ArrayList<>();
 
     // 게시글-해시태그 관계
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Post_Hashtag_people> post_hashtag_people = new ArrayList<>();
+    //@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    //private List<post_hashtag_people> postHashtagPeople = new ArrayList<>();
 
     // 게시글-마이로그
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Post_Mylog> post_mylog = new ArrayList<>();
+    //@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    //private List<Post_Mylog> postMylog = new ArrayList<>();
 
     // 게시글-투어
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Post_tour> post_tour = new ArrayList<>();
+    //@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    //private List<Post_tour> postTour = new ArrayList<>();
 
     // 게시글-좋아요
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Post_Like> post_like = new ArrayList<>();
+    private List<Post_Like> postLike = new ArrayList<>();
 
     // 블로그-게시글
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
@@ -103,13 +107,13 @@ public class Post {
     }
 
     public Post(Post post){
-        this.post_id = post.post_id;
+        this.postId = post.postId;
         this.title = post.title;
         this.content = post.content;
-        this.created_at = post.created_at;
-        this.updated_at = post.updated_at;
+        this.createdAt = post.createdAt;
+        this.updatedAt = post.updatedAt;
         this.visibility = post.visibility;
-        this.view_count = post.view_count;
+        this.viewCount = post.viewCount;
         this.blog = post.blog;
     }
 

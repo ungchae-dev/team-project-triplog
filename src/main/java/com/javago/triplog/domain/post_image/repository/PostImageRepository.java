@@ -1,7 +1,8 @@
-package com.javago.triplog.domain.post.repository;
+package com.javago.triplog.domain.post_image.repository;
 
 import com.javago.triplog.domain.post.entity.Post;
-import com.javago.triplog.domain.post.entity.Post_Image;
+import com.javago.triplog.domain.post_image.entity.Post_Image;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
