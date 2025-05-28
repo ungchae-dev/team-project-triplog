@@ -14,7 +14,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
       # 또는 update, create 등
       # update: 누락된 컬럼이나 제약 조건을 Hibernate가 자동으로 수정하려고 시도함(개발 중엔 가능)
       # => 개발 후엔 validate나 none으로 설정해야함.
