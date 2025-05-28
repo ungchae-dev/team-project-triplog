@@ -1,0 +1,141 @@
+
+.card-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.category-btn.active {
+    font-weight: bold;
+    border-bottom: 2px solid #007bff;
+}
+
+/* category-tabs 및 정렬/지역 선택을 포함하는 상단 섹션 */
+.top-controls-container {
+    display: flex;
+    justify-content: space-between; /* 양 끝 정렬 */
+    align-items: flex-start; /* 상단 정렬 */
+    padding: 20px 50px; /* 좌우 패딩 추가 */
+    margin-top: 20px; /* 내비게이션 바 아래 여백 */
+    position: relative; /* 자식 요소의 absolute positioning 기준점 */
+}
+
+.page-title {
+    font-size: 2.5rem; /* 글씨 크기 조정 */
+    font-weight: bold;
+    color: #333;
+    position: absolute; /* 절대 위치 지정 */
+    top: 20px; /* top-controls-container의 top에서 20px 아래 */
+    right: 50px; /* top-controls-container의 right에서 50px 안쪽 */
+    text-align: right;
+}
+
+/* category-tabs를 오른쪽으로 정렬하고 내비게이션 바 아래로 이동 */
+.category-tabs {
+    display: flex; /* 버튼들이 가로로 정렬되도록 flexbox 사용 */
+    gap: 10px; /* 버튼들 사이의 간격 */
+    position: absolute; /* 절대 위치 지정 */
+    top: 100px; /* 페이지 제목 아래에 오도록 조절 */
+    right: 50px; /* 페이지 제목과 정렬 */
+}
+
+.tab-button {
+    padding: 8px 15px;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.tab-button:hover {
+    background-color: #e0e0e0;
+}
+
+.sort-options {
+    margin-top: 150px; /* category-tabs 아래에 오도록 조절 */
+    margin-left: 50px;
+}
+
+.sort-options ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sort-options li {
+    margin-bottom: 5px;
+}
+
+.sort-options li.active {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.select-region-container {
+    position: absolute;
+    top: 100px; /* 카테고리 탭과 비슷한 높이로 조정 */
+    left: 50px; /* 왼쪽 정렬 */
+}
+
+.card-grid-container {
+    padding: 20px 50px;
+    margin-top: 20px; /* 상단 요소들과의 간격 */
+}
+
+.card-grid-4x4 {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5열 그리드 */
+    gap: 20px;
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    cursor: pointer;
+    min-height: 200px; /* 카드 최소 높이 설정 */
+}
+
+.card-img {
+    width: 100%;
+    height: 120px; /* 이미지 높이 고정 */
+    object-fit: cover; /* 이미지가 카드에 꽉 차도록 */
+}
+
+.card-body {
+    padding: 10px;
+}
+
+.card-body h3 {
+    font-size: 1rem;
+    margin-top: 5px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.pagination ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: 10px;
+}
+
+.pagination li a {
+    text-decoration: none;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #007bff;
+}
+
+.pagination li a.active,
+.pagination li a:hover {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}

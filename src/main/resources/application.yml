@@ -14,7 +14,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
       # 또는 update, create 등
       # update: 누락된 컬럼이나 제약 조건을 Hibernate가 자동으로 수정하려고 시도함(개발 중엔 가능)
       # => 개발 후엔 validate나 none으로 설정해야함.
@@ -57,3 +57,6 @@ spotify:
   client-id: 2c8e088cc800489a8b2f747e7aa514b3
   client-secret: 3ce4c4814bdd472e845848994e7d7c30
 
+# tourApi service키 연결
+tourapi:
+  key: WE8zMSHqcnIgkNM8%2BArCN71r3exZEj%2FG4cPNj9NW8bb4quc1fmi2oxTpPF1C1aWmDl%2FXeAWBqQO6XMjJlShceg%3D%3D

@@ -22,11 +22,7 @@ public class MainController {
         return "page/mainpage"; //  templates/page/mainpage.html
     }
 
-    //행사,관광지,맛집페이지로 매핑
-    @GetMapping("/tour")
-    public String tourPage(@RequestParam(defaultValue = "서울") String region, Model model) {
-        return "page/tourpage";
-    }
+
 
     // 회원가입·로그인 페이지로 매핑 
     @GetMapping("/login")
