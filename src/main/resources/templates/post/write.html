@@ -73,9 +73,10 @@
 
   <input type="file" id="imageInput" accept="image/*"><br><br>
 
-  <div th:each="hashtag : ${hashtagList}" id="hashtag">
-    <input type="checkbox" th:text="hashtag.tagName">#해시태그</input>
-  </div>
+  <span th:each="hashtag : ${hashtagList}" id="hashtagList">
+    <input type="checkbox" name="hashtags" th:value="${hashtag.tagId}"/>
+    <span th:text="${hashtag.tagName}"></span>
+  </span>
 
   <input type="radio" name="visibility" value="PUBLIC"
        th:attr="checked=${post.visibility == null or post.visibility == 'PUBLIC'}">전체 공개
@@ -212,6 +213,12 @@
     const text = editor.innerText.trim();
     const visibilityInput = document.querySelector('input[name="visibility"]:checked');
     const visibility = visibilityInput.value;
+    const checkedHashtags = Array.from(document.querySelectorAll('input[name="hashtag"]:checked')).map(el => el.value);
+
+    if (checkedHashtags.length === 0) {
+    alert("해시태그를 하나 이상 선택해주세요");
+    return;
+    }
 
     if(!visibility){
       alert("공개 여부를 설정해주세요");

@@ -19,7 +19,7 @@
   <label>내용</label><br>
   <div id="content" th:utext="${post.content}"></div><br>
 
-  <span th:each="hashtag : ${post.postHashtagPeople}">
+  <span th:each="hashtag : ${hashtagList}">
     <span th:text="'#' + ${hashtag.hashtagPeople.tagName}">#해시태그</span>    </span>
 
   <label>좋아요</label><input type="checkbox" id="postLike"><br>
