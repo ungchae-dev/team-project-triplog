@@ -1,5 +1,7 @@
 package com.javago.triplog.domain.member.entity;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -105,6 +107,13 @@ public class Member {
         String password = passwordEncoder.encode(memberFormDto.getPassword());
         member.setPassword(password);
         //member.setRole(Role.USER); // 기본 권한은 USER로 지정
+
+        // 프로필 이미지는 회원가입 시점엔 NULL (나중에 블로그 프로필에서 업로드)
+        member.setProfileImage(null);
+        // 가입일자 YYYYMMDD 포맷
+        member.setJoinDate(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+        // 기본 도토리 세팅
+        member.setAcorn(30);
 
         return member;
     }

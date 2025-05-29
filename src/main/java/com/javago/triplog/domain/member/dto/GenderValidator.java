@@ -4,7 +4,6 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 // 성별 검증기 클래스
-
 public class GenderValidator implements ConstraintValidator<GenderCheck, Character> {
     
     @Override
