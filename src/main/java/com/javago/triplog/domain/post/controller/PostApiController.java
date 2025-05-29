@@ -53,9 +53,10 @@ public class PostApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(addPost);
     }
 
+    // 게시글 이미지 서버에 업로드
     @PostMapping("/api/upload-image")
         public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("image") MultipartFile file) throws IOException {
-        String uploadDir = "uploads";
+        String uploadDir = "src/main/resources/static/uploads/posts";
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Path uploadPath = Paths.get(uploadDir);
 
@@ -66,7 +67,7 @@ public class PostApiController {
         Path filePath = uploadPath.resolve(fileName);
         Files.copy(file.getInputStream(), filePath);
 
-        String imageUrl = "/uploads/" + fileName.replace("\\", "/");
+        String imageUrl = "/uploads/posts/" + fileName.replace("\\", "/");
         Map<String, String> result = new HashMap<>();
         result.put("imageUrl", imageUrl);
 
@@ -85,18 +86,27 @@ public class PostApiController {
         return ResponseEntity.ok().body(updatePost);
     }
 
+    // 게시글 삭제
+    @DeleteMapping("/api/delete/{id}")
+    public ResponseEntity<Post> deletePost(@PathVariable("id") Long id){
+        postService.delete(id);
+        return ResponseEntity.ok().build();
+    }
+
     // 게시글 좋아요 추가
     @PostMapping("/api/{id}/like")
     public ResponseEntity<?> likePost(@PathVariable("id") Long postId) {
         postService.addLike(postId);
-        return ResponseEntity.ok().body(Map.of("message", "좋아요 추가됨"));
+        Long likeCount = postService.countPostLike(postId);
+        return ResponseEntity.ok().body(Map.of("message", "좋아요 추가됨", "likeCount", likeCount));
     }
 
     // 게시글 좋아요 취소
     @DeleteMapping("/api/{id}/like")
     public ResponseEntity<?> unlikePost(@PathVariable("id") Long postId) {
         postService.removeLike(postId);
-        return ResponseEntity.ok().body(Map.of("message", "좋아요 취소됨"));
+        Long likeCount = postService.countPostLike(postId);
+        return ResponseEntity.ok().body(Map.of("message", "좋아요 취소됨", "likeCount", likeCount));
     }
 
     // 글 내용 html 그대로 저장, 태그로 이미지 url 추출

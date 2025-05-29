@@ -39,6 +39,7 @@ public class PostViewController {
     @GetMapping("/blog/post/write")
     public String write(Model model) {
         model.addAttribute("post", new Post());
+        model.addAttribute("hashtagList", postService.hashtagList());
         return "post/write";
     }
 

@@ -73,6 +73,10 @@
 
   <input type="file" id="imageInput" accept="image/*"><br><br>
 
+  <div th:each="hashtag : ${hashtagList}" id="hashtag">
+    <input type="checkbox" th:text="hashtag.tagName">#해시태그</input>
+  </div>
+
   <input type="radio" name="visibility" value="PUBLIC"
        th:attr="checked=${post.visibility == null or post.visibility == 'PUBLIC'}">전체 공개
   <input type="radio" name="visibility" value="PRIVATE"
@@ -242,7 +246,7 @@
     });
 
     if (res.ok) {
-      alert('글 작성 완료!');
+      alert(isModify ? '글 수정 완료' : '글 작성 완료');
       location.replace(isModify ? `/blog/post/${postId}` : `/blog/post/list`);
     } else {
       alert('작성 실패');

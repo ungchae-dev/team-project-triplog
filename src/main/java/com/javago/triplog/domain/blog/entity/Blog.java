@@ -26,14 +26,10 @@ public class Blog {
     @Column(name = "blog_id", updatable = false)
     private Long blogId;
 
-    @Column(name = "creation_date", nullable = false, updatable = false)
-    private LocalDateTime creationDate;
-
     @Column(name = "skin_active", nullable = false)
     private char skinActive;
 
     @Column(name = "skin_image")
-    @Lob
     private String skinImage;
 
     @Column(name = "condition_message")

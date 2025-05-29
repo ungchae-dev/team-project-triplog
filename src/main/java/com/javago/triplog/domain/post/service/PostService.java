@@ -2,6 +2,8 @@ package com.javago.triplog.domain.post.service;
 
 import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.blog.repository.BlogRepository;
+import com.javago.triplog.domain.hashtag_people.entity.Hashtag_People;
+import com.javago.triplog.domain.hashtag_people.repository.HashtagPeopleRepository;
 import com.javago.triplog.domain.post.dto.AddPostRequest;
 import com.javago.triplog.domain.post.dto.PostListResponse;
 import com.javago.triplog.domain.post.dto.UpdatePostRequest;
@@ -31,6 +33,7 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final PostRepository postRepository;
     private final BlogRepository blogRepository;
+    private final HashtagPeopleRepository hashtagPeopleRepository;
     private final PostHashtagPeopleRepository postHashtagPeopleRepository;
     //private final CommentsRepository commentsRepository;
 
@@ -39,6 +42,11 @@ public class PostService {
     public Post save(AddPostRequest addPostRequest) {
         Blog blog = blogRepository.findById(addPostRequest.getBlogId()).orElseThrow(() -> new IllegalArgumentException("Blog not found"));
         return postRepository.save(addPostRequest.toEntity(blog));
+    }
+
+    // 인원수 해시태그 리스트
+    public List<Hashtag_People> hashtagList(){
+        return hashtagPeopleRepository.hashtagList();
     }
 
     // 게시판 글 리스트 불러오기
@@ -69,7 +77,7 @@ public class PostService {
         return posts.stream()
             .map(post -> {
                 String thumbnail = post.getPostImage().stream()
-                    .filter(img -> "Y".equals(img.getIsThumbnail()))
+                    .filter(img -> 'Y'== img.getIsThumbnail())
                     .map(Post_Image::getImagePath)
                     .findFirst()
                     .orElse(null);
@@ -106,6 +114,16 @@ public class PostService {
         Post post = postRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Post not found"));
         post.update(request.getTitle(), request.getContent(), request.getVisibility());
         return post;
+    }
+    
+    // 게시판 글 삭제
+    public void delete(Long id) {
+        postRepository.deleteById(id);
+    }
+
+    // 좋아요 갯수 조회
+    public Long countPostLike(Long postId){
+        return postLikeRepository.countPostLike(postId);
     }
 
     // 좋아요 추가

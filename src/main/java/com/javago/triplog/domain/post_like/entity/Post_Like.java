@@ -7,7 +7,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.javago.triplog.domain.post.entity.Post;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -35,16 +34,12 @@ public class Post_Like {
     @Column(name = "like_id", updatable = false)
     private Long likeId;
 
-    @CreatedDate
-    @Column(name = "liked_at", nullable = false, updatable = false)
-    private LocalDateTime likedAt;
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id", updatable = false, nullable = false)
     private Post post;
 
     /* Member 연동 시 주석 해제
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", updatable = false, nullable = false)
     private Member member;
     */

@@ -5,55 +5,74 @@
     <title>글 조회</title>
 </head>
 <body>
-    <h2>글 조회</h2>
+  <h2>글 조회</h2>
 
-    <label>블로그 ID</label><br>
-    <div id="blog_id" th:text="${post.blog.blogId}"></div><br>
+  <label>블로그 ID</label><br>
+  <div id="blog_id" th:text="${post.blog.blogId}"></div><br>
 
-    <label>게시글 ID</label><br>
-    <div id="post_id" th:text="${post.postId}"></div><br>
+  <label>게시글 ID</label><br>
+  <div id="post_id" th:text="${post.postId}"></div><br>
 
-    <label hidden>제목</label><br>
-    <div id="title" th:text="'제목 | ' + ${post.title} + '&nbsp;&nbsp;조회수 | ' + ${post.viewCount}"></div><br>
+  <label hidden>제목</label><br>
+  <div id="title" th:text="'제목 | ' + ${post.title} + '&nbsp;&nbsp;조회수 | ' + ${post.viewCount}"></div><br>
 
-    <label>내용</label><br>
-    <div id="content" th:utext="${post.content}"></div><br>
+  <label>내용</label><br>
+  <div id="content" th:utext="${post.content}"></div><br>
 
-    <span th:each="hashtag : ${post.postHashtagPeople}">
-      <span th:text="'#' + ${hashtag.hashtagPeople.tagName}">#해시태그</span>
-    </span>
+  <span th:each="hashtag : ${post.postHashtagPeople}">
+    <span th:text="'#' + ${hashtag.hashtagPeople.tagName}">#해시태그</span>    </span>
 
-    <label>좋아요</label><input type="checkbox" id="postLike"><br>
-    <div id="likeCount" th:text="${post.postLike.size()}"></div><br>
+  <label>좋아요</label><input type="checkbox" id="postLike"><br>
+  <div id="likeCount" th:text="${post.postLike.size()}"></div><br>
 
-    <!--<label>댓글</label>
-    <div th:insert="comment/fragment :: commentSection"></div><br>-->
+  <!--<label>댓글</label>
+  <div th:insert="comment/fragment :: commentSection"></div><br>-->
 
-    <button type="button" th:onclick="|location.href='@{/blog/post/{id}/edit(id=${post.postId})}'|">수정</button>
+  <button type="button" th:onclick="|location.href='@{/blog/post/{id}/edit(id=${post.postId})}'|">수정</button>
+  <button type="button" id="delete-btn">삭제</button>
 
-    <script>
+  <script th:inline="javascript">
+    const id= /*[[${post.postId}]]*/ 0;
+    // 좋아요 추가, 취소
     document.getElementById('postLike').addEventListener('change', function () {
-    const id = "${post.postId}";
-    const isLiked = this.checked;
-
-    fetch(`/api/${id}/like`, {
-      method: isLiked ? 'POST' : 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    })
-    .then(res => {
-      if (!res.ok) throw new Error("서버 오류");
-      return res.json();
-    })
-    .then(data => {
-      console.log(data.message); // 성공 메시지
-      document.querySelector('#likeCount').textContent = data.likeCount;
-    })
-    .catch(err => {
-      console.error("오류 발생:", err);
+      const isLiked = this.checked;
+    
+      fetch(`/api/${id}/like`, {
+        method: isLiked ? 'POST' : 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("서버 오류");
+        return res.json();
+      })
+      .then(data => {
+        console.log(data.message); // 성공 메시지
+        document.querySelector('#likeCount').textContent = data.likeCount;
+      })
+      .catch(err => {
+        console.error("오류 발생:", err);
+      });
     });
-  });
-</script>
+
+    // 글 삭제
+    document.getElementById("delete-btn").addEventListener('click', function(){
+      const del = confirm("이 글을 삭제하시겠습니까?");
+      if(del == true){
+        fetch(`/api/delete/${id}`, {
+          method: 'DELETE',
+        })
+        .then(res => {
+          if(!res.ok) throw new Error("삭제 실패");
+          alert("삭제되었습니다.");
+          location.replace(`/blog/post/list`);
+        })
+        .catch(err => {
+          console.error(err.message);
+        });
+      }
+    });
+  </script>
 </body>
 </html>
