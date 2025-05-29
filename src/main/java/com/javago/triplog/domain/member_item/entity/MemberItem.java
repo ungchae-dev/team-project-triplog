@@ -35,7 +35,7 @@ public class MemberItem {
     @Column(name = "item_type", nullable = false, length = 10)
     private String itemType;
 
-    @Column(name = "purchase_date", nullable = false, length = 50)
+    @Column(name = "purchase_date", nullable = false, length = 8)
     private String purchaseDate;
 
     // MemberItem 엔티티를 생성하는 정적 팩토리 메서드
