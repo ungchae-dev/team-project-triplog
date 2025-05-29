@@ -14,7 +14,7 @@ public class MusicDto {
     private Long musicId;
     private String title;
     private String artist;
-    private String album;
-    private String musicFile;
+    private String album; // = imageUrl
+    private String musicFile; // previewUrl
     private int price;
 }

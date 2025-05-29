@@ -1,6 +1,7 @@
 package com.javago.triplog.domain.member_item.entity;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,17 +26,17 @@ public class MemberItem {
     @Column(name = "member_item_id")
     private Long memberItemId;
 
-    @Column(name = "member_id", nullable = false)
+    @Column(name = "member_id", nullable = false, length = 20)
     private String memberId;
 
     @Column(name = "item_id", nullable = false)
     private Long itemId;
 
-    @Column(name = "item_type", nullable = false)
+    @Column(name = "item_type", nullable = false, length = 10)
     private String itemType;
 
-    @Column(name = "purchase_date", nullable = false)
-    private LocalDate purchaseDate = LocalDate.now();
+    @Column(name = "purchase_date", nullable = false, length = 50)
+    private String purchaseDate;
 
     // MemberItem 엔티티를 생성하는 정적 팩토리 메서드
     public static MemberItem createMemberItem(String memberId, Long itemId, String itemType) {
@@ -48,7 +49,12 @@ public class MemberItem {
         memberItem.setMemberId(memberId);
         memberItem.setItemId(itemId);
         memberItem.setItemType(itemType);
-        memberItem.setPurchaseDate(LocalDate.now());
+        
+         // LocalDate → String 변환
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDate = LocalDate.now().format(formatter);
+        memberItem.setPurchaseDate(formattedDate);
+
 
         return memberItem;
     }

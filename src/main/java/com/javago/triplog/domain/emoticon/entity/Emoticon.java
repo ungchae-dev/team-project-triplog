@@ -19,8 +19,7 @@ public class Emoticon {
     @Column(name = "emoticon_name", nullable = false, length = 100)
     private String emoticonName;
 
-    @Lob // CLOB 타입으로 이미지 데이터를 저장
-    @Column(name = "emoticon_image", nullable = false)
+    @Column(name = "emoticon_image", nullable = false, length = 4000)
     private String emoticonImage;
 
     @Column(name = "price", nullable = false)
