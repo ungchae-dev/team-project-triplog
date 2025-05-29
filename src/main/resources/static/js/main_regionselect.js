@@ -64,6 +64,14 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("regionDialog").close();
     });
 
+    //선택한 지역의 areaCode 보내기
+    const currentAreaCode = selectedAreaCode;
+
+    const div = document.getElementById("selectedDataCode");
+    div.dataset.code = currentAreaCode;
+
+
+
     // 행사 API 호출 함수
     function fetchEventsByAreaCode(areaCode) {
         fetch(`https://apis.data.go.kr/B551011/KorService2/searchFestival2?numOfRows=12&pageNo=1&MobileOS=ETC&MobileApp=AppTest&_type=json&eventStartDate=20250101&areaCode=${areaCode}&serviceKey=WE8zMSHqcnIgkNM8%2BArCN71r3exZEj%2FG4cPNj9NW8bb4quc1fmi2oxTpPF1C1aWmDl%2FXeAWBqQO6XMjJlShceg%3D%3D&_type=json`)
@@ -190,6 +198,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.getElementById("prevFoodPageBtn").disabled = currentFoodPage === 1;
         document.getElementById("nextFoodPageBtn").disabled = foodend >= foodData.length;
+    }
+
+    window.moveToTourPage = function moveToTourPage(currentAreaCode,category,page) {
+
+
+        if (!currentAreaCode) {
+            alert("지역을 선택하세요.");
+            return;
+        }
+
+        const url = `/tour?areaCode=${currentAreaCode}&category=${category}&page=${page}`;
+        window.location.href = url;
     }
 
     // 행사 페이지네이션

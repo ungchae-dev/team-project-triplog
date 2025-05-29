@@ -59,7 +59,7 @@
 
             <!-- 글 검색 -->
             <div class="text-center">
-                <a href="/searchpage" class="nav-link p-0">
+                <a href="/search" class="nav-link p-0">
                     <img src="/images/page/search.png" alt="글 검색" width="36">
                     <div class="small">글 검색</div>
                 </a>
@@ -67,7 +67,7 @@
 
             <!-- 행사/관광/맛집 -->
             <div class="text-center">
-                <a class="nav-link p-0" href="/tour">
+                <a class="nav-link p-0" href="/tour?areaCode=1&category=event&page=1">
                     <img src="/images/page/tour.png" alt="행사/관광/맛집" width="36">
                     <div class="small">행사/관광/맛집</div>
                 </a>
@@ -140,6 +140,8 @@
             지역
         </button>
 
+        <button id="selectedRegionName" class="btn btn-secondary"></button>
+
     </div>
 
     <div style="color: saddlebrown">
@@ -153,7 +155,7 @@
     <div class="d-flex justify-content-between mt-3">
         <button id="prevPageBtn" class="btn btn-secondary">이전</button>
         <button id="nextPageBtn" class="btn btn-secondary">다음</button>
-        <button onclick="location.href='tourpage.html'" class="btn btn-primary">더보기</button>
+        <button onclick="moveToTourPage(document.getElementById('selectedDataCode').dataset.code,'event',1)" class="btn btn-primary">더보기</button>
     </div>
 
 
@@ -188,7 +190,7 @@
 
     </div>
 
-    <div class="mb-3">선택된 지역: <span id="selectedRegionName">서울</span></div>
+    <div id="selectedDataCode" data-code=""></div>
 
     <div class="d-flex justify-content-end gap-2">
         <button id="cancelRegionBtn" class="btn btn-secondary">취소</button>
@@ -210,7 +212,7 @@
         <div class="col-md-6">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h5 style="color: saddlebrown">같이 가보기 좋아요 !</h5>
-                <button class="btn btn-sm btn-primary" onclick="location.href='/tour'">더보기</button>
+                <button class="btn btn-sm btn-primary" onclick="moveToTourPage(document.getElementById('selectedDataCode').dataset.code,'tour', 1)">더보기</button>
             </div>
             <!-- 관광지 목록 출력 -->
             <div id="tourList" class="row row-cols-2 g-3"></div>
@@ -224,7 +226,7 @@
         <div class="col-md-6">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h5 style="color: saddlebrown">이런 맛집도 있어요~</h5>
-                <button class="btn btn-sm btn-primary" onclick="location.href='/tour'">더보기</button>
+                <button class="btn btn-sm btn-primary" onclick="moveToTourPage(document.getElementById('selectedDataCode').dataset.code,'food',1)">더보기</button>
             </div>
             <!-- 맛집 목록 출력 -->
             <div id="foodList" class="row row-cols-2 g-3"></div>
@@ -337,6 +339,8 @@
             `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`
         );
     }
+
+
 </script>
 </body>
 </html>
