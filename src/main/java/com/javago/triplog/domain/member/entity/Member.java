@@ -40,7 +40,7 @@ public class Member {
     private String name;      // 사용자 실명
 
     @Column(name = "gender", length = 1, nullable = false)
-    private char gender;      // 성별 (주민번호로 구분, 1,3: 남성 / 2,4: 여성)
+    private char gender;      // 성별 (주민번호로 구분, F: 남성 / M: 여성)
 
     @Column(name = "nickname", length = 20, nullable = false, unique = true)
     private String nickname;  // 닉네임 (다른 사용자에게 표시됨)
@@ -57,8 +57,8 @@ public class Member {
     @Column(name = "phone", length = 20, nullable = false, unique = true)
     private String phone;     // 휴대폰 번호 (ex: 010-1234-5678)
 
-    @Column(name = "join_date", nullable = false)
-    private String joinDate;    // 가입일자 (기본값: 현재 시스템 날짜)
+    @Column(name = "join_date", length = 8, nullable = false)
+    private String joinDate;    // 가입일자
 
     @Column(name = "acorn", nullable = false)
     private int acorn;        // 도토리 (기본값: 30)

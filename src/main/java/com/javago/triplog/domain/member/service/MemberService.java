@@ -73,5 +73,18 @@ public class MemberService {
         return memberRepository.save(member); // 수정된 회원 정보 저장 및 반환
     }
 
+    
+    @Transactional
+    public void deleteMember(String memberId) {
+        Member member = findMember(memberId); // 예외 발생 포함
+
+        // 프로필 이미지가 있는 경우 파일 삭제
+        if (member.getProfileImage() != null && !member.getProfileImage().isEmpty()) {
+            fileUploadService.delete(member.getProfileImage());
+        }
+
+        // DB에서 회원 삭제
+        memberRepository.delete(member);
+    }
 
 }

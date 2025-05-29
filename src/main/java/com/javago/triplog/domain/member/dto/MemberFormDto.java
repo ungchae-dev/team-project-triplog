@@ -18,7 +18,6 @@ public class MemberFormDto {
     
     private String memberId; // 사용자 아이디
     private String name; // 사용자 이름
-    private String ssn; // 주민등록번호
     private char gender; // 성별: 주민번호로 구분, 화면에서는 입력 안 받음
     private String nickname; // 닉네임
     private String email; // 이메일
