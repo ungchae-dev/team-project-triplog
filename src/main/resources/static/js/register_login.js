@@ -1,6 +1,6 @@
 // 회원가입/로그인 폼 전환 애니메이션
 const signUpButton = document.getElementById('signUp');
-const signInButton = document.getElementById('signIn');
+const loginButton = document.getElementById('signIn');
 const container = document.querySelector('.container');
 
 // URL 파라미터로 초기 상태 설정
@@ -18,11 +18,13 @@ window.addEventListener('DOMContentLoaded', () => {
 // 회원가입 폼으로 전환
 signUpButton.addEventListener('click', () => {
     container.classList.add('right-panel-active');
+    window.history.pushState(null, '', '/login?type=signup');
 });
 
 // 로그인 폼으로 전환
-signInButton.addEventListener('click', () => {
+loginButton.addEventListener('click', () => {
     container.classList.remove('right-panel-active');
+    window.history.pushState(null, '', '/login?type=signin');
 });
 
 // 회원가입 폼 유효성 검사 및 제출
@@ -86,22 +88,22 @@ document.getElementById('form2').addEventListener('submit', function(e) {
         },
         body: JSON.stringify(loginData)
     })
-        .then(response => {
-            if (response.ok) {
-                window.location.href = '/home';
-            } else {
-                return response.json();
-            }
-        })
-        .then(data => {
-            if (data) {
-                alert('로그인 실패: ' + (data.message || '아이디 또는 비밀번호가 잘못되었습니다.'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('로그인 중 오류가 발생했습니다!');
-        });
+    .then(response => {
+        if (response.ok) {
+            window.location.href = '/home';
+        } else {
+            return response.json();
+        }
+    })
+    .then(data => {
+        if (data) {
+            alert('로그인 실패: ' + (data.message || '아이디 또는 비밀번호가 잘못되었습니다.'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('로그인 중 오류가 발생했습니다!');
+    });
 });
 
 // 회원가입 유효성 검사 함수
