@@ -36,4 +36,22 @@ public class FileUploadService {
         // 저장된 파일의 상대 경로나 URL 반환 (DB에 저장할 경로)
         return "/uploads/" + savedFilename;
     }
+
+    // 파일 삭제 메서드 추가
+    public void delete(String imagePath) {
+        if (imagePath == null || imagePath.isEmpty()) {
+            return;
+        }
+
+        // imagePath가 "/uploads/abcd.jpg" 형태일 경우 "/uploads/"를 제거하여 실제 파일명 추출
+        String filename = imagePath.replace("/uploads/", "");
+        File file = new File(uploadDir + File.separator + filename);
+
+        if (file.exists()) {
+            boolean deleted = file.delete();
+            if (!deleted) {
+                throw new RuntimeException("파일 삭제 실패: " + filename);
+            }
+        }
+    }
 }

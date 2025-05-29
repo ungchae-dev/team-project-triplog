@@ -1,10 +1,8 @@
-package com.javago.triplog.domain.post_like.entity;
+package com.javago.triplog.domain.post_hashtag_people.entity;
 
-import java.time.LocalDateTime;
-
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.javago.triplog.domain.hashtag_people.entity.Hashtag_People;
 import com.javago.triplog.domain.post.entity.Post;
 
 import jakarta.persistence.Column;
@@ -21,27 +19,25 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-@Table(name = "post_like")
 @Entity
 @Getter
 @Setter
+@Table(name = "post_hashtag_people")
 @EntityListeners(AuditingEntityListener.class)
-public class Post_Like {
-
+public class Post_Hashtag_people {
+    
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_like_seq")
-    @SequenceGenerator(name = "post_like_seq", sequenceName = "post_like_seq", allocationSize = 1)
-    @Column(name = "like_id", updatable = false)
-    private Long likeId;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_hashtag_people_seq")
+    @SequenceGenerator(name = "post_hashtag_people_seq", sequenceName = "post_hashtag_people_seq", allocationSize = 1)
+    @Column(name = "post_tag_id", updatable = false)
+    private Long postTagId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id", updatable = false, nullable = false)
     private Post post;
 
-    /* Member 연동 시 주석 해제
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "member_id", updatable = false, nullable = false)
-    private Member member;
-    */
+    @JoinColumn(name = "tag_id", updatable = false, nullable = false)
+    private Hashtag_People hashtagPeople;
 
 }

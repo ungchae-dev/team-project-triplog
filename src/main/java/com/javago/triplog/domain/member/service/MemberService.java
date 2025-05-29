@@ -26,9 +26,7 @@ public class MemberService {
     public Member registerMember(MemberFormDto memberFormDto) {
         
         // 주민등록번호, 닉네임, 이메일, 휴대폰 번호 중복 검사
-        if (memberRepository.existsBySsn(memberFormDto.getSsn())) {
-            throw new IllegalStateException("이미 등록된 주민등록번호입니다!");
-        } else if (memberRepository.existsByNickname(memberFormDto.getNickname())) {
+        if (memberRepository.existsByNickname(memberFormDto.getNickname())) {
             throw new IllegalStateException("이미 등록된 닉네임입니다!");
         } else if (memberRepository.existsByEmail(memberFormDto.getEmail())) {
             throw new IllegalStateException("이미 등록된 이메일입니다!");
@@ -75,5 +73,18 @@ public class MemberService {
         return memberRepository.save(member); // 수정된 회원 정보 저장 및 반환
     }
 
+    
+    @Transactional
+    public void deleteMember(String memberId) {
+        Member member = findMember(memberId); // 예외 발생 포함
+
+        // 프로필 이미지가 있는 경우 파일 삭제
+        if (member.getProfileImage() != null && !member.getProfileImage().isEmpty()) {
+            fileUploadService.delete(member.getProfileImage());
+        }
+
+        // DB에서 회원 삭제
+        memberRepository.delete(member);
+    }
 
 }
