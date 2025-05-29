@@ -22,11 +22,10 @@ public class Music {
     @Column(name = "artist", nullable = false, length = 50)
     private String artist; // 가수 이름
 
-    @Column(name = "album", length = 50)
+    @Column(name = "album", nullable = false, length = 50)
     private String album; // 앨범명 (nullable)
 
-    @Lob // CLOB 타입으로 음악 파일 경로를 저장
-    @Column(name = "music_file", nullable = false)
+    @Column(name = "music_file", nullable = false, length = 4000)
     private String musicFile; // 음악 파일 경로
 
     @Column(name = "price", nullable = false)

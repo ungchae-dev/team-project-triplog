@@ -19,5 +19,5 @@ public class MemberItemDto {
     private String memberId;
     private Long itemId;
     private String itemType;
-    private LocalDate purchaseDate;
+    private String purchaseDate;
 }
