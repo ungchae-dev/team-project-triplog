@@ -13,10 +13,16 @@
       <div class="container__form container--signup">
         <form action="#" class="form" id="form1">
           <h2 class="form__title">회원가입</h2>
+      
+      <!-- 성별 -->
+      <select name="gender" class="input" required>
+        <option value="" disabled selected>성별 선택</option>
+        <option value="M">남성</option>
+        <option value="F">여성</option>
+      </select>
 
       <input type="text" name="member_id" placeholder="아이디" class="input" required />
       <input type="text" name="name" placeholder="이름" class="input" required />
-      <input type="text" name="ssn" placeholder="주민등록번호( - 포함 앞: 6자리, 뒤: 7자리)" class="input" maxlength="14" required />
       <input type="text" name="nickname" placeholder="닉네임" class="input" required />
       <input type="email" name="email" placeholder="이메일 (예: abcd@example.com)" class="input" required />
       <input type="password" name="password" placeholder="비밀번호 (특수문자 1자리 이상, 영문, 숫자 포함)" class="input" required />
