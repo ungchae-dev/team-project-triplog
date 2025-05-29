@@ -87,7 +87,7 @@
   const imageInput = document.getElementById('imageInput');
   const deleteBtn = document.getElementById('deleteBtn');
   let currentImage = null;
-
+/*
   // 이미지 삽입 이벤트
   imageInput.addEventListener('change', () => {
     const file = imageInput.files[0];
@@ -100,11 +100,54 @@
       return;
     }
 
-    // 이미지 생성 후 이미지 뒤에 커서 위치 고정
+    
     const reader = new FileReader();
     reader.onload = function (e) {
       const img = document.createElement('img');
       img.src = e.target.result;
+      
+      img.style.maxWidth = '600px';
+      img.style.height = 'auto';
+      // 이미지 생성 후 이미지 뒤에 커서 위치 고정
+      const br = document.createElement('br');
+      insertAtCursor(br);
+      insertAtCursor(img);
+      insertAtCursor(document.createElement('br'));
+
+      imageInput.value = '';
+    };
+    reader.readAsDataURL(file);
+  });
+*/
+  imageInput.addEventListener('change', async () => {
+    const file = imageInput.files[0];
+    if (!file) return;
+
+    // 이미지 사이즈 제한 (예: 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('이미지 크기는 최대 2MB까지 가능합니다.');
+      imageInput.value = '';
+      return;
+    }
+
+    // 서버로 업로드
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const res = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!res.ok) {
+        throw new Error('이미지 업로드 실패');
+      }
+
+      const result = await res.json(); // 예: { imageUrl: "/uploads/image123.jpg" }
+
+      const img = document.createElement('img');
+      img.src = result.imageUrl;
       img.style.maxWidth = '600px';
       img.style.height = 'auto';
 
@@ -114,8 +157,10 @@
       insertAtCursor(document.createElement('br'));
 
       imageInput.value = '';
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      console.error(error);
+      alert('이미지 업로드 중 오류가 발생했습니다.');
+    }
   });
 
   // 커서 위치에 이미지 생성
@@ -137,8 +182,8 @@
     if (e.target.tagName === 'IMG') {
       currentImage = e.target;
       const rect = e.target.getBoundingClientRect();
-      deleteBtn.style.top = `${rect.top}px`;
-      deleteBtn.style.left = `${rect.left + rect.width - 10}px`;
+      deleteBtn.style.top = `${rect.top + window.scrollY}px`;
+      deleteBtn.style.left = `${rect.left + rect.width - 10 + window.scrollX}px`;
       deleteBtn.style.display = 'block';
     } else {
       deleteBtn.style.display = 'none';
@@ -198,7 +243,7 @@
 
     if (res.ok) {
       alert('글 작성 완료!');
-      location.replace(isModify ? `/post/${postId}` : `/post/list`);
+      location.replace(isModify ? `/blog/post/${postId}` : `/blog/post/list`);
     } else {
       alert('작성 실패');
     }

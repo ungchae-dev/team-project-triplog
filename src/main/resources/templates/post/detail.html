@@ -19,12 +19,41 @@
     <label>내용</label><br>
     <div id="content" th:utext="${post.content}"></div><br>
 
+    <span th:each="hashtag : ${post.postHashtagPeople}">
+      <span th:text="'#' + ${hashtag.hashtagPeople.tagName}">#해시태그</span>
+    </span>
+
     <label>좋아요</label><input type="checkbox" id="postLike"><br>
-    <div th:text="${post.postLike.size() != null ? post.postLike.size() : 0}"></div><br>
+    <div id="likeCount" th:text="${post.postLike.size()}"></div><br>
 
-    <label>댓글</label>
-    <div th:insert="comment/fragment :: commentSection"></div><br>
+    <!--<label>댓글</label>
+    <div th:insert="comment/fragment :: commentSection"></div><br>-->
 
-    <button type="button" th:onclick="|location.href='@{/post/{id}/edit(id=${post.postId})}'|">수정</button>
+    <button type="button" th:onclick="|location.href='@{/blog/post/{id}/edit(id=${post.postId})}'|">수정</button>
+
+    <script>
+    document.getElementById('postLike').addEventListener('change', function () {
+    const id = "${post.postId}";
+    const isLiked = this.checked;
+
+    fetch(`/api/${id}/like`, {
+      method: isLiked ? 'POST' : 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("서버 오류");
+      return res.json();
+    })
+    .then(data => {
+      console.log(data.message); // 성공 메시지
+      document.querySelector('#likeCount').textContent = data.likeCount;
+    })
+    .catch(err => {
+      console.error("오류 발생:", err);
+    });
+  });
+</script>
 </body>
 </html>

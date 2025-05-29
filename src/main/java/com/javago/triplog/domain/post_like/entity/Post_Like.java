@@ -20,10 +20,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.Setter;
 
 @Table(name = "post_like")
 @Entity
 @Getter
+@Setter
 @EntityListeners(AuditingEntityListener.class)
 public class Post_Like {
 
@@ -37,7 +39,7 @@ public class Post_Like {
     @Column(name = "liked_at", nullable = false, updatable = false)
     private LocalDateTime likedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id", updatable = false, nullable = false)
     private Post post;
 

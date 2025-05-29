@@ -11,7 +11,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.javago.triplog.domain.blog.entity.Blog;
 //import com.javago.triplog.domain.comments.entity.Comments;
-//import com.javago.triplog.domain.post_hashtag_people.entity.Post_Hashtag_people;
+import com.javago.triplog.domain.post_hashtag_people.entity.Post_Hashtag_people;
 import com.javago.triplog.domain.post_image.entity.Post_Image;
 import com.javago.triplog.domain.post_like.entity.Post_Like;
 //import com.javago.triplog.domain.post_mylog.entity.Post_Mylog;
@@ -68,8 +68,8 @@ public class Post {
     //private List<Comments> comments = new ArrayList<>();
 
     // 게시글-해시태그 관계
-    //@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    //private List<post_hashtag_people> postHashtagPeople = new ArrayList<>();
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Post_Hashtag_people> postHashtagPeople = new ArrayList<>();
 
     // 게시글-마이로그
     //@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -84,12 +84,12 @@ public class Post {
     private List<Post_Like> postLike = new ArrayList<>();
 
     // 블로그-게시글
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "blog_id", updatable = false, nullable = false)
     private Blog blog;
 
     @Builder
-    private Post(String title, String content, String visibility, Blog blog) {
+    public Post(String title, String content, String visibility, Blog blog) {
         this.title = title;
         this.content = content;
         this.visibility = visibility;

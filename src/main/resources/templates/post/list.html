@@ -28,7 +28,7 @@
 <body>
 <h2>게시글 목록</h2>
 
-<button th:onclick="|location.href='@{/post/write}'|" type="button">글 작성</button>
+<button th:onclick="|location.href='@{/blog/post/write}'|" type="button">글 작성</button>
 
 <div>
     <div th:each="post : ${postList}" class="post">
@@ -38,12 +38,19 @@
         </div>
         <div class="title">
             <!-- 게시글 제목 -->
-            <a th:href="@{'/post/' + ${post.post.postId}}" th:text="${post.post.title}">게시글 제목</a>
+            <a th:href="@{'/blog/post/' + ${post.post.postId}}" th:text="${post.post.title}">게시글 제목</a>
         </div>
         <div th:text="'조회수 | ' + ${post.post.viewCount}"></div>
         <div class="meta" th:text="${#temporals.format(post.post.createdAt, 'yyyy-MM-dd HH:mm')}">작성일</div>
         <div th:text="${#temporals.format(post.post.updatedAt, 'yyyy-MM-dd HH:mm')}">수정일</div>
+        
+        <span th:each="hashtag : ${post.hashtags}">
+            <span th:text="'#' + ${hashtag.hashtagPeople.tagName}">#해시태그</span>
+        </span>
         <div th:text="${post.post.postLike.size() != null ? post.post.postLike.size() : 0}">좋아요</div>
+        <div>
+            
+        </div>
     </div>
 </div>
 </body>
