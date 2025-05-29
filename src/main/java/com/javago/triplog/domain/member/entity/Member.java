@@ -39,9 +39,6 @@ public class Member {
     @Column(name = "name", length = 20, nullable = false)
     private String name;      // 사용자 실명
 
-    @Column(name = "ssn", length = 14, nullable = false, unique = true)
-    private String ssn;       // 주민등록번호 (ex: 921004-1234567)
-
     @Column(name = "gender", length = 1, nullable = false)
     private char gender;      // 성별 (주민번호로 구분, 1,3: 남성 / 2,4: 여성)
 
@@ -54,7 +51,6 @@ public class Member {
     @Column(name = "password", length = 100, nullable = false)
     private String password;  // 비밀번호 (특수문자, 영문, 숫자 포함)
 
-    @Lob
     @Column(name = "profile_image")
     private String profileImage;  // 프로필 이미지 경로 (NULL 허용)
 
@@ -62,11 +58,11 @@ public class Member {
     private String phone;     // 휴대폰 번호 (ex: 010-1234-5678)
 
     @Column(name = "join_date", nullable = false)
-    private Date joinDate;    // 가입일자 (기본값: 현재 시스템 날짜)
+    private String joinDate;    // 가입일자 (기본값: 현재 시스템 날짜)
 
     @Column(name = "acorn", nullable = false)
     private int acorn;        // 도토리 (기본값: 30)
-
+/*
     // 생성 직전 기본값 세팅 (joinDate, acorn)
     @PrePersist
     public void prePersist() {
@@ -77,7 +73,7 @@ public class Member {
             acorn = 30;  // 기본 도토리 30으로 세팅
         }
     }
-
+*/
     // 기본 생성자 (JPA용)
     public Member() {}
 
@@ -97,7 +93,6 @@ public class Member {
 
         member.setMemberId(memberFormDto.getMemberId());
         member.setName(memberFormDto.getName());
-        member.setSsn(memberFormDto.getSsn());
         member.setGender(memberFormDto.getGender());
         member.setNickname(memberFormDto.getNickname());
         member.setEmail(memberFormDto.getEmail());

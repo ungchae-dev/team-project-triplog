@@ -27,7 +27,6 @@ public class Post_Image {
     @Column(name = "image_id", updatable = false)
     private Long imageId;
 
-    @Lob
     @Column(name = "image_path", updatable = false, nullable = false)
     private String imagePath;
 

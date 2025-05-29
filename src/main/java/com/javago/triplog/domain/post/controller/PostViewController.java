@@ -20,7 +20,7 @@ public class PostViewController {
     private final PostService postService;
 
     // 게시판 글 목록
-    @GetMapping("/post/list")
+    @GetMapping("/blog/post/list")
     public String list(Model model) {
         List<PostListResponse> postList = postService.findPostList();
         model.addAttribute("postList", postList);
@@ -28,7 +28,7 @@ public class PostViewController {
     }
 
     // 하나의 게시판 글 반환
-    @GetMapping("/post/{id}")
+    @GetMapping("/blog/post/{id}")
     public String getPost(@PathVariable("id") Long id, Model model) {
         Post post = postService.findById(id);
         model.addAttribute("post", post);
@@ -36,14 +36,15 @@ public class PostViewController {
     }
 
     // 게시판 글 작성
-    @GetMapping("/post/write")
+    @GetMapping("/blog/post/write")
     public String write(Model model) {
         model.addAttribute("post", new Post());
+        model.addAttribute("hashtagList", postService.hashtagList());
         return "post/write";
     }
 
     // 게시판 글 수정
-    @GetMapping("/post/{id}/edit")
+    @GetMapping("/blog/post/{id}/edit")
     public String modify(@PathVariable("id") Long id, Model model) {
         Post post = postService.findtoUpdate(id);
         model.addAttribute("post", new Post(post));

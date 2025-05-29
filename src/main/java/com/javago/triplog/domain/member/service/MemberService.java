@@ -26,9 +26,7 @@ public class MemberService {
     public Member registerMember(MemberFormDto memberFormDto) {
         
         // 주민등록번호, 닉네임, 이메일, 휴대폰 번호 중복 검사
-        if (memberRepository.existsBySsn(memberFormDto.getSsn())) {
-            throw new IllegalStateException("이미 등록된 주민등록번호입니다!");
-        } else if (memberRepository.existsByNickname(memberFormDto.getNickname())) {
+        if (memberRepository.existsByNickname(memberFormDto.getNickname())) {
             throw new IllegalStateException("이미 등록된 닉네임입니다!");
         } else if (memberRepository.existsByEmail(memberFormDto.getEmail())) {
             throw new IllegalStateException("이미 등록된 이메일입니다!");

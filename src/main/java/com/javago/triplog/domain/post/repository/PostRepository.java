@@ -1,6 +1,5 @@
 package com.javago.triplog.domain.post.repository;
 
-import com.javago.triplog.domain.post.dto.PostListResponse;
 import com.javago.triplog.domain.post.entity.Post;
 
 import java.util.List;
@@ -16,18 +15,20 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 게시글 + 썸네일 (나중에 WHERE blog_id 추가할 것)
     @Query("""
-    SELECT new com.javago.triplog.domain.post.dto.PostListResponse(p, i.imagePath)
-    FROM Post p
-    LEFT JOIN Post_Image i ON i.post = p AND i.isThumbnail = 'Y'
+    SELECT DISTINCT p FROM Post p
+    LEFT JOIN FETCH p.postImage i
+    WHERE i.isThumbnail = 'Y' OR i IS NULL
     ORDER BY p.updatedAt DESC, p.createdAt DESC
-    
-""")
-    List<PostListResponse> findPostList();
-
+    """)
+    List<Post> findPostsWithThumbnail();
 
     // 게시글 조회시 조회수 증가
     @Modifying
     @Query(value = "UPDATE Post p SET p.viewCount = (p.viewCount + 1) WHERE p.postId = :postId")
     void updateViewCount(@Param("postId") Long postId);
+
+    // 게시글 + 해시태그
+    @Query("SELECT DISTINCT p FROM Post p LEFT JOIN FETCH p.postHashtagPeople h WHERE p.postId = :postId")
+    Post findByPostId(@Param("postId") Long postId);
 
 }
