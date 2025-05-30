@@ -2,6 +2,8 @@ package com.javago.triplog.domain.member.dto;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.javago.constant.Gender;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,7 +19,7 @@ import lombok.Setter;
 public class MemberFormDto {
     
     @GenderCheck
-    private char gender; // 성별(M: 남성, F: 여성)
+    private Gender gender; // 성별 (MALE: 남성, FEMALE: 여성)
     private String memberId; // 사용자 아이디
     private String name; // 사용자 이름
     private String nickname; // 닉네임

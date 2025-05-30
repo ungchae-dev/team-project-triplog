@@ -27,7 +27,7 @@ public class Blog {
     private Long blogId;
 
     @Column(name = "skin_active", nullable = false)
-    private char skinActive;
+    private String skinActive;
 
     @Column(name = "skin_image")
     private String skinImage;

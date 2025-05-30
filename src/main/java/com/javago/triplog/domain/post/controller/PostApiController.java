@@ -133,9 +133,9 @@ public class PostApiController {
             image.setPost(post);
             image.setImagePath(url); // ✔ imagePath로 변경된 setter 사용
             if (i == 0) {
-                image.setIsThumbnail('Y'); // ✔ isThumbnail에 맞는 setter 사용
+                image.setIsThumbnail("Y"); // ✔ isThumbnail에 맞는 setter 사용
             } else {
-                image.setIsThumbnail('N');
+                image.setIsThumbnail("N");
             }
 
             imageRepository.save(image);

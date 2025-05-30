@@ -77,7 +77,7 @@ public class PostService {
         return posts.stream()
             .map(post -> {
                 String thumbnail = post.getPostImage().stream()
-                    .filter(img -> 'Y'== img.getIsThumbnail())
+                    .filter(img -> "Y"== img.getIsThumbnail())
                     .map(Post_Image::getImagePath)
                     .findFirst()
                     .orElse(null);

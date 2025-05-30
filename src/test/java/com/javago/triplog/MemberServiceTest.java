@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.javago.constant.Gender;
 import com.javago.triplog.domain.member.dto.MemberFormDto;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.service.MemberService;
@@ -39,7 +40,7 @@ public class MemberServiceTest {
     // 회원 정보를 입력한 Member 엔티티를 만드는 메서드를 작성
     public Member createMember() {
         MemberFormDto memberFormDto = new MemberFormDto();
-        memberFormDto.setGender('M');
+        memberFormDto.setGender(Gender.MALE); // Gender: enum 남성(MALE), 여성(FEMALE)
         memberFormDto.setMemberId("loop1004");
         memberFormDto.setName("루피");
         memberFormDto.setNickname("쵸카와이");
