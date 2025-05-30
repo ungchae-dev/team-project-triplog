@@ -52,9 +52,5 @@ logging:
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql: trace
 
-# 스포티파이 API키 연결
-spotify:
-  client-id: 2c8e088cc800489a8b2f747e7aa514b3
-  client-secret: 3ce4c4814bdd472e845848994e7d7c30
 
 

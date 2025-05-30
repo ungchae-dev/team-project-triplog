@@ -20,6 +20,10 @@ public class SecurityConfig {
                 .requestMatchers("/", // 메인 페이지
                 "/tour", // 행사·관광·맛집 페이지
                 "/popup", // 팝업 창    ===> 글 검색 페이지 향후 추가
+                "/member/form", // 임시 회원가입 페이지
+                "/member/new",  // 임시 회원가입Add commentMore actions
+                "/member/login", // 로그인 페이지(MainController)
+                //"/member/signup",  
                 "/member/new",  // 회원가입 처리
                 "/member/login", // 회원가입·로그인 페이지
                 "/api/signup", 
