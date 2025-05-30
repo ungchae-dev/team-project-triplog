@@ -65,6 +65,22 @@ public class PostService {
         }
     }
 
+    @Transactional
+    public void saveHashtags(String hashtags, Long postId){
+        String[] hashtag = hashtags.split("#");
+        log.info("hashtags: {}", hashtag.length);
+        log.info("hashtag: {}", hashtag.length);
+        for (String tag : hashtag) {
+            tag = tag.trim();
+            if (!tag.isEmpty()) {
+                log.info("Saving tag: {}", tag);
+                hashtagPeopleRepository.saveHashtag(tag);
+                Long hashtagId = hashtagPeopleRepository.findHashtagIdBytagName(tag);
+                postHashtagPeopleRepository.saveHashtag(hashtagId, postId);
+            }
+        }
+    }
+
     // 인원수 해시태그 리스트
     public List<Hashtag_People> hashtagList(){
         return hashtagPeopleRepository.hashtagList();
@@ -98,7 +114,7 @@ public class PostService {
         return posts.stream()
             .map(post -> {
                 String thumbnail = post.getPostImage().stream()
-                    .filter(img -> 'Y'== img.getIsThumbnail())
+                    .filter(img -> "Y".equals(img.getIsThumbnail()))
                     .map(Post_Image::getImagePath)
                     .findFirst()
                     .orElse(null);

@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class Blog {
     private Long blogId;
 
     @Column(name = "skin_active", nullable = false)
-    private char skinActive;
+    private String skinActive;
 
     @Column(name = "skin_image")
     private String skinImage;

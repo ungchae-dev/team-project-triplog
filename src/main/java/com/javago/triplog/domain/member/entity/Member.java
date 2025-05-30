@@ -1,7 +1,5 @@
 package com.javago.triplog.domain.member.entity;
 
-import java.util.Date;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 //import com.javago.constant.Role;
@@ -9,12 +7,7 @@ import com.javago.triplog.domain.member.dto.MemberFormDto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,8 +32,8 @@ public class Member {
     @Column(name = "name", length = 20, nullable = false)
     private String name;      // 사용자 실명
 
-    @Column(name = "gender", length = 1, nullable = false)
-    private char gender;      // 성별 (주민번호로 구분, 1,3: 남성 / 2,4: 여성)
+    @Column(name = "gender", length = 10, nullable = false)
+    private String gender;      // 성별 (주민번호로 구분, 1,3: 남성 / 2,4: 여성)
 
     @Column(name = "nickname", length = 20, nullable = false, unique = true)
     private String nickname;  // 닉네임 (다른 사용자에게 표시됨)

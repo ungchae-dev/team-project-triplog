@@ -16,6 +16,7 @@ public class AddPostRequest {
     private String visibility;
     private Long blogId;
     private List<Long> tagIdList;
+    private String newHashtag;
 
     public Post toEntity(Blog blog){
         return Post.builder()

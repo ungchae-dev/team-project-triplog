@@ -50,6 +50,7 @@ public class PostViewController {
         Post post = postService.findtoUpdate(id);
         model.addAttribute("post", new Post(post));
         model.addAttribute("hashtagList", postService.hashtagList());
+        model.addAttribute("postHashtagList", post.getPostHashtagPeople());
         return "post/write";
     }
 

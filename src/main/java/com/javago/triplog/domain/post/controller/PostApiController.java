@@ -4,7 +4,6 @@ import com.javago.triplog.domain.post.dto.AddPostRequest;
 import com.javago.triplog.domain.post.dto.UpdatePostRequest;
 import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.service.PostService;
-import com.javago.triplog.domain.post_hashtag_people.service.PostHashtagPeopleService;
 import com.javago.triplog.domain.post_image.entity.Post_Image;
 import com.javago.triplog.domain.post_image.repository.PostImageRepository;
 
@@ -52,6 +51,7 @@ public class PostApiController {
         List<String> imgurl = parseImageUrl(request.getContent());
         saveimage(imgurl, addPost);
         postService.addHashtags(request.getTagIdList(), addPost.getPostId());
+        postService.saveHashtags(request.getNewHashtag(), addPost.getPostId());
         return ResponseEntity.status(HttpStatus.CREATED).body(addPost);
     }
 
@@ -135,9 +135,9 @@ public class PostApiController {
             image.setPost(post);
             image.setImagePath(url);
             if (i == 0) {
-                image.setIsThumbnail('Y');
+                image.setIsThumbnail("Y");
             } else {
-                image.setIsThumbnail('N');
+                image.setIsThumbnail("N");
             }
 
             imageRepository.save(image);
