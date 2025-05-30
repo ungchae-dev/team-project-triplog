@@ -21,6 +21,9 @@ public class SecurityConfig {
                 "/tour", // 행사·관광·맛집 페이지
                 "/popup", // 팝업 창    ===> 글 검색 페이지 향후 추가
                 "/member/login", // 로그인 페이지(MainController)
+                "/blog/**",
+                "/api/**",
+                "/uploads/**",
                 "/api/signup", 
                 "/api/login", 
                 "/api/check-duplicate", "/css/**", "/js/**", "/images/**")

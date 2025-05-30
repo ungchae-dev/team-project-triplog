@@ -58,7 +58,7 @@ public class PostApiController {
     // 게시글 이미지 서버에 업로드
     @PostMapping("/api/upload-image")
         public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("image") MultipartFile file) throws IOException {
-        String uploadDir = "src/main/resources/static/uploads/posts";
+        String uploadDir = "uploads/posts";
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Path uploadPath = Paths.get(uploadDir);
 
