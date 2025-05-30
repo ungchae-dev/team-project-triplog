@@ -73,8 +73,12 @@
 
   <input type="file" id="imageInput" accept="image/*"><br><br>
 
-  <div th:each="hashtag : ${hashtagList}" id="hashtag">
-    <input type="checkbox" th:text="hashtag.tagName">#해시태그</input>
+  <span th:each="hashtag : ${hashtagList}" id="hashtagList">
+    <input type="checkbox" name="hashtags" th:value="${hashtag.tagId}"/>
+    <span th:text="${hashtag.tagName}"></span>
+  </span>
+  <div>
+    <input type="text" id="hashtagInput" placeholder="'#' + '해시태그'를 입력해주세요.">
   </div>
 
   <input type="radio" name="visibility" value="PUBLIC"
@@ -91,38 +95,7 @@
   const imageInput = document.getElementById('imageInput');
   const deleteBtn = document.getElementById('deleteBtn');
   let currentImage = null;
-/*
-  // 이미지 삽입 이벤트
-  imageInput.addEventListener('change', () => {
-    const file = imageInput.files[0];
-    if (!file) return;
 
-    // 이미지 사이즈 제한 (예: 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      alert('이미지 크기는 최대 2MB까지 가능합니다.');
-      imageInput.value = '';
-      return;
-    }
-
-    
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      const img = document.createElement('img');
-      img.src = e.target.result;
-      
-      img.style.maxWidth = '600px';
-      img.style.height = 'auto';
-      // 이미지 생성 후 이미지 뒤에 커서 위치 고정
-      const br = document.createElement('br');
-      insertAtCursor(br);
-      insertAtCursor(img);
-      insertAtCursor(document.createElement('br'));
-
-      imageInput.value = '';
-    };
-    reader.readAsDataURL(file);
-  });
-*/
   imageInput.addEventListener('change', async () => {
     const file = imageInput.files[0];
     if (!file) return;
@@ -169,17 +142,31 @@
 
   // 커서 위치에 이미지 생성
   function insertAtCursor(node) {
+    const editor = document.getElementById('editor');
     const selection = window.getSelection();
-    if (!selection.rangeCount) return;
+
+    if (!selection.rangeCount) {
+      editor.appendChild(node);
+      return;
+    }
+
     const range = selection.getRangeAt(0);
+    const container = range.commonAncestorContainer;
+
+    // 커서가 editor 내부가 아니면 맨 끝에 삽입
+    if (!editor.contains(container)) {
+      editor.appendChild(node);
+      return;
+    }
+
     range.deleteContents();
     range.insertNode(node);
-
     range.setStartAfter(node);
     range.setEndAfter(node);
     selection.removeAllRanges();
     selection.addRange(range);
   }
+
 
   // 이미지 삭제 버튼(x) 위치 고정
   editor.addEventListener('click', function (e) {
@@ -212,11 +199,21 @@
     const text = editor.innerText.trim();
     const visibilityInput = document.querySelector('input[name="visibility"]:checked');
     const visibility = visibilityInput.value;
+    const checkedHashtags = Array.from(document.querySelectorAll('input[name="hashtags"]:checked')).map(el => el.value);
+    const newHashtag = document.getElementById('hashtagInput').value.trim();
+    
 
+    if (checkedHashtags.length === 0) {
+      alert("해시태그를 하나 이상 선택해주세요");
+      return;
+    }
+
+    /*
     if(!visibility){
       alert("공개 여부를 설정해주세요");
       return;
     }
+    */
 
     if (!title){
       alert("제목을 입력해주세요");
@@ -227,10 +224,13 @@
       alert("내용을 입력해주세요");
       return;
     }
+
     const data = {
       title,
       content,
       visibility,
+      tagIdList: checkedHashtags,
+      newHashtag,
       // 확인용 블로그 아이디 설정
       blogId: 1
     };
