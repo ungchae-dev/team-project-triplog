@@ -27,7 +27,7 @@ public class MemberServiceTest {
     PasswordEncoder passwordEncoder;
 
 
-    /*  private char gender; // 성별(M: 남성, F: 여성)
+    /*  private char gender; // 성별(MALE: 남성, FEMALE: 여성)
     private String memberId; // 사용자 아이디
     private String name; // 사용자 이름
     private String nickname; // 닉네임
