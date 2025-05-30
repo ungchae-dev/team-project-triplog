@@ -76,7 +76,6 @@ public class PostApiController {
         return ResponseEntity.ok(result);
     }
 
-
     // 게시판 글 수정
     @Transactional
     @PutMapping("/api/write/{id}")
@@ -85,6 +84,7 @@ public class PostApiController {
         imageRepository.deleteByPost(updatePost);
         List<String> imgurl = parseImageUrl(request.getContent());
         saveimage(imgurl, updatePost);
+        postService.addHashtags(request.getTagIdList(), id);
         return ResponseEntity.ok().body(updatePost);
     }
 

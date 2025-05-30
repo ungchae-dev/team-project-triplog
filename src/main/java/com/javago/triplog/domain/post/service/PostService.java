@@ -131,9 +131,12 @@ public class PostService {
     }
 
     // 게시판 글 수정
+    @Transactional
     public Post updatePost(Long id, UpdatePostRequest request) {
         Post post = postRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Post not found"));
         post.update(request.getTitle(), request.getContent(), request.getVisibility());
+        postHashtagPeopleRepository.deleteByPostId(id);
+        addHashtags(request.getTagIdList(), id);
         return post;
     }
     
@@ -148,6 +151,7 @@ public class PostService {
     }
 
     // 좋아요 추가
+    @Transactional
     public void addLike(Long postId){
         Post post = postRepository.findById(postId)
             .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
