@@ -32,6 +32,7 @@ public class PostViewController {
     public String getPost(@PathVariable("id") Long id, Model model) {
         Post post = postService.findById(id);
         model.addAttribute("post", post);
+        model.addAttribute("hashtagList", post.getPostHashtagPeople());
         return "post/detail";
     }
 
@@ -48,6 +49,7 @@ public class PostViewController {
     public String modify(@PathVariable("id") Long id, Model model) {
         Post post = postService.findtoUpdate(id);
         model.addAttribute("post", new Post(post));
+        model.addAttribute("hashtagList", postService.hashtagList());
         return "post/write";
     }
 

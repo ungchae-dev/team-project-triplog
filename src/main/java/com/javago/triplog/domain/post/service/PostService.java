@@ -44,6 +44,27 @@ public class PostService {
         return postRepository.save(addPostRequest.toEntity(blog));
     }
 
+    // 글 작성 시 해시태그 저장
+    @Transactional
+    public void addHashtags(List<Long> tagIdList, Long postId){
+        // 이미 연결된 태그 ID 목록 조회
+        log.info("tagIdList: {}", tagIdList);
+        List<Long> existingTagIds = postHashtagPeopleRepository.findTagIdsByPostId(postId);
+        log.info("existingTagIds: {}", existingTagIds);
+        // 새로 추가할 태그 ID만 추림
+        List<Long> newTagIds = tagIdList.stream()
+            .filter(tagId -> !existingTagIds.contains(tagId)) // 중복 제거
+            .distinct() // tagIdList에 중복이 있을 경우 중복 제거
+            .toList();
+        log.info("newTagids: {}", newTagIds);
+
+        // INSERT 실행
+        for (Long tagId : newTagIds) {
+            log.info("tagId: {}", tagId);
+            postHashtagPeopleRepository.saveHashtag(tagId, postId);
+        }
+    }
+
     // 인원수 해시태그 리스트
     public List<Hashtag_People> hashtagList(){
         return hashtagPeopleRepository.hashtagList();
@@ -53,7 +74,7 @@ public class PostService {
     public List<PostListResponse> findPostList() {
         List<Post> posts = postRepository.findPostsWithThumbnail();
 
-        log.info("📌 조회된 게시글 수: {}", posts.size());
+        log.info("조회된 게시글 수: {}", posts.size());
         for (Post post : posts) {
             log.info("Post ID: {}, 제목: {}", post.getPostId(), post.getTitle());
         }
@@ -65,7 +86,7 @@ public class PostService {
 
         List<Post_Hashtag_people> allHashtags = postHashtagPeopleRepository.findByPostIds(postIds);
 
-        log.info("🏷️ 전체 해시태그 수: {}", allHashtags.size());
+        log.info("전체 해시태그 수: {}", allHashtags.size());
         for (Post_Hashtag_people h : allHashtags) {
             String tag = h.getHashtagPeople() != null ? h.getHashtagPeople().getTagName() : "null";
             log.info("Post ID: {}, 해시태그: {}", h.getPost().getPostId(), tag);
