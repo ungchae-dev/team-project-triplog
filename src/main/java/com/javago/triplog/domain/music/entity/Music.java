@@ -22,7 +22,7 @@ public class Music {
     @Column(name = "artist", nullable = false, length = 50)
     private String artist; // 가수 이름
 
-    @Column(name = "album", nullable = false, length = 50)
+    @Column(name = "album", nullable = false, length = 1000)
     private String album; // 앨범명 (nullable)
 
     @Column(name = "music_file", nullable = false, length = 4000)
