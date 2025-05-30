@@ -16,13 +16,13 @@ import lombok.Setter;
 @Getter @Setter
 public class MemberFormDto {
     
+    @GenderCheck
+    private char gender; // 성별(M: 남성, F: 여성)
     private String memberId; // 사용자 아이디
     private String name; // 사용자 이름
-    private char gender; // 성별: 주민번호로 구분, 화면에서는 입력 안 받음
     private String nickname; // 닉네임
     private String email; // 이메일
     private String password; // 비밀번호
-    private String passwordCheck; // 비밀번호 확인
     private String phone; // 휴대폰 번호
 
     // 프로필 이미지 파일 첨부
