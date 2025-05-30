@@ -42,7 +42,7 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'org.hibernate.orm:hibernate-community-dialects:6.4.4.Final'
 	implementation 'org.json:json:20240303'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-validation' // 회원가입 페이지에서 서버로 넘어오는 값 검증
 	implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
 	implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.4'
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
