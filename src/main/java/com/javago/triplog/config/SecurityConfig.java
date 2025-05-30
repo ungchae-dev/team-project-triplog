@@ -15,16 +15,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // JS에서 JSON 요청할 거니까 CSRF 비활성화
+            //.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", // 메인 페이지
                 "/tour", // 행사·관광·맛집 페이지
                 "/popup", // 팝업 창    ===> 글 검색 페이지 향후 추가
+                "/member/form", // 임시 회원가입 페이지
+                "/member/new",  // 임시 회원가입Add commentMore actions
                 "/member/login", // 로그인 페이지(MainController)
+                //"/member/signup",  
+                "/member/new",  // 회원가입 처리
+                "/member/login", // 회원가입·로그인 페이지
                 "/api/signup", 
                 "/api/login", 
                 "/music/**", // 음악 테스트 페이지
-                "/api/check-duplicate", "/css/**", "/js/**", "/images/**")
+                "/api/check-duplicate", 
+                "/css/**", "/js/**", "/images/**")
                 .permitAll()
                 .anyRequest().authenticated()
             )

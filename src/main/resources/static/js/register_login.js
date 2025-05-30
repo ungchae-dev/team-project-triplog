@@ -32,44 +32,46 @@ document.getElementById('form1').addEventListener('submit', function(e) {
     e.preventDefault(); // 기본 폼 제출 방지
 
     const formData = new FormData(this);
+
+    // 유효성 검사를 위해 JSON 객체화
     const memberData = {
-        member_id: formData.get('member_id'),
+        member_id: formData.get('memberId'), // HTML과 동일하게
         name: formData.get('name'),
         nickname: formData.get('nickname'),
         email: formData.get('email'),
-        password: formData.get('password'),
         phone: formData.get('phone'),
-        gender: formData.get('gender') // select에서 성별 가져오기
+        gender: formData.get('gender') // slect에서 성별 가져오기e
     };
 
-    // 유효성 검사
-    if (!validateSignupForm(memberData, formData.get('passwordCheck'))) {
+    // 유효성 검사 (비밀번호 체크)
+    const password = formData.get('password');
+    const passwordCheck = formData.get('passwordCheck');
+
+    if (!validateSignupForm(memberData, password, passwordCheck)) {
         return;
     }
 
     // 서버로 회원가입 요청
-    fetch('/api/signup', {
+    fetch('/member/new', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(memberData)
+        body: formData
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('회원가입이 완료되었습니다.');
-                container.classList.remove('right-panel-active');
-                document.getElementById('form1').reset();
-            } else {
-                alert('회원가입 실패: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('회원가입 중 오류가 발생했습니다!!');
-        });
+    .then(res => {
+        if (res.redirected) {
+            alert('회원가입을 축하합니다♥');
+            setTimeout(() => {
+                window.location.href = res.url;
+            }, 500); // 0.5초 delay 후 기본값("/") 페이지(메인 페이지) 이동
+        } else {
+            alert("회원가입 실패: 서버 응답 확인 필요")
+        }
+    })
+    .catch(error => {
+        console.error('회원가입 중 오류 발생:', error);
+        alert('회원가입 중 오류가 발생했습니다!');
+    });
 });
+
 
 // 로그인 폼 제출
 document.getElementById('form2').addEventListener('submit', function(e) {
@@ -77,11 +79,12 @@ document.getElementById('form2').addEventListener('submit', function(e) {
 
     const formData = new FormData(this);
     const loginData = {
-        member_id: formData.get('member_id') || this.querySelector('input[type="text"]').value,
+        member_id: formData.get('memberId') || this.querySelector('input[type="text"]').value,
         password: formData.get('password') || this.querySelector('input[type="password"]').value
     };
 
-    fetch('/api/login', {
+    // 로그인 요청
+    fetch('/member/login_api', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -90,7 +93,7 @@ document.getElementById('form2').addEventListener('submit', function(e) {
     })
     .then(response => {
         if (response.ok) {
-            window.location.href = '/home';
+            window.location.href = '/';
         } else {
             return response.json();
         }
@@ -106,11 +109,18 @@ document.getElementById('form2').addEventListener('submit', function(e) {
     });
 });
 
+
 // 회원가입 유효성 검사 함수
-function validateSignupForm(memberData, passwordCheck) {
+function validateSignupForm(memberData, password, passwordCheck) {
+
     const idRegex = /^[a-zA-Z0-9]{4,20}$/;
     if (!idRegex.test(memberData.member_id)) {
         alert('아이디는 영문, 숫자 4-20자로 입력해주세요.');
+        return false;
+    }
+
+    if (!memberData.gender || (memberData.gender !== 'MALE' && memberData.gender !== 'FEMALE')) {
+        alert('성별을 선택해주세요.');
         return false;
     }
 
@@ -131,13 +141,14 @@ function validateSignupForm(memberData, passwordCheck) {
         return false;
     }
 
+    // 비밀번호 검사
     const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,30}$/;
-    if (!passwordRegex.test(memberData.password)) {
+    if (!passwordRegex.test(password)) {
         alert('비밀번호는 특수문자, 영문, 숫자를 포함하여 8-30자로 입력해주세요.');
         return false;
     }
 
-    if (memberData.password !== passwordCheck) {
+    if (password !== passwordCheck) {
         alert('비밀번호가 일치하지 않습니다!');
         return false;
     }
@@ -145,11 +156,6 @@ function validateSignupForm(memberData, passwordCheck) {
     const phoneRegex = /^01[0-9]-\d{3,4}-\d{4}$/;
     if (!phoneRegex.test(memberData.phone)) {
         alert('전화번호를 올바른 형식(010-1234-5678)으로 입력해주세요.');
-        return false;
-    }
-
-    if (!memberData.gender || (memberData.gender !== 'M' && memberData.gender !== 'F')) {
-        alert('성별을 선택해주세요.');
         return false;
     }
 

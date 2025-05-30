@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" 
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
   <meta charset="UTF-8">
   <!-- http://localhost:{port 번호}/{static 내부 경로} -->
@@ -11,23 +13,26 @@
 <div class="container" id="container">
   <!-- 회원가입, Sign Up -->
   <div class="container__form container--signup">
-    <form action="#" class="form" id="form1">
+    <form action="/member/new" method="post" class="form" id="form1">
       <h2 class="form__title">회원가입</h2>
       
       <!-- 성별 -->
       <select name="gender" class="input" required>
         <option value="" disabled selected>성별 선택</option>
-        <option value="M">남성</option>
-        <option value="F">여성</option>
+        <option value="MALE">남성</option>
+        <option value="FEMALE">여성</option>
       </select>
 
-      <input type="text" name="member_id" placeholder="아이디" class="input" required />
+      <input type="text" name="memberId" placeholder="아이디" class="input" required />
       <input type="text" name="name" placeholder="이름" class="input" required />
       <input type="text" name="nickname" placeholder="닉네임" class="input" required />
       <input type="email" name="email" placeholder="이메일 (예: abcd@example.com)" class="input" required />
       <input type="password" name="password" placeholder="비밀번호 (특수문자 1자리 이상, 영문, 숫자 포함)" class="input" required />
       <input type="password" name="passwordCheck" placeholder="비밀번호 확인" class="input" required />
       <input type="tel" name="phone" placeholder="휴대폰 번호( - 포함 최대 13자리)" class="input" maxlength="13" required />
+
+      <!-- CSRF 토큰 (서버에서 동적으로 넣어야 함) -->
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
       <div style="display: flex; gap: 10px; margin-top: 1rem">
         <button type="submit" class="btn">회원가입</button>
@@ -39,11 +44,14 @@
 
   <!-- 로그인, Sign In -->
   <div class="container__form container--signin">
-    <form action="#" class="form" id="form2">
+    <form action="/member/login_api" method="post" class="form" id="form2">
       <h2 class="form__title">로그인</h2>
-      <input type="text" name="member_id" placeholder="아이디" class="input" />
+      <input type="text" name="memberId" placeholder="아이디" class="input" />
       <input type="password" name="password" placeholder="비밀번호" class="input" />
       <a href="#" class="link">비밀번호를 잊으셨나요?</a>
+
+      <!-- CSRF 토큰 (서버에서 동적으로 넣어야 함) -->
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
       <div style="display: flex; gap: 10px; margin-top: 1rem">
         <button class="btn">로그인</button>
