@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -15,20 +15,61 @@
     <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,300;0,500;0,600;0,700;1,300;1,500;1,600;1,700&amp;display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;1,400&amp;display=swap" rel="stylesheet" />
     <!-- Core theme CSS (includes Bootstrap)-->
-    <link href="/css/main.css" rel="stylesheet" />
+    <link href="/css/tour.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
+
 <style>
-    .card-title {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    .card-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr); /* 4개의 열 */
+        gap: 20px;
+        padding: 20px;
     }
-    .category-btn.active {
-        font-weight: bold;
-        border-bottom: 2px solid #007bff;
+
+    .tour-card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        overflow: hidden;
+        text-align: center;
+        transition: transform 0.2s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        height: 100%;         /* 카드 높이 균일 */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        max-height: 300px;
+        max-width: 300px;
+    }
+
+    .tour-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+
+    .tour-card img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+    }
+
+    .tour-card .card-body {
+        padding: 12px;
+        flex-grow: 1;
+    }
+
+    .tour-card .card-body h5 {
+        font-size: 16px;
+        margin-bottom: 6px;
+    }
+
+    .tour-card .card-body p {
+        font-size: 14px;
+        color: #555;
+        margin: 0;
     }
 </style>
 
@@ -64,7 +105,7 @@
 
             <!-- 행사/관광/맛집 -->
             <div class="text-center">
-                <a href="/tourpage" class="nav-link p-0">
+                <a href="/tour?areaCode=1&category=event&page=1" class="nav-link p-0">
                     <img src="/images/page/tour.png" alt="행사/관광/맛집" width="36">
                     <div class="small">행사/관광/맛집</div>
                 </a>
@@ -97,27 +138,29 @@
     </div>
 </nav>
 
-<!-- Mashead header-->
 <header>
-    <div class="container mt-4">
 
     <!-- 지역 선택 버튼 -->
-    <div class="d-flex justify-content-center" style="margin-bottom: 30px;">
-        <button id="openRegionDialogBtn" class="btn btn-outline-primary">
-            지역
-        </button>
+    <div class="top-controls-container">
+        <div class="select-region-container">
+            <button id="openRegionDialogBtn" class="btn btn-outline-primary">
+                지역
+            </button>
+        </div>
+
+
+        <!-- 카테고리 탭 -->
+        <div class="category-tabs">
+            <button class="tab-button" data-category="festival">행사</button>
+            <button class="tab-button" data-category="tour">관광지</button>
+            <button class="tab-button" data-category="food">맛집</button>
+        </div>
 
     </div>
-    <!--행사, 관광지, 맛집 필터링 버튼-->
 
-    <div class="d-flex justify-content-center gap-3 mb-4">
-        <button class="btn btn-light category-btn active" data-type="15">행사</button>
-        <button class="btn btn-light category-btn" data-type="12">관광지</button>
-        <button class="btn btn-light category-btn" data-type="39">맛집</button>
-    </div>
 
     <!--지역 선택 다이얼로그 -->
-    <dialog id="regionDialog">
+    <dialog id="regionDialog" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 1px solid #ccc; border-radius: 8px; padding: 20px; background-color: white; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
         <h5>지역을 선택하세요</h5>
         <div id="regionButtons" class="mb-3">
             <!-- 지역 버튼들 -->
@@ -149,147 +192,35 @@
             <button id="confirmRegionBtn" class="btn btn-primary">확인</button>
         </div>
     </dialog>
-
-    </div>
-
 </header>
 
-<!-- 선택한 카테고리별 리스트 출력 파트 -->
-<aside class="container mt-4" style="height: 550px; overflow: hidden;">
 
 
 
-    <div style="color: saddlebrown">
-        <h5>어떤 행사가 있을까요?</h5>
-    </div>
 
-    <!-- 행사 목록 출력 -->
-    <div id="eventList" class="row row-cols-4 g-4"></div>
 
-    <!-- 페이지 버튼 및 더보기 -->
-    <div class="d-flex justify-content-between mt-3">
-        <button id="prevPageBtn" class="btn btn-secondary">이전</button>
-        <button id="nextPageBtn" class="btn btn-secondary">다음</button>
-        <button onclick="location.href='tourpage.html'" class="btn btn-primary">더보기</button>
+<!-- 콘텐츠 리스트 (4x4 카드 그리드, 대표 이미지 + 제목만) -->
+<main>
+    <section id="tourCardContainer" class="card-grid">
+        <!-- JS로 카드 동적 생성 -->
+    </section>
+    <!-- 페이징 처리 -->
+    <div id="pagination" class="pagination-controls">
+        <button id="prevPage">이전</button>
+        <span id="pageInfo">페이지 1 / 1</span>
+        <button id="nextPage">다음</button>
     </div>
-</aside>
-<!-- App features section-->
-<section id="features">
-    <div class="container px-5">
-        <div class="row gx-5 align-items-center">
-            <div class="col-lg-8 order-lg-1 mb-5 mb-lg-0">
-                <div class="container-fluid px-5">
-                    <div class="row gx-5">
-                        <div class="col-md-6 mb-5">
-                            <!-- Feature item-->
-                            <div class="text-center">
-                                <i class="bi-phone icon-feature text-gradient d-block mb-3"></i>
-                                <h3 class="font-alt">Device Mockups</h3>
-                                <p class="text-muted mb-0">Ready to use HTML/CSS device mockups, no Photoshop required!</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-5">
-                            <!-- Feature item-->
-                            <div class="text-center">
-                                <i class="bi-camera icon-feature text-gradient d-block mb-3"></i>
-                                <h3 class="font-alt">Flexible Use</h3>
-                                <p class="text-muted mb-0">Put an image, video, animation, or anything else in the screen!</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-5 mb-md-0">
-                            <!-- Feature item-->
-                            <div class="text-center">
-                                <i class="bi-gift icon-feature text-gradient d-block mb-3"></i>
-                                <h3 class="font-alt">Free to Use</h3>
-                                <p class="text-muted mb-0">As always, this theme is free to download and use for any purpose!</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <!-- Feature item-->
-                            <div class="text-center">
-                                <i class="bi-patch-check icon-feature text-gradient d-block mb-3"></i>
-                                <h3 class="font-alt">Open Source</h3>
-                                <p class="text-muted mb-0">Since this theme is MIT licensed, you can use it commercially!</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 order-lg-0">
-                <!-- Features section device mockup-->
-                <div class="features-device-mockup">
-                    <svg class="circle" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="circleGradient" gradientTransform="rotate(45)">
-                                <stop class="gradient-start-color" offset="0%"></stop>
-                                <stop class="gradient-end-color" offset="100%"></stop>
-                            </linearGradient>
-                        </defs>
-                        <circle cx="50" cy="50" r="50"></circle></svg>
-                    <svg class="shape-1 d-none d-sm-block" viewBox="0 0 240.83 240.83" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="-32.54" y="78.39" width="305.92" height="84.05" rx="42.03" transform="translate(120.42 -49.88) rotate(45)"></rect>
-                        <rect x="-32.54" y="78.39" width="305.92" height="84.05" rx="42.03" transform="translate(-49.88 120.42) rotate(-45)"></rect></svg>
-                    <svg class="shape-2 d-none d-sm-block" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50"></circle></svg>
-                    <div class="device-wrapper">
-                        <div class="device" data-device="iPhoneX" data-orientation="portrait" data-color="black">
-                            <div class="screen bg-black">
-                                <!-- PUT CONTENTS HERE:-->
-                                <!-- * * This can be a video, image, or just about anything else.-->
-                                <!-- * * Set the max width of your media to 100% and the height to-->
-                                <!-- * * 100% like the demo example below.-->
-                                <video muted="muted" autoplay="" loop="" style="max-width: 100%; height: 100%"><source src="assets/img/demo-screen.mp4" type="video/mp4" /></video>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- Basic features section-->
-<section class="bg-light">
-    <div class="container px-5">
-        <div class="row gx-5 align-items-center justify-content-center justify-content-lg-between">
-            <div class="col-12 col-lg-5">
-                <h2 class="display-4 lh-1 mb-4">Enter a new age of web design</h2>
-                <p class="lead fw-normal text-muted mb-5 mb-lg-0">This section is perfect for featuring some information about your application, why it was built, the problem it solves, or anything else! There's plenty of space for text here, so don't worry about writing too much.</p>
-            </div>
-            <div class="col-sm-8 col-md-6">
-                <div class="px-5 px-sm-0"><img class="img-fluid rounded-circle" src="https://source.unsplash.com/u8Jn2rzYIps/900x900" alt="..." /></div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- Call to action section-->
-<section class="cta">
-    <div class="cta-content">
-        <div class="container px-5">
-            <h2 class="text-white display-1 lh-1 mb-4">
-                Stop waiting.
-                <br />
-                Start building.
-            </h2>
-            <a class="btn btn-outline-light py-3 px-4 rounded-pill" href="https://startbootstrap.com/theme/new-age" target="_blank">Download for free</a>
-        </div>
-    </div>
-</section>
-<!-- App badge section-->
-<section class="bg-gradient-primary-to-secondary" id="download">
-    <div class="container px-5">
-        <h2 class="text-center text-white font-alt mb-4">Get the app now!</h2>
-        <div class="d-flex flex-column flex-lg-row align-items-center justify-content-center">
-            <a class="me-lg-3 mb-4 mb-lg-0" href="#!"><img class="app-badge" src="assets/img/google-play-badge.svg" alt="..." /></a>
-            <a href="#!"><img class="app-badge" src="assets/img/app-store-badge.svg" alt="..." /></a>
-        </div>
-    </div>
-</section>
+</main>
+
+
+
+
+
 <!-- Footer-->
 <footer class="bg-black text-center py-5">
     <div class="container px-5">
         <div class="text-white-50 small">
-            <div class="mb-2">&copy; Your Website 2023. All Rights Reserved.</div>
+            <div class="mb-2">&copy; Your Website 2025. All Rights Reserved.</div>
             <a href="#!">Privacy</a>
             <span class="mx-1">&middot;</span>
             <a href="#!">Terms</a>
@@ -373,19 +304,13 @@
 <!-- * * Activate your form at https://startbootstrap.com/solution/contact-forms * *-->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
 <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
-<script src="/js/main_regionselect.js"></script>
+<
 <script>
-    function openPopup(contentId, contentTypeId) {
-        const w = 800, h = 600;
-        const left = (screen.width - w) / 2;
-        const top = (screen.height - h) / 2;
-
-        window.open(
-            `/popup?contentId=${contentId}&contentTypeId=${contentTypeId}`,
-            'detailPopup',
-            `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`
-        );
-    }
+    card.addEventListener("click", () => {
+        window.open(`tourpopup.html?contentId=${item.contentid}`, "_blank", "width=800,height=600");
+    });
 </script>
+<script src="/js/tour_regionselect.js"></script>
+
 </body>
 </html>
