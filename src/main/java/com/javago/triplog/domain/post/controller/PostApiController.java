@@ -57,7 +57,7 @@ public class PostApiController {
 
     // 게시글 이미지 서버에 업로드
     @PostMapping("/api/upload-image")
-        public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("image") MultipartFile file) throws IOException {
+    public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("image") MultipartFile file) throws IOException {
         String uploadDir = "src/main/resources/static/uploads/posts";
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Path uploadPath = Paths.get(uploadDir);
@@ -76,7 +76,6 @@ public class PostApiController {
         return ResponseEntity.ok(result);
     }
 
-
     // 게시판 글 수정
     @Transactional
     @PutMapping("/api/write/{id}")
@@ -85,6 +84,7 @@ public class PostApiController {
         imageRepository.deleteByPost(updatePost);
         List<String> imgurl = parseImageUrl(request.getContent());
         saveimage(imgurl, updatePost);
+        postService.addHashtags(request.getTagIdList(), id);
         return ResponseEntity.ok().body(updatePost);
     }
 
