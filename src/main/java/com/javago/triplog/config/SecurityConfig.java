@@ -23,6 +23,7 @@ public class SecurityConfig {
                 "/member/login", // 로그인 페이지(MainController)
                 "/api/signup", 
                 "/api/login", 
+                "/music/**", // 음악 테스트 페이지
                 "/api/check-duplicate", "/css/**", "/js/**", "/images/**")
                 .permitAll()
                 .anyRequest().authenticated()
