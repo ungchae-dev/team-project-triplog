@@ -75,7 +75,7 @@
 
             <!-- 로그인 상태가 아니면 로그인만 보여줌 -->
             <div th:if="${not #authorization.expression('isAuthenticated()')}">
-                <a th:href="@{/login(type='signin')}" style="text-decoration: none; color: inherit;">
+                <a th:href="@{/member/login(type='signin')}" style="text-decoration: none; color: inherit;">
                     <img src="/images/page/login.png" alt="로그인 아이콘" width="36"/>
                     <div class="small">로그인</div>
                 </a>
@@ -83,7 +83,7 @@
 
             <!-- 로그인 상태면 로그아웃만 보여줌 -->
             <div th:if="${#authorization.expression('isAuthenticated()')}">
-                <a th:href="@{/logout}" style="text-decoration: none; color: inherit;">
+                <a th:href="@{/member/logout}" style="text-decoration: none; color: inherit;">
                     <img src="/images/page/logout.png" alt="로그아웃 아이콘" width="36"/>
                     <div class="small">로그아웃</div>
                 </a>
@@ -91,7 +91,7 @@
 
             <!-- 회원가입 -->
             <div class="text-center">
-                <a th:href="@{/login(type='signup')}" style="text-decoration: none; color: inherit;">
+                <a th:href="@{/member/login(type='signup')}" style="text-decoration: none; color: inherit;">
                     <img src="/images/page/memberjoin.png" alt="회원가입" width="36">
                     <div class="small">회원가입</div>
                 </a>

@@ -13,33 +13,24 @@ public class SecurityConfig {
 
     // SecurityFilterChain: Spring Security 보안 설정의 핵심 구성 요소
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                /* 
-                .csrf(csrf -> csrf.disable()) // CSRF 보호 기능 비활성화 개발 중 or 테스트할 때 주로 사용)(
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll()); // 모든 요청에 대해 인증 없이 접근 허용
-                return http.build();
-                */
-                .csrf().disable() // 개발 중 CSRF 보호 임시 해제 (나중에 삭제할 것)
-                .authorizeHttpRequests((auth) -> auth
-                        .anyRequest().permitAll()
-                )
-                .formLogin((form) -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
-                        .permitAll()
-                )
-                .logout((logout) -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
-                );
+            .csrf(csrf -> csrf.disable()) // JS에서 JSON 요청할 거니까 CSRF 비활성화
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/", // 메인 페이지
+                "/tour", // 행사·관광·맛집 페이지
+                "/popup", // 팝업 창    ===> 글 검색 페이지 향후 추가
+                "/member/login", // 로그인 페이지(MainController)
+                "/api/signup", 
+                "/api/login", 
+                "/api/check-duplicate", "/css/**", "/js/**", "/images/**")
+                .permitAll()
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form.disable()) // JSON 기반 로그인할 거니까 formLogin 비활성화
+            .httpBasic(httpBasic -> httpBasic.disable()); // 필요 시 비활성화
 
         return http.build();
-
-            //.csrf(csrf -> csrf.disable()) // CSRF 보호 기능 비활성화 개발 중 or 테스트할 때 주로 사용)(
-            //.authorizeHttpRequests(auth -> auth.anyRequest().permitAll()); // 모든 요청에 대해 인증 없이 접근 허용
-        //return http.build(); 
-
     }
 
     // 비밀번호를 DB에 그대로 저장할 경우, DB가 해킹당하면 고객의 회원 정보가 그대로 노출됨.

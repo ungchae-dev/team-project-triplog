@@ -50,8 +50,8 @@ public class Member {
     @Column(name = "phone", length = 20, nullable = false, unique = true)
     private String phone;     // 휴대폰 번호 (ex: 010-1234-5678)
 
-    @Column(name = "join_date", nullable = false)
-    private String joinDate;    // 가입일자 (기본값: 현재 시스템 날짜)
+    @Column(name = "join_date", length = 8, nullable = false)
+    private String joinDate;    // 가입일자
 
     @Column(name = "acorn", nullable = false)
     private int acorn;        // 도토리 (기본값: 30)
@@ -98,6 +98,13 @@ public class Member {
         String password = passwordEncoder.encode(memberFormDto.getPassword());
         member.setPassword(password);
         //member.setRole(Role.USER); // 기본 권한은 USER로 지정
+
+        // 프로필 이미지는 회원가입 시점엔 NULL (나중에 블로그 프로필에서 업로드)
+        member.setProfileImage(null);
+        // 가입일자 YYYYMMDD 포맷
+        member.setJoinDate(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+        // 기본 도토리 세팅
+        member.setAcorn(30);
 
         return member;
     }

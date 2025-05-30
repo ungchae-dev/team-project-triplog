@@ -28,12 +28,6 @@ public class MainController {
         return "page/tourpage";
     }
 
-    // 회원가입·로그인 페이지로 매핑 
-    @GetMapping("/login")
-    public String login() {
-        return "member/register_login"; // templates/member/register_login.html
-    }
-
     //팝업 페이지로 매핑
     @GetMapping("/popup")
     public String popup(@RequestParam("contentId") String contentId,
