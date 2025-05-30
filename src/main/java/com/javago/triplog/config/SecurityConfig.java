@@ -19,8 +19,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", // 메인 페이지
                 "/tour", // 행사·관광·맛집 페이지
-                "/popup", // 팝업 창  // 글 검색 페이지 향후 추가
-                "/login", // 로그인 페이지(MainController)
+                "/popup", // 팝업 창    ===> 글 검색 페이지 향후 추가
+                "/member/login", // 로그인 페이지(MainController)
                 "/api/signup", 
                 "/api/login", 
                 "/api/check-duplicate", "/css/**", "/js/**", "/images/**")

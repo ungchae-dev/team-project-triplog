@@ -18,13 +18,13 @@ window.addEventListener('DOMContentLoaded', () => {
 // 회원가입 폼으로 전환
 signUpButton.addEventListener('click', () => {
     container.classList.add('right-panel-active');
-    window.history.pushState(null, '', '/login?type=signup');
+    window.history.pushState(null, '', '/member/login?type=signup');
 });
 
 // 로그인 폼으로 전환
 loginButton.addEventListener('click', () => {
     container.classList.remove('right-panel-active');
-    window.history.pushState(null, '', '/login?type=signin');
+    window.history.pushState(null, '', '/member/login?type=signin');
 });
 
 // 회원가입 폼 유효성 검사 및 제출
