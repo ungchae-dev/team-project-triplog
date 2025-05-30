@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    const serviceKey = "WE8zMSHqcnIgkNM8%2BArCN71r3exZEj%2FG4cPNj9NW8bb4quc1fmi2oxTpPF1C1aWmDl%2FXeAWBqQO6XMjJlShceg%3D%3D"; // 본인의 TourAPI 인증키로 교체하세요
+    const serviceKey = "jNMekcDaMEsxF%2FUl23ffFPSb79Ejv4Ix1DFl%2BZt%2FCkU2cmglLJYvgJT40%2Fm9zbx8gXdNOvoSv7%2F6dH8%2BIK0fkA%3D%3D"; // 본인의 TourAPI 인증키로 교체하세요
 
     // ▶ 기본 정보 요청
     const baseUrl = `https://apis.data.go.kr/B551011/KorService1/detailCommon1`;

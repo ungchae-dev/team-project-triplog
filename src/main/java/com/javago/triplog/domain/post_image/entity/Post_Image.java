@@ -31,7 +31,7 @@ public class Post_Image {
     private String imagePath;
 
     @Column(name = "is_thumbnail", nullable = false)
-    private char isThumbnail;
+    private String isThumbnail;
 
     @CreatedDate
     @Column(name = "upload_date", updatable = false, nullable = false)

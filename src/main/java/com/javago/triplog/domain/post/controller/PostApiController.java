@@ -50,12 +50,14 @@ public class PostApiController {
         Post addPost = postService.save(request);
         List<String> imgurl = parseImageUrl(request.getContent());
         saveimage(imgurl, addPost);
+        postService.addHashtags(request.getTagIdList(), addPost.getPostId());
+        postService.saveHashtags(request.getNewHashtag(), addPost.getPostId());
         return ResponseEntity.status(HttpStatus.CREATED).body(addPost);
     }
 
     // 게시글 이미지 서버에 업로드
     @PostMapping("/api/upload-image")
-        public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("image") MultipartFile file) throws IOException {
+    public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("image") MultipartFile file) throws IOException {
         String uploadDir = "src/main/resources/static/uploads/posts";
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Path uploadPath = Paths.get(uploadDir);
@@ -74,7 +76,6 @@ public class PostApiController {
         return ResponseEntity.ok(result);
     }
 
-
     // 게시판 글 수정
     @Transactional
     @PutMapping("/api/write/{id}")
@@ -83,6 +84,7 @@ public class PostApiController {
         imageRepository.deleteByPost(updatePost);
         List<String> imgurl = parseImageUrl(request.getContent());
         saveimage(imgurl, updatePost);
+        postService.addHashtags(request.getTagIdList(), id);
         return ResponseEntity.ok().body(updatePost);
     }
 
@@ -107,7 +109,7 @@ public class PostApiController {
         postService.removeLike(postId);
         Long likeCount = postService.countPostLike(postId);
         return ResponseEntity.ok().body(Map.of("message", "좋아요 취소됨", "likeCount", likeCount));
-    }
+    }    
 
     // 글 내용 html 그대로 저장, 태그로 이미지 url 추출
     public List<String> parseImageUrl(String html){
@@ -131,11 +133,11 @@ public class PostApiController {
             String url = imgUrl.get(i);
             Post_Image image = new Post_Image();
             image.setPost(post);
-            image.setImagePath(url); // ✔ imagePath로 변경된 setter 사용
+            image.setImagePath(url);
             if (i == 0) {
-                image.setIsThumbnail('Y'); // ✔ isThumbnail에 맞는 setter 사용
+                image.setIsThumbnail("Y");
             } else {
-                image.setIsThumbnail('N');
+                image.setIsThumbnail("N");
             }
 
             imageRepository.save(image);
