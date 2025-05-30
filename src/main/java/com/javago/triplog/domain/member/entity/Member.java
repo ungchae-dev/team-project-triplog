@@ -35,8 +35,12 @@ public class Member {
 
     @Column(name = "name", length = 20, nullable = false)
     private String name;      // 사용자 실명
+
+
+
     @Column(name = "gender", length = 10, nullable = false)
     private String gender;      // 성별 (주민번호로 구분, 1,3: 남성 / 2,4: 여성)
+
 
     @Column(name = "nickname", length = 20, nullable = false, unique = true)
     private String nickname;  // 닉네임 (다른 사용자에게 표시됨)
