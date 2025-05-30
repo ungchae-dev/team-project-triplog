@@ -4,6 +4,7 @@ import com.javago.triplog.domain.post.dto.AddPostRequest;
 import com.javago.triplog.domain.post.dto.UpdatePostRequest;
 import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.service.PostService;
+import com.javago.triplog.domain.post_hashtag_people.service.PostHashtagPeopleService;
 import com.javago.triplog.domain.post_image.entity.Post_Image;
 import com.javago.triplog.domain.post_image.repository.PostImageRepository;
 
@@ -50,6 +51,7 @@ public class PostApiController {
         Post addPost = postService.save(request);
         List<String> imgurl = parseImageUrl(request.getContent());
         saveimage(imgurl, addPost);
+        postService.addHashtags(request.getTagIdList(), addPost.getPostId());
         return ResponseEntity.status(HttpStatus.CREATED).body(addPost);
     }
 
@@ -107,7 +109,7 @@ public class PostApiController {
         postService.removeLike(postId);
         Long likeCount = postService.countPostLike(postId);
         return ResponseEntity.ok().body(Map.of("message", "좋아요 취소됨", "likeCount", likeCount));
-    }
+    }    
 
     // 글 내용 html 그대로 저장, 태그로 이미지 url 추출
     public List<String> parseImageUrl(String html){
@@ -131,9 +133,9 @@ public class PostApiController {
             String url = imgUrl.get(i);
             Post_Image image = new Post_Image();
             image.setPost(post);
-            image.setImagePath(url); // ✔ imagePath로 변경된 setter 사용
+            image.setImagePath(url);
             if (i == 0) {
-                image.setIsThumbnail('Y'); // ✔ isThumbnail에 맞는 setter 사용
+                image.setIsThumbnail('Y');
             } else {
                 image.setIsThumbnail('N');
             }

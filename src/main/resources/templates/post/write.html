@@ -77,6 +77,9 @@
     <input type="checkbox" name="hashtags" th:value="${hashtag.tagId}"/>
     <span th:text="${hashtag.tagName}"></span>
   </span>
+  <div>
+    <input type="text" id="hashtagInput" placeholder="'#' + '해시태그'를 입력해주세요.">
+  </div>
 
   <input type="radio" name="visibility" value="PUBLIC"
        th:attr="checked=${post.visibility == null or post.visibility == 'PUBLIC'}">전체 공개
@@ -213,17 +216,21 @@
     const text = editor.innerText.trim();
     const visibilityInput = document.querySelector('input[name="visibility"]:checked');
     const visibility = visibilityInput.value;
-    const checkedHashtags = Array.from(document.querySelectorAll('input[name="hashtag"]:checked')).map(el => el.value);
+    const checkedHashtags = Array.from(document.querySelectorAll('input[name="hashtags"]:checked')).map(el => el.value);
+    const newHashtag = document.getElementById('hashtagInput').value.trim();
+    
 
     if (checkedHashtags.length === 0) {
-    alert("해시태그를 하나 이상 선택해주세요");
-    return;
+      alert("해시태그를 하나 이상 선택해주세요");
+      return;
     }
 
+    /*
     if(!visibility){
       alert("공개 여부를 설정해주세요");
       return;
     }
+    */
 
     if (!title){
       alert("제목을 입력해주세요");
@@ -234,10 +241,12 @@
       alert("내용을 입력해주세요");
       return;
     }
+
     const data = {
       title,
       content,
       visibility,
+      tagIdList: checkedHashtags,
       // 확인용 블로그 아이디 설정
       blogId: 1
     };

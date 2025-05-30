@@ -18,9 +18,12 @@
 
   <label>내용</label><br>
   <div id="content" th:utext="${post.content}"></div><br>
-
-  <span th:each="hashtag : ${hashtagList}">
-    <span th:text="'#' + ${hashtag.hashtagPeople.tagName}">#해시태그</span>    </span>
+  <div>
+    <label>해시태그</label>
+    <span th:each="hashtag : ${post.postHashtagPeople}">
+      <span th:text="'#' + ${hashtag.hashtagPeople.tagName}">#해시태그</span>
+    </span>
+  </div>
 
   <label>좋아요</label><input type="checkbox" id="postLike"><br>
   <div id="likeCount" th:text="${post.postLike.size()}"></div><br>
@@ -33,6 +36,7 @@
 
   <script th:inline="javascript">
     const id= /*[[${post.postId}]]*/ 0;
+
     // 좋아요 추가, 취소
     document.getElementById('postLike').addEventListener('change', function () {
       const isLiked = this.checked;
