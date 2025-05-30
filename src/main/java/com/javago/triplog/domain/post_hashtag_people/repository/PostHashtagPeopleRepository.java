@@ -37,5 +37,4 @@ public interface PostHashtagPeopleRepository extends JpaRepository<Post_Hashtag_
     @Query("DELETE FROM Post_Hashtag_people p WHERE p.post.postId = :postId")
     void deleteByPostId(@Param("postId") Long postId);
 
-
 }
