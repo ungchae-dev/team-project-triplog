@@ -1,47 +1,54 @@
 package com.javago.triplog.page.tour.dto;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Map;
+
 
 @Data
-@NoArgsConstructor
 public class TourListResponseDto {
     private Response response;
 
     @Data
     public static class Response {
         private Body body;
-    }
 
-    @Data
-    public static class Body {
-        private int totalCount;
-        private List<Item> items;
+        @Data
+        public static class Body {
+            @JsonProperty
+            private Items items;
 
-        @JsonProperty("items")
-        private Map<String, List<Item>> wrappedItems;
+            @Data
+            public static class Items {
+                @JsonProperty
+                private List<Item> item;
 
-        @JsonAnySetter
-        public void unwrapItems(String key, Object value) {
-            if ("item".equals(key) && value instanceof List) {
-                this.items = (List<Item>) value;
+                @Data
+                @JsonIgnoreProperties(ignoreUnknown = true)
+                public static class Item {
+                    @JsonProperty
+                    private String title;
+                    @JsonProperty
+                    private String addr1;
+                    @JsonProperty
+                    private String firstimage;
+                    @JsonProperty
+                    private String contentid;
+                    @JsonProperty
+                    private String eventstartdate;
+                    @JsonProperty
+                    private String eventenddate;
+                }
             }
         }
     }
-
-    @Data
-    public static class Item {
-        private String title;
-        private String addr1;
-        private String firstimage;
-        private String contentid;
-    }
 }
+
+
+
+
 
 

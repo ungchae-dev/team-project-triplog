@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -22,12 +22,57 @@
 
 
 <style>
-
-    body {
-        padding-top: 56px; /* 내비게이션 바 높이만큼 body 상단에 여백 추가 */
+    .card-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr); /* 4개의 열 */
+        gap: 20px;
+        padding: 20px;
     }
 
+    .tour-card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        overflow: hidden;
+        text-align: center;
+        transition: transform 0.2s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        height: 100%;         /* 카드 높이 균일 */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        max-height: 300px;
+        max-width: 300px;
+    }
+
+    .tour-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+
+    .tour-card img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+    }
+
+    .tour-card .card-body {
+        padding: 12px;
+        flex-grow: 1;
+    }
+
+    .tour-card .card-body h5 {
+        font-size: 16px;
+        margin-bottom: 6px;
+    }
+
+    .tour-card .card-body p {
+        font-size: 14px;
+        color: #555;
+        margin: 0;
+    }
 </style>
+
 
 <body id="page-top">
 <!-- Navigation-->
@@ -156,7 +201,7 @@
 
 <!-- 콘텐츠 리스트 (4x4 카드 그리드, 대표 이미지 + 제목만) -->
 <main>
-    <section id="tourCardContainer" class="card-container">
+    <section id="tourCardContainer" class="card-grid">
         <!-- JS로 카드 동적 생성 -->
     </section>
     <!-- 페이징 처리 -->
@@ -259,6 +304,12 @@
 <!-- * * Activate your form at https://startbootstrap.com/solution/contact-forms * *-->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
 <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
+<
+<script>
+    card.addEventListener("click", () => {
+        window.open(`tourpopup.html?contentId=${item.contentid}`, "_blank", "width=800,height=600");
+    });
+</script>
 <script src="/js/tour_regionselect.js"></script>
 
 </body>

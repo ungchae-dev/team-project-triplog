@@ -57,6 +57,4 @@ spotify:
   client-id: 2c8e088cc800489a8b2f747e7aa514b3
   client-secret: 3ce4c4814bdd472e845848994e7d7c30
 
-# tourApi service키 연결
-tourapi:
-  key: WE8zMSHqcnIgkNM8%2BArCN71r3exZEj%2FG4cPNj9NW8bb4quc1fmi2oxTpPF1C1aWmDl%2FXeAWBqQO6XMjJlShceg%3D%3D
+

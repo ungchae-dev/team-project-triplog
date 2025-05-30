@@ -1,36 +1,24 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>관광 상세 정보</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>상세 정보</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
     <style>
-        body { padding: 20px; font-family: 'Segoe UI', sans-serif; }
-        img { max-width: 100%; height: auto; margin-bottom: 1rem; }
-        .d-none { display: none; }
+        body { padding: 20px; font-family: Arial; }
+        .img-fluid { max-height: 300px; object-fit: cover; }
     </style>
 </head>
 <body>
-
-<h3 id="title">로딩 중...</h3>
-<img id="image" src="" class="img-fluid d-none mb-3" alt="대표 이미지">
-<p id="overview">내용 로딩 중...</p>
-
-<div id="extra-info" class="mt-4">
-    <!-- 예: 주소, 전화번호 등 -->
+<div class="container">
+    <h2 id="popup-title">제목 로딩중...</h2>
+    <img id="popup-image" src="" alt="대표 이미지" class="img-fluid my-3" onerror="this.src='default-image.jpg'">
+    <p><strong>주소:</strong> <span id="popup-addr"></span></p>
+    <p><strong>전화번호:</strong> <span id="popup-tel"></span></p>
+    <p><strong>설명:</strong></p>
+    <div id="popup-desc" class="border p-2 rounded" style="white-space: pre-wrap;"></div>
 </div>
 
-<!-- Thymeleaf에서 변수 주입 -->
-<script th:inline="javascript">
-    const contentId = [[${contentId}]];  // 숫자 그대로 출력
-    const contentTypeId = [[${contentTypeId}]];
-    console.log("Tour Popup - contentId:", contentId, "contentTypeId:", contentTypeId);
-</script>
-
-<!-- 팝업 로직 JS -->
-<script src="/js/popup.js"></script>
-
+<script src="tourpopup.js"></script>
 </body>
 </html>

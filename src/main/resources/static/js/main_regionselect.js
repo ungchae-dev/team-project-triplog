@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 행사 API 호출 함수
     function fetchEventsByAreaCode(areaCode) {
-        fetch(`https://apis.data.go.kr/B551011/KorService2/searchFestival2?numOfRows=12&pageNo=1&MobileOS=ETC&MobileApp=AppTest&_type=json&eventStartDate=20250101&areaCode=${areaCode}&serviceKey=WE8zMSHqcnIgkNM8%2BArCN71r3exZEj%2FG4cPNj9NW8bb4quc1fmi2oxTpPF1C1aWmDl%2FXeAWBqQO6XMjJlShceg%3D%3D&_type=json`)
+        fetch(`https://apis.data.go.kr/B551011/KorService1/searchFestival1?numOfRows=12&pageNo=1&MobileOS=ETC&MobileApp=AppTest&_type=json&eventStartDate=20250101&areaCode=${areaCode}&serviceKey=jNMekcDaMEsxF%2FUl23ffFPSb79Ejv4Ix1DFl%2BZt%2FCkU2cmglLJYvgJT40%2Fm9zbx8gXdNOvoSv7%2F6dH8%2BIK0fkA%3D%3D&_type=json`)
             .then(res => res.json())
             .then(data => {
                 eventData = data.response.body.items.item || [];
@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 관광지 API 호출 함수
     function fetchToursByAreaCode(areaCode) {
-        fetch(`http://apis.data.go.kr/B551011/KorService1/areaBasedList1?numOfRows=12&pageNo=1&MobileOS=ETC&MobileApp=AppTest&ServiceKey=WE8zMSHqcnIgkNM8%2BArCN71r3exZEj%2FG4cPNj9NW8bb4quc1fmi2oxTpPF1C1aWmDl%2FXeAWBqQO6XMjJlShceg%3D%3D&listYN=Y&arrange=A&contentTypeId=12&areaCode=${areaCode}&sigunguCode=&cat1=&cat2=&cat3=&_type=json`)
+        fetch(`http://apis.data.go.kr/B551011/KorService1/areaBasedList1?numOfRows=12&pageNo=1&MobileOS=ETC&MobileApp=AppTest&ServiceKey=jNMekcDaMEsxF%2FUl23ffFPSb79Ejv4Ix1DFl%2BZt%2FCkU2cmglLJYvgJT40%2Fm9zbx8gXdNOvoSv7%2F6dH8%2BIK0fkA%3D%3D&listYN=Y&arrange=A&contentTypeId=12&areaCode=${areaCode}&sigunguCode=&cat1=&cat2=&cat3=&_type=json`)
             .then(res => res.json())
             .then(data => {
                 tourData = data.response.body.items.item || [];
@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 맛집 API 호출 함수
     function fetchFoodsByAreaCode(areaCode) {
-        fetch(`http://apis.data.go.kr/B551011/KorService1/areaBasedList1?numOfRows=12&pageNo=1&MobileOS=ETC&MobileApp=AppTest&ServiceKey=WE8zMSHqcnIgkNM8%2BArCN71r3exZEj%2FG4cPNj9NW8bb4quc1fmi2oxTpPF1C1aWmDl%2FXeAWBqQO6XMjJlShceg%3D%3D&listYN=Y&arrange=A&contentTypeId=39&areaCode=${areaCode}&sigunguCode=&cat1=&cat2=&cat3=&_type=json`)
+        fetch(`http://apis.data.go.kr/B551011/KorService1/areaBasedList1?numOfRows=12&pageNo=1&MobileOS=ETC&MobileApp=AppTest&ServiceKey=jNMekcDaMEsxF%2FUl23ffFPSb79Ejv4Ix1DFl%2BZt%2FCkU2cmglLJYvgJT40%2Fm9zbx8gXdNOvoSv7%2F6dH8%2BIK0fkA%3D%3D&listYN=Y&arrange=A&contentTypeId=39&areaCode=${areaCode}&sigunguCode=&cat1=&cat2=&cat3=&_type=json`)
             .then(res => res.json())
             .then(data => {
                 foodData = data.response.body.items.item || [];
