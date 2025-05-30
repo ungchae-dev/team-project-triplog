@@ -22,8 +22,6 @@ public class MainController {
         return "page/mainpage"; //  templates/page/mainpage.html
     }
 
-
-
     //팝업 페이지로 매핑
     @GetMapping("/popup")
     public String popup(@RequestParam("contentId") String contentId,

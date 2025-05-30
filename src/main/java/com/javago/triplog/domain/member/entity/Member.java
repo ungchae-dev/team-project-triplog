@@ -1,13 +1,22 @@
 package com.javago.triplog.domain.member.entity;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-//import com.javago.constant.Role;
+import com.javago.constant.Gender;
+import com.javago.constant.Role;
 import com.javago.triplog.domain.member.dto.MemberFormDto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,8 +41,9 @@ public class Member {
     @Column(name = "name", length = 20, nullable = false)
     private String name;      // 사용자 실명
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "gender", length = 10, nullable = false)
-    private String gender;      // 성별 (주민번호로 구분, 1,3: 남성 / 2,4: 여성)
+    private Gender gender;      // 성별 (MALE: 남성 / FEMALE: 여성)
 
     @Column(name = "nickname", length = 20, nullable = false, unique = true)
     private String nickname;  // 닉네임 (다른 사용자에게 표시됨)
@@ -55,27 +65,31 @@ public class Member {
 
     @Column(name = "acorn", nullable = false)
     private int acorn;        // 도토리 (기본값: 30)
-/*
+
+    // 자바의 enum 타입을 엔티티 속성으로 지정 가능
+    // Enum 사용 시, 기본적으로 순서 저장됨.
+    // enum의 순서가 바뀔 경우 문제 발생할 수 있어 "EnumType.STRING" 옵션을 통해
+    // String으로 저장 권장
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", length = 10, nullable = false)
+    private Role role;
+
+
     // 생성 직전 기본값 세팅 (joinDate, acorn)
     @PrePersist
     public void prePersist() {
         if (joinDate == null) {
-            joinDate = new Date();  // 현재 날짜 자동 세팅
+            joinDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));  // 현재 날짜 세팅
         }
         if (acorn == 0) {
             acorn = 30;  // 기본 도토리 30으로 세팅
         }
     }
-*/
+
     // 기본 생성자 (JPA용)
     public Member() {}
 
-    // 자바의 enum 타입을 엔티티 속성으로 지정 가능.
-    // Enum 사용 시, 기본적으로 순서가 저장되는데, 
-    // enum의 순서가 바뀔 경우 문제가 발생할 수 있으므로 "EnumType.STRING" 옵션을 통해
-    // String으로 저장하는 걸 권장함.
-    //@Enumerated(EnumType.STRING)
-    //private Role role;
+    
 
     // Member 엔티티를 생성하는 메서드 creatMember
     // Member 엔티티에 회원을 생성하는 메서드를 만들어 관리하면
@@ -97,14 +111,10 @@ public class Member {
         // 비밀번호 암호화 후 저장
         String password = passwordEncoder.encode(memberFormDto.getPassword());
         member.setPassword(password);
-        //member.setRole(Role.USER); // 기본 권한은 USER로 지정
+        member.setRole(Role.USER); // 기본 권한은 사용자로 지정
 
         // 프로필 이미지는 회원가입 시점엔 NULL (나중에 블로그 프로필에서 업로드)
         member.setProfileImage(null);
-        // 가입일자 YYYYMMDD 포맷
-        member.setJoinDate(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
-        // 기본 도토리 세팅
-        member.setAcorn(30);
 
         return member;
     }
