@@ -70,6 +70,18 @@ public class MemberServiceTest {
         assertEquals(member.getPhone(), savedMember.getPhone());
         System.out.println("테스트 종료");
     }
+
+    @Test
+    @DisplayName("관리자 비밀번호 암호화 생성")
+    public void generateAdminPasswords() {
+        System.out.println("=== 관리자 비밀번호 암호화 결과 ===");
+        System.out.println("ucna(pw01) -> " + passwordEncoder.encode("pw01"));
+        System.out.println("dyshin(pw02) -> " + passwordEncoder.encode("pw02"));
+        System.out.println("smyu(pw03) -> " + passwordEncoder.encode("pw03"));
+        System.out.println("mhkim(pw04) -> " + passwordEncoder.encode("pw04"));
+        System.out.println("egsa(pw05) -> " + passwordEncoder.encode("pw05"));
+        System.out.println("===============================");
+    }
     /* 
     @Test
     @DisplayName("중복 회원가입 테스트")
