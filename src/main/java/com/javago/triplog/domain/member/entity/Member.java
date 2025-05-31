@@ -45,7 +45,7 @@ public class Member {
     @Column(name = "gender", length = 10, nullable = false)
     private Gender gender;      // 성별 (MALE: 남성 / FEMALE: 여성)
 
-    @Column(name = "nickname", length = 20, nullable = false, unique = true)
+    @Column(name = "nickname", length = 50, nullable = false, unique = true)
     private String nickname;  // 닉네임 (다른 사용자에게 표시됨)
 
     @Column(name = "email", length = 30, nullable = false, unique = true)
@@ -111,11 +111,18 @@ public class Member {
         // 비밀번호 암호화 후 저장
         String password = passwordEncoder.encode(memberFormDto.getPassword());
         member.setPassword(password);
-        member.setRole(Role.USER); // 기본 권한은 사용자로 지정
+        member.setRole(Role.USER); // 기본 권한: 블로그 사용자
 
         // 프로필 이미지는 회원가입 시점엔 NULL (나중에 블로그 프로필에서 업로드)
         member.setProfileImage(null);
 
+        return member;
+    }
+
+    // 관리자 생성 메서드
+    public static Member createAdmin(MemberFormDto memberFormDto, PasswordEncoder passwordEncoder) {
+        Member member = createMember(memberFormDto, passwordEncoder);
+        member.setRole(Role.ADMIN); // 관리자 권한 설정
         return member;
     }
 
