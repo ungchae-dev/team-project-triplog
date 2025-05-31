@@ -26,8 +26,7 @@ public class SecurityConfig {
                 //"/member/signup",  
                 "/member/new",  // 회원가입 처리
                 "/member/login", // 회원가입·로그인 페이지
-                "/api/signup", 
-                "/api/login", 
+                "/blog/**", // 블로그 하위
                 "/music/**", // 음악 테스트 페이지
                 "/api/check-duplicate", 
                 "/css/**", "/js/**", "/images/**")
