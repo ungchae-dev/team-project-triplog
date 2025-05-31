@@ -52,5 +52,49 @@ logging:
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql: trace
 
+# 초기 관리자 계정 설정
+app:
+  initial-admins:
+    enabled: true # 초기 관리자 생성 활성화/비활성화
+    accounts:
+      - id: ucna
+        name: 나웅채
+        nickname: 루피아빠
+        password: pw01
+        phone: 010-0903-1001
+        gender: MALE # gender는 MALE 또는 FEMALE만 가능
 
+      - id: ucna
+        name: 나웅채
+        nickname: 루피아빠
+        password: pw01
+        phone: 010-0903-1001
+        gender: MALE
 
+      - id: dyshin
+        name: 신동영
+        nickname: 바른남자
+        password: pw02
+        phone: 010-0903-1002
+        gender: MALE
+
+      - id: smyu
+        name: 유성민
+        nickname: 취미생활만렙
+        password: pw03
+        phone: 010-0903-1003
+        gender: FEMALE
+
+      - id: mhkim
+        name: 김민형
+        nickname: 꽃길걸을꼬야
+        password: pw04
+        phone: 010-0903-1004
+        gender: MALE
+
+      - id: egsa
+        name: 사은규
+        nickname: 다비켜스웩
+        password: pw05
+        phone: 010-0903-1005
+        gender: MALE
