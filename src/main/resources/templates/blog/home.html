@@ -3,33 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <title>홈피 – 여행 블로그</title>
-  <link rel="stylesheet" href="/static/css/home.css">
+  <link rel="stylesheet" href="/static/css/home.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Malgun+Gothic:wght@400;700&display=swap">
 </head>
 <body>
-<div class="book">
+<div class="frame">
+
+  <!-- 왼쪽 프로필 사이드 -->
   <div class="page left-page">
-    <div class="counter-banner">TODAY 2000 <br/> TOTAL 100000</div>
+    <div class="counter-banner">TODAY 2000<br>TOTAL 100000</div>
     <div class="mood-banner">TODAY is <span class="mood">🌸 행복</span></div>
     <div class="profile-pic">
-      <img src="https://via.placeholder.com/170" alt="프로필 사진" draggable="false" />
+      <img src="https://via.placeholder.com/150x150?text=프로필" alt="프로필 사진" />
     </div>
     <div class="intro-text">간단한 자기소개가 들어갑니다...</div>
     <div class="history">
-      닉네임(♂/♀)<br />
+      닉네임(♂/♀)<br>
       가입일: 00월 00일
       <a href="#" class="edit">EDIT</a>
     </div>
     <div class="received-url">
-      <input type="text" placeholder="<받아온 URL>" />
+      <input type="text" placeholder="받아온 URL" />
     </div>
     <div class="neighbor-dropdown">
       <button>이웃 파도타기 ▼</button>
     </div>
   </div>
 
-  <div class="page right-page">
+  <!-- 중앙 메인 영역 -->
+  <div class="main-area">
     <div class="header-handle">
-      <h2 id="page-title">홈피 – 여행 블로그</h2>
+      <h2>홈</h2>
       <div class="music-widget">
         <div class="track">Sweetbox – Life Is Cool</div>
         <div class="controls">
@@ -41,20 +45,71 @@
         </div>
       </div>
     </div>
-    <div id="right-content" class="main-content"></div>
+    <div class="main-content">
+      <div class="section-row">
+        <!-- 방명록 카드 -->
+        <div class="section-card">
+          <div class="section-title">방명록</div>
+          <ul class="guestbook-list">
+            <li><b>nick1</b>: 오늘도 힘내세요!</li>
+            <li><b>nick2</b>: 멋진 여행이네요~</li>
+            <li><b>nick3</b>: 잘 보고 갑니다 :)</li>
+          </ul>
+        </div>
+        <!-- 이웃 최신글 카드 -->
+        <div class="section-card">
+          <div class="section-title">이웃 최신글</div>
+          <ul class="neighbor-list">
+            <li><b>alice</b> 제주도 여행 기록!</li>
+            <li><b>bob</b> 맛집 추천</li>
+            <li><b>carol</b> 새 사진 올렸어요!</li>
+          </ul>
+        </div>
+      </div>
+      <!-- 대표 사진 & 제목 카드 -->
+      <div class="photo-section-card">
+        <div class="section-title">대표 사진 & 제목</div>
+        <div class="photos">
+          <div class="photo-card">
+            <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진1" alt="사진1"></div>
+            <div class="caption">벚꽃길 따라</div>
+          </div>
+          <div class="photo-card">
+            <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진2" alt="사진2"></div>
+            <div class="caption">야경 명소</div>
+          </div>
+          <div class="photo-card">
+            <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진3" alt="사진3"></div>
+            <div class="caption">해변 산책</div>
+          </div>
+          <div class="photo-card">
+            <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진4" alt="사진4"></div>
+            <div class="caption">산책길</div>
+          </div>
+          <div class="photo-card">
+            <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진5" alt="사진5"></div>
+            <div class="caption">맛집 탐방</div>
+          </div>
+          <div class="photo-card">
+            <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진6" alt="사진6"></div>
+            <div class="caption">캠핑 여행</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 
-<div class="tab-nav">
-  <button data-page="home" class="tab-btn active">홈</button>
-  <button data-page="shop" class="tab-btn">상점</button>
-  <button data-page="profile" class="tab-btn">프로필</button>
-  <button data-page="board" class="tab-btn">게시판</button>
-  <button data-page="jukebox" class="tab-btn">주크박스</button>
-  <button data-page="mylog" class="tab-btn">마이로그</button>
-  <button data-page="guestbook" class="tab-btn">방명록</button>
+  <!-- 오른쪽 세로 네비게이션 -->
+  <nav class="main-nav">
+    <button class="nav-btn active">홈</button>
+    <button class="nav-btn">상점</button>
+    <button class="nav-btn">프로필</button>
+    <button class="nav-btn">게시판</button>
+    <button class="nav-btn">주크박스</button>
+    <button class="nav-btn">마이로그</button>
+    <button class="nav-btn">방명록</button>
+  </nav>
 </div>
-<script src="/static/js/jukebox.js" defer></script>
-<script src="/static/js/home.js" defer></script>
+<script src="/static/js/home.js"></script>
 </body>
 </html>

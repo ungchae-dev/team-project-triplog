@@ -3,29 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <title>상점 – 여행 블로그</title>
-  <link rel="stylesheet" href="/css/shop.css" />
+  <link rel="stylesheet" href="/static/css/shop.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Malgun+Gothic:wght@400;700&display=swap" />
 </head>
 <body>
-<div class="book">
-  <!-- 좌측 프로필 영역 -->
+<div class="frame">
+
+  <!-- 1번 섹터: 프로필 (왼쪽 사이드) -->
   <div class="page left-page">
-    <div class="counter-banner">상점</div>
+    <div class="counter-banner">TODAY 2000<br />TOTAL 100000</div>
+    <div class="mood-banner">TODAY is <span class="mood">🌸 행복</span></div>
     <div class="profile-pic">
-      <img src="https://via.placeholder.com/170" alt="프로필 사진" />
+      <img src="https://via.placeholder.com/150x150?text=프로필" alt="프로필 사진" />
     </div>
-    <div class="intro-text">상점에 오신 것을 환영합니다!</div>
+    <div class="intro-text">간단한 자기소개가 들어갑니다...</div>
     <div class="history">
-      <div class="history-header">
-        <span class="nickname">닉네임</span>
-      </div>
+      닉네임(♂/♀)<br />
+      가입일: 00월 00일
+      <a href="#" class="edit">EDIT</a>
+    </div>
+    <div class="received-url">
+      <input type="text" placeholder="받아온 URL" />
+    </div>
+    <div class="neighbor-dropdown">
+      <button>이웃 파도타기 ▼</button>
     </div>
   </div>
 
-  <!-- 우측 상점 콘텐츠 영역 -->
-  <div class="page right-page">
+  <!-- 중앙 메인 영역: 헤더 + 상점 컨텐츠 -->
+  <div class="main-area">
+
+    <!-- 2번 섹터: 상단 헤더 -->
     <div class="header-handle">
-      <h2 id="page-title">상점</h2>
-      <!-- 상단 뮤직바 -->
+      <h2>상점</h2>
       <div class="music-widget">
         <div class="track">Sweetbox – Life Is Cool</div>
         <div class="controls">
@@ -38,31 +48,46 @@
       </div>
     </div>
 
-    <div id="shop-content">
-      <!-- 탭 버튼들 오른쪽 정렬 -->
-      <div class="shop-inner-tab-list" style="display:flex; justify-content:flex-end; gap:12px; margin-bottom:16px;">
+    <!-- 4번 섹터: 상점 내부 탭 + 컨텐츠 영역 -->
+    <div class="shop-header">
+      <div id="point-display" class="dotori-box">도토리: 100개</div>
+      <div class="shop-inner-tab-list">
         <button id="btn-emoticon" class="shop-inner-tab active">이모티콘</button>
         <button id="btn-music" class="shop-inner-tab">음악</button>
         <button id="btn-skin-activate" class="shop-inner-tab">스킨 활성화</button>
       </div>
+    </div>
 
-      <!-- 이모티콘 상점 -->
-      <div class="shop-tab-content shop-emoticon active">
-        <div class="section-title">이모티콘 상점</div>
-        <div class="emoticon-list" id="emoticon-list"></div>
-        <div class="pagination" id="emoticon-pagination"></div>
-      </div>
+    <!-- 이모티콘 탭 컨텐츠 -->
+    <div class="shop-tab-content shop-emoticon active">
+      <div class="section-title">이모티콘 상점</div>
+      <div class="emoticon-list" id="emoticon-list"></div>
+      <div class="pagination" id="emoticon-pagination" style="display:none;"></div>
 
-      <!-- 음악 상점 -->
-      <div class="shop-tab-content shop-music">
-        <div class="section-title">음악 상점</div>
-        <div class="music-list" id="music-list"></div>
-        <div class="pagination" id="music-pagination"></div>
-      </div>
+    </div>
+
+    <!-- 음악 탭 컨텐츠 -->
+    <div class="shop-tab-content shop-music">
+      <div class="section-title">음악 상점</div>
+      <div class="music-list" id="music-list"></div>
+      <div class="pagination" id="music-pagination" style="display:none;"></div>
+
     </div>
   </div>
+
+  <!-- 3번 섹터: 오른쪽 세로 네비 -->
+  <nav class="main-nav">
+    <button class="nav-btn">홈</button>
+    <button class="nav-btn active">상점</button>
+    <button class="nav-btn">프로필</button>
+    <button class="nav-btn">게시판</button>
+    <button class="nav-btn">주크박스</button>
+    <button class="nav-btn">마이로그</button>
+    <button class="nav-btn">방명록</button>
+  </nav>
+
 </div>
 
-<script src="/js/shop.js"></script>
+<script src="/static/js/shop.js"></script>
 </body>
 </html>
