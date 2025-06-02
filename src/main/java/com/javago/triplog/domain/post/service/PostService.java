@@ -4,6 +4,8 @@ import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.blog.repository.BlogRepository;
 import com.javago.triplog.domain.hashtag_people.entity.Hashtag_People;
 import com.javago.triplog.domain.hashtag_people.repository.HashtagPeopleRepository;
+import com.javago.triplog.domain.member.entity.Member;
+import com.javago.triplog.domain.member.repository.MemberRepository;
 import com.javago.triplog.domain.post.dto.AddPostRequest;
 import com.javago.triplog.domain.post.dto.PostListResponse;
 import com.javago.triplog.domain.post.dto.UpdatePostRequest;
@@ -18,6 +20,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -30,6 +35,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PostService {
 
+    private final MemberRepository memberRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostRepository postRepository;
     private final BlogRepository blogRepository;
@@ -87,8 +93,9 @@ public class PostService {
     }
 
     // 게시판 글 리스트 불러오기
-    public List<PostListResponse> findPostList() {
-        List<Post> posts = postRepository.findPostsWithThumbnail();
+    public Page<PostListResponse> findPostList(Pageable pageable) {
+        List<Post> posts = postRepository.findPostsWithThumbnail(pageable);
+        long count = postRepository.countPostsWithThumbnail();
 
         log.info("조회된 게시글 수: {}", posts.size());
         for (Post post : posts) {
@@ -111,7 +118,7 @@ public class PostService {
         Map<Long, List<Post_Hashtag_people>> hashtagMap = allHashtags.stream()
             .collect(Collectors.groupingBy(h -> h.getPost().getPostId()));
 
-        return posts.stream()
+        List<PostListResponse> dtoList = posts.stream()
             .map(post -> {
                 String thumbnail = post.getPostImage().stream()
                     .filter(img -> "Y".equals(img.getIsThumbnail()))
@@ -126,6 +133,7 @@ public class PostService {
                 return new PostListResponse(post, hashtags, thumbnail);
             })
             .collect(Collectors.toList());
+        return new PageImpl<PostListResponse>(dtoList, pageable, count);
     }
 
 
@@ -157,8 +165,8 @@ public class PostService {
     }
     
     // 게시판 글 삭제
-    public void delete(Long id) {
-        postRepository.deleteById(id);
+    public void delete(Long postId) {
+        postRepository.deleteById(postId);
     }
 
     // 좋아요 갯수 조회
@@ -168,17 +176,20 @@ public class PostService {
 
     // 좋아요 추가
     @Transactional
-    public void addLike(Long postId){
+    public void addLike(Long postId, String userId){
         Post post = postRepository.findById(postId)
             .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+        Member member = memberRepository.findById(userId).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
         Post_Like like = new Post_Like();
         like.setPost(post);
+        like.setMember(member);
         postLikeRepository.save(like);
     }
 
     // 좋아요 취소
-    public void removeLike(Long postId){
-        postLikeRepository.deleteByPostPostId(postId);
+    @Transactional
+    public void removeLike(Long postId, String userId){
+        postLikeRepository.deleteByPostPostIdAndMemberMemberId(postId, userId);
     }
     
 }

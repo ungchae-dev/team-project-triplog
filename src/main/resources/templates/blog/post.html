@@ -1,20 +1,181 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>게시판</title>
-  <link rel="stylesheet" href="/css/board.css">
+  <meta charset="UTF-8" />
+  <title>여행 블로그 게시판</title>
+  <link rel="stylesheet" href="/static/css/home.css" />
+  <link rel="stylesheet" href="/static/css/post.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Malgun+Gothic:wght@400;700&display=swap" />
 </head>
 <body>
-<div class="container">
-  <h2>게시판</h2>
-  <div class="board-content">
-    <ul>
-      <li>글 1: 여행 후기</li>
-      <li>글 2: 사진공유</li>
-      <li>글 3: 팁 공유</li>
-    </ul>
+<div class="frame">
+
+  <!-- 왼쪽 프로필(미니홈피 감성) -->
+  <div class="page left-page">
+    <div class="counter-banner">TODAY 97<br />TOTAL 4521</div>
+    <div class="mood-banner">TODAY is <span class="mood">😊 즐거움</span></div>
+    <div class="profile-pic">
+      <img src="https://via.placeholder.com/150x150?text=프로필" alt="프로필 사진" />
+    </div>
+    <div class="intro-text">여행과 사진을 사랑합니다 :)</div>
+    <div class="history">
+      닉네임(♀)<br />
+      가입일: 2025-01-01
+      <a href="#" class="edit">EDIT</a>
+    </div>
+    <div class="received-url">
+      <input type="text" placeholder="받아온 URL" />
+    </div>
+    <div class="neighbor-dropdown">
+      <button>이웃 파도타기 ▼</button>
+    </div>
   </div>
+
+  <!-- 중앙 게시판(main-area) -->
+  <div class="main-area">
+
+    <!-- 게시판 목록 -->
+    <div class="container" id="board-list">
+      <h2>📌 여행 게시판</h2>
+      <button class="write-btn" onclick="showWriteForm()">글쓰기</button>
+      <div class="board-sorting">
+        <button class="active">최신순</button>
+        <button>좋아요순</button>
+        <button>댓글순</button>
+      </div>
+      <ul class="post-list">
+        <li class="post-item">
+          <a href="javascript:void(0)" onclick="showDetailView()">
+            <h3>일본 도쿄 스카이트리 여행기</h3>
+            <p class="preview">도쿄의 스카이트리에서 본 야경이 정말 멋졌어요...</p>
+            <div class="meta">
+              <span>by 닉네임</span>
+              <span>2025.05.04</span>
+              <span>❤️ 20</span>
+              <span>💬 5</span>
+            </div>
+          </a>
+        </li>
+      </ul>
+      <div class="pagination">
+        <button disabled>이전</button>
+        <button class="active">1</button>
+        <button>2</button>
+        <button>3</button>
+        <button>다음</button>
+      </div>
+    </div>
+
+    <!-- 게시글 작성 -->
+    <div class="container" id="board-write" style="display:none;">
+      <h2>📝 여행기 작성</h2>
+      <form id="write-form" autocomplete="off">
+        <input type="text" name="title" placeholder="제목을 입력해주세요" required />
+
+        <textarea name="content" rows="10" placeholder="여행 로그를 작성하세요" required></textarea>
+
+        <!-- 태그 체크박스 -->
+        <div class="tags" style="margin-bottom:10px;">
+          <label><input type="checkbox" name="tag" value="#친구" /> #친구</label>
+          <label><input type="checkbox" name="tag" value="#부모님과" /> #부모님과</label>
+          <label><input type="checkbox" name="tag" value="#부부동반" /> #부부동반</label>
+          <label><input type="checkbox" name="tag" value="#아이들과" /> #아이들과</label>
+          <label><input type="checkbox" name="tag" value="#커플" /> #커플</label>
+          <label><input type="checkbox" name="tag" value="#나홀로" /> #나홀로</label>
+          <label><input type="checkbox" name="tag" value="#단체" /> #단체</label>
+        </div>
+
+        <!-- 해시태그 입력 -->
+        <div class="hashtags" style="margin-bottom:5px; display:flex; align-items:center; gap:10px;">
+          <input type="text" id="hashtags-input" name="hashtags" placeholder="#고유해시태그 여러 개 입력(쉼표 구분)" style="flex-grow:1;" />
+          <span id="ttag-result" style="color:#a86c44; font-size:14px; min-width:60px;">&nbsp;</span>
+        </div>
+
+        <!-- 지역-T-TAG 선택 -->
+        <small style="display:block;margin:7px 0 4px 2px;color:#b39967;font-size:13px;">
+          행사·관광·맛집 관련 <b>지역-타이틀태그(T-TAG)</b> 선택
+        </small>
+        <div class="ttag-select-row" style="display:flex;gap:14px;align-items:center;margin-bottom:10px;">
+          <select id="region-select">
+            <option value="">지역 선택</option>
+            <option value="seoul">서울</option>
+            <option value="busan">부산</option>
+            <option value="jeju">제주</option>
+          </select>
+
+          <select id="ttag-select" disabled>
+            <option value="">T-TAG 선택</option>
+          </select>
+
+          <!-- 선택된 T-TAG 해시태그 표시 영역 -->
+          <div id="ttag-tags" style="margin-left:12px; display:flex; gap:8px; flex-wrap: wrap;"></div>
+        </div>
+
+        <div class="options" style="margin-bottom:13px;">
+          <label>공개 설정:
+            <select name="privacy">
+              <option value="public">전체공개</option>
+              <option value="neighbors">이웃공개</option>
+              <option value="private">비공개</option>
+            </select>
+          </label>
+          <input type="text" id="location-input" name="location" placeholder="장소 입력 (예: 제주 한림)" />
+        </div>
+
+        <button type="submit" class="submit-btn">작성 완료</button>
+        <button type="button" class="back-btn" onclick="showBoardList()">← 목록</button>
+      </form>
+    </div>
+
+    <!-- 게시글 상세 -->
+    <div class="container" id="board-detail" style="display:none;">
+      <div class="post-header">
+        <h2>일본 도쿄 스카이트리 여행기</h2>
+        <div class="meta">
+          <span>닉네임</span> | <span>2025.05.04</span>
+        </div>
+      </div>
+      <div class="post-body">
+        <p>도쿄의 하늘을 보며...</p>
+        <img src="/images/tokyo.jpg" alt="스카이트리" />
+        <p>#친구 #관광 #스카이트리</p>
+      </div>
+      <div class="post-actions">
+        <button>❤️ 좋아요 20</button>
+        <button>🔗 공유</button>
+        <button>✏️ 수정</button>
+        <button>🗑 삭제</button>
+      </div>
+      <div class="comments-section">
+        <h3>💬 댓글 (5)</h3>
+        <ul class="comment-list">
+          <li>
+            <span><strong>나나</strong>: 너무 멋져요!</span>
+            <button>❤️</button>
+            <button>답글</button>
+          </li>
+          <li class="reply">
+            <span><strong>닉네임</strong>: 감사합니다 😊</span>
+          </li>
+        </ul>
+        <textarea placeholder="댓글을 입력하세요..."></textarea>
+        <button class="comment-btn">댓글 달기</button>
+        <button type="button" class="back-btn" onclick="showBoardList()">← 목록</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 오른쪽 세로 네비게이션 -->
+  <nav class="main-nav">
+    <button class="nav-btn">홈</button>
+    <button class="nav-btn">상점</button>
+    <button class="nav-btn">프로필</button>
+    <button class="nav-btn active">게시판</button>
+    <button class="nav-btn">주크박스</button>
+    <button class="nav-btn">마이로그</button>
+    <button class="nav-btn">방명록</button>
+  </nav>
 </div>
+<script src="/static/js/post.js"></script>
 </body>
 </html>

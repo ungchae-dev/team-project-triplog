@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import org.hibernate.annotations.Check;
+import org.hibernate.annotations.Formula;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -82,6 +83,9 @@ public class Post {
     // 게시글-좋아요
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post_Like> postLike = new ArrayList<>();
+
+    @Formula("(SELECT COUNT(*) FROM post_like pl WHERE pl.post_id = post_id)")
+    private int likeCount;
 
     // 블로그-게시글
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
