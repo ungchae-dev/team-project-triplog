@@ -6,6 +6,7 @@ import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.service.PostService;
 import com.javago.triplog.domain.post_image.entity.Post_Image;
 import com.javago.triplog.domain.post_image.repository.PostImageRepository;
+import com.javago.triplog.domain.post_like.dto.PostLikeRequest;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -97,19 +98,19 @@ public class PostApiController {
 
     // 게시글 좋아요 추가
     @PostMapping("/api/{id}/like")
-    public ResponseEntity<?> likePost(@PathVariable("id") Long postId) {
-        postService.addLike(postId);
+    public ResponseEntity<?> likePost(@PathVariable("id") Long postId, @RequestBody PostLikeRequest request) {
+        postService.addLike(postId, request.getUserId());
         Long likeCount = postService.countPostLike(postId);
         return ResponseEntity.ok().body(Map.of("message", "좋아요 추가됨", "likeCount", likeCount));
     }
 
     // 게시글 좋아요 취소
     @DeleteMapping("/api/{id}/like")
-    public ResponseEntity<?> unlikePost(@PathVariable("id") Long postId) {
-        postService.removeLike(postId);
+    public ResponseEntity<?> unlikePost(@PathVariable("id") Long postId, @RequestBody PostLikeRequest request) {
+        postService.removeLike(postId, request.getUserId());
         Long likeCount = postService.countPostLike(postId);
         return ResponseEntity.ok().body(Map.of("message", "좋아요 취소됨", "likeCount", likeCount));
-    }    
+    }
 
     // 글 내용 html 그대로 저장, 태그로 이미지 url 추출
     public List<String> parseImageUrl(String html){

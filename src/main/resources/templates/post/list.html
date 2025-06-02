@@ -23,6 +23,17 @@
             color: gray;
             font-size: 12px;
         }
+        .paging a {
+            margin: 0 5px;
+            text-decoration: none;
+            color: blue;
+        }
+
+        .paging .current {
+            font-weight: bold;
+            text-decoration: underline;
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -31,6 +42,13 @@
 <button th:onclick="|location.href='@{/blog/post/write}'|" type="button">글 작성</button>
 
 <div>
+    <div>
+        <select id="sort">
+            <option value="createdAt" th:selected="${currentSort == 'createdAt'}">최신순</option>
+            <option value="viewCount" th:selected="${currentSort == 'viewCount'}">조회순</option>
+            <option value="likeCount" th:selected="${currentSort == 'likeCount'}">추천순</option>
+        </select>
+    </div>
     <div th:each="post : ${postList}" class="post">
         <div>
             <!-- 썸네일이 있으면 보여주고, 없으면 기본 이미지를 출력 -->
@@ -48,10 +66,41 @@
             <span th:text="'#' + ${hashtag.hashtagPeople.tagName}">#해시태그</span>
         </span>
         <div th:text="${post.post.postLike.size() != null ? post.post.postLike.size() : 0}">좋아요</div>
-        <div>
-            
-        </div>
     </div>
 </div>
+<div class="paging" th:if="${postList.totalPages > 0}">
+    <a th:if="${!postList.first}"
+       th:href="@{/blog/post/list(page=1, sort=${currentSort}, dir=${currentDir})}">&laquo;</a>
+
+    <a th:if="${!postList.first}"
+       th:href="@{/blog/post/list(page=${postList.number}, sort=${currentSort}, dir=${currentDir})}">이전</a>
+
+    <span th:each="pageNum : ${#numbers.sequence(1, postList.totalPages)}">
+        <a th:href="@{/blog/post/list(page=${pageNum}, sort=${currentSort}, dir=${currentDir})}"
+           th:text="${pageNum}"
+           th:classappend="${postList.number + 1 == pageNum} ? 'current' : ''">1</a>
+    </span>
+
+    <a th:if="${!postList.last}"
+       th:href="@{/blog/post/list(page=${postList.number + 2}, sort=${currentSort}, dir=${currentDir})}">다음</a>
+
+    <a th:if="${!postList.last}"
+       th:href="@{/blog/post/list(page=${postList.totalPages}, sort=${currentSort}, dir=${currentDir})}">&raquo;</a>
+</div>
+
+
 </body>
+<script>
+    const sortSelect = document.getElementById("sort");
+    sortSelect.addEventListener("change", () => {
+        const selectedSort = sortSelect.value;
+        // 현재 페이지 정보 유지
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set("sort", selectedSort);
+        currentUrl.searchParams.set("page", 1); // 정렬 바꾸면 1페이지로 이동
+        //currentUrl.searchParams.set("dir", selectedSort === 'title' ? 'asc' : 'desc'); // 필요에 따라 dir 설정
+
+        window.location.href = currentUrl.toString();
+    });
+</script>
 </html>
