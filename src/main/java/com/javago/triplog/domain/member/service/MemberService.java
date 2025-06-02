@@ -1,6 +1,5 @@
 package com.javago.triplog.domain.member.service;
 
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,7 +10,6 @@ import com.javago.triplog.domain.member.dto.MemberPrincipal;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.repository.MemberRepository;
 
-import jakarta.persistence.Column;
 import lombok.RequiredArgsConstructor;
 
 @Service
