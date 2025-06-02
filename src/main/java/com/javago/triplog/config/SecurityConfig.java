@@ -46,9 +46,9 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             // 커스텀 로그인 설정
-            .formLogin(form -> form
+            .formLogin(login -> login
                 .loginPage("/member/login?type=signin") // 로그인 페이지 URL
-                .loginProcessingUrl("/member/login") // 로그인 폼 제출 URL (Spring Security가 처리)
+                .loginProcessingUrl("/member/login-process") // 로그인 폼 제출 URL (Spring Security가 처리)
                 .usernameParameter("memberId") // 아이디 필드명
                 .passwordParameter("password") // 비밀번호 필드명
                 .defaultSuccessUrl("/", true) // 로그인 성공 시 이동할 페이지 (메인페이지)
