@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class BlogController {
     
     // 여행 블로그_홈
-    @GetMapping("/home") // 요청 URL: /blog/home
+    @GetMapping("/home")
     public String home() {
         return "blog/home"; // templates/blog/home.html
     }
@@ -32,10 +32,23 @@ public class BlogController {
         return "blog/post"; // templates/blog/post.html
     }
 
-    // 여행 블로그_주크박스 => 추후 진행
-
+    // 여행 블로그_주크박스
+    @GetMapping("/jukebox")
+    public String jukebox() {
+        return "blog/jukebox"; // templates/blog/jukebox.html
+    }
 
     // 여행 블로그_마이로그
+    @GetMapping("/mylog")
+    public String mylog() {
+        return "blog/mylog"; // templates/blog/mylog.html
+    }
+    
     // 여행 블로그_방명록
+    @GetMapping("/guestbook")
+    public String guestbook() {
+        return "blog/guestbook"; // templates/blog/guestbook.html
+    }
+
 
 }
