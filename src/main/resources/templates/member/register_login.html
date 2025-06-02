@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" 
-  xmlns:th="http://www.thymeleaf.org"
-  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <!-- http://localhost:{port 번호}/{static 내부 경로} -->
@@ -44,15 +42,19 @@
 
   <!-- 로그인, Sign In -->
   <div class="container__form container--signin">
-    <form action="/member/login_api" method="post" class="form" id="form2">
+    <!-- action: /member/login (Spring Security가 처리) -->
+    <form action="/member/login" method="post" class="form" id="form2">
       <h2 class="form__title">로그인</h2>
+      <!-- name="memberId" (SecurityConfig의 usernameParameter와 일치) -->
       <input type="text" name="memberId" placeholder="아이디" class="input" />
       <input type="password" name="password" placeholder="비밀번호" class="input" />
       <a href="#" class="link">비밀번호를 잊으셨나요?</a>
 
       <!-- CSRF 토큰 (서버에서 동적으로 넣어야 함) -->
+      <!--
       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
+      -->
+      
       <div style="display: flex; gap: 10px; margin-top: 1rem">
         <button class="btn">로그인</button>
         <button class="btn" onclick="location.href='/'">메인으로</button>

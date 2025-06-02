@@ -2,20 +2,28 @@ package com.javago.triplog.domain.member.entity;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.javago.constant.Gender;
 import com.javago.constant.Role;
 import com.javago.triplog.domain.member.dto.MemberFormDto;
+import com.javago.triplog.domain.member_item.entity.MemberItem;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -36,6 +44,7 @@ public class Member {
     // 중복된 값이 DB에 들어올 수 없게 unique 속성 지정
     @Id
     @Column(name = "member_id", length = 20, nullable = false)
+    @GeneratedValue(strategy = GenerationType.AUTO) // 데이터베이스 방언에 따라 자동 지정(기본값)
     private String memberId; // 사용자 아이디(PK)
 
     @Column(name = "name", length = 20, nullable = false)
@@ -74,6 +83,9 @@ public class Member {
     @Column(name = "role", length = 10, nullable = false)
     private Role role;
 
+    // Member -> MemberItem (1:다)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<MemberItem> memberItems = new ArrayList<>();
 
     // 생성 직전 기본값 세팅 (joinDate, acorn)
     @PrePersist
@@ -89,7 +101,16 @@ public class Member {
     // 기본 생성자 (JPA용)
     public Member() {}
 
-    
+    // 양방향 관계 편의 메서드 추가
+    public void addMemberItem(MemberItem memberItem) {
+        memberItems.add(memberItem);
+        memberItem.setMember(this);
+    }
+
+    public void removeMemberItem(MemberItem memberItem) {
+        memberItems.remove(memberItem);
+        memberItem.setMember(null);
+    }
 
     // Member 엔티티를 생성하는 메서드 creatMember
     // Member 엔티티에 회원을 생성하는 메서드를 만들어 관리하면
@@ -125,5 +146,4 @@ public class Member {
         member.setRole(Role.ADMIN); // 관리자 권한 설정
         return member;
     }
-
 }
