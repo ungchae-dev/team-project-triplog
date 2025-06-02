@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -73,29 +73,32 @@
                 </a>
             </div>
 
-            <!-- 로그인 상태가 아니면 로그인만 보여줌 -->
-            <div th:if="${not #authorization.expression('isAuthenticated()')}">
-                <a th:href="@{/member/login(type='signin')}" style="text-decoration: none; color: inherit;">
-                    <img src="/images/page/login.png" alt="로그인 아이콘" width="36"/>
-                    <div class="small">로그인</div>
-                </a>
+            <!-- 로그인 안 된 상태: 로그인 + 회원가입 아이콘만 -->
+            <div th:if="${!isLoggedIn}">
+                <div class="text-center d-inline-block">
+                    <a href="/member/login?type=signin" style="text-decoration: none; color: inherit;">
+                        <img src="/images/page/login.png" alt="로그인 아이콘" width="36"/>
+                        <div class="small">로그인</div>
+                    </a>
+                </div>
+                <div class="text-center d-inline-block">
+                    <a href="/member/login?type=signup" style="text-decoration: none; color: inherit;">
+                        <img src="/images/page/memberjoin.png" alt="회원가입" width="36">
+                        <div class="small">회원가입</div>
+                    </a>
+                </div>
             </div>
 
-            <!-- 로그인 상태면 로그아웃만 보여줌 -->
-            <div th:if="${#authorization.expression('isAuthenticated()')}">
-                <a th:href="@{/member/logout}" style="text-decoration: none; color: inherit;">
-                    <img src="/images/page/logout.png" alt="로그아웃 아이콘" width="36"/>
-                    <div class="small">로그아웃</div>
-                </a>
+            <!-- 로그인 된 상태: 로그아웃 아이콘만-->
+            <div th:if="${isLoggedIn}">
+                <div class="text-center">
+                    <a href="#" onclick="confirmLogout()" style="text-decoration: none; color: inherit;">
+                        <img src="/images/page/logout.png" alt="로그아웃 아이콘" width="36"/>
+                        <div class="small">로그아웃</div>
+                    </a>
+                </div>
             </div>
 
-            <!-- 회원가입 -->
-            <div class="text-center">
-                <a th:href="@{/member/login(type='signup')}" style="text-decoration: none; color: inherit;">
-                    <img src="/images/page/memberjoin.png" alt="회원가입" width="36">
-                    <div class="small">회원가입</div>
-                </a>
-            </div>
         </div>
     </div>
 </nav>
