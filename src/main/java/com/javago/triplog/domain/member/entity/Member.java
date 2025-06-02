@@ -16,6 +16,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,8 +41,9 @@ public class Member {
     @Column(name = "name", length = 20, nullable = false)
     private String name;      // 사용자 실명
 
-    @Column(name = "gender", length = 1, nullable = false)
-    private char gender;      // 성별 (주민번호로 구분, F: 남성 / M: 여성)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender", length = 10, nullable = false)
+    private Gender gender;      // 성별 (주민번호로 구분, F: 남성 / M: 여성)
 
     @Column(name = "nickname", length = 50, nullable = false, unique = true)
     private String nickname;  // 닉네임 (다른 사용자에게 표시됨)
