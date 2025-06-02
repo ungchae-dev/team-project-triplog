@@ -44,7 +44,6 @@ public class Member {
     // 중복된 값이 DB에 들어올 수 없게 unique 속성 지정
     @Id
     @Column(name = "member_id", length = 20, nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO) // 데이터베이스 방언에 따라 자동 지정(기본값)
     private String memberId; // 사용자 아이디(PK)
 
     @Column(name = "name", length = 20, nullable = false)
