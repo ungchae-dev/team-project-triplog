@@ -2,6 +2,7 @@ package com.javago.triplog.domain.post_like.entity;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.post.entity.Post;
 
 import jakarta.persistence.Column;
@@ -35,10 +36,9 @@ public class Post_Like {
     @JoinColumn(name = "post_id", updatable = false, nullable = false)
     private Post post;
 
-    /* Member 연동 시 주석 해제
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", updatable = false, nullable = false)
     private Member member;
-    */
+    
 
 }

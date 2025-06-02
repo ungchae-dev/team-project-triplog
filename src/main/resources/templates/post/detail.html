@@ -31,6 +31,7 @@
   <!--<label>댓글</label>
   <div th:insert="comment/fragment :: commentSection"></div><br>-->
 
+  <button type="button" th:onclick="|location.href='@{/blog/post/list}'|">글 목록</button>
   <button type="button" th:onclick="|location.href='@{/blog/post/{id}/edit(id=${post.postId})}'|">수정</button>
   <button type="button" id="delete-btn">삭제</button>
 
@@ -41,12 +42,18 @@
     document.getElementById('postLike').addEventListener('change', function () {
       const isLiked = this.checked;
     
+      const data = {
+        // 확인용 멤버ID 설정
+        userId: "user1"
+      }
+
       fetch(`/api/${id}/like`, {
         method: isLiked ? 'POST' : 'DELETE',
         headers: {
           'Content-Type': 'application/json'
-        }
-      })
+        },
+        body: JSON.stringify(data)
+        })
       .then(res => {
         if (!res.ok) throw new Error("서버 오류");
         return res.json();

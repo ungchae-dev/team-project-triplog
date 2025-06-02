@@ -6,10 +6,15 @@ import com.javago.triplog.domain.post.service.PostService;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -21,11 +26,22 @@ public class PostViewController {
 
     // 게시판 글 목록
     @GetMapping("/blog/post/list")
-    public String list(Model model) {
-        List<PostListResponse> postList = postService.findPostList();
+    public String list(
+        @RequestParam(value = "page", defaultValue = "1") int page,
+        @RequestParam(value = "size", defaultValue = "10") int size,
+        @RequestParam(value = "sort", defaultValue = "createdAt") String sortBy,
+        @RequestParam(value = "dir", defaultValue = "desc") String direction, Model model) {
+
+        Sort sort = direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
+
+        Page<PostListResponse> postList = postService.findPostList(pageable);
         model.addAttribute("postList", postList);
+        model.addAttribute("currentSort", sortBy);
+        model.addAttribute("currentDir", direction);
         return "post/list";
     }
+
 
     // 하나의 게시판 글 반환
     @GetMapping("/blog/post/{id}")
