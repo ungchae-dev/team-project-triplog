@@ -20,6 +20,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -90,8 +93,9 @@ public class PostService {
     }
 
     // 게시판 글 리스트 불러오기
-    public List<PostListResponse> findPostList() {
-        List<Post> posts = postRepository.findPostsWithThumbnail();
+    public Page<PostListResponse> findPostList(Pageable pageable) {
+        List<Post> posts = postRepository.findPostsWithThumbnail(pageable);
+        long count = postRepository.countPostsWithThumbnail();
 
         log.info("조회된 게시글 수: {}", posts.size());
         for (Post post : posts) {
@@ -114,7 +118,7 @@ public class PostService {
         Map<Long, List<Post_Hashtag_people>> hashtagMap = allHashtags.stream()
             .collect(Collectors.groupingBy(h -> h.getPost().getPostId()));
 
-        return posts.stream()
+        List<PostListResponse> dtoList = posts.stream()
             .map(post -> {
                 String thumbnail = post.getPostImage().stream()
                     .filter(img -> "Y".equals(img.getIsThumbnail()))
@@ -129,6 +133,7 @@ public class PostService {
                 return new PostListResponse(post, hashtags, thumbnail);
             })
             .collect(Collectors.toList());
+        return new PageImpl<PostListResponse>(dtoList, pageable, count);
     }
 
 

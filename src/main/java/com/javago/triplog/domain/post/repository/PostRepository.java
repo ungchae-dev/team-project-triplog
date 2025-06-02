@@ -4,6 +4,7 @@ import com.javago.triplog.domain.post.entity.Post;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,7 +21,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     WHERE i.isThumbnail = 'Y' OR i IS NULL
     ORDER BY p.updatedAt DESC, p.createdAt DESC
     """)
-    List<Post> findPostsWithThumbnail();
+    List<Post> findPostsWithThumbnail(Pageable pageable);
+
+    @Query("""
+    SELECT COUNT(DISTINCT p) FROM Post p
+    LEFT JOIN p.postImage i
+    WHERE i.isThumbnail = 'Y' OR i IS NULL
+    """)
+    long countPostsWithThumbnail();
 
     // 게시글 조회시 조회수 증가
     @Modifying

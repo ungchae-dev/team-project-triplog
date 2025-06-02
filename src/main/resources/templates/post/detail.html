@@ -31,6 +31,7 @@
   <!--<label>댓글</label>
   <div th:insert="comment/fragment :: commentSection"></div><br>-->
 
+  <button type="button" th:onclick="|location.href='@{/blog/post/list}'|">글 목록</button>
   <button type="button" th:onclick="|location.href='@{/blog/post/{id}/edit(id=${post.postId})}'|">수정</button>
   <button type="button" id="delete-btn">삭제</button>
 
