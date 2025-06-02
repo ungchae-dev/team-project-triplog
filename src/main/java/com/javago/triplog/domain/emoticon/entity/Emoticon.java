@@ -1,5 +1,10 @@
 package com.javago.triplog.domain.emoticon.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.javago.triplog.domain.member_item.entity.MemberItem;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,4 +29,9 @@ public class Emoticon {
 
     @Column(name = "price", nullable = false)
     private int price;
+
+    // 양방향 매핑을 원할 경우
+    @OneToMany(mappedBy = "emoticon")
+    private List<MemberItem> memberItems = new ArrayList<>();
 }
+
