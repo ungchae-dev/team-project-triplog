@@ -58,9 +58,10 @@ public class MemberController {
 
     // 로그인 실패 시 처리 메서드 (Spring Securiy에서 호출)
     @GetMapping("/login/error")
-    public String loginError(Model model) {
+    public String loginError(@RequestParam(value = "type", defaultValue = "signin") String type, Model model) {
         model.addAttribute("loginErrorMsg", "아이디 또는 비밀번호를 확인해주세요!");
-        model.addAttribute("type", "signin"); // 로그인 폼으로 되돌림
+        model.addAttribute("type", type);
+        model.addAttribute("showAlert", true); // 로그인 실패 창 띄우기
         return "member/register_login";
     }
 

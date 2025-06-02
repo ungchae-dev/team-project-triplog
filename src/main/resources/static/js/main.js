@@ -32,3 +32,15 @@ window.addEventListener('DOMContentLoaded', event => {
     });
 
 });
+
+// 로그아웃 확인 함수
+function confirmLogout() {
+    if (confirm("로그아웃 하시겠습니까?")) {
+        // 숨겨진 폼을 만들어 POST 요청 (for. CSRF 보호)
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/member/logout';
+        document.body.appendChild(form);
+        form.submit();
+    }
+}

@@ -17,8 +17,8 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // 권한 처리 필요하면 여기에 구현 (예: ROLE_USER 등)
-        return Collections.emptyList();
+        // Member의 Role(사용자/관리자 = USER/ADMIN)을 Spring Security 권한으로 변환
+        return Collections.singletonList(() -> "ROLE_" + member.getRole().name());
     }
     
     @Override
@@ -49,6 +49,11 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    // 옵션) Member 객체에 접근할 수 있는 메서드
+    public Member getMember() {
+        return member;
     }
 
 }
