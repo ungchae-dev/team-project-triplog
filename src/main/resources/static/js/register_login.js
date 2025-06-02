@@ -7,6 +7,13 @@ const container = document.querySelector('.container');
 window.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const type = urlParams.get('type');
+
+    // 로그인 실패 체크
+    if (window.location.pathname.includes('/login/error')) {
+        alert('아이디 또는 비밀번호를 잘못 입력하셨습니다!');
+        // URL을 원래 로그인 페이지로 변경
+        window.history.replaceState(null, '', '/member/login?type=signin');
+    }
     
     if(type === 'signin') {
         container.classList.remove('right-panel-active'); // 로그인 폼 보여주기
@@ -71,44 +78,6 @@ document.getElementById('form1').addEventListener('submit', function(e) {
         alert('회원가입 중 오류가 발생했습니다!');
     });
 });
-
-
-// 로그인 폼 제출
-document.getElementById('form2').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const formData = new FormData(this);
-    const loginData = {
-        member_id: formData.get('memberId') || this.querySelector('input[type="text"]').value,
-        password: formData.get('password') || this.querySelector('input[type="password"]').value
-    };
-
-    // 로그인 요청
-    fetch('/member/login_api', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(loginData)
-    })
-    .then(response => {
-        if (response.ok) {
-            window.location.href = '/';
-        } else {
-            return response.json();
-        }
-    })
-    .then(data => {
-        if (data) {
-            alert('로그인 실패: ' + (data.message || '아이디 또는 비밀번호가 잘못되었습니다.'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('로그인 중 오류가 발생했습니다!');
-    });
-});
-
 
 // 회원가입 유효성 검사 함수
 function validateSignupForm(memberData, password, passwordCheck) {
