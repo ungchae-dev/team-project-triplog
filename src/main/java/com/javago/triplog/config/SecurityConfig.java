@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.javago.triplog.domain.member.service.CustomUserDetailsService;
 import com.javago.triplog.domain.member.service.MemberService;
 
 // Spring Security 설정을 담고 있는 설정 클래스
@@ -16,6 +17,9 @@ public class SecurityConfig {
 
     @Autowired
     MemberService memberService;
+
+    @Autowired
+    CustomUserDetailsService customUserDetailsService;
 
     // SecurityFilterChain: Spring Security 보안 설정의 핵심 구성 요소
     @Bean
@@ -31,10 +35,10 @@ public class SecurityConfig {
                 "/popup", // 팝업 창
                 "/search/**", // 글 검색 페이지
                 "/tourpopup/**", // 행사·관광·맛집 상세 페이지 팝업 창
-                "/member/login", // 회원가입·로그인 페이지
+                "/member/login**", // 회원가입·로그인 페이지
+                "/member/logout", // 로그아웃
                 "/member/new",  // 회원가입 처리
                 "/member/login/error", // 로그인 실패 페이지
-
                 "/blog/**", // 블로그 관련 페이지
                 "/music/**", // 음악 테스트 페이지
                 "/api/check-duplicate", // 중복 체크 API
@@ -52,7 +56,7 @@ public class SecurityConfig {
                 .usernameParameter("memberId") // 아이디 필드명
                 .passwordParameter("password") // 비밀번호 필드명
                 .defaultSuccessUrl("/", true) // 로그인 성공 시 이동할 페이지 (메인페이지)
-                .failureUrl("/member/login/error") // 로그인 실패 시 이동할 페이지
+                .failureUrl("/member/login/error?type=signin") // 로그인 실패 시 이동할 페이지
                 .permitAll()
             )
             // 로그아웃 설정
@@ -62,7 +66,8 @@ public class SecurityConfig {
                 .permitAll()
             )
             // HTTP Basic 인증 비활성화
-            .httpBasic(httpBasic -> httpBasic.disable()); 
+            .httpBasic(httpBasic -> httpBasic.disable())
+            .userDetailsService(customUserDetailsService); // CustomUserDetailsService 사용
 
         return http.build();
     }
