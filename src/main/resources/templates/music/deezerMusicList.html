@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>장르별 음악</title>
+</head>
+<body>
+<h1>🎵 장르별 인기 음악</h1>
+
+<form method="get" action="/music/deezer">
+    <label for="genre">장르 선택: </label>
+    <select name="genreId" id="genre">
+        <option value="132">Pop</option>
+        <option value="16">Asia</option>
+        <option value="106">Electro</option>
+        <option value="152">Rock</option>
+        <option value="464">Metal</option>
+        <option value="116">Rap/Hip-Hop</option>
+        <option value="129">Jazz</option>
+        <option value="153">Blues</option>
+    </select>
+    <button type="submit">조회</button>
+</form>
+
+<div th:if="${musicList != null}">
+    <h2 th:text="'🎶 ' + ${genreName} + ' 음악 목록'">🎶 음악 목록</h2>
+    <ul>
+        <li th:each="track : ${musicList}">
+            <p><strong th:text="${track.title}"></strong> - <span th:text="${track.artist}"></span></p>
+            <img th:src="${track.album}" width="150"/>
+            <audio controls th:src="${track.musicFile}"></audio>
+        </li>
+    </ul>
+
+     <div style="margin-top: 20px;">
+        <a th:if="${currentPage > 0}"
+           th:href="@{/music/deezer(genreId=${genreId}, page=${currentPage - 1})}">⬅ 이전</a>
+
+        <span style="margin: 0 10px;">현재 페이지: <b th:text="${currentPage + 1}">1</b></span>
+
+        <a th:if="${musicList.size() == 5}"
+           th:href="@{/music/deezer(genreId=${genreId}, page=${currentPage + 1})}">다음 ➡</a>
+    </div>
+</div>
+</body>
+</html>

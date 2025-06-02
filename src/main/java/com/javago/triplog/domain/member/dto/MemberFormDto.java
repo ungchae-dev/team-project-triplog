@@ -2,6 +2,13 @@ package com.javago.triplog.domain.member.dto;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.javago.constant.Gender;
+
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,15 +23,35 @@ import lombok.Setter;
 @Getter @Setter
 public class MemberFormDto {
     
-    @GenderCheck
+    // @NotEmpty: 문자열, 컬렉션 등 비어있지만 않으면 통과 (""는 실패지만 " "(공백)은 통과)
+    // @NotBlank: 공백까지 검사, 폼 유효성 검증에 더 적합
+
+    @NotBlank(message = "아이디는 필수 입력값입니다.")
     private String memberId; // 사용자 아이디
+
+    // Gender는 enum이기 때문에 @NotBlank는 작동 안 함 => @NotNull로 교체
+    @NotNull(message = "성별을 선택해주세요.")
+    private Gender gender; // 성별 (MALE: 남성, FEMALE: 여성)
+
+    @NotBlank(message = "이름은 필수 입력값입니다.")
     private String name; // 사용자 이름
-    private String ssn; // 주민등록번호
-    private String gender; // 성별: 주민번호로 구분, 화면에서는 입력 안 받음
+
+    @NotBlank(message = "닉네임은 필수 입력값입니다.")
     private String nickname; // 닉네임
+
+    // @Email: 이메일 검증 자동화
+    @Email(message = "올바른 이메일 주소를 입력해주세요.")
     private String email; // 이메일
+
+    @NotBlank(message = "비밀번호는 필수 입력값입니다.")
     private String password; // 비밀번호
+
+    @NotBlank(message = "휴대폰 번호는 필수 입력값입니다.")
     private String phone; // 휴대폰 번호
+
+    // 비밀번호 확인용 필드 (서버에서 이중 확인용, 옵션)
+    @Transient
+    private String passwordCheck;
 
     // 프로필 이미지 파일 첨부
     private MultipartFile profileImageFile; 

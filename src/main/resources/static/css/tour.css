@@ -1,4 +1,8 @@
 @charset "UTF-8";
+
+/*---------------------------*/
+
+
 /*!
 * Start Bootstrap - New Age v6.0.7 (https://startbootstrap.com/theme/new-age)
 * Copyright 2013-2023 Start Bootstrap
@@ -4653,6 +4657,16 @@ textarea.form-control-lg {
     --bs-pagination-padding-y: 0.25rem;
     --bs-pagination-font-size: 0.875rem;
     --bs-pagination-border-radius: 0.25rem;
+}
+
+.pagination-controls {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination-controls button {
+    margin: 0 5px;
+    padding: 5px 10px;
 }
 
 .badge {
@@ -11229,3 +11243,4 @@ footer a:hover, footer a:active, footer a:focus {
         transform: scale(1.2); /* 모바일에서 약간만 키움 */
     }
 }
+

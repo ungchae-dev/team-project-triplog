@@ -1,6 +1,7 @@
 package com.javago.triplog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.javago.constant.Gender;
 import com.javago.triplog.domain.member.dto.MemberFormDto;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.service.MemberService;
@@ -26,7 +28,7 @@ public class MemberServiceTest {
     PasswordEncoder passwordEncoder;
 
 
-    /*  private char gender; // 성별(M: 남성, F: 여성)
+    /*  private char gender; // 성별(MALE: 남성, FEMALE: 여성)
     private String memberId; // 사용자 아이디
     private String name; // 사용자 이름
     private String nickname; // 닉네임
@@ -39,7 +41,7 @@ public class MemberServiceTest {
     // 회원 정보를 입력한 Member 엔티티를 만드는 메서드를 작성
     public Member createMember() {
         MemberFormDto memberFormDto = new MemberFormDto();
-        memberFormDto.setGender('M');
+        memberFormDto.setGender(Gender.MALE); // Gender: enum 남성(MALE), 여성(FEMALE)
         memberFormDto.setMemberId("loop1004");
         memberFormDto.setName("루피");
         memberFormDto.setNickname("쵸카와이");
@@ -68,5 +70,36 @@ public class MemberServiceTest {
         assertEquals(member.getPhone(), savedMember.getPhone());
         System.out.println("테스트 종료");
     }
+
+    @Test
+    @DisplayName("관리자 비밀번호 암호화 생성")
+    public void generateAdminPasswords() {
+        System.out.println("=== 관리자 비밀번호 암호화 결과 ===");
+        System.out.println("ucna(pw01) -> " + passwordEncoder.encode("pw01"));
+        System.out.println("dyshin(pw02) -> " + passwordEncoder.encode("pw02"));
+        System.out.println("smyu(pw03) -> " + passwordEncoder.encode("pw03"));
+        System.out.println("mhkim(pw04) -> " + passwordEncoder.encode("pw04"));
+        System.out.println("egsa(pw05) -> " + passwordEncoder.encode("pw05"));
+        System.out.println("===============================");
+    }
+    /* 
+    @Test
+    @DisplayName("중복 회원가입 테스트")
+    public void saveDuplicateMemberTest() {
+        Member member1 = createMember();
+        Member member2 = createMember();
+
+        memberService.saveMember(member1);
+
+        // junit의 Assertion 클래스의 assertThrows 메서드로 예외 처리 테스트 가능
+        // 1번째 파라미터: 발생할 예외 타입을 삽입
+        Throwable e = assertThrows(IllegalStateException.class, () -> {
+            memberService.saveMember(member2);
+        });
+
+        // 발생한 예외 메시지가 예상 결과와 맞는지 검증
+        assertEquals("이미 가입된 회원입니다!", e.getMessage());
+    }
+    */
     
 }
