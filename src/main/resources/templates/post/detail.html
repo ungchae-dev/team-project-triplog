@@ -41,12 +41,18 @@
     document.getElementById('postLike').addEventListener('change', function () {
       const isLiked = this.checked;
     
+      const data = {
+        // 확인용 멤버ID 설정
+        userId: "user1"
+      }
+
       fetch(`/api/${id}/like`, {
         method: isLiked ? 'POST' : 'DELETE',
         headers: {
           'Content-Type': 'application/json'
-        }
-      })
+        },
+        body: JSON.stringify(data)
+        })
       .then(res => {
         if (!res.ok) throw new Error("서버 오류");
         return res.json();

@@ -4,6 +4,8 @@ import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.blog.repository.BlogRepository;
 import com.javago.triplog.domain.hashtag_people.entity.Hashtag_People;
 import com.javago.triplog.domain.hashtag_people.repository.HashtagPeopleRepository;
+import com.javago.triplog.domain.member.entity.Member;
+import com.javago.triplog.domain.member.repository.MemberRepository;
 import com.javago.triplog.domain.post.dto.AddPostRequest;
 import com.javago.triplog.domain.post.dto.PostListResponse;
 import com.javago.triplog.domain.post.dto.UpdatePostRequest;
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PostService {
 
+    private final MemberRepository memberRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostRepository postRepository;
     private final BlogRepository blogRepository;
@@ -157,8 +160,8 @@ public class PostService {
     }
     
     // 게시판 글 삭제
-    public void delete(Long id) {
-        postRepository.deleteById(id);
+    public void delete(Long postId) {
+        postRepository.deleteById(postId);
     }
 
     // 좋아요 갯수 조회
@@ -168,17 +171,20 @@ public class PostService {
 
     // 좋아요 추가
     @Transactional
-    public void addLike(Long postId){
+    public void addLike(Long postId, String userId){
         Post post = postRepository.findById(postId)
             .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+        Member member = memberRepository.findById(userId).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
         Post_Like like = new Post_Like();
         like.setPost(post);
+        like.setMember(member);
         postLikeRepository.save(like);
     }
 
     // 좋아요 취소
-    public void removeLike(Long postId){
-        postLikeRepository.deleteByPostPostId(postId);
+    @Transactional
+    public void removeLike(Long postId, String userId){
+        postLikeRepository.deleteByPostPostIdAndMemberMemberId(postId, userId);
     }
     
 }
