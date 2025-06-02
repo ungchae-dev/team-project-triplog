@@ -71,6 +71,7 @@
         color: #555;
         margin: 0;
     }
+
 </style>
 
 
@@ -138,20 +139,22 @@
     </div>
 </nav>
 
-<header>
+<header style="margin-top: 100px;">
 
     <!-- 지역 선택 버튼 -->
-    <div class="top-controls-container">
-        <div class="select-region-container">
+    <div class="top-controls-container d-flex justify-content-between align-items-center">
+        <div class="flex-grow-1 d-flex justify-content-center">
             <button id="openRegionDialogBtn" class="btn btn-outline-primary">
                 지역
             </button>
+
+            <button id="selectedRegionName" class="btn btn-secondary"></button>
         </div>
 
 
         <!-- 카테고리 탭 -->
-        <div class="category-tabs">
-            <button class="tab-button" data-category="festival">행사</button>
+        <div class="category-tabs d-flex gap-2">
+            <button class="tab-button" data-category="event">행사</button>
             <button class="tab-button" data-category="tour">관광지</button>
             <button class="tab-button" data-category="food">맛집</button>
         </div>
@@ -185,7 +188,8 @@
 
         </div>
 
-        <div class="mb-3">선택된 지역: <span id="selectedRegionName">서울</span></div>
+        <span id="selectedDataCode" data-code="1" style="display: none;"></span>
+
 
         <div class="d-flex justify-content-end gap-2">
             <button id="cancelRegionBtn" class="btn btn-secondary">취소</button>
@@ -306,9 +310,18 @@
 <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
 <
 <script>
-    card.addEventListener("click", () => {
-        window.open(`tourpopup.html?contentId=${item.contentid}`, "_blank", "width=800,height=600");
-    });
+    function openPopup(contentId, contentTypeId){
+        const w = 800, h = 600;
+        const left = (screen.width - w) / 2;
+        const top = (screen.height - h) / 2;
+
+        window.open(
+            `/tourpopup?contentId=${contentId}&contentTypeId=${contentTypeId}`,
+            'detailtourPopup',
+                `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`
+        );
+    }
+
 </script>
 <script src="/js/tour_regionselect.js"></script>
 

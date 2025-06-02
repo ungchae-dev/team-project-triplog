@@ -18,8 +18,9 @@ public class SecurityConfig {
             //.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", // 메인 페이지
-                "/tour", // 행사·관광·맛집 페이지
+                "/tour/**", // 행사·관광·맛집 페이지
                 "/popup", // 팝업 창    ===> 글 검색 페이지 향후 추가
+                         "/tourpopup/**",// 행사, 관광지, 맛집 상세페이지 팝업 창
                 "/member/form", // 임시 회원가입 페이지
                 "/member/new",  // 임시 회원가입Add commentMore actions
                 "/member/login", // 로그인 페이지(MainController)
