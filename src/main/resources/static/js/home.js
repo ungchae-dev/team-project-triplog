@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         home: "홈",
         shop: "상점",
         profile: "프로필",
-        board: "게시판",
+        post: "게시판",
         jukebox: "주크박스",
         mylog: "마이로그",
         guestbook: "방명록"
@@ -79,11 +79,115 @@ document.addEventListener('DOMContentLoaded', () => {
                <div class="pagination" id="music-pagination" style="display:none"></div>
              </div>
            </div>`,
-        profile: `<div>프로필 페이지 내용</div>`,
-        board: `<div>게시판 페이지 내용</div>`,
-        jukebox:  () => renderJukeboxPage(),  // ✅ jukebox.js에 정의된 함수 사용
-        mylog: `<div>마이로그 페이지 내용</div>`,
-        guestbook: `<div>방명록 페이지 내용</div>`
+
+        profile: () => {
+            setTimeout(() => { setupProfileSectionEvents(); }, 0);
+            return `
+      <div class="profile-container">
+        <div class="profile-summary">
+          <div class="profile-photo">
+            <img id="profile-img" src="https://via.placeholder.com/120" alt="프로필 사진">
+          </div>
+          <div class="profile-meta">
+            <div id="profile-nickname" class="nickname"><strong>예시닉</strong></div>
+            <div id="profile-joindate" class="joindate">가입일: 05월 11일</div>
+            <div id="profile-bio" class="bio">안녕하세요! 여행을 사랑하는 사람입니다.</div>
+          </div>
+        </div>
+        <div class="profile-tab-nav">
+          <button id="tab-btn-info" class="profile-tab-btn active">개인정보</button>
+          <button id="tab-btn-inventory" class="profile-tab-btn">보유내역</button>
+          <button id="tab-btn-photo" class="profile-tab-btn">사진변경</button>
+        </div>
+        <div class="profile-content">
+          <div id="tab-info" class="tab-pane">
+            <label>닉네임: <input type="text" id="nickname-input" value="예시닉"></label>
+            <div>가입일: <span id="input-joindate">05월 11일</span></div>
+            <label>자기소개:<br>
+              <textarea id="bio-input" rows="3">안녕하세요! 여행을 사랑하는 사람입니다.</textarea>
+            </label>
+            <button id="save-profile-btn">저장</button>
+          </div>
+          <div id="tab-inventory" class="tab-pane hidden">
+            <p><strong>내 도토리</strong>: <span class="highlight">128개</span></p>
+            <p><strong>스킨</strong>: <a href="#">보기</a></p>
+            <p><strong>보유 이모티콘</strong>: 😀 😎</p>
+            <p><strong>보유 음악</strong>: 2곡</p>
+          </div>
+          <div id="tab-photo" class="tab-pane hidden">
+            <input type="file" id="photo-input" accept="image/*">
+            <button id="apply-photo-btn">사진 적용</button>
+          </div>
+        </div>
+      </div>
+    `;
+        },
+
+
+
+
+        post: () => {
+        setTimeout(() => {
+            if (typeof activatePostUI === 'function') {
+                activatePostUI();
+            }
+        }, 0);
+        return renderPostPage();
+    }
+        ,
+        jukebox:  () =>{
+            setTimeout(() => {
+                if (typeof setupJukebox === 'function') {
+                    setupJukebox();
+                }
+            }, 0);
+            return
+        },
+        // ✅ jukebox.js에 정의된 함수 사용
+        mylog: () => {
+            setTimeout(() => {
+                if (typeof setupMylog === 'function') {
+                    setupMylog(); // 마커 렌더링 함수 호출
+                }
+            }, 0);
+
+            return `
+    <div class="mylog-container">
+      <h2>📍 나의 여행 기록</h2>
+      <div class="region-filter">
+        <label for="region-select">지역 선택:</label>
+        <select id="region-select">
+          <option value="서울">서울</option>
+          <option value="부산">부산</option>
+          <option value="제주">제주</option>
+        </select>
+      </div>
+      <div class="map-area" id="map-area"></div>
+    </div>
+  `;
+        }
+        ,
+        guestbook: () => {
+            setTimeout(() => {
+                if (typeof setupGuestbook === 'function') {
+                    setupGuestbook();
+                }
+            }, 0);
+            return `
+    <div class="guestbook-container">
+      <h2>📘 방명록</h2>
+      <ul id="guestbook-list" class="guestbook-list"></ul>
+      <div class="pagination" id="guestbook-pagination"></div>
+      <div class="guestbook-form">
+        <input type="text" id="guestbook-topic" placeholder="~주제를 주제로~" />
+        <textarea id="guestbook-content" placeholder="방명록을 남겨보세요!"></textarea>
+        <label><input type="checkbox" id="guestbook-private" /> 비밀로 하기</label>
+        <button id="guestbook-submit">등록</button>
+      </div>
+    </div>
+  `;
+        }
+
     };
 
     // 탭 버튼 이벤트 설정
