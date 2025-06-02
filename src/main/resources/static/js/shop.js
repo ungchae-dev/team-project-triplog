@@ -1,180 +1,181 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // 데이터 생성 (테스트용 100개)
-    const emoticons = Array.from({ length: 100 }, (_, i) => ({
-        emoji: "😀",
-        title: `이모티콘 ${i + 1}`
-    }));
-    const musics = Array.from({ length: 100 }, (_, i) => ({
-        name: `음악 ${i + 1}`
-    }));
+// === 샘플 데이터 (임시) ===
+const emoticonList = [
+    { id: 1, name: "이모티콘 1", icon: "😊", price: 20 },
+    { id: 2, name: "이모티콘 2", icon: "😎", price: 25 },
+    { id: 3, name: "이모티콘 3", icon: "😂", price: 30 },
+    { id: 4, name: "이모티콘 4", icon: "😍", price: 35 },
+    { id: 5, name: "이모티콘 5", icon: "🥳", price: 40 },
+    { id: 6, name: "이모티콘 6", icon: "😭", price: 50 }
+];
+const musicList = [
+    { id: 1, name: "음악 1", icon: "🎵", price: 50 },
+    { id: 2, name: "음악 2", icon: "🎶", price: 50 },
+    { id: 3, name: "음악 3", icon: "🎼", price: 50 },
+    { id: 4, name: "음악 4", icon: "🎹", price: 50 },
+    { id: 5, name: "음악 5", icon: "🎤", price: 50 }
+];
 
-    // 요소 캐싱
-    const btnEmoticon = document.getElementById('btn-emoticon');
-    const btnMusic = document.getElementById('btn-music');
-    const btnSkinActivate = document.getElementById('btn-skin-activate');
+let userDotori = 100;       // 현재 유저 도토리 잔액 (임시)
+let skinActivated = false;  // 스킨 활성화 여부
 
-    const emoticonList = document.getElementById('emoticon-list');
-    const musicList = document.getElementById('music-list');
+const ITEMS_PER_PAGE = 6;   // 페이지당 아이템 수
 
-    const shopEmoticonSection = document.querySelector('.shop-emoticon');
-    const shopMusicSection = document.querySelector('.shop-music');
+// === 도토리 표시 갱신 ===
+function renderDotori() {
+    document.getElementById('point-display').innerText = `도토리: ${userDotori}개`;
+}
 
-    const emoticonPagination = document.getElementById('emoticon-pagination');
-    const musicPagination = document.getElementById('music-pagination');
+// === 이모티콘 리스트 렌더링 ===
+function renderEmoticonList(page = 1) {
+    const listElem = document.getElementById('emoticon-list');
+    const paginationElem = document.getElementById('emoticon-pagination');
+    if (!listElem || !paginationElem) return;
 
-    let currentMode = 'both'; // 'both', 'emoticon', 'music'
-    let emoticonPage = 1;
-    let musicPage = 1;
-    const itemsPerPage = 20;
+    const totalItems = emoticonList.length;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
-    // 페이지네이션 생성 함수
-    function createPagination(container, totalPages, currentPage, onPageChange) {
-        container.innerHTML = '';
-        for (let i = 1; i <= totalPages; i++) {
-            const btn = document.createElement('button');
-            btn.textContent = i;
-            if (i === currentPage) btn.classList.add('active');
-            btn.addEventListener('click', () => onPageChange(i));
-            container.appendChild(btn);
-        }
+    const startIdx = (page - 1) * ITEMS_PER_PAGE;
+    const items = emoticonList.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+    listElem.innerHTML = '<div class="emoticon-grid">' +
+        items.map(item => `
+      <div class="shop-item">
+        <div class="icon">${item.icon}</div>
+        <div class="item-title">${item.name}</div>
+        <button class="buy-btn" data-type="emoticon" data-id="${item.id}" ${userDotori < item.price ? "disabled" : ""}>
+          ${userDotori < item.price ? "도토리 부족" : "구매"}
+        </button>
+      </div>
+    `).join('') +
+        '</div>';
+
+    if (totalPages > 1) {
+        paginationElem.style.display = 'flex';
+        renderPagination('emoticon-pagination', totalItems, page, renderEmoticonList);
+    } else {
+        paginationElem.style.display = 'none';
+        paginationElem.innerHTML = '';
     }
+}
 
-    // 이모티콘 렌더링
-    function renderEmoticons(page = 1) {
-        const startIdx = (page - 1) * itemsPerPage;
-        const pageItems = emoticons.slice(startIdx, startIdx + itemsPerPage);
-        emoticonList.innerHTML = pageItems
-            .map(
-                (em) => `
-      <div class="emoticon-item" title="${em.title}">
-        ${em.emoji}
-        <button class="buy-btn">구매</button>
-      </div>`
-            )
-            .join('');
-        setupBuyButtons();
-    }
+// === 음악 리스트 렌더링 ===
+function renderMusicList(page = 1) {
+    const listElem = document.getElementById('music-list');
+    const paginationElem = document.getElementById('music-pagination');
+    if (!listElem || !paginationElem) return;
 
-    // 음악 렌더링
-    function renderMusics(page = 1) {
-        const startIdx = (page - 1) * itemsPerPage;
-        const pageItems = musics.slice(startIdx, startIdx + itemsPerPage);
-        musicList.innerHTML = pageItems
-            .map(
-                (mu) => `
+    const totalItems = musicList.length;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+    const startIdx = (page - 1) * ITEMS_PER_PAGE;
+    const items = musicList.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+    listElem.innerHTML = '<div class="music-grid">' +
+        items.map(item => `
       <div class="music-item">
-        ${mu.name}
-        <button class="buy-btn">구매</button>
-      </div>`
-            )
-            .join('');
-        setupBuyButtons();
+        <div class="icon">${item.icon}</div>
+        <div class="item-title">${item.name}</div>
+        <button class="buy-btn" data-type="music" data-id="${item.id}" ${userDotori < item.price ? "disabled" : ""}>
+          ${userDotori < item.price ? "도토리 부족" : "구매"}
+        </button>
+      </div>
+    `).join('') +
+        '</div>';
+
+    if (totalPages > 1) {
+        paginationElem.style.display = 'flex';
+        renderPagination('music-pagination', totalItems, page, renderMusicList);
+    } else {
+        paginationElem.style.display = 'none';
+        paginationElem.innerHTML = '';
     }
+}
 
-    // 구매 버튼 이벤트 연결
-    function setupBuyButtons() {
-        document.querySelectorAll('.buy-btn').forEach((btn) => {
-            btn.onclick = () => alert('구매 기능은 준비 중입니다.');
-        });
+// === 페이징 UI 렌더링 ===
+function renderPagination(containerId, totalItems, currentPage, onPageClick) {
+    const pageCount = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = '';
+    for (let i = 1; i <= pageCount; i++) {
+        const btn = document.createElement('button');
+        btn.innerText = i;
+        btn.className = (i === currentPage) ? 'active' : '';
+        btn.onclick = () => onPageClick(i);
+        container.appendChild(btn);
     }
+}
 
-    // 전체 상점 보여주기 (5x1)
-    function renderBoth() {
-        currentMode = 'both';
-        shopEmoticonSection.classList.add('active');
-        shopMusicSection.classList.add('active');
-        emoticonList.classList.remove('expanded');
-        musicList.classList.remove('expanded');
-        emoticonPagination.style.display = 'none';
-        musicPagination.style.display = 'none';
+// === 구매 버튼 클릭 처리 ===
+document.addEventListener('click', function (e) {
+    if (e.target.classList.contains('buy-btn')) {
+        const id = parseInt(e.target.dataset.id);
+        const type = e.target.dataset.type;
+        let item;
+        if (type === 'emoticon') item = emoticonList.find(i => i.id === id);
+        if (type === 'music') item = musicList.find(i => i.id === id);
 
-        emoticonList.style.gridTemplateRows = 'auto';
-        musicList.style.gridTemplateRows = 'auto';
+        if (!item) return;
 
-        emoticonList.innerHTML = emoticons.slice(0, 5)
-            .map(em => `<div class="emoticon-item" title="${em.title}">${em.emoji}<button class="buy-btn">구매</button></div>`)
-            .join('');
-        musicList.innerHTML = musics.slice(0, 5)
-            .map(mu => `<div class="music-item">${mu.name} <button class="buy-btn">구매</button></div>`)
-            .join('');
-        setupBuyButtons();
-    }
-
-    // 이모티콘만 보기 (5x4)
-    function renderEmoticonOnly() {
-        currentMode = 'emoticon';
-        shopEmoticonSection.classList.add('active');
-        shopMusicSection.classList.remove('active');
-        emoticonList.classList.add('expanded');
-        emoticonPagination.style.display = 'flex';
-        musicPagination.style.display = 'none';
-        onEmoticonPageChange(emoticonPage);
-    }
-
-    // 음악만 보기 (5x4)
-    function renderMusicOnly() {
-        currentMode = 'music';
-        shopEmoticonSection.classList.remove('active');
-        shopMusicSection.classList.add('active');
-        musicList.classList.add('expanded');
-        musicPagination.style.display = 'flex';
-        emoticonPagination.style.display = 'none';
-        onMusicPageChange(musicPage);
-    }
-
-    // 페이지 변경 핸들러
-    function onEmoticonPageChange(page) {
-        emoticonPage = page;
-        renderEmoticons(page);
-        createPagination(
-            emoticonPagination,
-            Math.min(10, Math.ceil(emoticons.length / itemsPerPage)),
-            page,
-            onEmoticonPageChange
-        );
-    }
-    function onMusicPageChange(page) {
-        musicPage = page;
-        renderMusics(page);
-        createPagination(
-            musicPagination,
-            Math.min(10, Math.ceil(musics.length / itemsPerPage)),
-            page,
-            onMusicPageChange
-        );
-    }
-
-    // 버튼 클릭 이벤트 바인딩
-    btnEmoticon.onclick = () => {
-        btnEmoticon.classList.add('active');
-        btnMusic.classList.remove('active');
-        btnSkinActivate.classList.remove('active');
-        renderEmoticonOnly();
-    };
-
-    btnMusic.onclick = () => {
-        btnMusic.classList.add('active');
-        btnEmoticon.classList.remove('active');
-        btnSkinActivate.classList.remove('active');
-        renderMusicOnly();
-    };
-
-    btnSkinActivate.onclick = () => {
-        btnSkinActivate.classList.add('active');
-        btnEmoticon.classList.remove('active');
-        btnMusic.classList.remove('active');
-        if (
-            confirm(
-                "스킨 활성화를 구매하시겠습니까?\n(구매 후 버튼은 영구적으로 사라집니다.)"
-            )
-        ) {
-            btnSkinActivate.style.display = "none";
-            alert("스킨이 활성화되었습니다.");
-        } else {
-            btnSkinActivate.classList.remove("active");
+        if (userDotori < item.price) {
+            alert('도토리가 부족합니다');
+            return;
         }
-    };
 
-    // 초기 화면 렌더링
-    renderBoth();
+        if (confirm(`${item.name}을(를) 구매하시겠습니까?`)) {
+            userDotori -= item.price;
+            renderDotori();
+            alert(`${item.name} 구매 완료!`);
+            if (type === 'emoticon') renderEmoticonList();
+            if (type === 'music') renderMusicList();
+        }
+    }
+});
+
+// === 스킨 활성화 구매 버튼 처리 ===
+document.addEventListener('click', function (e) {
+    if (e.target.id === 'btn-skin-activate' || e.target.id === 'btn-skin-purchase') {
+        if (skinActivated) return;
+        const skinPrice = 80;
+        if (userDotori < skinPrice) {
+            alert('도토리가 부족합니다');
+            return;
+        }
+        if (confirm('스킨을 활성화하시겠습니까? 80 도토리가 차감됩니다.')) {
+            userDotori -= skinPrice;
+            skinActivated = true;
+            renderDotori();
+            e.target.style.display = 'none'; // 버튼 숨김
+            alert('스킨이 성공적으로 활성화되었습니다!');
+        }
+    }
+});
+
+// === 탭 전환 함수 ===
+function activateTab(tabName) {
+    document.querySelectorAll('.shop-inner-tab').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.shop-tab-content').forEach(tab => tab.classList.remove('active'));
+
+    if (tabName === 'emoticon') {
+        document.getElementById('btn-emoticon').classList.add('active');
+        document.querySelector('.shop-emoticon').classList.add('active');
+        renderEmoticonList();
+    } else if (tabName === 'music') {
+        document.getElementById('btn-music').classList.add('active');
+        document.querySelector('.shop-music').classList.add('active');
+        renderMusicList();
+    } else if (tabName === 'skin') {
+        document.getElementById('btn-skin-activate').classList.add('active');
+        document.querySelector('.shop-skin').classList.add('active');
+    }
+}
+
+// === 문서 로드 시 초기화 ===
+document.addEventListener('DOMContentLoaded', () => {
+    renderDotori();
+    renderEmoticonList();
+    document.getElementById('btn-emoticon').onclick = () => activateTab('emoticon');
+    document.getElementById('btn-music').onclick = () => activateTab('music');
+    document.getElementById('btn-skin-activate').onclick = () => activateTab('skin');
 });
