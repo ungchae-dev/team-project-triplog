@@ -19,7 +19,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     SELECT DISTINCT p FROM Post p
     LEFT JOIN FETCH p.postImage i
     WHERE i.isThumbnail = 'Y' OR i IS NULL
-    ORDER BY p.updatedAt DESC, p.createdAt DESC
     """)
     List<Post> findPostsWithThumbnail(Pageable pageable);
 
