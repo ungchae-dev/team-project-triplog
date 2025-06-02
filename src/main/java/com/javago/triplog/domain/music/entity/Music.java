@@ -1,9 +1,16 @@
 package com.javago.triplog.domain.music.entity;
 
+import java.util.ArrayList;
+
+import com.javago.triplog.domain.member_item.entity.MemberItem;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.List;
+
 
 @Entity
 @Table(name = "music")
@@ -13,6 +20,12 @@ import lombok.ToString;
 public class Music {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "music_seq_gen")
+    @SequenceGenerator(
+    name = "music_seq_gen",       // JPA 내부에서 부를 이름
+    sequenceName = "music_seq",   // Oracle에 실제 존재하는 시퀀스 이름
+    allocationSize = 1
+    )
     @Column(name = "music_id")
     private Long musicId;
 
@@ -30,4 +43,10 @@ public class Music {
 
     @Column(name = "price", nullable = false)
     private int price; // 음원 가격 한 곡당 평균 700원, 1곡당 도토리 10개
+
+    //  양방향 매핑을 원할 경우
+    // mappedBy는 memberItem 필드에서 music을 참조한다는 의미
+    @OneToMany(mappedBy = "music")
+    private List<MemberItem> memberItems = new ArrayList<>();
+
 }

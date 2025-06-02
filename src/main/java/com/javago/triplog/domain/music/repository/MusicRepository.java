@@ -1,8 +1,13 @@
 package com.javago.triplog.domain.music.repository;
 
 import com.javago.triplog.domain.music.entity.Music;
+
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MusicRepository extends JpaRepository<Music, Long> {
-    // 필요한 경우, 제목/가수명 검색 등 추가 메서드 정의 가능
+    // 음악 조회 or 저장
+    Optional<Music> findByTitleAndArtistAndAlbum(String title, String artist, String album);    
+
 }
