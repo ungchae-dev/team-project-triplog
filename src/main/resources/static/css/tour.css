@@ -83,6 +83,56 @@
     --bs-highlight-bg: #fff3cd;
 }
 
+.tab-button {
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: #444;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    color: #000;
+}
+
+.tab-button.active {
+    color: #007bff; /* 강조 색 */
+    font-weight: bold;
+    border-bottom: 2px solid #007bff;
+}
+
+#pagination {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+#pagination button {
+    border: none;
+    background: none;
+    font-size: 1rem;
+    color: #c0392b;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+#pagination button.active {
+    font-weight: bold;
+    border-bottom: 2px solid #c0392b;
+}
+
+.pagination-row {
+    flex-basis: 100%; /* 한 줄 전체 차지 */
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+}
 *,
 *::before,
 *::after {

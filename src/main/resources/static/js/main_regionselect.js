@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchToursByAreaCode(selectedAreaCode);
     fetchFoodsByAreaCode(selectedAreaCode);
 
-    //지역 버튼 클릭 시
+    //지역 버튼 클릭 시 selectedDataCode 설정 및 값 전달하기
     document.querySelectorAll(".region-btn").forEach(button => {
         button.addEventListener("click", () => {
             const code = button.dataset.code;
@@ -38,6 +38,10 @@ document.addEventListener("DOMContentLoaded", function () {
             selectedAreaCode = code;
             selectedAreaName = name;
             document.getElementById("selectedRegionName").innerText = selectedAreaName;
+
+
+            const div = document.getElementById("selectedDataCode");
+            if (div) div.dataset.code = selectedAreaCode;
         });
     });
 
@@ -67,8 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
     //선택한 지역의 areaCode 보내기
     const currentAreaCode = selectedAreaCode;
 
-    const div = document.getElementById("selectedDataCode");
-    div.dataset.code = currentAreaCode;
+
 
 
 
@@ -200,17 +203,19 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("nextFoodPageBtn").disabled = foodend >= foodData.length;
     }
 
-    window.moveToTourPage = function moveToTourPage(currentAreaCode,category,page) {
 
 
-        if (!currentAreaCode) {
-            alert("지역을 선택하세요.");
-            return;
-        }
+    // "더보기" 버튼 클릭 시 areaCode + category + page=1을 URL에 포함해 이동
+    document.querySelectorAll(".more-btn").forEach(button => {
+        button.addEventListener("click", () => {
+            const category = button.dataset.category;
+            const areaCode = document.getElementById("selectedDataCode")?.dataset.code || "1"; // fallback: 서울
+            const page = 1;
 
-        const url = `/tour?areaCode=${currentAreaCode}&category=${category}&page=${page}`;
-        window.location.href = url;
-    }
+            const url = `/tour?areaCode=${areaCode}&category=${category}&page=${page}`;
+            window.location.href = url;
+        });
+    });
 
     // 행사 페이지네이션
     document.getElementById("prevPageBtn").addEventListener("click", () => {

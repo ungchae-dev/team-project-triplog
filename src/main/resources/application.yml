@@ -83,7 +83,7 @@ app:
         nickname: 취미생활만렙
         password: pw03
         phone: 010-0903-1003
-        gender: FEMALE
+        gender: MALE
 
       - id: mhkim
         name: 김민형
