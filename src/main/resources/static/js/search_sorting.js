@@ -2,11 +2,6 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
 
-
-
-
-
-
     // 페이징 처리
     function renderPagination(currentPage, totalPages) {
         const pagination = document.getElementById("pagination");
