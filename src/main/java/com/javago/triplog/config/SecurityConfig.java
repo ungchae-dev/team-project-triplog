@@ -39,14 +39,16 @@ public class SecurityConfig {
                 "/member/logout", // 로그아웃
                 "/member/new",  // 회원가입 처리
                 "/member/login/error", // 로그인 실패 페이지
-                "/blog/**", // 블로그 관련 페이지
+                "/blog/@*/",                // 블로그 홈 공개
+                "/blog/@*/guestbook",       // 블로그 방명록 공개
                 "/music/**", // 음악 테스트 페이지
                 "/api/check-duplicate", // 중복 체크 API
                 "/css/**", // CSS 파일
                 "/js/**", // JavaScript 파일
-                "/images/**" // 이미지 파일
+                "/images/**", // 이미지 파일
+                "/components/**" // 정적 리소스(/static) 하위 레이아웃 템플릿 파일(4)
                 ).permitAll()
-                // 그 외 모든 요청은 로그인 필요
+                // 블로그 홈, 방명록은 접근 허용 + 그 외 모든 요청은 로그인 필요
                 .anyRequest().authenticated()
             )
             // 커스텀 로그인 설정
