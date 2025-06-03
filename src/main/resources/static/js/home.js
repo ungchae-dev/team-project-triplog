@@ -1,22 +1,22 @@
-// home.js - 홈 페이지 전용 기능
+// home.js : 여행 블로그 - 홈 전용 기능
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 홈 페이지 초기화
+    // 블로그 - 홈 초기화
     initHomePage();
 });
 
 function initHomePage() {
     // 현재 페이지 네비 버튼 활성화
-    setTimeout(() => {
-        if (typeof setActiveNavButton === 'function') {
-            setActiveNavButton('홈');
-        }
-    }, 100);
+    setActiveNavButton('home');
+
+    // 페이지 제목 설정
+    setPageTitle('홈')
     
-    // 홈 페이지 특정 기능들
+    // 홈 특정 기능들 함수
     setupHomeFeatures();
 }
 
+// 블로그 - 홈 특정 기능들 함수
 function setupHomeFeatures() {
     // 방명록 카드 클릭 이벤트
     const guestbookCard = document.querySelector('.section-card');
@@ -34,6 +34,7 @@ function setupHomeFeatures() {
             console.log('사진 카드 클릭:', card.querySelector('.caption').textContent);
         });
     });
-    
-    // 기타 홈 페이지 전용 기능들...
+
 }
+
+// 기타 기능 관련 추가 코드 작성...
