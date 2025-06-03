@@ -41,12 +41,13 @@ public class Blog {
     @Column(name = "total_visitors", nullable = false)
     private Long totalVisitors = 0L;
 
-    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Post> post = new ArrayList<>();
-
     // Blog -> Member (1:1)
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", updatable = false, nullable = false)
     private Member member;
+
+    // Blog -> Post (1:다)
+    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Post> post = new ArrayList<>();
 
 }
