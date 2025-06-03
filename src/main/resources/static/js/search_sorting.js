@@ -1,5 +1,77 @@
 document.addEventListener("DOMContentLoaded", function(){
 
+    const selectedCategories = new Set();
+    const postList = document.getElementById("postList");
+    const sortSelect = document.getElementById("sortSelect");
+
+// 1. 탭 클릭 이벤트
+    document.querySelectorAll(".tab-button").forEach(button => {
+        button.addEventListener("click", () => {
+            const category = button.dataset.category;
+            if (selectedCategories.has(category)) {
+                selectedCategories.delete(category);
+                button.classList.remove("active");
+            } else {
+                selectedCategories.add(category);
+                button.classList.add("active");
+            }
+            fetchAndRenderPosts();
+        });
+    });
+
+// 2. 정렬 선택 이벤트
+    sortSelect.addEventListener("change", () => {
+        fetchAndRenderPosts();
+    });
+
+// 3. 게시글 렌더링 함수
+    function renderPosts(posts) {
+        postList.innerHTML = "";
+
+        posts.forEach(post => {
+            const postCard = document.createElement("div");
+            postCard.className = "post-card";
+            //추후에 블로그 글 링크 설정
+            postCard.innerHTML = `
+            <a href="#" class="post-thumbnail">
+                <img src="${post.thumbnail}" alt="대표사진">
+            </a>
+            <div class="post-info">
+                <div class="post-tags">${post.tags.map(tag => `#${tag}`).join(' ')}</div>
+                <a href="#" class="post-title">${post.title}</a>
+                <div class="post-meta">
+                    <span class="nickname">${post.nickname}</span> · 
+                    <span class="date">${post.date}</span> · 
+                    ❤️ ${post.likes} · 💬 ${post.comments}
+                </div>
+            </div>
+        `;
+            postList.appendChild(postCard);
+        });
+    }
+
+
+// 4. 서버 요청 및 데이터 가져오기
+    function fetchAndRenderPosts(page = 1) {
+        const categories = Array.from(selectedCategories);
+        const sort = sortSelect.value;
+
+        const params = new URLSearchParams({
+            sort,
+            page,
+            categories: categories.join(",") // 서버에서 ,로 구분해 파싱
+        });
+
+        fetch(`/api/posts?${params.toString()}`)
+            .then(res => res.json())
+            .then(data => {
+                renderPosts(data.posts);
+                // 페이지네이션 연동 필요 시 여기서 data.totalPages 등 처리
+            });
+    }
+
+// 초기 로딩
+    fetchAndRenderPosts();
 
 
     // 페이징 처리

@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-
+import com.javago.triplog.domain.member.entity.Member;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,10 +43,10 @@ public class Blog {
     @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> post = new ArrayList<>();
 
-    /* Member 연동 시 주석 해제
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
+    //member 엔티티 연동이 필요하여 주석 해제함
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", updatable = false, nullable = false)
     private Member member;
-    */
+
 
 }
