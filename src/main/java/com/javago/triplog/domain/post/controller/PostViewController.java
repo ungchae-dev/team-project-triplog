@@ -25,12 +25,13 @@ public class PostViewController {
     private final PostService postService;
 
     // 게시판 글 목록
-    @GetMapping("/blog/post/list")
+    @GetMapping("/blog/@{nickname}/post/list")
     public String list(
-        @RequestParam(value = "page", defaultValue = "1") int page,
-        @RequestParam(value = "size", defaultValue = "10") int size,
-        @RequestParam(value = "sort", defaultValue = "createdAt") String sortBy,
-        @RequestParam(value = "dir", defaultValue = "desc") String direction, Model model) {
+            @PathVariable("nickname") String nickname,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sort", defaultValue = "createdAt") String sortBy,
+            @RequestParam(value = "dir", defaultValue = "desc") String direction, Model model) {
 
         Sort sort = direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page - 1, size, sort);
@@ -44,8 +45,8 @@ public class PostViewController {
 
 
     // 하나의 게시판 글 반환
-    @GetMapping("/blog/post/{id}")
-    public String getPost(@PathVariable("id") Long id, Model model) {
+    @GetMapping("/blog/@{nickname}/post/{id}")
+    public String getPost(@PathVariable("nickname") String nickname, @PathVariable("id") Long id, Model model) {
         Post post = postService.findById(id);
         model.addAttribute("post", post);
         model.addAttribute("hashtagList", post.getPostHashtagPeople());
@@ -53,16 +54,16 @@ public class PostViewController {
     }
 
     // 게시판 글 작성
-    @GetMapping("/blog/post/write")
-    public String write(Model model) {
+    @GetMapping("/blog/@{nickname}/post/write")
+    public String write(@PathVariable("nickname") String nickname, Model model) {
         model.addAttribute("post", new Post());
         model.addAttribute("hashtagList", postService.hashtagList());
         return "post/write";
     }
 
     // 게시판 글 수정
-    @GetMapping("/blog/post/{id}/edit")
-    public String modify(@PathVariable("id") Long id, Model model) {
+    @GetMapping("/blog/@{nickname}/post/{id}/edit")
+    public String modify(@PathVariable("nickname") String nickname, @PathVariable("id") Long id, Model model) {
         Post post = postService.findtoUpdate(id);
         model.addAttribute("post", new Post(post));
         model.addAttribute("hashtagList", postService.hashtagList());

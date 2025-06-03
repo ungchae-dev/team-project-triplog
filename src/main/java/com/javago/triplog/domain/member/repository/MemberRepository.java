@@ -10,5 +10,6 @@ public interface MemberRepository extends JpaRepository<Member, String> {
     boolean existsByNickname(String nickname); // 닉네임
     boolean existsByEmail(String email); // 이메일
     boolean existsByPhone(String phone); // 휴대폰 번호
-    
+
+    Member findByNickname(void attr0);
 }

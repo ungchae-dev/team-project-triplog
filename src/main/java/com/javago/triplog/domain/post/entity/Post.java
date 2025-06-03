@@ -1,6 +1,7 @@
 package com.javago.triplog.domain.post.entity;
 
 import com.javago.constant.Visibility;
+import com.javago.triplog.domain.comments.entity.Comments;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -67,8 +68,8 @@ public class Post {
     private List<Post_Image> postImage = new ArrayList<>();
 
     // 게시글-댓글
-    //@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    //private List<Comments> comments = new ArrayList<>();
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Comments> comments = new ArrayList<>();
 
     // 게시글-해시태그 관계
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
