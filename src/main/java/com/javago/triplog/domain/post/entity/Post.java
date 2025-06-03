@@ -1,5 +1,6 @@
 package com.javago.triplog.domain.post.entity;
 
+import com.javago.constant.Visibility;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -53,8 +54,9 @@ public class Post {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "visibility", nullable = false)
-    private String visibility;
+    private Visibility visibility;
 
     @Column(name = "view_count")
     @Builder.Default
@@ -93,14 +95,14 @@ public class Post {
     private Blog blog;
 
     @Builder
-    public Post(String title, String content, String visibility, Blog blog) {
+    public Post(String title, String content, Visibility visibility, Blog blog) {
         this.title = title;
         this.content = content;
         this.visibility = visibility;
         this.blog = blog;
     }
 
-    public void update(String title, String content, String visibility) {
+    public void update(String title, String content, Visibility visibility) {
         this.title = title;
         this.content = content;
         this.visibility = visibility;
