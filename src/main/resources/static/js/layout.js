@@ -76,16 +76,39 @@ function setupNavigation() {
     });
 }
 
+// URL에서 현재 블로그 소유자 닉네임 추출
+function getCurrentNickname() {
+    const currentPath = window.location.pathname;
+    const match = currentPath.match(/^\/blog\/@([^\/]+)/);
+    if (match) {
+        return match[1]; // 닉네임 반환
+    }
+    return null;
+}
+
 // 페이지 네비게이션 함수
 function navigateToPage(page) {
+    // 상점은 공용이므로 닉네임 없음
+    if (page === 'shop') {
+        window.location.href = '/blog/shop'; // 현재 창에서 이동
+        return;
+    }
+
+    // 상점 제외 나머지는 개인 블로그 (현재 창에서 이동)
+    const currentNickname = getCurrentNickname();
+    if(!currentNickname) {
+        alert('로그인이 필요합니다.');
+        window.location.href = '/member/login';
+        return;
+    }
+
     const pageMap = {
-        'home': '/blog/home', // 블로그_홈
-        'shop': '/blog/shop', // 상점
-        'profile': '/blog/profile', // 프로필
-        'post': '/blog/post', // 게시판
-        'jukebox': '/blog/jukebox', // 주크박스
-        'mylog': '/blog/mylog', // 마이로그
-        'guestbook': '/blog/guestbook' // 방명록
+        'home': `/blog/@${currentNickname}`, // (블로그) 홈
+        'profile': `/blog/@${currentNickname}/profile`, // 프로필
+        'post': `/blog/@${currentNickname}/post`, // 게시판
+        'jukebox': `/blog/@${currentNickname}/jukebox`, // 주크박스
+        'mylog': `/blog/@${currentNickname}/mylog`, // 마이로그
+        'guestbook': `/blog/@${currentNickname}/guestbook` // 방명록
     };
 
     const url = pageMap[page];

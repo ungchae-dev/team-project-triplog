@@ -4,81 +4,85 @@
   <meta charset="UTF-8" />
   <title>여행 블로그 - 홈</title>
   <link rel="stylesheet" href="/css/home.css" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Malgun+Gothic:wght@400;700&display=swap">
+  <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Malgun+Gothic:wght@400;700&display=swap"> -->
 </head>
 <body>
   <div class="frame">
 
-    <!-- 왼쪽 프로필 사이드 (컴포넌트로 로드) -->
-    <div id="left-container"></div>
+    <!-- 여백 안쪽의 실제 블로그 컨텐츠 컨테이너 -->
+    <div class="blog-container">
+      <!-- 왼쪽 프로필 사이드 (컴포넌트로 로드) -->
+      <div id="left-container"></div>
 
-    <!-- 중앙 메인 영역 -->
-    <div class="main-area">
+      <!-- 중앙 메인 영역 -->
+      <div class="main-area">
 
-      <!-- 상단 헤더 (컴포넌트로 로드) -->
-      <div id="top-container"></div>
-      
-      <!-- 현재 예시로 넣어놓은 상태 => 나중에 코드 작성 후 통합 -->
-      <!-- 홈 페이지만의 고유 콘텐츠 -->
-      <div class="main-content">
-        <div class="section-row">
-          <!-- 방명록 카드 -->
-          <div class="section-card">
-            <div class="section-title">방명록</div>
-            <ul class="guestbook-list">
-              <li><b>nick1</b>: 오늘도 힘내세요!</li>
-              <li><b>nick2</b>: 멋진 여행이네요~</li>
-              <li><b>nick3</b>: 잘 보고 갑니다 :)</li>
-            </ul>
+        <!-- 상단 헤더 (컴포넌트로 로드) -->
+        <div id="top-container"></div>
+        
+        <!-- 현재 예시로 넣어놓은 상태 => 나중에 코드 작성 후 통합 -->
+        <!-- 홈 페이지만의 고유 콘텐츠 -->
+        <div class="main-content">
+          <div class="section-row">
+            <!-- 방명록 카드 -->
+            <div class="section-card" id="guestbook-card">
+              <div class="section-title">방명록</div>
+              <ul class="guestbook-list">
+                <li><b>nick1</b>: 오늘도 힘내세요!</li>
+                <li><b>nick2</b>: 멋진 여행이네요~</li>
+                <li><b>nick3</b>: 잘 보고 갑니다 :)</li>
+              </ul>
+            </div>
+
+            <!-- 이웃 최신글 카드 -->
+            <div class="section-card">
+              <div class="section-title">이웃 최신글</div>
+              <ul class="neighbor-list">
+                <li><b>alice</b> 제주도 여행 기록!</li>
+                <li><b>bob</b> 맛집 추천</li>
+                <li><b>carol</b> 새 사진 올렸어요!</li>
+              </ul>
+            </div>
           </div>
 
-          <!-- 이웃 최신글 카드 -->
-          <div class="section-card">
-            <div class="section-title">이웃 최신글</div>
-            <ul class="neighbor-list">
-              <li><b>alice</b> 제주도 여행 기록!</li>
-              <li><b>bob</b> 맛집 추천</li>
-              <li><b>carol</b> 새 사진 올렸어요!</li>
-            </ul>
+          <!-- 대표 사진 & 제목 카드 -->
+          <div class="photo-section-card">
+            <div class="section-title">대표 사진 & 제목</div>
+            <div class="photos">
+              <div class="photo-card">
+                <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진1" alt="사진1"></div>
+                <div class="caption">벚꽃길 따라</div>
+              </div>
+              <div class="photo-card">
+                <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진2" alt="사진2"></div>
+                <div class="caption">야경 명소</div>
+              </div>
+              <div class="photo-card">
+                <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진3" alt="사진3"></div>
+                <div class="caption">해변 산책</div>
+              </div>
+              <div class="photo-card">
+                <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진4" alt="사진4"></div>
+                <div class="caption">산책길</div>
+              </div>
+              <div class="photo-card">
+                <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진5" alt="사진5"></div>
+                <div class="caption">맛집 탐방</div>
+              </div>
+              <div class="photo-card">
+                <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진6" alt="사진6"></div>
+                <div class="caption">캠핑 여행</div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- 대표 사진 & 제목 카드 -->
-        <div class="photo-section-card">
-          <div class="section-title">대표 사진 & 제목</div>
-          <div class="photos">
-            <div class="photo-card">
-              <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진1" alt="사진1"></div>
-              <div class="caption">벚꽃길 따라</div>
-            </div>
-            <div class="photo-card">
-              <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진2" alt="사진2"></div>
-              <div class="caption">야경 명소</div>
-            </div>
-            <div class="photo-card">
-              <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진3" alt="사진3"></div>
-              <div class="caption">해변 산책</div>
-            </div>
-            <div class="photo-card">
-              <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진4" alt="사진4"></div>
-              <div class="caption">산책길</div>
-            </div>
-            <div class="photo-card">
-              <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진5" alt="사진5"></div>
-              <div class="caption">맛집 탐방</div>
-            </div>
-            <div class="photo-card">
-              <div class="photo"><img src="https://via.placeholder.com/110x80?text=사진6" alt="사진6"></div>
-              <div class="caption">캠핑 여행</div>
-            </div>
-          </div>
-        </div>
       </div>
 
-    </div>
+      <!-- 오른쪽 네비게이션 (컴포넌트로 로드) -->
+      <div id="right-container"></div>
 
-    <!-- 오른쪽 네비게이션 (컴포넌트로 로드) -->
-    <div id="right-container"></div>
+    </div>
 
   </div>
 
