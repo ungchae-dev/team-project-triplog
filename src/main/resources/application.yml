@@ -46,6 +46,10 @@ portone:
   store-id: "store-4e640aa5-588e-43a9-acf5-ebaeff70b074"
   channel-key: "channel-key-8c3e9cfb-a553-471c-bea5-148c3270fea1"
 
+# 이모티콘 API키 연결
+stipop:
+  api-key: "d7f7de93bb1baec62995773ba0665e07"
+
 # SQL문(DDL) 로그에 출력
 logging:
   level:
