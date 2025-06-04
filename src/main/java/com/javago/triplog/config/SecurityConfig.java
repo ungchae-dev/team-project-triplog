@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.javago.triplog.domain.member.service.CustomUserDetailsService;
 import com.javago.triplog.domain.member.service.MemberService;
@@ -39,34 +41,48 @@ public class SecurityConfig {
                 "/member/logout", // 로그아웃
                 "/member/new",  // 회원가입 처리
                 "/member/login/error", // 로그인 실패 페이지
-                "/blog/@*/",                // 블로그 홈 공개
-                "/blog/@*/guestbook",       // 블로그 방명록 공개
+                "/blog/@*/", // 블로그 홈
+                "/blog/@*/guestbook", // 블로그 방명록
+                "/blog/api/@*/skin", // 스킨 API (읽기)
                 "/music/**", // 음악 테스트 페이지
                 "/api/check-duplicate", // 중복 체크 API
                 "/css/**", // CSS 파일
                 "/js/**", // JavaScript 파일
                 "/images/**", // 이미지 파일
+                "/uploads/**", // 업로드된 파일 (스킨 이미지 등)
                 "/components/**" // 정적 리소스(/static) 하위 레이아웃 템플릿 파일(4)
                 ).permitAll()
-                // 블로그 홈, 방명록은 접근 허용 + 그 외 모든 요청은 로그인 필요
+                // 그 외 모든 요청 로그인 필요
                 .anyRequest().authenticated()
             )
             // 커스텀 로그인 설정
             .formLogin(login -> login
                 .loginPage("/member/login?type=signin") // 로그인 페이지 URL
-                .loginProcessingUrl("/member/login-process") // 로그인 폼 제출 URL (Spring Security가 처리)
+                .loginProcessingUrl("/member/login-process") // 로그인 폼 제출 URL
                 .usernameParameter("memberId") // 아이디 필드명
                 .passwordParameter("password") // 비밀번호 필드명
-                .defaultSuccessUrl("/", true) // 로그인 성공 시 이동할 페이지 (메인페이지)
-                .failureUrl("/member/login/error?type=signin") // 로그인 실패 시 이동할 페이지
+                .defaultSuccessUrl("/", true) // 로그인 성공 시 이동 (메인페이지)
+                .failureUrl("/member/login/error?type=signin") // 로그인 실패 시 이동
                 .permitAll()
             )
             // 로그아웃 설정
             .logout(logout -> logout
-                .logoutUrl("/member/logout") // 로그아웃 URL
-                .logoutSuccessUrl("/") // 로그아웃 성공 시 이동할 페이지 (메인페이지)
+                .logoutUrl("/member/logout")// 로그아웃 URL (POST 요청)
+                .logoutSuccessUrl("/") // 로그아웃 성공 시 메인페이지로
+                .invalidateHttpSession(true) // 세션 무효화
+                .deleteCookies("JSESSIONID") // 세션 쿠키 삭제
+                .clearAuthentication(true) // 인증 정보 클리어
                 .permitAll()
             )
+
+            // 세션 관리 설정 추가
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // 필요시에만 세션 생성
+                .maximumSessions(1) // 동시 세션 1개로 제한
+                .maxSessionsPreventsLogin(false) // 새 로그인 시 기존 세션 만료
+                .expiredUrl("/member/login?type=signin&expired=true") // 세션 만료 시 이동할 페이지
+            )
+
             // HTTP Basic 인증 비활성화
             .httpBasic(httpBasic -> httpBasic.disable())
             .userDetailsService(customUserDetailsService); // CustomUserDetailsService 사용

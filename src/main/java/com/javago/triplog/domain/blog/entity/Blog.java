@@ -22,7 +22,11 @@ public class Blog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "blog_seq")
-    @SequenceGenerator(name = "blog_seq", sequenceName = "blog_seq", allocationSize = 1)
+    @SequenceGenerator(
+        name = "blog_seq", 
+        sequenceName = "blog_seq", 
+        allocationSize = 1
+    )
     @Column(name = "blog_id", updatable = false)
     private Long blogId;
 
