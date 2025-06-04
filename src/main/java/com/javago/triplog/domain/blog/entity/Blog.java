@@ -1,6 +1,7 @@
 package com.javago.triplog.domain.blog.entity;
 
-import com.javago.constant.Skin_Active;
+import com.javago.constant.SkinActive;
+import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.post.entity.Post;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -28,7 +29,7 @@ public class Blog {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "skin_active", nullable = false)
-    private Skin_Active skinActive;
+    private SkinActive skinActive;
 
     @Column(name = "skin_image")
     private String skinImage;
@@ -45,10 +46,8 @@ public class Blog {
     @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> post = new ArrayList<>();
 
-    /* Member 연동 시 주석 해제
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", updatable = false, nullable = false)
     private Member member;
-    */
 
 }

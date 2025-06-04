@@ -2,6 +2,9 @@ package com.javago.triplog.domain.post.service;
 
 import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.blog.repository.BlogRepository;
+import com.javago.triplog.domain.comments.dto.AddCommentRequest;
+import com.javago.triplog.domain.comments.entity.Comments;
+import com.javago.triplog.domain.comments.repository.CommentsRepository;
 import com.javago.triplog.domain.hashtag_people.entity.Hashtag_People;
 import com.javago.triplog.domain.hashtag_people.repository.HashtagPeopleRepository;
 import com.javago.triplog.domain.member.entity.Member;
@@ -41,7 +44,7 @@ public class PostService {
     private final BlogRepository blogRepository;
     private final HashtagPeopleRepository hashtagPeopleRepository;
     private final PostHashtagPeopleRepository postHashtagPeopleRepository;
-    //private final CommentsRepository commentsRepository;
+    private final CommentsRepository commentsRepository;
 
 
     // 게시판에 새 글 작성
@@ -191,5 +194,17 @@ public class PostService {
     public void removeLike(Long postId, String userId){
         postLikeRepository.deleteByPostPostIdAndMemberMemberId(postId, userId);
     }
+
+    /*
+    // 댓글 저장
+    @Transactional
+    public Comments saveComment(AddCommentRequest request){
+        Post post = postRepository.findById(request.getPostId()).orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+        Member member = memberRepository.findByNickname((request.getUsername());
+        Comments parentComment = commentsRepository.findById(request.getCommentId());
+        Comments comment = AddCommentRequest.toEntity(member, post, parentComment);
+        return commentsRepository.save(comment);
+    }
+    */
     
 }

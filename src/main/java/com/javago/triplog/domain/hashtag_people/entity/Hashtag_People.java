@@ -3,10 +3,10 @@ package com.javago.triplog.domain.hashtag_people.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.javago.constant.TagType;
 import org.hibernate.annotations.Check;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.javago.constant.Tag_Type;
 import com.javago.triplog.domain.post_hashtag_people.entity.Post_Hashtag_people;
 
 import jakarta.persistence.CascadeType;
@@ -42,7 +42,7 @@ public class Hashtag_People {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tag_type", nullable = false, updatable = false)
-    private Tag_Type tagType;
+    private TagType tagType;
 
     // 해시태그 관계
     @OneToMany(mappedBy = "hashtagPeople", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
