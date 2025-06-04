@@ -39,13 +39,13 @@
   <label>좋아요</label><input type="checkbox" id="postLike"><br>
   <div id="likeCount" th:text="${post.postLike.size()}"></div><br>
 
-  <button type="button" th:onclick="|location.href='@{/blog/post/list}'|">글 목록</button>
-  <button type="button" th:onclick="|location.href='@{/blog/post/{id}/edit(id=${post.postId})}'|">수정</button>
+  <button type="button" th:onclick="|location.href='@{/blog/post/{nickname}(nickname=${nickname})}'|">글 목록</button>
+  <button type="button" th:onclick="|location.href='@{/blog/post/{nickname}/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">수정</button>
   <button type="button" id="delete-btn">삭제</button>
 
   <label>댓글</label>
   <div>
-    <input type="text" id="username" placeholder="이름" />
+    <span id="username" th:text="${nickname}" />
     <input type="text" id="commentInput" placeholder="댓글을 입력하세요" />
     <select id="is_secret">
       <option value="Y">전체 공개</option>
@@ -57,8 +57,8 @@
     <div id="commentList"></div>
   </div>
 
-  <script th:inline="javascript">
-    const id= /*[[${post.postId}]]*/ 0;
+  <script>
+    const id= `${post.postId}`;
 
     // 좋아요 추가, 취소
     document.getElementById('postLike').addEventListener('change', function () {
@@ -66,7 +66,7 @@
     
       const data = {
         // 확인용 멤버ID 설정
-        userId: "user1"
+        userId: `${userId}`
       }
 
       fetch(`/api/${id}/like`, {
@@ -99,7 +99,7 @@
         .then(res => {
           if(!res.ok) throw new Error("삭제 실패");
           alert("삭제되었습니다.");
-          location.replace(`/blog/post/list`);
+          location.replace(`/blog/post`);
         })
         .catch(err => {
           console.error(err.message);
@@ -107,6 +107,7 @@
       }
     });
 
+    /*
     // 댓글 등록 함수
     function addCommentToList(comment) {
       const commentDiv = document.createElement('div');
@@ -183,7 +184,7 @@
           // 확인용 멤버ID 설정
           userId: "user1",
           content: content,
-          postId: /*[[${post.postId}]]*/ 0
+          postId: /*[[${post.postId}]]*/ 0/*
           isSecret: isSecret
         })
       }
@@ -197,7 +198,7 @@
         document.getElementById('commentInput').value = '';
       })
       .catch(err => alert(err.message)))
-    });
+    });*/
   </script>
 </body>
 </html>

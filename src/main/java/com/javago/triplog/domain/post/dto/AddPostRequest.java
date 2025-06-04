@@ -14,16 +14,17 @@ public class AddPostRequest {
 
     private String title;
     private String content;
-    private Visibility visibility;
+    private String visibility;
     private Long blogId;
     private List<Long> tagIdList;
     private String newHashtag;
 
-    public Post toEntity(Blog blog){
+    public Post toEntity(Blog blog, String visibility){
+        Visibility v = Visibility.valueOf(visibility);
         return Post.builder()
                 .title(title)
                 .content(content)
-                .visibility(visibility)
+                .visibility(v)
                 .blog(blog).build();
     }
 

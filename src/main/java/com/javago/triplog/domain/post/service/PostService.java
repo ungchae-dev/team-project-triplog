@@ -50,7 +50,7 @@ public class PostService {
     // 게시판에 새 글 작성
     public Post save(AddPostRequest addPostRequest) {
         Blog blog = blogRepository.findById(addPostRequest.getBlogId()).orElseThrow(() -> new IllegalArgumentException("Blog not found"));
-        return postRepository.save(addPostRequest.toEntity(blog));
+        return postRepository.save(addPostRequest.toEntity(blog, addPostRequest.getVisibility()));
     }
 
     // 글 작성 시 해시태그 저장
@@ -96,9 +96,10 @@ public class PostService {
     }
 
     // 게시판 글 리스트 불러오기
-    public Page<PostListResponse> findPostList(Pageable pageable) {
-        List<Post> posts = postRepository.findPostsWithThumbnail(pageable);
-        long count = postRepository.countPostsWithThumbnail();
+    public Page<PostListResponse> findPostList(Pageable pageable, String nickname) {
+        Long blogId = memberRepository.findByNickname(nickname).getBlog().getBlogId();
+        List<Post> posts = postRepository.findPostsWithThumbnail(pageable, blogId);
+        long count = postRepository.countPostsWithThumbnail(blogId);
 
         log.info("조회된 게시글 수: {}", posts.size());
         for (Post post : posts) {
@@ -124,7 +125,7 @@ public class PostService {
         List<PostListResponse> dtoList = posts.stream()
             .map(post -> {
                 String thumbnail = post.getPostImage().stream()
-                    .filter(img -> "Y".equals(img.getIsThumbnail()))
+                    .filter(img -> "Y".equals(img.getIsThumbnail().name()))
                     .map(Post_Image::getImagePath)
                     .findFirst()
                     .orElse(null);
