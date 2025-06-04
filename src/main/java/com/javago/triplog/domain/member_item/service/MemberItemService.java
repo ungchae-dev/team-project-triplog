@@ -48,4 +48,8 @@ public class MemberItemService {
             }
         }).collect(Collectors.toList());
     }
+
+    public List<Long> getPurchasedMusicIds(String memberId) {
+        return memberItemRepository.findMusicItemIdsByMemberIdAndItemType(memberId, ItemType.MUSIC);
+    }
 }
