@@ -18,11 +18,13 @@
 <body>
   <h2>글 조회</h2>
 
+  <div id="blogInfo" th:attr="data-user-id=${userId}, data-nickname=${nickname}" hidden></div>
+
   <label>블로그 ID</label><br>
   <div id="blog_id" th:text="${post.blog.blogId}"></div><br>
 
   <label>게시글 ID</label><br>
-  <div id="post_id" th:text="${post.postId}"></div><br>
+  <div id="post_id" th:text="${post.postId}" th:attr="data-post-id=${post.postId}"></div><br>
 
   <label hidden>제목</label><br>
   <div id="title" th:text="'제목 | ' + ${post.title} + '&nbsp;&nbsp;조회수 | ' + ${post.viewCount}"></div><br>
@@ -39,13 +41,13 @@
   <label>좋아요</label><input type="checkbox" id="postLike"><br>
   <div id="likeCount" th:text="${post.postLike.size()}"></div><br>
 
-  <button type="button" th:onclick="|location.href='@{/blog/post/list}'|">글 목록</button>
-  <button type="button" th:onclick="|location.href='@{/blog/post/{id}/edit(id=${post.postId})}'|">수정</button>
+  <button type="button" th:onclick="|location.href='@{/blog/@{nickname}/post(nickname=${nickname})}'|">글 목록</button>
+  <button type="button" th:onclick="|location.href='@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">수정</button>
   <button type="button" id="delete-btn">삭제</button>
 
   <label>댓글</label>
   <div>
-    <input type="text" id="username" placeholder="이름" />
+    <span id="username" th:text="${nickname}" />
     <input type="text" id="commentInput" placeholder="댓글을 입력하세요" />
     <select id="is_secret">
       <option value="Y">전체 공개</option>
@@ -57,8 +59,10 @@
     <div id="commentList"></div>
   </div>
 
-  <script th:inline="javascript">
-    const id= /*[[${post.postId}]]*/ 0;
+  <script>
+    const id = document.getElementById('post_id').dataset.postId;
+    const userId = document.getElementById('blogInfo').dataset.userId;
+    const nickname = document.getElementById('blogInfo').dataset.nickname;
 
     // 좋아요 추가, 취소
     document.getElementById('postLike').addEventListener('change', function () {
@@ -66,7 +70,7 @@
     
       const data = {
         // 확인용 멤버ID 설정
-        userId: "user1"
+        userId: userId
       }
 
       fetch(`/api/${id}/like`, {
@@ -99,7 +103,7 @@
         .then(res => {
           if(!res.ok) throw new Error("삭제 실패");
           alert("삭제되었습니다.");
-          location.replace(`/blog/post/list`);
+          location.replace(`/blog/@${nickname}/post`);
         })
         .catch(err => {
           console.error(err.message);
@@ -107,6 +111,7 @@
       }
     });
 
+    /*
     // 댓글 등록 함수
     function addCommentToList(comment) {
       const commentDiv = document.createElement('div');
@@ -183,7 +188,7 @@
           // 확인용 멤버ID 설정
           userId: "user1",
           content: content,
-          postId: /*[[${post.postId}]]*/ 0
+          postId: /*[[${post.postId}]]*/ 0/*
           isSecret: isSecret
         })
       }
@@ -197,7 +202,7 @@
         document.getElementById('commentInput').value = '';
       })
       .catch(err => alert(err.message)))
-    });
+    });*/
   </script>
 </body>
 </html>
