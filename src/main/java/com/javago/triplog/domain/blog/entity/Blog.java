@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import com.javago.triplog.domain.member.entity.Member;
 import java.util.ArrayList;
 import java.util.List;
 

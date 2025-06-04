@@ -1,5 +1,7 @@
 package com.javago.triplog.domain.post.repository;
 
+import com.javago.constant.TagType;
+import com.javago.constant.Visibility;
 import com.javago.triplog.domain.hashtag_people.entity.QHashtag_People;
 import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.entity.QPost;
@@ -30,7 +32,7 @@ public class PostSearchRepositoryImpl implements PostSearchRepositoryCustom {
         BooleanBuilder builder = new BooleanBuilder();
 
         //visibility가 PUBLIC인 게시글만
-        builder.and(post.visibility.eq("PUBLIC"));
+        builder.and(post.visibility.eq(Visibility.PUBLIC));
 
         if (keyword != null && !keyword.isBlank()) {
             builder.and(
@@ -42,7 +44,7 @@ public class PostSearchRepositoryImpl implements PostSearchRepositoryCustom {
 
         if (people != null && !people.isBlank()) {
             builder.and(
-                    postHashtagPeople.hashtagPeople.tagType.eq("PEOPLE")
+                    postHashtagPeople.hashtagPeople.tagType.eq(TagType.PEOPLE)
                             .and(postHashtagPeople.hashtagPeople.tagName.eq(people))
             );
         }
