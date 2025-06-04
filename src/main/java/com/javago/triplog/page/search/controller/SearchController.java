@@ -14,7 +14,6 @@ public class SearchController {
 
         //model.addAttribute("posts");
         return "page/searchpage";
-
     }
 
 }

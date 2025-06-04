@@ -34,6 +34,7 @@ public class SecurityConfig {
                 "/tour", // 행사·관광·맛집 페이지
                 "/popup", // 팝업 창
                 "/search", // 글 검색 페이지
+                        "/search/posts**",
                 "/tourpopup/**", // 행사·관광·맛집 상세 페이지 팝업 창
                 "/member/login**", // 회원가입·로그인 페이지
                 "/member/logout", // 로그아웃
