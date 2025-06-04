@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-
+import com.javago.triplog.domain.member.entity.Member;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +43,7 @@ public class Blog {
     @Column(name = "total_visitors", nullable = false)
     private Long totalVisitors = 0L;
 
+
     // Blog -> Member (1:1)
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", updatable = false, nullable = false)
@@ -51,5 +52,6 @@ public class Blog {
     // Blog -> Post (1:다)
     @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> post = new ArrayList<>();
+
 
 }
