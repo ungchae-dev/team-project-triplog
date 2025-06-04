@@ -10,12 +10,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 블로그 소유자 정보 설정
     await initBlogOwnerInfo();
 
-    // 스킨 자동 로드
-    await loadBlogSkin();
-
-    // 동적 데이터 로드 => 나중에 추가
-    // loadRecentPosts(); // 게시글들
-    // loadRecentGuestbooks(); // 방명록들
+    // 컴포넌트 로드 완료 후 데이터 로드
+    setTimeout(async () => {
+        await loadBlogSkin(); // 블로그 스킨 로드
+        await loadUserData(); // 사용자 데이터 로드
+    }, 500); // 컴포넌트 로드 대기
+    
 
 });
 
@@ -30,9 +30,91 @@ function getBlogOwnerNickname() {
     const currentPath = window.location.pathname;
     const match = currentPath.match(/^\/blog\/@([^\/]+)/);
     if (match) {
-        return match[1]; // 닉네임 반환
+        return decodeURIComponent(match[1]); // URL 디코딩
     }
     return null;
+}
+
+// 사용자 데이터 로드 함수
+async function loadUserData() {
+    if (!window.currentBlogNickname) {
+        console.log('닉네임이 없어서 사용자 데이터 로드를 건너뜁니다...');
+        return;
+    }
+
+    try {
+        const encodedNickname = encodeURIComponent(window.currentBlogNickname);
+        const response = await fetch(`/blog/api/@${encodedNickname}/user-info`);
+
+        if (response.ok) {
+            const userInfo = await response.json();
+            console.log('사용자 정보 로드 성공: ', userInfo);
+
+            // DOM에 데이터 적용
+            updateUserInterface(userInfo);
+        } else {
+            console.log('사용자 정보를 가져올 수 없습니다:', response.status);
+            setDefaultValues();
+        }
+    } catch (error) {
+        console.error('사용자 데이터 로드 중 오류:', error);
+        setDefaultValues();
+    }
+
+}
+
+// UI 업데이트 함수
+function updateUserInterface(userInfo) {
+    // 방문자 수 업데이트
+    updateElement('daily-visitors', userInfo.dailyVisitors || 0);
+    updateElement('total-visitors', userInfo.totalVisitors || 0);
+
+    // 상태 메시지 업데이트
+    updateElement('condition-message', 
+        userInfo.conditionMessage || '안녕하세요~ 블로그에 오신 걸 환영합니다♥')
+
+    // 닉네임과 성별 표시
+    const genderSymbol = userInfo.gender === 'MALE' ? '♂' : '♀';
+    updateElement('user-info', `${userInfo.nickname}(${genderSymbol})`);
+
+    // 가입일 포맷팅 및 표시
+    const formattedDate = formatJoinDate(userInfo.joinDate);
+    updateElement('join-date', formattedDate);
+    
+    console.log('UI 업데이트 완료');
+}
+
+// 기본값 설정 함수 (로드 실패 시)
+function setDefaultValues() {
+    updateElement('daily-visitors', '0');
+    updateElement('total-visitors', '0');
+    updateElement('condition-message', '블로그 정보를 불러올 수 없습니다.');
+    updateElement('user-info', '사용자');
+    updateElement('join-date', '정보 없음');
+}
+
+// DOM 요소 업데이트 헬퍼 함수
+function updateElement(id, content) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.textContent = content;
+        console.log(`${id} 업데이트:`, content);
+    } else {
+        console.log(`요소를 찾을 수 없음: ${id}`);
+    }
+}
+
+// 가입일 포맷팅 함수 ex) 20250604 -> 2025년 6월 4일
+function formatJoinDate(joinDate) {
+    if (!joinDate || joinDate.length !== 8) {
+        return '정보 없음';
+    }
+
+    const year = joinDate.substring(0, 4);
+    const month = parseInt(joinDate.substring(4, 6));
+    const day = parseInt(joinDate.substring(6, 8));
+
+    return `${year}년 ${month}월 ${day}일`;
 }
 
 // 블로그 스킨 자동 로드

@@ -170,6 +170,36 @@ public class BlogController {
         }
     }
 
+    // 블로그 소유자 정보 조회 API (JSON 응답)
+    @GetMapping("/api/@{nickname}/user-info")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getBlogUserInfo(@PathVariable String nickname) {
+        try {
+            String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
+            Member member = memberService.findByNickname(decodedNickname);
+            Blog blog = blogService.findByMember(member);
+
+            Map<String, Object> userInfo = new HashMap<>();
+
+            // Member 정보
+            userInfo.put("nickname", member.getNickname());
+            userInfo.put("gender", member.getGender().name()); // 남성/여성 (MALE/FEMALE)
+            userInfo.put("joinDate", member.getJoinDate()); // ex) 20250620 형태
+
+            // Blog 정보
+            userInfo.put("conditionMessage", blog.getConditionMessage()); // 상태메시지
+            userInfo.put("dailyVisitors", blog.getDailyVisitors()); // 일일 방문자 수
+            userInfo.put("totalVisitors", blog.getTotalVisitors()); // 누적 방문자 수
+
+            // 필요 시 아이디 추가
+            userInfo.put("memberId", member.getMemberId());
+
+            return ResponseEntity.ok(userInfo);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
     // ========== 스킨 관련 API ==========
 
     // 스킨 정보 조회 (JSON 응답)

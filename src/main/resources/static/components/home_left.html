@@ -7,20 +7,31 @@
 <body>
     
   <div class="page left-page">
-    <div class="counter-banner">TODAY 2000<br>TOTAL 100000</div>
-    <div class="mood-banner">TODAY is <span class="mood">🌸 행복</span></div>
+    <!-- 방문자 수 (JavaScript로 동적 로드) -->
+    <div class="counter-banner">
+      TODAY <span id="daily-visitors">0</span> <br>
+      TOTAL <span id="total-visitors">0</span>
+    </div>
+
     <div class="profile-pic">
       <img src="https://via.placeholder.com/150x150?text=프로필" alt="프로필 사진" />
     </div>
-    <div class="intro-text">간단한 자기소개가 들어갑니다...</div>
+
+    <!-- 상태메시지 확장 -->
+    <div class="intro-text expanded" id="condition-message">로딩중...</div>
+
+    <!-- 회원 정보 (JavaScript로 동적 로드) -->
     <div class="history">
-      닉네임(♂/♀)<br>
-      가입일: 00월 00일
+      <!-- 닉네임 -->
+      <span id="user-info">로딩중...</span> <br>
+      가입일: <span id="join-date">로딩중...</span>
       <a href="#" class="edit">EDIT</a>
     </div>
+
     <div class="received-url">
       <input type="text" placeholder="받아온 URL" />
     </div>
+    
     <div class="neighbor-dropdown">
       <button>이웃 파도타기 ▼</button>
     </div>
