@@ -32,3 +32,41 @@ window.addEventListener('DOMContentLoaded', event => {
     });
 
 });
+
+// 로그아웃 확인 함수
+function confirmLogout() {
+    if (confirm("로그아웃 하시겠습니까?")) {
+        // 숨겨진 폼을 만들어 POST 요청 (for. CSRF 보호)
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/member/logout';
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// 내 블로그 새 창에서 열기
+function openMyBlog() {
+    // 새 창 크기 설정(메인보다 작은 사이즈로)
+    const width = 1350; // 폭
+    const height = 900; // 높이
+    const left = (screen.width - width) / 2; // 화면 중앙
+    const top = (screen.height - height) / 2; // 화면 중앙
+
+    // 새 창 옵션
+    const options = `
+        width=${width}, 
+        height=${height}, 
+        left=${left}, 
+        top=${top}, 
+        resizable=yes,
+        toolbar=no, 
+        menubar=no, 
+        location=no, 
+        status=no
+    `;
+
+    // 새 창에서 블로그 열기
+    window.open('/blog/home', 'myBlog', options);
+
+}

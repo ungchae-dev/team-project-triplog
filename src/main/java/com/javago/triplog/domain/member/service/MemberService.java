@@ -1,6 +1,5 @@
 package com.javago.triplog.domain.member.service;
 
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,7 +10,6 @@ import com.javago.triplog.domain.member.dto.MemberPrincipal;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.repository.MemberRepository;
 
-import jakarta.persistence.Column;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -70,5 +68,13 @@ public class MemberService implements UserDetailsService {
         return member;
     }
 
+    // 닉네임으로 Member 엔티티 조회하는 메서드
+    public Member findByNickname(String nickname) {
+        Member member = memberRepository.findByNickname(nickname);
+        if(member == null) {
+            throw new IllegalArgumentException("존재하지 않는 닉네임입니다: " + nickname);
+        }
+        return member;
+    }
 
 }

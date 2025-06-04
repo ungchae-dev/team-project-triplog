@@ -11,9 +11,6 @@ import com.javago.constant.Gender;
 import com.javago.constant.Role;
 import com.javago.triplog.domain.member.entity.Member;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.Getter;
 
 // Member 엔티티의 모든 정보를 담을 수 있는 커스텀 UserDetails 클래스
