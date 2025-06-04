@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+// 사용자가 구매해 DB에 저장하는 이모티콘 정보를 담는 DTO 클래스 
 public class EmoticonDto {
     private Long emoticonId;
     private String emoticonName;
