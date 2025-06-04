@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>여행 블로그 레이아웃</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Malgun+Gothic:wght@400;700&display=swap">
+  <!-- 각 페이지에서 아래 부분 수정 -->
+  <!-- <link rel="stylesheet" href="/css/{페이지명}.css" /> -->
+</head>
+<body>
+  <div class="frame">
+
+    <!-- 왼쪽 프로필 사이드 (컴포넌트로 로드) -->
+    <div id="left-container"></div>
+
+    <!-- 중앙 메인 영역 -->
+    <div class="main-area">
+
+      <!-- 상단 헤더 (컴포넌트로 로드) -->
+      <div id="top-container"></div>
+
+      <!-- 각 페이지별 고유 콘텐츠 영역 -->
+      <div class="main-content">
+        <!-- 🔥 여기에 각 페이지만의 고유 콘텐츠 작성 🔥 -->
+        
+      </div>
+    </div>
+
+    <!-- 오른쪽 네비게이션 (컴포넌트로 로드) -->
+    <div id="right-container"></div>
+
+  </div>
+
+  <script src="/js/layout.js"></script>
+
+  <!-- 각 페이지에서 본인 JS 추가 -->
+  <!-- <script src="/js/{페이지명}.js"></script> -->
+</body>
+</html>

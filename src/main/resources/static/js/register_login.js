@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 아이디 중복 검사
-    const memberIdInput = document.querySelector('input[name="member_id"]');
+    const memberIdInput = document.querySelector('input[name="memberId"]');
     let idCheckTimeout;
     memberIdInput.addEventListener('input', function(e) {
         clearTimeout(idCheckTimeout);
@@ -163,7 +163,7 @@ function checkDuplicateId(memberId) {
     fetch(`/api/check-duplicate?member_id=${memberId}`)
         .then(response => response.json())
         .then(data => {
-            const memberIdInput = document.querySelector('input[name="member_id"]');
+            const memberIdInput = document.querySelector('input[name="memberId"]');
             if (data.isDuplicate) {
                 memberIdInput.style.borderColor = 'red';
             } else {

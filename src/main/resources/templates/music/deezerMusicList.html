@@ -3,6 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <title>장르별 음악</title>
+     <script>
+        async function purchaseMusic(title, artist, album, previewUrl) {
+            // 도토리 구매를 위한 API 호출
+                const response = await fetch("/api/music/purchase", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        artist: artist,
+                        album: album,
+                        previewUrl: previewUrl
+                    })
+                });
+
+                if (!response.ok) {
+                 const errorText = await response.text(); // JSON이 아닐 수도 있으니 text로 받음
+                 alert("구매 실패: " + errorText);
+                 return;
+            }
+
+                 const result = await response.json();
+                 alert(result.message + "\n남은 도토리: " + result.remainingAcorn);
+    }
+    </script>
 </head>
 <body>
 <h1>🎵 장르별 인기 음악</h1>
@@ -25,12 +51,32 @@
 <div th:if="${musicList != null}">
     <h2 th:text="'🎶 ' + ${genreName} + ' 음악 목록'">🎶 음악 목록</h2>
     <ul>
-        <li th:each="track : ${musicList}">
-            <p><strong th:text="${track.title}"></strong> - <span th:text="${track.artist}"></span></p>
-            <img th:src="${track.album}" width="150"/>
+    <li th:each="track : ${musicList}">
+        <p>
+            <strong th:text="${track.title}"></strong> -
+            <span th:text="${track.artist}"></span>
+        </p>
+
+        <!-- 🔍 musicId가 잘 주입되었는지 확인용 -->
+        <p style="color:blue">musicId: <span th:text="${track.musicId}"></span></p>
+        <img th:src="${track.album}" width="150"/>
+
+        <!-- ✅ 구매한 경우 -->
+       <div th:if="${#lists.contains(purchasedMusicIds, track.musicId)}">
             <audio controls th:src="${track.musicFile}"></audio>
-        </li>
-    </ul>
+            <button disabled>이미 구매함</button>
+        </div>
+
+        <!-- ❌ 미구매한 경우 -->
+        <div th:unless="${#lists.contains(purchasedMusicIds, track.musicId)}">
+            <p style="color: gray;">미구매 - 도토리 10개 필요</p>
+            <button
+                th:attr="onclick=|purchaseMusic('${track.title}', '${track.artist}', '${track.album}', '${track.musicFile}')|">
+                도토리 10개로 구매
+            </button>
+        </div>
+    </li>
+</ul>
 
      <div style="margin-top: 20px;">
         <a th:if="${currentPage > 0}"

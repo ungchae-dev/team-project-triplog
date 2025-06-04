@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>내 아이템 목록</title>
+</head>
+<body>
+    <h1>🎁 내가 보유한 아이템</h1>
+
+    <div th:if="${items != null}">
+        <ul>
+            <li th:each="item : ${items}">
+                <strong th:text="${item.itemType}">[타입]</strong> -
+                <span th:text="${item.name}">아이템 이름</span>
+            </li>
+        </ul>
+    </div>
+
+    <div th:if="${items.size() == 0}">
+        <p>보유한 아이템이 없습니다.</p>
+    </div>
+</body>
+</html>
