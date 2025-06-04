@@ -3,15 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <title>글 조회</title>
+    <style>
+        #commentList {
+          margin-top: 20px;
+        }
+        .comment {
+          margin-bottom: 10px;
+          padding: 8px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+        }
+  </style>
 </head>
 <body>
   <h2>글 조회</h2>
+
+  <div id="blogInfo" th:attr="data-user-id=${userId}, data-nickname=${nickname}" hidden></div>
 
   <label>블로그 ID</label><br>
   <div id="blog_id" th:text="${post.blog.blogId}"></div><br>
 
   <label>게시글 ID</label><br>
-  <div id="post_id" th:text="${post.postId}"></div><br>
+  <div id="post_id" th:text="${post.postId}" th:attr="data-post-id=${post.postId}"></div><br>
 
   <label hidden>제목</label><br>
   <div id="title" th:text="'제목 | ' + ${post.title} + '&nbsp;&nbsp;조회수 | ' + ${post.viewCount}"></div><br>
@@ -28,15 +41,28 @@
   <label>좋아요</label><input type="checkbox" id="postLike"><br>
   <div id="likeCount" th:text="${post.postLike.size()}"></div><br>
 
-  <!--<label>댓글</label>
-  <div th:insert="comment/fragment :: commentSection"></div><br>-->
-
-  <button type="button" th:onclick="|location.href='@{/blog/post/list}'|">글 목록</button>
-  <button type="button" th:onclick="|location.href='@{/blog/post/{id}/edit(id=${post.postId})}'|">수정</button>
+  <button type="button" th:onclick="|location.href='@{/blog/@{nickname}/post(nickname=${nickname})}'|">글 목록</button>
+  <button type="button" th:onclick="|location.href='@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">수정</button>
   <button type="button" id="delete-btn">삭제</button>
 
-  <script th:inline="javascript">
-    const id= /*[[${post.postId}]]*/ 0;
+  <label>댓글</label>
+  <div>
+    <span id="username" th:text="${nickname}" />
+    <input type="text" id="commentInput" placeholder="댓글을 입력하세요" />
+    <select id="is_secret">
+      <option value="Y">전체 공개</option>
+      <option value="N">비공개</option>
+    </select>
+    <button id="submitComment">등록</button>
+
+    <!-- 댓글 리스트 -->
+    <div id="commentList"></div>
+  </div>
+
+  <script>
+    const id = document.getElementById('post_id').dataset.postId;
+    const userId = document.getElementById('blogInfo').dataset.userId;
+    const nickname = document.getElementById('blogInfo').dataset.nickname;
 
     // 좋아요 추가, 취소
     document.getElementById('postLike').addEventListener('change', function () {
@@ -44,7 +70,7 @@
     
       const data = {
         // 확인용 멤버ID 설정
-        userId: "user1"
+        userId: userId
       }
 
       fetch(`/api/${id}/like`, {
@@ -77,13 +103,106 @@
         .then(res => {
           if(!res.ok) throw new Error("삭제 실패");
           alert("삭제되었습니다.");
-          location.replace(`/blog/post/list`);
+          location.replace(`/blog/@${nickname}/post`);
         })
         .catch(err => {
           console.error(err.message);
         });
       }
     });
+
+    /*
+    // 댓글 등록 함수
+    function addCommentToList(comment) {
+      const commentDiv = document.createElement('div');
+      commentDiv.classList.add('comment');
+      commentDiv.dataset.commentId = comment.id;
+
+      commentDiv.innerHTML = `
+                <strong>${comment.username}</strong>:
+                <span class="comment-content">${comment.content}</span>
+                <button class="edit-btn">수정</button>
+            `;
+
+      // 수정 버튼 이벤트 추가
+      commentDiv.querySelector('.edit-btn').addEventListener('click', () => {
+        const contentSpan = commentDiv.querySelector('.comment-content');
+        const currentContent = contentSpan.textContent;
+
+        // 수정 input, 저장 버튼 생성
+        contentSpan.innerHTML = `
+                    <input type="text" class="edit-input" value="${currentContent}" />
+                    <button class="save-btn">저장</button>
+                    <button class="cancel-btn">취소</button>
+                `;
+
+        // 저장 버튼 클릭 시 서버에 수정 요청
+        commentDiv.querySelector('.save-btn').addEventListener('click', () => {
+          const newContent = commentDiv.querySelector('.edit-input').value.trim();
+          if (!newContent) {
+            alert('댓글 내용을 입력해주세요.');
+            return;
+          }
+
+          fetch(`/api/${id}/comment/update}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ content: newContent })
+          })
+                  .then(res => {
+                    if (!res.ok) throw new Error('댓글 수정 실패');
+                    return res.json();
+                  })
+                  .then(updatedComment => {
+                    contentSpan.textContent = updatedComment.content;
+                  })
+                  .catch(err => alert(err.message));
+        });
+
+        // 취소 버튼 클릭 시 원래 내용 복구
+        commentDiv.querySelector('.cancel-btn').addEventListener('click', () => {
+          contentSpan.textContent = currentContent;
+        });
+      });
+
+      document.getElementById('commentList').appendChild(commentDiv);
+    }
+
+    // 등록 버튼 이벤트
+    document.getElementById('submitComment').addEventListener('click', function () {
+      const username = document.getElementById('username').value.trim();
+      const content = document.getElementById('commentInput').value;
+      const isSecret = document.getElementById('is_secret').value;
+
+      if (!content) {
+        alert('댓글을 입력해주세요.');
+        return;
+      }
+
+      fetch(`/api/${id}/comment`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          // 확인용 멤버ID 설정
+          userId: "user1",
+          content: content,
+          postId: /*[[${post.postId}]]*/ 0/*
+          isSecret: isSecret
+        })
+      }
+      .then(res => {
+        if (!res.ok) throw new Error('댓글 등록 실패');
+        return res.json();
+      })
+      .then(data => {
+        addCommentToList(data);
+        document.getElementById('username').value = '';
+        document.getElementById('commentInput').value = '';
+      })
+      .catch(err => alert(err.message)))
+    });*/
   </script>
 </body>
 </html>

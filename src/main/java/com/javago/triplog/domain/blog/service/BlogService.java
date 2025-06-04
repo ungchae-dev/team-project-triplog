@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.javago.constant.SkinActive;
 import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.blog.repository.BlogRepository;
 import com.javago.triplog.domain.member.entity.Member;
@@ -97,7 +98,7 @@ public class BlogService {
     @Transactional
     public void updateSkin(Blog blog, String skinImageUrl) {
         blog.setSkinImage(skinImageUrl);
-        blog.setSkinActive("Y");
+        blog.setSkinActive(SkinActive.valueOf("Y"));
         save(blog);
     }
 
@@ -105,7 +106,7 @@ public class BlogService {
     @Transactional
     public void removeSkin(Blog blog) {
         blog.setSkinImage(null);
-        blog.setSkinActive("N");
+        blog.setSkinActive(SkinActive.valueOf("N"));
         save(blog);
     }
 

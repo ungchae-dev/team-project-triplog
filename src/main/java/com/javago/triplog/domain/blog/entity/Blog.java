@@ -1,5 +1,6 @@
 package com.javago.triplog.domain.blog.entity;
 
+import com.javago.constant.SkinActive;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.post.entity.Post;
 import jakarta.persistence.*;
@@ -30,8 +31,9 @@ public class Blog {
     @Column(name = "blog_id", updatable = false)
     private Long blogId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "skin_active", nullable = false)
-    private String skinActive;
+    private SkinActive skinActive;
 
     @Column(name = "skin_image")
     private String skinImage;
