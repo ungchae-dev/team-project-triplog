@@ -1,5 +1,7 @@
 package com.javago.triplog.domain.post.entity;
 
+import com.javago.constant.Visibility;
+import com.javago.triplog.domain.comments.entity.Comments;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +13,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.javago.constant.Visibility;
 import com.javago.triplog.domain.blog.entity.Blog;
 //import com.javago.triplog.domain.comments.entity.Comments;
 import com.javago.triplog.domain.post_hashtag_people.entity.Post_Hashtag_people;
@@ -55,8 +58,9 @@ public class Post {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "visibility", nullable = false)
-    private String visibility;
+    private Visibility visibility;
 
     @Column(name = "view_count")
     @Builder.Default
@@ -67,8 +71,8 @@ public class Post {
     private List<Post_Image> postImage = new ArrayList<>();
 
     // 게시글-댓글
-    //@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    //private List<Comments> comments = new ArrayList<>();
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Comments> comments = new ArrayList<>();
 
     // 게시글-해시태그 관계
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -86,6 +90,7 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post_Like> postLike = new ArrayList<>();
 
+    // 좋아요수 필드 생성
     @Formula("(SELECT COUNT(*) FROM post_like pl WHERE pl.post_id = post_id)")
     private int likeCount;
 
@@ -95,14 +100,14 @@ public class Post {
     private Blog blog;
 
     @Builder
-    public Post(String title, String content, String visibility, Blog blog) {
+    public Post(String title, String content, Visibility visibility, Blog blog) {
         this.title = title;
         this.content = content;
         this.visibility = visibility;
         this.blog = blog;
     }
 
-    public void update(String title, String content, String visibility) {
+    public void update(String title, String content, Visibility visibility) {
         this.title = title;
         this.content = content;
         this.visibility = visibility;

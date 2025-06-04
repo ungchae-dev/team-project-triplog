@@ -18,16 +18,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("""
     SELECT DISTINCT p FROM Post p
     LEFT JOIN FETCH p.postImage i
-    WHERE i.isThumbnail = 'Y' OR i IS NULL
+    WHERE p.blog.blogId = :blogId
     """)
-    List<Post> findPostsWithThumbnail(Pageable pageable);
+    List<Post> findPostsWithThumbnail(Pageable pageable, @Param("blogId") Long blogId);
 
     @Query("""
     SELECT COUNT(DISTINCT p) FROM Post p
     LEFT JOIN p.postImage i
-    WHERE i.isThumbnail = 'Y' OR i IS NULL
+    WHERE p.blog.blogId = :blogId
     """)
-    long countPostsWithThumbnail();
+    long countPostsWithThumbnail(@Param("blogId") Long blogId);
 
     // 게시글 조회시 조회수 증가
     @Modifying

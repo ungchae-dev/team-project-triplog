@@ -1,5 +1,8 @@
 package com.javago.triplog.domain.post.controller;
 
+import com.javago.constant.IsThumbnail;
+import com.javago.triplog.domain.comments.dto.AddCommentRequest;
+import com.javago.triplog.domain.comments.entity.Comments;
 import com.javago.triplog.domain.post.dto.AddPostRequest;
 import com.javago.triplog.domain.post.dto.UpdatePostRequest;
 import com.javago.triplog.domain.post.entity.Post;
@@ -58,7 +61,7 @@ public class PostApiController {
 
     // 게시글 이미지 서버에 업로드
     @PostMapping("/api/upload-image")
-    public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("image") MultipartFile file) throws IOException {
+        public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("image") MultipartFile file) throws IOException {
         String uploadDir = "uploads/posts";
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Path uploadPath = Paths.get(uploadDir);
@@ -111,6 +114,14 @@ public class PostApiController {
         Long likeCount = postService.countPostLike(postId);
         return ResponseEntity.ok().body(Map.of("message", "좋아요 취소됨", "likeCount", likeCount));
     }
+/*
+    // 댓글 작성
+    @PostMapping("/api/{id}/comment")
+    public ResponseEntity<?> addComment(@PathVariable("id") Long postId, @RequestBody AddCommentRequest request){
+        Comments comment = postService.saveComment(request);
+        return ResponseEntity.ok().body(comment);
+    }
+ */
 
     // 글 내용 html 그대로 저장, 태그로 이미지 url 추출
     public List<String> parseImageUrl(String html){
@@ -136,9 +147,9 @@ public class PostApiController {
             image.setPost(post);
             image.setImagePath(url);
             if (i == 0) {
-                image.setIsThumbnail("Y");
+                image.setIsThumbnail(IsThumbnail.valueOf("Y"));
             } else {
-                image.setIsThumbnail("N");
+                image.setIsThumbnail(IsThumbnail.valueOf("N"));
             }
 
             imageRepository.save(image);
