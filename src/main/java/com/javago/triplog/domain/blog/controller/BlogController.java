@@ -1,6 +1,9 @@
 package com.javago.triplog.domain.blog.controller;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,69 +46,128 @@ public class BlogController {
     @GetMapping("/home")
     public String myBlog(Authentication authentication) {
         if (authentication != null) {
-            String memberId = authentication.getName();
-            Member member = memberService.findByMemberId(memberId);
-            return "redirect:/blog/@" + member.getNickname(); // 새 창에서 리다이렉트
+
+            try {
+                String memberId = authentication.getName();
+                Member member = memberService.findByMemberId(memberId);
+
+                // 한글 닉네임 URL 인코딩 처리
+                String encodedNickname = URLEncoder.encode(member.getNickname(), StandardCharsets.UTF_8);
+                System.out.println("원본 닉네임:" + member.getNickname());
+                System.out.println("인코딩된 닉네임:" + encodedNickname);
+
+                return "redirect:/blog/@" + encodedNickname; // 새 창에서 리다이렉트
+
+            } catch (Exception e) {
+                System.err.println("블로그 리다이렉트 실패:" + e.getMessage());
+                return "redirect:/";
+            }
+
         }
-        return "redirect:/member/login"; // templates/ 하위
+        return "redirect:/member/login";
     }
 
     // 블로그 홈
     // 추가: 블로그 방문 시 방문자 수 증가
     @GetMapping("/@{nickname}")
     public String userBlogHome(@PathVariable String nickname, Model model, Authentication authentication) {
-        // 블로그 소유자 정보 전달
-        Member blogOwner = memberService.findByNickname(nickname);
-        model.addAttribute("blogOwner", blogOwner);
+        
+        try {
+            // URL 디코딩 처리
+            String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
+            System.out.println("원본 닉네임:" + nickname);
+            System.out.println("디코딩된 닉네임:" + decodedNickname);
 
-        // 방문자 수 증가 (본인 블로그가 아닌 경우만)
-        if (authentication == null || !authentication.getName().equals(blogOwner.getMemberId())) {
-            Blog blog = blogService.findByMember(blogOwner);
-            blogService.incrementVisitors(blog);
+            // 디코딩된 닉네임으로 사용자 찾기
+            Member blogOwner = memberService.findByNickname(decodedNickname);
+            model.addAttribute("blogOwner", blogOwner);
+
+            // 방문자 수 증가 (본인 블로그가 아닌 경우만)
+            if (authentication == null || !authentication.getName().equals(blogOwner.getMemberId())) {
+                Blog blog = blogService.findByMember(blogOwner);
+                blogService.incrementVisitors(blog);
+            }
+
+            return "blog/home";
+
+        } catch (Exception e) {
+            System.err.println("블로그 로드 실패! " + e.getMessage());
+            return "redirect:/"; // 메인 페이지로 리다이렉트
         }
 
-        return "blog/home";
     }
     
-    // 상점(공용)
-    // : 상점은 공용이므로 닉네임 없이 URL 매핑
-    @GetMapping("/shop")
-    public String shop() {
-        return "blog/shop";
+    // 상점
+    @GetMapping("/@{nickname}/shop")
+    public String shop(@PathVariable String nickname, Model model) {
+        try {
+            // URL 디코딩 처리
+            String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
+            Member blogOwner = memberService.findByNickname(decodedNickname);
+            model.addAttribute("blogOwner", blogOwner);
+            return "blog/shop";
+        } catch (Exception e) {
+            System.out.println("상점 로드 실패:" + e.getMessage());
+            return "redirect:/";
+        }
     }
 
     // 프로필
     @GetMapping("/@{nickname}/profile")
     public String profile(@PathVariable String nickname, Model model) {
-        Member blogOwner = memberService.findByNickname(nickname);
-        model.addAttribute("blogOwner", blogOwner);
-        return "blog/profile";
+        try {
+            String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
+            Member blogOwner = memberService.findByNickname(decodedNickname);
+            model.addAttribute("blogOwner", blogOwner);
+            return "blog/profile";
+        } catch (Exception e) {
+            System.err.println("프로필 로드 실패: " + e.getMessage());
+            return "redirect:/";
+        }
     }
 
-    // 게시판 => Post 디렉터리에서 관리
+    // 게시판 => Post쪽 컨트롤러에서 관리
 
     // 주크박스
     @GetMapping("/@{nickname}/jukebox")
     public String jukebox(@PathVariable String nickname, Model model) {
-        Member blogOwner = memberService.findByNickname(nickname);
-        model.addAttribute("blogOwner", blogOwner);
-        return "blog/jukebox";
+        try {
+            String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
+            Member blogOwner = memberService.findByNickname(decodedNickname);
+            model.addAttribute("blogOwner", blogOwner);
+            return "blog/jukebox";
+        } catch (Exception e) {
+            System.err.println("주크박스 로드 실패: " + e.getMessage());
+            return "redirect:/";
+        }
     }
 
     // 마이로그
     @GetMapping("/@{nickname}/mylog")
     public String mylog(@PathVariable String nickname, Model model) {
-        Member blogOwner = memberService.findByNickname(nickname);
-        model.addAttribute("blogOwner", blogOwner);
-        return "blog/mylog"; // templates/blog/mylog.html
+        try {
+            String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
+            Member blogOwner = memberService.findByNickname(decodedNickname);
+            model.addAttribute("blogOwner", blogOwner);
+            return "blog/mylog";
+        } catch (Exception e) {
+            System.err.println("마이로그 로드 실패: " + e.getMessage());
+            return "redirect:/";
+        }
     }
     
     // 방명록
     @GetMapping("/@{nickname}/guestbook")
     public String guestbook(@PathVariable String nickname, Model model) {
-        Member blogOwner = memberService.findByNickname(nickname);
-        model.addAttribute("blogOwner", blogOwner);
-        return "blog/guestbook"; // templates/blog/guestbook.html
+        try {
+            String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
+            Member blogOwner = memberService.findByNickname(decodedNickname);
+            model.addAttribute("blogOwner", blogOwner);
+            return "blog/guestbook";
+        } catch (Exception e) {
+            System.err.println("방명록 로드 실패: " + e.getMessage());
+            return "redirect:/";
+        }
     }
 
     // ========== 스킨 관련 API ==========
@@ -115,7 +177,8 @@ public class BlogController {
     @ResponseBody
     public ResponseEntity<Map<String, String>> getBlogSkin(@PathVariable String nickname) {
         try {
-            Member member = memberService.findByNickname(nickname);
+            String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
+            Member member = memberService.findByNickname(decodedNickname);
             Blog blog = blogService.findByMember(member);
 
             Map<String, String> skinData = new HashMap<>();
@@ -138,7 +201,8 @@ public class BlogController {
 
             try {
                 // 1. 권한 체크
-                Member member = memberService.findByNickname(nickname);
+                String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
+                Member member = memberService.findByNickname(decodedNickname);
                 if (authentication == null || !authentication.getName().equals(member.getMemberId())) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                 }
@@ -183,8 +247,9 @@ public class BlogController {
         Authentication authentication) {
 
             try {
-                // 권한 체크
-                Member member = memberService.findByNickname(nickname);
+                // 권한 체크 (디코딩 추가)
+                String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
+                Member member = memberService.findByNickname(decodedNickname);
                 if (authentication == null || !authentication.getName().equals(member.getMemberId())) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                 }
