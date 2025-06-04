@@ -1,5 +1,6 @@
 package com.javago.triplog.domain.blog.entity;
 
+import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.post.entity.Post;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -40,13 +41,13 @@ public class Blog {
     @Column(name = "total_visitors", nullable = false)
     private Long totalVisitors = 0L;
 
-    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Post> post = new ArrayList<>();
-
-    /* Member 연동 시 주석 해제
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
+    // Blog -> Member (1:1)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", updatable = false, nullable = false)
     private Member member;
-    */
+
+    // Blog -> Post (1:다)
+    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Post> post = new ArrayList<>();
 
 }

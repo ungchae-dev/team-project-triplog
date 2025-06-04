@@ -68,5 +68,13 @@ public class MemberService implements UserDetailsService {
         return member;
     }
 
+    // 닉네임으로 Member 엔티티 조회하는 메서드
+    public Member findByNickname(String nickname) {
+        Member member = memberRepository.findByNickname(nickname);
+        if(member == null) {
+            throw new IllegalArgumentException("존재하지 않는 닉네임입니다: " + nickname);
+        }
+        return member;
+    }
 
 }
