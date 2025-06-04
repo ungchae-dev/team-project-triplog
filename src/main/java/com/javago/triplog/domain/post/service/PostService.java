@@ -2,7 +2,6 @@ package com.javago.triplog.domain.post.service;
 
 import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.blog.repository.BlogRepository;
-import com.javago.triplog.domain.comments.dto.AddCommentRequest;
 import com.javago.triplog.domain.comments.entity.Comments;
 import com.javago.triplog.domain.comments.repository.CommentsRepository;
 import com.javago.triplog.domain.hashtag_people.entity.Hashtag_People;
