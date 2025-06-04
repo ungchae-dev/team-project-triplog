@@ -1,5 +1,51 @@
 @charset "UTF-8";
 
+
+.tab-button.active {
+    background-color: #f5f1e9;
+
+    color: #333;
+    font-weight: bold;
+}
+.post-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+.post-card {
+    display: flex;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    align-items: center;
+    gap: 1rem;
+    border-radius: 8px;
+    background-color: #fffefc;
+}
+/* 게시글 텍스트 영역 */
+.post-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.post-tags {
+    color: #777;
+    font-size: 0.9rem;
+}
+
+.post-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #222;
+    text-decoration: none;
+}
+
+.post-meta {
+    font-size: 0.85rem;
+    color: #666;
+}
 /*---------------------------*/
 
 
@@ -98,11 +144,7 @@
     color: #000;
 }
 
-.tab-button.active {
-    color: #007bff; /* 강조 색 */
-    font-weight: bold;
-    border-bottom: 2px solid #007bff;
-}
+
 
 #pagination {
     display: flex;

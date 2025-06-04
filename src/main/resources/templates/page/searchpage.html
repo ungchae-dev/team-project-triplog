@@ -22,55 +22,6 @@
 
 
 <style>
-    .card-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr); /* 4개의 열 */
-        gap: 20px;
-        padding: 20px;
-    }
-
-    .tour-card {
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        overflow: hidden;
-        text-align: center;
-        transition: transform 0.2s;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        height: 100%;         /* 카드 높이 균일 */
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        max-height: 300px;
-        max-width: 300px;
-    }
-
-    .tour-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-    }
-
-    .tour-card img {
-        width: 100%;
-        height: 160px;
-        object-fit: cover;
-    }
-
-    .tour-card .card-body {
-        padding: 12px;
-        flex-grow: 1;
-    }
-
-    .tour-card .card-body h5 {
-        font-size: 16px;
-        margin-bottom: 6px;
-    }
-
-    .tour-card .card-body p {
-        font-size: 14px;
-        color: #555;
-        margin: 0;
-    }
 
 </style>
 
@@ -98,7 +49,7 @@
 
             <!-- 글 검색 -->
             <div class="text-center">
-                <a href="/searchpage" class="nav-link p-0">
+                <a href="/search" class="nav-link p-0">
                     <img src="/images/page/search.png" alt="글 검색" width="36">
                     <div class="small">글 검색</div>
                 </a>
@@ -143,14 +94,14 @@
 
     <!--검색창 -->
     <div class="top-controls-container d-flex justify-content-center my-4">
-        <input type="text" id="searchInput" class="form-control w-50" placeholder="무엇이든 검색하세요.">
+        <input type="text" id="searchInput" class="form-control w-50" placeholder="어떤 경험이 궁금하신가요?">
     </div>
 
     <!--인원 필터 및 기타 컨트롤 -->
     <div class="top-controls-container d-flex justify-content-between align-items-center px-4">
 
         <!--인원 필터 탭 (중복 허용) -->
-        <div class="category-tabs d-flex gap-2 flex-wrap">
+        <div id="personFilterTabs" class="filter-tabs">
             <button class="tab-button" data-category="solo_man">남자혼자</button>
             <button class="tab-button" data-category="solo_woman">여자혼자</button>
             <button class="tab-button" data-category="couple">커플</button>
@@ -164,22 +115,30 @@
 
         <!--글쓰기 + 정렬 드롭다운 -->
         <div class="d-flex gap-2 align-items-center">
-            <button id="boardWriteBtn" class="btn btn-outline-primary">글쓰기</button>
+            <!-- 글쓰기 -->
+            <div class="text-center">
+                <a href="/" class="nav-link p-0">
+                    <img src="/images/page/boardwrite.png" alt="글쓰기" width="60">
+                    <div class="small">글쓰기</div>
+                </a>
+            </div>
 
             <!-- 정렬 드롭다운 -->
-            <select id="sortSelect" class="form-select">
-                <option value="latest" selected>최신 순</option>
-                <option value="likes">좋아요 순</option>
-            </select>
+            <div class="sort-dropdown">
+                <select id="sortSelect" class="form-select">
+                    <option value="board_latest" selected>최신 순</option>
+                    <option value="board_likes">좋아요 순</option>
+                </select>
+            </div>
         </div>
     </div>
 
 </header>
 
-<!-- 콘텐츠 리스트 (4x4 카드 그리드, 대표 이미지 + 제목만) -->
-<main>
-    <section id="tourCardContainer" class="card-grid">
-        <!-- JS로 카드 동적 생성 -->
+<!-- 인원필터링된 게시글 리스트 -->
+<main id="postList" class="post-grid">
+    <section>
+
     </section>
     <!-- 페이징 처리 -->
     <div id="pagination" class="pagination-controls">
