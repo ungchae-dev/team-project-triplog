@@ -89,11 +89,14 @@ public class PostViewController {
 
     // 게시판 글 수정
     @GetMapping("/blog/@{nickname}/post/{id}/edit")
-    public String modify(@PathVariable("nickname") String nickname, @PathVariable("id") Long id, Model model) {
+    public String modify(@PathVariable("nickname") String nickname, @PathVariable("id") Long id, Authentication authentication, Model model) {
         Post post = postService.findtoUpdate(id);
+        CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
         model.addAttribute("post", new Post(post));
         model.addAttribute("hashtagList", postService.hashtagList());
         model.addAttribute("postHashtagList", post.getPostHashtagPeople());
+        model.addAttribute("nickname", nickname);
+        model.addAttribute("userId", customUserDetails.getMember().getMemberId());
         return "post/write";
     }
 
