@@ -43,19 +43,32 @@ public class BlogService {
     // 새 블로그 생성 (회원가입 시 자동 생성용)
     @Transactional
     public Blog createDefaultBlog(Member member) {
+
+        // 관리자는 블로그 생성 안 함
+        if ("ADMIN".equals(member.getRole().name())) {
+            System.out.println("관리자는 블로그를 생성하지 않습니다: " + member.getNickname());
+            return null;
+        }
+
         // 이미 블로그가 있는지 확인
         if (existsByMember(member)) {
+            System.out.println("이미 블로그가 존재합니다! " + member.getNickname());
             return findByMember(member);
         }
 
         // 새 블로그 생성
         Blog newBlog = new Blog();
         newBlog.setMember(member);
-        newBlog.setSkinActive(SkinActive.valueOf("N"));
+        newBlog.setSkinActive("N");
+        newBlog.setSkinImage(null);
+        newBlog.setConditionMessage("안녕하세요~ " + member.getNickname() + "입니다~ 잘 부탁드려요~");
         newBlog.setDailyVisitors(0L);
         newBlog.setTotalVisitors(0L);
 
-        return save(newBlog);
+        Blog savedBlog = save(newBlog);
+        System.out.println("새 블로그 생성 완료 - ID: " + savedBlog.getBlogId() + ", 소유자: " + member.getNickname());
+
+        return savedBlog;
     }
 
     // 방문자 수 증가

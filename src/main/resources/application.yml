@@ -66,13 +66,6 @@ app:
         nickname: 루피아빠
         password: pw01
         phone: 010-0903-1001
-        gender: MALE # gender는 MALE 또는 FEMALE만 가능
-
-      - id: ucna
-        name: 나웅채
-        nickname: 루피아빠
-        password: pw01
-        phone: 010-0903-1001
         gender: MALE
 
       - id: dyshin

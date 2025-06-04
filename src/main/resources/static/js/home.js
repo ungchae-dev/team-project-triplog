@@ -43,7 +43,9 @@ async function loadBlogSkin() {
     }
 
     try {
-        const response = await fetch(`/blog/api/@${window.currentBlogNickname}/skin`);
+        // 닉네임 URL 인코딩
+        const encodedNickname = encodeURIComponent(window.currentBlogNickname);
+        const response = await fetch(`/blog/api/@${encodedNickname}/skin`);
 
         if (response.ok) {
             const skinData = await response.json();
@@ -100,7 +102,9 @@ function setupHomeFeatures() {
 // 방명록으로 이동
 function navigateToGuestbook() {
     if (window.currentBlogNickname) {
-        window.location.href = `/blog/@${window.currentBlogNickname}/guestbook`;
+        // 닉네임 URL 인코딩
+        const encodedNickname = encodeURIComponent(window.currentBlogNickname);
+        window.location.href = `/blog/@${encodedNickname}/guestbook`;
     } else {
         console.error('블로그 소유자 정보가 없습니다!');
     }
