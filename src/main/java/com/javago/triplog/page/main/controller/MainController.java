@@ -16,7 +16,7 @@ public class MainController {
 
     //메인페이지로 매핑
     @GetMapping("/")
-    public String mainPage(@RequestParam(defaultValue = "서울") String region, Model model, Authentication authentication) {
+    public String mainPage(@RequestParam(name = "region", defaultValue = "서울") String region, Model model, Authentication authentication) {
         
         if (authentication != null) {
             System.out.println("Authentication 객체 존재: " + authentication.getName());
