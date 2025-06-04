@@ -1,6 +1,5 @@
 package com.javago.triplog.domain.post.entity;
 
-import com.javago.triplog.domain.member.entity.Member;
 import com.javago.constant.Visibility;
 import com.javago.triplog.domain.comments.entity.Comments;
 import jakarta.persistence.*;

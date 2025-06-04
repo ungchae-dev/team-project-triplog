@@ -59,7 +59,7 @@ public class BlogService {
         // 새 블로그 생성
         Blog newBlog = new Blog();
         newBlog.setMember(member);
-        newBlog.setSkinActive("N");
+        newBlog.setSkinActive(SkinActive.N);
         newBlog.setSkinImage(null);
         newBlog.setConditionMessage("안녕하세요~ " + member.getNickname() + "입니다~ 잘 부탁드려요~");
         newBlog.setDailyVisitors(0L);

@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.javago.constant.Role;
 import com.javago.triplog.domain.blog.service.BlogService;
-import com.javago.triplog.domain.member.dto.MemberPrincipal;
+import com.javago.triplog.domain.member.entity.CustomUserDetails;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.repository.MemberRepository;
 
@@ -79,7 +79,7 @@ public class MemberService implements UserDetailsService {
         }
 
         // 커스텀 UserDetails 객체 반환 (Member의 모든 정보 포함)
-        return new MemberPrincipal(member);
+        return new CustomUserDetails(member);
 
     }
 
