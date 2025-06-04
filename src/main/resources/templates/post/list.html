@@ -52,7 +52,7 @@
     <div th:each="post : ${postList}" class="post">
         <div>
             <!-- 썸네일이 있으면 보여주고, 없으면 기본 이미지를 출력 -->
-            <img th:if="${post.thumbnail != null}" th:src="{${post.thumbnail}}" alt="썸네일" class="thumbnail"/>
+            <img th:if="${post.thumbnail != null}" th:src="${post.thumbnail}" alt="썸네일" class="thumbnail"/>
         </div>
         <div class="title">
             <!-- 게시글 제목 -->
