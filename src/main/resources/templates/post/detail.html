@@ -38,7 +38,7 @@
     </span>
   </div>
 
-  <label>좋아요</label><input type="checkbox" id="postLike"><br>
+  <label>좋아요</label><input type="checkbox" id="postLike" th:checked="${exist}"><br> <!--내일 확인할 것-->
   <div id="likeCount" th:text="${post.postLike.size()}"></div><br>
 
   <button type="button" th:onclick="|location.href='@{/blog/@{nickname}/post(nickname=${nickname})}'|">글 목록</button>
