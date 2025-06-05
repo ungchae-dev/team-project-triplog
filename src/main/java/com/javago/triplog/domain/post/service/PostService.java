@@ -195,6 +195,17 @@ public class PostService {
         postLikeRepository.deleteByPostPostIdAndMemberMemberId(postId, userId);
     }
 
+    // 좋아요 존재 여부 확인
+    @Transactional
+    public Boolean existPostLike(Long postId, String userId){
+        Post_Like postLike = postLikeRepository.findByPostIdAndMemberId(postId, userId);
+        if(postLike == null){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
     /*
     // 댓글 저장
     @Transactional

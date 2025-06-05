@@ -59,12 +59,14 @@ public class PostViewController {
     public String getPost(@PathVariable("nickname") String nickname, @PathVariable("id") Long id, Authentication authentication, Model model) {
         Post post = postService.findById(id);
         CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
+        Boolean exist = postService.existPostLike(id, customUserDetails.getMember().getMemberId());
 
         model.addAttribute("post", post);
         model.addAttribute("hashtagList", post.getPostHashtagPeople());
         model.addAttribute("nickname", nickname);
         model.addAttribute("userId", customUserDetails.getMember().getMemberId());
         model.addAttribute("loginNickname", customUserDetails.getMember().getNickname());
+        model.addAttribute("exist", exist);
         return "post/detail";
     }
 
