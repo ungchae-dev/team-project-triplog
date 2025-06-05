@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 
 @RestController
@@ -22,7 +23,7 @@ public class PostSearchController {
     @GetMapping
     public PostSearchPageResponse getFilteredPosts(
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String people,
+            @RequestParam(required = false) List<String> people,
             @RequestParam(defaultValue = "LATEST") String sort,
             @PageableDefault(size = 12) Pageable pageable
 

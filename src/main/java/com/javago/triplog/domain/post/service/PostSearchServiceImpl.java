@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PostSearchServiceImpl implements PostSearchService {
@@ -19,9 +21,8 @@ public class PostSearchServiceImpl implements PostSearchService {
     private final PostSearchMapper postSearchMapper; // Post → PostResponseDto 변환
 
     @Override
-    public Page<PostSearchResponseDto> getFilteredPosts(String keyword, String people, String sort, Pageable pageable, String visibility) {
+    public Page<PostSearchResponseDto> getFilteredPosts(String keyword, List<String> people, String sort, Pageable pageable, String visibility) {
         if (keyword != null && keyword.isBlank()) keyword = null;
-        if (people != null && people.isBlank()) people = null;
 
         Sort sortOption = Sort.by("createdAt").descending(); // 기본 정렬
 
