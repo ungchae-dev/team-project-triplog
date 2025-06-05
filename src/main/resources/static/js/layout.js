@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 컴포넌트 로드
     await loadLayoutComponents();
     
+    // 페이지별 제목 자동 설정
+    setPageTitleByUrl();
+
     // 네비게이션 이벤트 설정
     setupNavigation();
     
@@ -167,3 +170,48 @@ function setPageTitle(title) {
 // 외부에서 호출 가능한 함수들로 노출
 window.setActiveNavButton = setActiveNavButton;
 window.setPageTitle = setPageTitle;
+
+// 페이지 제목 매핑 테이블
+const PAGE_TITLES = {
+    // 기본 페이지들
+    'home': '홈', 
+    'shop': '상점', 
+    'profile': '프로필', 
+    'post': '게시판', 
+    'jukebox': '주크박스', 
+    'mylog': '마이로그', 
+    'guestbook': '방명록'
+}
+
+// URL 기반 페이지 제목 자동 설정
+function setPageTitleByUrl() {
+    const currentPath = window.location.pathname;
+
+    // URL에서 페이지 식별
+    let pageKey = 'home'; // 기본값
+
+    // /blog/@nickname/xxx 패턴에서 xxx 추출
+    const match = currentPath.match(/\/blog\/@[^\/]+\/(.+)/);
+    if (match) {
+        pageKey = match[1]; // shop, profile, ... 등등
+    } else if (currentPath.match(/\/blog\@[^\/]+$/)) {
+        pageKey = 'home' // 블로그 홈
+    }
+
+    // 먼저 정확한 key로 찾고, 없으면 상위 페이지로 폴백(fallback, 대체)
+    let pageTitle = PAGE_TITLES[pageKey];
+
+    if (!pageTitle && pageKey.includes('/')) {
+        // 만약 profile/items(구매/보유내역)이면 -> 'profile'로 폴백
+        const parentKey = pageKey.split('/')[0];
+        pageTitle = PAGE_TITLES[parentKey];
+    }
+
+    pageTitle = pageTitle || '홈'; // 최종 폴백
+
+    // 컴포넌트 로드 후 제목 설정
+    setTimeout(() => {
+        setPageTitle(pageTitle);
+    }, 200);
+
+};

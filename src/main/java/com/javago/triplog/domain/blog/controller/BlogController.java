@@ -52,7 +52,6 @@ public class BlogController {
     }
 
     // 블로그 홈
-    // 추가: 블로그 방문 시 방문자 수 증가
     @GetMapping("/@{nickname}")
     public String userBlogHome(@PathVariable String nickname, Model model, Authentication authentication) {
         try {
@@ -64,6 +63,9 @@ public class BlogController {
             // 디코딩된 닉네임으로 사용자 찾기
             Member blogOwner = memberService.findByNickname(decodedNickname);
             model.addAttribute("blogOwner", blogOwner);
+
+            // 타이틀용 닉네임 추가
+            model.addAttribute("blogTitle", decodedNickname + "님의 블로그");
 
             // 방문자 수 증가 (본인 블로그가 아닌 경우만)
             if (authentication == null || !authentication.getName().equals(blogOwner.getMemberId())) {

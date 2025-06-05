@@ -3,7 +3,15 @@
 // 전역 변수
 window.currentBlogNickname = null;
 
+// 페이지 로드 즉시 닉네임으로 타이틀 변경
 document.addEventListener('DOMContentLoaded', async () => {
+
+    // 즉시 닉네임 기반 타이틀 설정
+    const nickname = getBlogOwnerNickname();
+    if (nickname) {
+        document.title = `${nickname}님의 블로그`;
+    }
+
     // 블로그 홈 초기화
     initHomePage();
 
@@ -80,8 +88,19 @@ function updateUserInterface(userInfo) {
     // 가입일 포맷팅 및 표시
     const formattedDate = formatJoinDate(userInfo.joinDate);
     updateElement('join-date', formattedDate);
+
+    // 브라우저 타이틀 변경
+    updatePageTitle(userInfo.nickname);
     
     console.log('UI 업데이트 완료');
+}
+
+// 페이지 타이틀 업데이트 함수
+function updatePageTitle(nickname) {
+    if (nickname) {
+        document.title = `${nickname}님의 블로그`;
+        console.log('페이지 타이틀 변경:', document.title);
+    }
 }
 
 // 기본값 설정 함수 (로드 실패 시)
