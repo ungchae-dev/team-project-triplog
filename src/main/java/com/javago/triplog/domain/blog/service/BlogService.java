@@ -98,7 +98,7 @@ public class BlogService {
     @Transactional
     public void updateSkin(Blog blog, String skinImageUrl) {
         blog.setSkinImage(skinImageUrl);
-        blog.setSkinActive(SkinActive.valueOf("Y"));
+        blog.setSkinActive(SkinActive.Y);
         save(blog);
     }
 
@@ -106,7 +106,7 @@ public class BlogService {
     @Transactional
     public void removeSkin(Blog blog) {
         blog.setSkinImage(null);
-        blog.setSkinActive(SkinActive.valueOf("N"));
+        blog.setSkinActive(SkinActive.N);
         save(blog);
     }
 
