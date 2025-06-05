@@ -3,6 +3,7 @@ package com.javago.triplog.domain.hashtag_people.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.javago.constant.TagType;
 import org.hibernate.annotations.Check;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -12,6 +13,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -37,8 +40,9 @@ public class Hashtag_People {
     @Column(name = "tag_name", nullable = false, updatable = false)
     private String tagName;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "tag_type", nullable = false, updatable = false)
-    private String tagType;
+    private TagType tagType;
 
     // 해시태그 관계
     @OneToMany(mappedBy = "hashtagPeople", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

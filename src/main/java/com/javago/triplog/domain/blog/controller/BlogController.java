@@ -213,7 +213,7 @@ public class BlogController {
 
             Map<String, String> skinData = new HashMap<>();
             skinData.put("skinImage", blog.getSkinImage());
-            skinData.put("skinActive", blog.getSkinActive());
+            skinData.put("skinActive", blog.getSkinActive().name());
 
             return ResponseEntity.ok(skinData);
         } catch (Exception e) {

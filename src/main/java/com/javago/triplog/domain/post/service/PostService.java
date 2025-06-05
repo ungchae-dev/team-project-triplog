@@ -2,6 +2,8 @@ package com.javago.triplog.domain.post.service;
 
 import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.blog.repository.BlogRepository;
+import com.javago.triplog.domain.comments.entity.Comments;
+import com.javago.triplog.domain.comments.repository.CommentsRepository;
 import com.javago.triplog.domain.hashtag_people.entity.Hashtag_People;
 import com.javago.triplog.domain.hashtag_people.repository.HashtagPeopleRepository;
 import com.javago.triplog.domain.member.entity.Member;
@@ -41,13 +43,13 @@ public class PostService {
     private final BlogRepository blogRepository;
     private final HashtagPeopleRepository hashtagPeopleRepository;
     private final PostHashtagPeopleRepository postHashtagPeopleRepository;
-    //private final CommentsRepository commentsRepository;
+    private final CommentsRepository commentsRepository;
 
 
     // 게시판에 새 글 작성
     public Post save(AddPostRequest addPostRequest) {
         Blog blog = blogRepository.findById(addPostRequest.getBlogId()).orElseThrow(() -> new IllegalArgumentException("Blog not found"));
-        return postRepository.save(addPostRequest.toEntity(blog));
+        return postRepository.save(addPostRequest.toEntity(blog, addPostRequest.getVisibility()));
     }
 
     // 글 작성 시 해시태그 저장
@@ -93,9 +95,10 @@ public class PostService {
     }
 
     // 게시판 글 리스트 불러오기
-    public Page<PostListResponse> findPostList(Pageable pageable) {
-        List<Post> posts = postRepository.findPostsWithThumbnail(pageable);
-        long count = postRepository.countPostsWithThumbnail();
+    public Page<PostListResponse> findPostList(Pageable pageable, String nickname) {
+        Long blogId = memberRepository.findByNickname(nickname).getBlog().getBlogId();
+        List<Post> posts = postRepository.findPostsWithThumbnail(pageable, blogId);
+        long count = postRepository.countPostsWithThumbnail(blogId);
 
         log.info("조회된 게시글 수: {}", posts.size());
         for (Post post : posts) {
@@ -121,7 +124,7 @@ public class PostService {
         List<PostListResponse> dtoList = posts.stream()
             .map(post -> {
                 String thumbnail = post.getPostImage().stream()
-                    .filter(img -> "Y".equals(img.getIsThumbnail()))
+                    .filter(img -> "Y".equals(img.getIsThumbnail().name()))
                     .map(Post_Image::getImagePath)
                     .findFirst()
                     .orElse(null);
@@ -191,5 +194,17 @@ public class PostService {
     public void removeLike(Long postId, String userId){
         postLikeRepository.deleteByPostPostIdAndMemberMemberId(postId, userId);
     }
+
+    /*
+    // 댓글 저장
+    @Transactional
+    public Comments saveComment(AddCommentRequest request){
+        Post post = postRepository.findById(request.getPostId()).orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+        Member member = memberRepository.findByNickname((request.getUsername());
+        Comments parentComment = commentsRepository.findById(request.getCommentId());
+        Comments comment = AddCommentRequest.toEntity(member, post, parentComment);
+        return commentsRepository.save(comment);
+    }
+    */
     
 }

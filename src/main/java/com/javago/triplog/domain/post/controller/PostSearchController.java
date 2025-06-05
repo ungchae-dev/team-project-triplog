@@ -1,28 +1,44 @@
 package com.javago.triplog.domain.post.controller;
-import com.javago.triplog.domain.post.dto.PostSummary;
+import com.javago.triplog.domain.post.dto.PostSearchPageResponse;
+import com.javago.triplog.domain.post.dto.PostSearchResponseDto;
 import com.javago.triplog.domain.post.service.PostSearchService;
+import com.javago.triplog.domain.post.service.PostSearchServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+
 
 @RestController
+@RequestMapping("/search/posts")
 @RequiredArgsConstructor
-@RequestMapping("/api/posts")
 public class PostSearchController {
 
     private final PostSearchService postSearchService;
 
-    @GetMapping("/filter")
-    public ResponseEntity<List<PostSummary>> getFilteredPosts(
-            @RequestParam(required = false) List<String> peopleTags,
-            @RequestParam(defaultValue = "board_latest") String sort) {
+    @GetMapping
+    public PostSearchPageResponse getFilteredPosts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String people,
+            @RequestParam(defaultValue = "LATEST") String sort,
+            @PageableDefault(size = 12) Pageable pageable
 
-        List<PostSummary> posts = postSearchService.getFilteredPosts(peopleTags, sort);
-        return ResponseEntity.ok(posts);
+    ) {
+        Pageable correctedPageable = PageRequest.of(
+                pageable.getPageNumber() > 0 ? pageable.getPageNumber() - 1 : 0,
+                pageable.getPageSize(),
+                pageable.getSort()
+        );
+
+        Page<PostSearchResponseDto> postPage = postSearchService.getFilteredPosts(keyword, people, sort, correctedPageable, "PUBLIC");
+        return new PostSearchPageResponse(
+                postPage.getContent(),
+                postPage.getNumber() + 1, // 0-based → 1-based
+                postPage.getTotalPages()
+        );
     }
 }
 

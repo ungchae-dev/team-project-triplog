@@ -1,148 +1,115 @@
-document.addEventListener("DOMContentLoaded", function(){
-
-    const selectedCategories = new Set();
+document.addEventListener("DOMContentLoaded", function () {
+    const selectedPeopleTags = new Set();
+    let currentPage = 1;
     const postList = document.getElementById("postList");
     const sortSelect = document.getElementById("sortSelect");
+    const keywordInput = document.getElementById("keywordInput");
+    const pageInfo = document.getElementById("pageInfo");
 
-// 1. 탭 클릭 이벤트
+    const prevBtn = document.getElementById("prevPage");
+    const nextBtn = document.getElementById("nextPage");
+
+    // 인원수 필터 버튼 이벤트
     document.querySelectorAll(".tab-button").forEach(button => {
         button.addEventListener("click", () => {
-            const category = button.dataset.category;
-            if (selectedCategories.has(category)) {
-                selectedCategories.delete(category);
+            const tag = button.dataset.category;
+            if (selectedPeopleTags.has(tag)) {
+                selectedPeopleTags.delete(tag);
                 button.classList.remove("active");
             } else {
-                selectedCategories.add(category);
+                selectedPeopleTags.add(tag);
                 button.classList.add("active");
             }
+            currentPage = 1;
             fetchAndRenderPosts();
         });
     });
 
-// 2. 정렬 선택 이벤트
+    // 정렬 변경 이벤트
     sortSelect.addEventListener("change", () => {
+        currentPage = 1;
         fetchAndRenderPosts();
     });
 
-// 3. 게시글 렌더링 함수
+    // 검색창 이벤트 (엔터 입력 시)
+    keywordInput.addEventListener("keypress", (e) => {
+        if (e.key === 'Enter') {
+            currentPage = 1;
+            fetchAndRenderPosts();
+        }
+    });
+
+    // 페이징 이벤트
+    prevBtn.addEventListener("click", () => {
+        if (currentPage > 1) {
+            currentPage--;
+            fetchAndRenderPosts();
+        }
+    });
+
+    nextBtn.addEventListener("click", () => {
+        currentPage++;
+        fetchAndRenderPosts();
+    });
+
+    // 게시글 렌더링
     function renderPosts(posts) {
-        postList.innerHTML = "";
+        postList.querySelector("section").innerHTML = "";
 
         posts.forEach(post => {
+            const hashtags = (post.hashtags || []).map(tag => `#${tag}`).join(' ');
+            const peopleTags = (post.peopleTags || []).map(tag => `👥${tag}`).join(' '); // 이모지는 선택사항
             const postCard = document.createElement("div");
-            postCard.className = "post-card";
-            //추후에 블로그 글 링크 설정
+            postCard.className = "posts-cards";
             postCard.innerHTML = `
-            <a href="#" class="post-thumbnail">
-                <img src="${post.thumbnail}" alt="대표사진">
-            </a>
-            <div class="post-info">
-                <div class="post-tags">${post.tags.map(tag => `#${tag}`).join(' ')}</div>
-                <a href="#" class="post-title">${post.title}</a>
-                <div class="post-meta">
-                    <span class="nickname">${post.nickname}</span> · 
-                    <span class="date">${post.date}</span> · 
-                    ❤️ ${post.likes} · 💬 ${post.comments}
+                <a href="/post/${post.id}" class="post-thumbnail">
+                    <img src="${post.thumbnail || '/images/page/noimage.png'}" alt="대표사진">
+                </a>
+                <div class="post-info">
+                    <div class="post-tags">${hashtags} ${peopleTags}</div>
+                    <a href="/post/${post.id}" class="post-title">${post.title}</a>
+                    <div class="post-meta">
+                        <span class="nickname">${post.nickname}</span> · 
+                        <span class="date">${post.date}</span> · 
+                        ❤️ ${post.likes} · 💬 ${post.comments}
+                    </div>
                 </div>
-            </div>
-        `;
-            postList.appendChild(postCard);
+            `;
+            postList.querySelector("section").appendChild(postCard);
         });
     }
 
-
-// 4. 서버 요청 및 데이터 가져오기
-    function fetchAndRenderPosts(page = 1) {
-        const categories = Array.from(selectedCategories);
+    // 게시글 요청 및 렌더링
+    function fetchAndRenderPosts() {
+        const keyword = keywordInput.value.trim();
+        const people = Array.from(selectedPeopleTags).join(",");
         const sort = sortSelect.value;
 
         const params = new URLSearchParams({
+            keyword,
+            people,
             sort,
-            page,
-            categories: categories.join(",") // 서버에서 ,로 구분해 파싱
+            page: currentPage
         });
 
-        fetch(`/api/posts?${params.toString()}`)
-            .then(res => res.json())
+        fetch(`/search/posts?${params}`)
+            .then(response => response.json())
             .then(data => {
                 renderPosts(data.posts);
-                // 페이지네이션 연동 필요 시 여기서 data.totalPages 등 처리
+                updatePagination(data.page, data.totalPages);
+            })
+            .catch(error => {
+                console.error("게시글 불러오기 실패:", error);
             });
     }
 
-// 초기 로딩
+    // 페이지 정보 업데이트
+    function updatePagination(page, totalPages) {
+        pageInfo.textContent = `페이지 ${page} / ${totalPages}`;
+        prevBtn.disabled = page <= 1;
+        nextBtn.disabled = page >= totalPages;
+    }
+
+    // 초기 로딩
     fetchAndRenderPosts();
-
-
-    // 페이징 처리
-    function renderPagination(currentPage, totalPages) {
-        const pagination = document.getElementById("pagination");
-        pagination.innerHTML = "";
-
-        const groupSize = 10;
-        const lastGroupStart = Math.floor((totalPages - 1) / groupSize) * groupSize + 1;
-
-        const currentGroup = Math.floor((currentPage - 1) / groupSize);
-        const startPage = currentGroup * groupSize + 1;
-        const endPage = Math.min(startPage + groupSize - 1, totalPages);
-
-        // "처음" 버튼
-        if (currentGroup > 0) {
-            const firstBtn = createPageButton("처음", 1);
-            pagination.appendChild(firstBtn);
-        }
-
-        // "이전" 버튼
-        if (startPage > 1) {
-            const prevBtn = createPageButton("이전", startPage - 1);
-            pagination.appendChild(prevBtn);
-        }
-
-        // 현재 페이지 그룹 버튼
-        for (let i = startPage; i <= endPage; i++) {
-            const pageBtn = createPageButton(i, i);
-            if (i === currentPage) pageBtn.classList.add("active");
-            pagination.appendChild(pageBtn);
-        }
-
-        // "다음" 버튼
-        if (endPage < totalPages) {
-            const nextBtn = createPageButton("다음", endPage + 1);
-            pagination.appendChild(nextBtn);
-        }
-
-        // --- 줄바꿈 후 마지막 페이지 그룹 ---
-        if (totalPages > 50 && endPage < lastGroupStart) {
-            const breakDiv = document.createElement("div");
-            breakDiv.className = "pagination-row"; // 줄바꿈용 컨테이너
-            // ... 넣기
-            const dots = document.createElement("span");
-            dots.textContent = "...";
-            dots.style.margin = "0 10px";
-            breakDiv.appendChild(dots);
-
-            // 마지막 페이지 그룹
-            for (let i = lastGroupStart; i <= totalPages; i++) {
-                const lastPageBtn = createPageButton(i, i);
-                if (i === currentPage) lastPageBtn.classList.add("active");
-                breakDiv.appendChild(lastPageBtn);
-            }
-
-            pagination.appendChild(breakDiv);
-        }
-    }
-
-    function createPageButton(text, pageNumber) {
-        const btn = document.createElement("button");
-        btn.textContent = text;
-        btn.addEventListener("click", () => changePage(pageNumber));
-        return btn;
-    }
-
-    function changePage(newPage) {
-        const params = new URLSearchParams(window.location.search);
-        params.set("page", newPage);
-        window.location.href = `/tour?${params.toString()}`;
-    }
-
 });
