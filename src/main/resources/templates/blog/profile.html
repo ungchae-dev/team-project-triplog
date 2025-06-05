@@ -2,130 +2,103 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>프로필 – 여행 블로그</title>
-  <link rel="stylesheet" href="/static/css/home.css" />
-  <link rel="stylesheet" href="/static/css/profile.css" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Malgun+Gothic:wght@400;700&display=swap" />
+  <title>여행 블로그 - 프로필</title>
+  <link rel="stylesheet" href="/css/home.css" /> <!-- 공통 -->
+  <link rel="stylesheet" href="/css/profile.css" /> <!-- 프로필 css -->
+
 </head>
 <body>
-<div class="frame">
+  <div class="frame">
 
-  <!-- 왼쪽 프로필 사이드 (실시간 반영) -->
-  <div class="page left-page">
-    <div class="counter-banner">TODAY 2000<br />TOTAL 100000</div>
-    <div class="mood-banner">TODAY is <span class="mood">🌸 행복</span></div>
-    <div class="profile-pic">
-      <img id="side-profile-img" src="https://via.placeholder.com/150x150?text=프로필" alt="프로필 사진" />
+    <!-- 여백 안쪽의 실제 블로그 컨텐츠 컨테이너 -->
+    <div class="blog-container">
+
+      <!-- 왼쪽 프로필 사이드 (컴포넌트로 로드) -->
+      <div id="left-container"></div>
+
+      <!-- 중앙 메인 영역 -->
+      <div class="main-area">
+
+        <!-- 상단 헤더 (컴포넌트로 로드) -->
+        <div id="top-container"></div>
+
+        <!-- 프로필 컨텐츠 작성 -->
+        <div class="main-content">
+          <!-- 탭 메뉴 (프로필 정보/구매내역/프로필 변경) -->
+          <div class="shop-header">
+            <div class="shop-inner-tab-list">
+              <button id="btn-info" class="shop-inner-tab active">프로필 정보</button>
+              <button id="btn-inventory" class="shop-inner-tab">구매내역/보유내역</button>
+              <button id="btn-edit" class="shop-inner-tab">프로필 변경</button>
+            </div>
+          </div>
+
+          <!-- [1] 프로필 정보 (기본 탭) -->
+          <div class="shop-tab-content profile-info-tab active">
+            <div class="profile-info-card">
+              <div class="profile-info-img-wrapper">
+                <img id="main-profile-img" src="https://via.placeholder.com/120" alt="프로필 사진">
+              </div>
+              <div class="profile-nickname" id="main-nickname">shubi3024</div>
+              <ul class="profile-meta">
+                <li><span class="meta-label">성별</span> <span class="meta-value">남성</span></li>
+                <li><span class="meta-label">가입일</span> <span class="meta-value" id="main-joindate">2025-01-01</span></li>
+              </ul>
+              <div class="profile-bio-wrapper">
+                <div class="bio-label">자기소개</div>
+                <div class="bio-content" id="main-bio">여행을 사랑하는 블로거입니다.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- [2] 구매내역/보유내역 -->
+          <div class="shop-tab-content profile-inventory-tab" style="display:none;">
+            <div class="section-title">구매내역/보유내역</div>
+            <div style="display:flex;align-items:flex-start;gap:32px;">
+              <ul style="list-style:none; padding:0; margin:0;font-size:17px;">
+                <li style="margin-bottom:18px;"><strong>구매한 이모티콘:</strong> 😺😎😂</li>
+                <li style="margin-bottom:18px;"><strong>보유 음악:</strong> Younha – 사건의 지평선, Sweetbox – Life Is Cool</li>
+                <li style="margin-bottom:18px;"><strong>도토리 잔액:</strong> 120개</li>
+                <li style="margin-bottom:10px;"><strong>마지막 구매일:</strong> 2025-05-30</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- [3] 프로필 변경 (비밀번호 수정 포함) -->
+          <div class="shop-tab-content profile-edit-tab" style="display:none;">
+            <div class="section-title">프로필 변경</div>
+            <form id="profile-edit-form" autocomplete="off">
+              <label for="edit-nickname">닉네임</label>
+              <input id="edit-nickname" type="text" placeholder="닉네임을 입력하세요" maxlength="12" style="width:60%;margin-bottom:10px;" />
+
+              <label for="edit-bio">자기소개</label>
+              <textarea id="edit-bio" rows="4" placeholder="자기소개를 입력하세요" maxlength="100" style="width:90%;margin-bottom:10px;"></textarea>
+
+              <label for="edit-photo">프로필 사진 변경</label>
+              <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
+                <img id="edit-preview-img" src="https://via.placeholder.com/80" alt="프로필 미리보기" style="border-radius:10px;border:1px solid #ccc;width:80px;height:80px;">
+                <input type="file" id="edit-photo" accept="image/*" style="flex:1;" />
+              </div>
+
+              <label for="edit-password">비밀번호 변경</label>
+              <input id="edit-password-old" type="password" placeholder="현재 비밀번호" style="width:50%;margin-bottom:8px;" />
+              <input id="edit-password-new" type="password" placeholder="새 비밀번호" style="width:50%;margin-bottom:18px;" />
+
+              <button type="submit" class="buy-btn" style="width:140px;">저장</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 오른쪽 네비게이션 (컴포넌트로 로드) -->
+      <div id="right-container"></div>
+
     </div>
-    <div class="intro-text" id="side-bio">간단한 자기소개가 들어갑니다...</div>
-    <div class="history">
-      <span id="side-nickname">닉네임(♂/♀)</span><br />
-      가입일: <span id="side-joindate">00월 00일</span>
-      <a href="#" class="edit">EDIT</a>
-    </div>
-    <div class="received-url">
-      <input type="text" placeholder="받아온 URL" />
-    </div>
-    <div class="neighbor-dropdown">
-      <button>이웃 파도타기 ▼</button>
-    </div>
+
   </div>
 
-  <!-- 중앙 메인 영역 -->
-  <div class="main-area">
-
-    <!-- 상단 헤더 -->
-    <div class="header-handle">
-      <h2>프로필</h2>
-      <div class="music-widget">
-        <div class="track">Younha – 사건의 지평선</div>
-        <div class="controls">
-          <button>⏮</button>
-          <button>⏸</button>
-          <button>⏭</button>
-          <button>🔊</button>
-          <button id="list-btn">LIST</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 탭 메뉴 (프로필 정보/구매내역/프로필 변경) -->
-    <div class="shop-header">
-      <div class="shop-inner-tab-list">
-        <button id="btn-info" class="shop-inner-tab active">프로필 정보</button>
-        <button id="btn-inventory" class="shop-inner-tab">구매내역/보유내역</button>
-        <button id="btn-edit" class="shop-inner-tab">프로필 변경</button>
-      </div>
-    </div>
-
-    <!-- [1] 프로필 정보 (기본 탭) -->
-    <div class="shop-tab-content profile-info-tab active">
-      <div class="profile-info-card">
-        <div class="profile-info-img-wrapper">
-          <img id="main-profile-img" src="https://via.placeholder.com/120" alt="프로필 사진">
-        </div>
-        <div class="profile-nickname" id="main-nickname">shubi3024</div>
-        <ul class="profile-meta">
-          <li><span class="meta-label">성별</span> <span class="meta-value">남성</span></li>
-          <li><span class="meta-label">가입일</span> <span class="meta-value" id="main-joindate">2025-01-01</span></li>
-        </ul>
-        <div class="profile-bio-wrapper">
-          <div class="bio-label">자기소개</div>
-          <div class="bio-content" id="main-bio">여행을 사랑하는 블로거입니다.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- [2] 구매내역/보유내역 -->
-    <div class="shop-tab-content profile-inventory-tab" style="display:none;">
-      <div class="section-title">구매내역/보유내역</div>
-      <div style="display:flex;align-items:flex-start;gap:32px;">
-        <ul style="list-style:none; padding:0; margin:0;font-size:17px;">
-          <li style="margin-bottom:18px;"><strong>구매한 이모티콘:</strong> 😺😎😂</li>
-          <li style="margin-bottom:18px;"><strong>보유 음악:</strong> Younha – 사건의 지평선, Sweetbox – Life Is Cool</li>
-          <li style="margin-bottom:18px;"><strong>도토리 잔액:</strong> 120개</li>
-          <li style="margin-bottom:10px;"><strong>마지막 구매일:</strong> 2025-05-30</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- [3] 프로필 변경 (비밀번호 수정 포함) -->
-    <div class="shop-tab-content profile-edit-tab" style="display:none;">
-      <div class="section-title">프로필 변경</div>
-      <form id="profile-edit-form" autocomplete="off">
-        <label for="edit-nickname">닉네임</label>
-        <input id="edit-nickname" type="text" placeholder="닉네임을 입력하세요" maxlength="12" style="width:60%;margin-bottom:10px;" />
-
-        <label for="edit-bio">자기소개</label>
-        <textarea id="edit-bio" rows="4" placeholder="자기소개를 입력하세요" maxlength="100" style="width:90%;margin-bottom:10px;"></textarea>
-
-        <label for="edit-photo">프로필 사진 변경</label>
-        <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
-          <img id="edit-preview-img" src="https://via.placeholder.com/80" alt="프로필 미리보기" style="border-radius:10px;border:1px solid #ccc;width:80px;height:80px;">
-          <input type="file" id="edit-photo" accept="image/*" style="flex:1;" />
-        </div>
-
-        <label for="edit-password">비밀번호 변경</label>
-        <input id="edit-password-old" type="password" placeholder="현재 비밀번호" style="width:50%;margin-bottom:8px;" />
-        <input id="edit-password-new" type="password" placeholder="새 비밀번호" style="width:50%;margin-bottom:18px;" />
-
-        <button type="submit" class="buy-btn" style="width:140px;">저장</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- 오른쪽 세로 네비게이션 -->
-  <nav class="main-nav">
-    <button class="nav-btn">홈</button>
-    <button class="nav-btn">상점</button>
-    <button class="nav-btn active">프로필</button>
-    <button class="nav-btn">게시판</button>
-    <button class="nav-btn">주크박스</button>
-    <button class="nav-btn">마이로그</button>
-    <button class="nav-btn">방명록</button>
-  </nav>
-
-</div>
-<script src="/static/js/profile.js"></script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/profile.js"></script>
 </body>
 </html>

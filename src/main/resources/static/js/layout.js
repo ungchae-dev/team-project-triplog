@@ -59,24 +59,28 @@ async function loadLayoutComponents() {
 
 // 네비게이션 버튼 이벤트 설정
 function setupNavigation() {
-    // 네비게이션 버튼들 감시 (컴포넌트 로드 후)
-    const observer = new MutationObserver(() => {
+
+    setTimeout(() => {
         const navBtns = document.querySelectorAll('.nav-btn');
+        console.log('네비게이션 버튼 찾음:', navBtns.length) // 디버깅
+
         if (navBtns.length > 0) {
             navBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const page = btn.getAttribute('data-page');
+                const page = btn.getAttribute('data-page');
+                console.log(`버튼 이벤트 설정:`, page); // 디버깅
+
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault(); // 기본 동작 방지
+                    console.log('버튼 클릭됨:', page) // 디버깅
                     navigateToPage(page);
                 });
             });
-            observer.disconnect(); // 이벤트 설정 완료 후 감시 중단
+            console.log('모든 네비게이션 이벤트 설정 완료');
+        } else {
+            console.log('네비게이션 버튼을 찾을 수 없습니다!');
         }
-    });
-
-    observer.observe(document.getElementById('right-container'), {
-        childList: true,
-        subtree: true
-    });
+    }, 1000); // 1초 후 실행
+    
 }
 
 // URL에서 현재 블로그 소유자 닉네임 추출
@@ -84,20 +88,21 @@ function getCurrentNickname() {
     const currentPath = window.location.pathname;
     const match = currentPath.match(/^\/blog\/@([^\/]+)/);
     if (match) {
-        return match[1]; // 닉네임 반환
+        // 항상 디코딩된 상태로 반환
+        try {
+            return decodeURIComponent(match[1]);
+        } catch (e) {
+            // 이미 디코딩된 상태면 그대로 반환
+            return match[1];
+        }
     }
     return null;
 }
 
-// 페이지 네비게이션 함수
+// 페이지 네비게이션 함수 (SPA 방식)
 function navigateToPage(page) {
-    // 상점은 공용이므로 닉네임 없음
-    if (page === 'shop') {
-        window.location.href = '/blog/shop'; // 현재 창에서 이동
-        return;
-    }
 
-    // 상점 제외 나머지는 개인 블로그 (현재 창에서 이동)
+    // 현재 창에서 이동
     const currentNickname = getCurrentNickname();
     if(!currentNickname) {
         alert('로그인이 필요합니다.');
@@ -105,23 +110,18 @@ function navigateToPage(page) {
         return;
     }
 
-    // 닉네임 URL 인코딩 처리
+    // 페이지 내용만 동적으로 변경
+    loadPageContent(page, currentNickname);
+
+    // 새로고침 없이 URL 변경
     const encodedNickname = encodeURIComponent(currentNickname);
+    const newUrl = `/blog/@${encodedNickname}${page === 'home' ? '' : '/' + page}`;
+    history.pushState({page}, '', newUrl);
 
-    const pageMap = {
-        'home': `/blog/@${encodedNickname}`, // (블로그) 홈
-        'shop': `/blog/@${encodedNickname}/shop`, // 상점
-        'profile': `/blog/@${encodedNickname}/profile`, // 프로필
-        'post': `/blog/@${encodedNickname}/post`, // 게시판
-        'jukebox': `/blog/@${encodedNickname}/jukebox`, // 주크박스
-        'mylog': `/blog/@${encodedNickname}/mylog`, // 마이로그
-        'guestbook': `/blog/@${encodedNickname}/guestbook` // 방명록
-    };
+    // 네비 버튼 활성화 & 제목 변경
+    setActiveNavButton(page);
+    setPageTitleByUrl();
 
-    const url = pageMap[page];
-    if (url) {
-        window.location.href = url;
-    }
 }
 
 // 음악 위젯 이벤트 설정
@@ -215,3 +215,122 @@ function setPageTitleByUrl() {
     }, 200);
 
 };
+
+// 페이지 컨텐츠 동적 로드
+async function loadPageContent(page, nickname) {
+    
+    const mainContent = document.querySelector('.main-content');
+    if (!mainContent) return;
+
+    try {
+        // 로딩 표시
+        mainContent.innerHTML = '<div style="text-align: center; padding: 50px;">로딩 중...</div>';
+
+        // 닉네임을 항상 인코딩해서 URL 생성
+        const encodedNickname = encodeURIComponent(nickname);
+
+        // 블로그 페이지(7) URL
+        const pageUrls = {
+            'home': `/blog/@${encodedNickname}`, 
+            'shop': `/blog/@${encodedNickname}/shop`, 
+            'profile': `/blog/@${encodedNickname}/profile`, 
+            'post': `/blog/@${encodedNickname}/post`, 
+            'jukebox': `/blog/@${encodedNickname}/jukebox`, 
+            'mylog': `/blog/@${encodedNickname}/mylog`, 
+            'guestbook': `/blog/@${encodedNickname}/guestbook`
+        };
+
+        console.log(`페이지 로드 시도: ${pageUrls[page]}`); // 디버깅 로그
+
+        const response = await fetch(pageUrls[page]);
+
+        if (response.ok) {
+            const html = await response.text();
+
+            // HTML에서 main-content 부분만 추출
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            const pageContent = tempDiv.querySelector('.main-content')?.innerHTML;
+
+            if (pageContent) {
+                mainContent.innerHTML = pageContent;
+                console.log(`${page} 페이지 콘텐츠 삽입 완료`); // 디버깅
+                initializePage(page); // 페이지별 초기화 함수 호출
+                console.log(`${page} 페이지 로드 성공`);
+            } else {
+                // 디버깅 코드 추가
+                console.log('=== 디버깅 정보 ===');
+                console.log('전체 HTML 길이:', html.length);
+                console.log('tempDiv 내용 (처음 1000자):', tempDiv.innerHTML.substring(0, 1000));
+                console.log('main-content 요소 찾기 결과:', tempDiv.querySelector('.main-content'));
+                console.log('===================');
+
+                throw new Error('main-content를 찾을 수 없습니다.');
+            }
+
+        } else {
+            throw new Error(`페이지 로드 실패: ${response.status}`);
+        }
+
+    } catch (error) {
+        console.error('페이지 로드 오류:', error);
+        mainContent.innerHTML = `
+            <div style="text-align: center; padding: 50px;">
+                <h3>※ 페이지 준비 중</h3>
+                <p>${page} 페이지가 아직 개발 중입니다.</p>
+                <button onclick="navigateToPage('home')" style="padding: 10px 20px; margin-top: 20px;">홈으로 돌아가기</button>
+            </div>
+        `;
+    }
+
+}
+
+// 페이지별 초기화 함수
+function initializePage(page) {
+    
+    // 각 페이지별 초기화 함수가 있으면 호출
+    const initFunctionName = `setup${page.charAt(0).toUpperCase() + page.slice(1)}Features`;
+
+    if (typeof window[initFunctionName] === 'function') {
+        window[initFunctionName]();
+        console.log(`${page} 페이지 초기화 완료`);
+    } else {
+        console.log(`$${page} 페이지는 별도 초기화 함수가 없습니다.`);
+    }
+
+    // 디버깅 로그 추가
+    console.log('=== 공통 데이터 로드 시작 ===');
+    console.log('window.loadUserData 존재:', typeof window.loadUserData);
+    console.log('window.loadBlogSkin 존재:', typeof window.loadBlogSkin);
+
+    // 모든 페이지에서 공통 데이터 로드
+    if (typeof window.loadUserData === 'function') {
+        console.log('loadUserData 호출 시작'); // 디버깅
+        setTimeout(() => {
+            window.loadUserData();
+        }, 100);
+    }
+
+    // 모든 페이지에서 스킨 로드
+    if (typeof window.loadBlogSkin === 'function') {
+        console.log('loadBlogSkin 호출 시작'); // 디버깅
+        setTimeout(() => {
+            window.loadBlogSkin();
+        }, 100);
+    } else {
+        console.log('loadBlogSkin 함수를 찾을 수 없음'); // 디버깅
+    }
+        
+}
+
+// 브라우저 뒤로가기 지원
+window.addEventListener('popstate', (event) => {
+    if (event.state && event.state.page) {
+        const currentNickname = getCurrentNickname();
+        if (currentNickname) {
+            loadPageContent(event.state.page, currentNickname);
+            setActiveNavButton(event.state.page);
+            setPageTitleByUrl();
+        }
+    }
+});

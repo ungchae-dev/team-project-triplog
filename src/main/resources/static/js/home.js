@@ -202,12 +202,18 @@ function setupHomeFeatures() {
 
 // 방명록으로 이동
 function navigateToGuestbook() {
-    if (window.currentBlogNickname) {
-        // 닉네임 URL 인코딩
-        const encodedNickname = encodeURIComponent(window.currentBlogNickname);
-        window.location.href = `/blog/@${encodedNickname}/guestbook`;
+    console.log('방명록 카드 클릭됨!'); // 디버깅 코드
+
+    // SPA 네비게이션 사용
+    if (typeof navigateToPage === 'function') {
+        navigateToPage('guestbook');
     } else {
-        console.error('블로그 소유자 정보가 없습니다!');
+        // fallback: 전체 페이지 리로드
+        if (window.currentBlogNickname) {
+            // 닉네임 URL 인코딩
+            const encodedNickname = encodeURIComponent(window.currentBlogNickname);
+            window.location.href = `/blog/@${encodedNickname}/guestbook`;
+        }
     }
 }
 
@@ -250,6 +256,12 @@ function removeSkin() {
 window.refreshSkin = async function() {
     await loadBlogSkin();
 }
+
+// 전역으로 노출하는 함수들 (다른 페이지에서 사용 가능)
+window.loadUserData = loadUserData;
+window.loadBlogSkin = loadBlogSkin;
+window.getBlogOwnerNickname = getBlogOwnerNickname;
+window.initBlogOwnerInfo = initBlogOwnerInfo;
 
 
 // 게시글 상세보기 (추가 예정)

@@ -50,7 +50,7 @@ public class PostViewController {
         model.addAttribute("currentDir", direction);
         model.addAttribute("nickname", nickname);
         model.addAttribute("loginNickname", customUserDetails.getMember().getNickname());
-        return "post/list";
+        return "blog/post";
     }
 
 
