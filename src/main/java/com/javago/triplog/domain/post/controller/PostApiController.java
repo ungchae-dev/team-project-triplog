@@ -1,6 +1,9 @@
 package com.javago.triplog.domain.post.controller;
 
 import com.javago.constant.IsThumbnail;
+import com.javago.triplog.domain.comments.dto.AddCommentRequest;
+import com.javago.triplog.domain.comments.dto.CommentDto;
+import com.javago.triplog.domain.comments.dto.UpdateCommentRequest;
 import com.javago.triplog.domain.comments.entity.Comments;
 import com.javago.triplog.domain.post.dto.AddPostRequest;
 import com.javago.triplog.domain.post.dto.UpdatePostRequest;
@@ -45,7 +48,6 @@ public class PostApiController {
     private final PostService postService;
     private final PostImageRepository imageRepository;
     
-    // 나중에 추가 @PathVariable long blog_id
     // 게시판 글 작성
     @Transactional
     @PostMapping("/api/write")
@@ -93,7 +95,7 @@ public class PostApiController {
 
     // 게시글 삭제
     @DeleteMapping("/api/delete/{id}")
-    public ResponseEntity<Post> deletePost(@PathVariable("id") Long id){
+    public ResponseEntity<?> deletePost(@PathVariable("id") Long id){
         postService.delete(id);
         return ResponseEntity.ok().build();
     }
@@ -113,14 +115,27 @@ public class PostApiController {
         Long likeCount = postService.countPostLike(postId);
         return ResponseEntity.ok().body(Map.of("message", "좋아요 취소됨", "likeCount", likeCount));
     }
-/*
+
     // 댓글 작성
     @PostMapping("/api/{id}/comment")
     public ResponseEntity<?> addComment(@PathVariable("id") Long postId, @RequestBody AddCommentRequest request){
-        Comments comment = postService.saveComment(request);
+        CommentDto comment = postService.saveComment(request);
         return ResponseEntity.ok().body(comment);
     }
- */
+
+    // 댓글 수정
+    @PutMapping("/api/{commentId}/comment/update")
+    public ResponseEntity<?> updateComment(@PathVariable("commentId") Long commentId, @RequestBody UpdateCommentRequest request) {
+        Comments comment = postService.updateComment(commentId, request);
+        return ResponseEntity.ok().body(comment);
+    }
+
+    // 댓글 삭제
+    @DeleteMapping("/api/{commentId}/comment")
+    public ResponseEntity<?> deleteComment(@PathVariable("commentId") Long commentId){
+        postService.deleteComment(commentId);
+        return ResponseEntity.ok().build();
+    }
 
     // 글 내용 html 그대로 저장, 태그로 이미지 url 추출
     public List<String> parseImageUrl(String html){

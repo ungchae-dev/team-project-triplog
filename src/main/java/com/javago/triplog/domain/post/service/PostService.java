@@ -2,6 +2,9 @@ package com.javago.triplog.domain.post.service;
 
 import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.blog.repository.BlogRepository;
+import com.javago.triplog.domain.comments.dto.AddCommentRequest;
+import com.javago.triplog.domain.comments.dto.CommentDto;
+import com.javago.triplog.domain.comments.dto.UpdateCommentRequest;
 import com.javago.triplog.domain.comments.entity.Comments;
 import com.javago.triplog.domain.comments.repository.CommentsRepository;
 import com.javago.triplog.domain.hashtag_people.entity.Hashtag_People;
@@ -206,16 +209,38 @@ public class PostService {
         }
     }
 
-    /*
     // 댓글 저장
     @Transactional
-    public Comments saveComment(AddCommentRequest request){
+    public CommentDto saveComment(AddCommentRequest request){
         Post post = postRepository.findById(request.getPostId()).orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
-        Member member = memberRepository.findByNickname((request.getUsername());
-        Comments parentComment = commentsRepository.findById(request.getCommentId());
-        Comments comment = AddCommentRequest.toEntity(member, post, parentComment);
-        return commentsRepository.save(comment);
+        Member member = memberRepository.findByMemberId(request.getUserId());
+        Comments parentComment = commentsRepository.findByCommentId(request.getParentComment());
+        Comments comment = request.toEntity(member, post, parentComment);
+        return CommentDto.fromEntity(commentsRepository.save(comment));
     }
-    */
+
+    // 댓글 조회
+    @Transactional
+    public List<CommentDto> getCommentsByPostId(Long postId) {
+        List<Comments> comments = commentsRepository.findByPostPostIdAndCommentNullOrderByCreatedAt(postId);
+
+        return comments.stream()
+            .map(CommentDto::fromEntity)
+            .collect(Collectors.toList());
+    }
+
+    // 댓글 수정
+    @Transactional
+    public Comments updateComment(Long commentId, UpdateCommentRequest request){
+        Comments comment = commentsRepository.findByCommentId(commentId);
+        comment.update(request.getContent(), request.getIs_secret());
+        return comment;
+    }
+
+    // 댓글 삭제
+    @Transactional
+    public void deleteComment(Long commentId){
+        commentsRepository.deleteByCommentId(commentId);
+    }
     
 }
