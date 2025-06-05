@@ -1,7 +1,6 @@
 package com.javago.triplog.domain.post.controller;
 
 import com.javago.constant.IsThumbnail;
-import com.javago.triplog.domain.comments.dto.AddCommentRequest;
 import com.javago.triplog.domain.comments.entity.Comments;
 import com.javago.triplog.domain.post.dto.AddPostRequest;
 import com.javago.triplog.domain.post.dto.UpdatePostRequest;

@@ -46,6 +46,10 @@ portone:
   store-id: "store-4e640aa5-588e-43a9-acf5-ebaeff70b074"
   channel-key: "channel-key-8c3e9cfb-a553-471c-bea5-148c3270fea1"
 
+# 이모티콘 API키 연결
+stipop:
+  api-key: "d7f7de93bb1baec62995773ba0665e07"
+
 # SQL문(DDL) 로그에 출력
 logging:
   level:
@@ -57,13 +61,6 @@ app:
   initial-admins:
     enabled: true # 초기 관리자 생성 활성화/비활성화
     accounts:
-      - id: ucna
-        name: 나웅채
-        nickname: 루피아빠
-        password: pw01
-        phone: 010-0903-1001
-        gender: MALE # gender는 MALE 또는 FEMALE만 가능
-
       - id: ucna
         name: 나웅채
         nickname: 루피아빠

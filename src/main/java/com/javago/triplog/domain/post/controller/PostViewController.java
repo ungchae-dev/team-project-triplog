@@ -2,7 +2,6 @@ package com.javago.triplog.domain.post.controller;
 
 import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.blog.service.BlogService;
-import com.javago.triplog.domain.member.dto.MemberPrincipal;
 import com.javago.triplog.domain.member.entity.CustomUserDetails;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.service.MemberService;
@@ -22,8 +21,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -67,6 +64,7 @@ public class PostViewController {
         model.addAttribute("hashtagList", post.getPostHashtagPeople());
         model.addAttribute("nickname", nickname);
         model.addAttribute("userId", customUserDetails.getMember().getMemberId());
+        model.addAttribute("loginNickname", customUserDetails.getMember().getNickname());
         return "post/detail";
     }
 
@@ -90,8 +88,12 @@ public class PostViewController {
     // 게시판 글 수정
     @GetMapping("/blog/@{nickname}/post/{id}/edit")
     public String modify(@PathVariable("nickname") String nickname, @PathVariable("id") Long id, Authentication authentication, Model model) {
-        Post post = postService.findtoUpdate(id);
         CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
+        if (customUserDetails.getMember().getNickname() != nickname) {
+            return "redirect:/member/login"; // 로그인 페이지로 보내기
+        }
+        Post post = postService.findtoUpdate(id);
+
         model.addAttribute("post", new Post(post));
         model.addAttribute("hashtagList", postService.hashtagList());
         model.addAttribute("postHashtagList", post.getPostHashtagPeople());

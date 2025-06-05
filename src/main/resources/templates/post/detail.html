@@ -42,12 +42,12 @@
   <div id="likeCount" th:text="${post.postLike.size()}"></div><br>
 
   <button type="button" th:onclick="|location.href='@{/blog/@{nickname}/post(nickname=${nickname})}'|">글 목록</button>
-  <button type="button" th:onclick="|location.href='@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">수정</button>
-  <button type="button" id="delete-btn">삭제</button>
+  <button type="button" th:if="${nickname == loginNickname}" th:onclick="|location.href='@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">수정</button>
+  <button type="button" th:if="${nickname == loginNickname}" id="delete-btn">삭제</button>
 
   <label>댓글</label>
   <div>
-    <span id="username" th:text="${nickname}" />
+    <span id="username" th:text="${loginNickname}" />
     <input type="text" id="commentInput" placeholder="댓글을 입력하세요" />
     <select id="is_secret">
       <option value="Y">전체 공개</option>
@@ -69,7 +69,6 @@
       const isLiked = this.checked;
     
       const data = {
-        // 확인용 멤버ID 설정
         userId: userId
       }
 

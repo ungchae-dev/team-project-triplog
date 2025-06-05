@@ -16,34 +16,38 @@ public class MainController {
 
     //메인페이지로 매핑
     @GetMapping("/")
-    public String mainPage(@RequestParam(defaultValue = "서울") String region, Model model, Authentication authentication) {
-        
-        if (authentication != null) {
-            System.out.println("Authentication 객체 존재: " + authentication.getName());
-            System.out.println("인증됨: " + authentication.isAuthenticated());
-            System.out.println("권한: " + authentication.getAuthorities());
-            model.addAttribute("isLoggedIn", true);
-            model.addAttribute("username", authentication.getName());
-        } else {
-            System.out.println("Authentication 객체 null");
-            model.addAttribute("isLoggedIn", false);
-        }
+    public String mainPage(
+        @RequestParam(name = "region", defaultValue = "서울") String region, 
+        Model model, 
+        Authentication authentication) {
 
-        
-        //List<PostDto> bestPosts = postService.findTop4ByLikes(); // 좋아요 많은 순으로 정렬된 4개
-        //model.addAttribute("bestPosts", bestPosts);
-        
-        // SecurityContext 확인
-        SecurityContext context = SecurityContextHolder.getContext();
-        Authentication secAuth = context.getAuthentication();
-        System.out.println("SecurityContext에서 가져온 Authentication: " + secAuth);
-        
-        System.out.println("========================");
+            // 로그인 상태 확인 및 모델에 추가
+            boolean isLoggedIn = (authentication != null && authentication.isAuthenticated() && !authentication.getName().equals("anonymousUser"));
 
+            model.addAttribute("isLoggedIn", isLoggedIn);
 
-        // Spring Boot에서 return 값은 절대경로가 아니라 
-        // resources/templates/ 하위 경로에서의 상대경로로 작성
-        return "page/mainpage"; //  templates/page/mainpage.html
+            if (isLoggedIn && authentication != null) {
+                // 로그인된 사용자 정보 추가
+                String memberId = authentication.getName();
+                model.addAttribute("username", memberId);
+
+                // 로그인된 사용자 로깅
+                System.out.println("로그인된 사용자: " + memberId);
+                System.out.println(" - 권한: " + authentication.getAuthorities());
+
+            } else {
+                // 비로그인 상태 로깅
+                System.out.println("비로그인 상태");
+            }
+
+            // 지역 정보 모델에 추가
+            model.addAttribute("selectRegion", region);
+            
+            // 주간 베스트 게시글 로드 (나중에 구현)
+            // List<PostDto> bestPosts = postService.findTop4ByLikes();
+            // model.addAttribute("bestPosts", bestPosts);
+
+            return "page/mainpage"; //  templates/page/mainpage.html
     }
 
     //팝업 페이지로 매핑

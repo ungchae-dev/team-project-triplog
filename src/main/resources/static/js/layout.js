@@ -102,13 +102,17 @@ function navigateToPage(page) {
         return;
     }
 
+    // 닉네임 URL 인코딩 처리
+    const encodedNickname = encodeURIComponent(currentNickname);
+
     const pageMap = {
-        'home': `/blog/@${currentNickname}`, // (블로그) 홈
-        'profile': `/blog/@${currentNickname}/profile`, // 프로필
-        'post': `/blog/@${currentNickname}/post`, // 게시판
-        'jukebox': `/blog/@${currentNickname}/jukebox`, // 주크박스
-        'mylog': `/blog/@${currentNickname}/mylog`, // 마이로그
-        'guestbook': `/blog/@${currentNickname}/guestbook` // 방명록
+        'home': `/blog/@${encodedNickname}`, // (블로그) 홈
+        'shop': `/blog/@${encodedNickname}/shop`, // 상점
+        'profile': `/blog/@${encodedNickname}/profile`, // 프로필
+        'post': `/blog/@${encodedNickname}/post`, // 게시판
+        'jukebox': `/blog/@${encodedNickname}/jukebox`, // 주크박스
+        'mylog': `/blog/@${encodedNickname}/mylog`, // 마이로그
+        'guestbook': `/blog/@${encodedNickname}/guestbook` // 방명록
     };
 
     const url = pageMap[page];

@@ -13,7 +13,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.javago.constant.Visibility;
 import com.javago.triplog.domain.blog.entity.Blog;
 //import com.javago.triplog.domain.comments.entity.Comments;
 import com.javago.triplog.domain.post_hashtag_people.entity.Post_Hashtag_people;
@@ -146,5 +145,6 @@ public class Post {
                 .filter(p -> "PEOPLE".equals(p.getHashtagPeople().getTagType()))
                 .toList();
     }
+
 
 }
