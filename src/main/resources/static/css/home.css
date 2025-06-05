@@ -344,6 +344,21 @@ body, html {
     line-height: 2;
 }
 
+/* 방명록 카드 인터랙션 개선 */
+#guestbook-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+#guestbook-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px #eedcd9bb;
+}
+
+#guestbook-card:active {
+    transform: translateY(0);
+}
+
 .photo-section-card {
     background: rgba(255, 255, 255, 0.98);
     border: 2px solid #d7bfae;
@@ -394,10 +409,39 @@ body, html {
     border-bottom: 1px solid #e5dac9;
 }
 
+/* 이미지 로드 실패 시 fallback */
+.photo-card .photo::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, #f5f5f5, #e8e8e8);
+    display: none;
+}
+
 .photo-card img {
     max-width: 100%;
     max-height: 100%;
     object-fit: cover;
+    background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+}
+
+.photo-card img[src*="via.placeholder.com"]:before {
+    content: "📷";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #999;
+    width: 100%;
+    height: 100%;
+}
+
+.photo-card img:not([src]),
+.photo-card img[src=""] {
+    display: none;
 }
 
 .photo-card .caption {
