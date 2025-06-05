@@ -3,8 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <title>여행 블로그 - 상점</title>
-  <link rel="stylesheet" href="/css/home.css" /> <!-- 공통 -->
-  <link rel="stylesheet" href="/css/shop.css" /> <!-- 상점 css -->
+  <!-- 블로그 페이지 css 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/shop.css" />
+  <link rel="stylesheet" href="/css/profile.css" />
+  <link rel="stylesheet" href="/css/post.css" />
+  <link rel="stylesheet" href="/css/jukebox.css" />
+  <link rel="stylesheet" href="/css/mylog.css" />
+  <link rel="stylesheet" href="/css/guestbook.css" />
 </head>
 <body>
   <div class="frame">
@@ -23,27 +29,37 @@
 
         <!-- 상점 컨텐츠 -->
         <div class="main-content">
-          <!-- 상점 내부 탭 + 컨텐츠 영역 -->
+          <!-- 상점 내부 탭 + 컨텐츠 영역 (오른쪽 정렬) -->
           <div class="shop-header">
-            <div id="point-display" class="dotori-box">도토리: 100개</div>
             <div class="shop-inner-tab-list">
-              <button id="btn-emoticon" class="shop-inner-tab active">이모티콘</button>
+              <a href="#" id="btn-skin-activate" class="shop-inner-tab skin-tab">스킨 활성화</a>
+              <button id="btn-dotori" class="shop-inner-tab">도토리</button>
               <button id="btn-music" class="shop-inner-tab">음악</button>
-              <button id="btn-skin-activate" class="shop-inner-tab">스킨 활성화</button>
+              <button id="btn-emoticon" class="shop-inner-tab active">이모티콘</button>
             </div>
           </div>
+
           <!-- 이모티콘 탭 컨텐츠 -->
           <div class="shop-tab-content shop-emoticon active">
             <div class="section-title">이모티콘 상점</div>
             <div class="emoticon-list" id="emoticon-list"></div>
-            <div class="pagination" id="emoticon-pagination" style="display:none;"></div>
+            <div class="pagination" id="emoticon-pagination"></div>
           </div>
+
           <!-- 음악 탭 컨텐츠 -->
           <div class="shop-tab-content shop-music">
             <div class="section-title">음악 상점</div>
             <div class="music-list" id="music-list"></div>
-            <div class="pagination" id="music-pagination" style="display:none;"></div>
+            <div class="pagination" id="music-pagination"></div>
           </div>
+
+          <!-- 도토리 탭 컨텐츠 -->
+          <div class="shop-tab-content shop-dotori">
+            <div class="section-title">도토리 충전</div>
+            <div class="dotori-display">현재 도토리: <span id="current-dotori">100</span>개</div>
+            <div class="dotori-list" id="dotori-list"></div>
+          </div>
+
         </div>
 
       </div>
@@ -55,7 +71,15 @@
 
   </div>
 
+  <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
   <script src="/js/layout.js"></script>
+  <script src="/js/home.js"></script>
   <script src="/js/shop.js"></script>
+  <script src="/js/profile.js"></script>
+  <script src="/js/post.js"></script>
+  <script src="/js/jukebox.js"></script>
+  <script src="/js/mylog.js"></script>
+  <script src="/js/guestbook.js"></script>
+  
 </body>
 </html>
