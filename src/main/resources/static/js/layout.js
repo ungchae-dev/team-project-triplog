@@ -110,6 +110,10 @@ function navigateToPage(page) {
         return;
     }
 
+    // 즉시 제목과 네비 버튼 변경 (페이지 로드 전에!)
+    setActiveNavButton(page);
+    setPageTitleImmediately(page); // 즉시 제목 변경 함수 호출
+
     // 페이지 내용만 동적으로 변경
     loadPageContent(page, currentNickname);
 
@@ -131,8 +135,15 @@ function setupMusicWidget() {
         const listBtn = document.getElementById('list-btn');
         if (listBtn) {
             listBtn.addEventListener('click', () => {
-                // 주크박스 페이지로 이동
-                window.location.href = '/blog/jukebox';
+                // 현재 블로그 닉네임 가져오기
+                const currentNickname = getCurrentNickname();
+                if (currentNickname) {
+                    // SPA 방식으로 주크박스 페이지로 이동
+                    navigateToPage('jukebox');
+                } else {
+                    // fallback(폴백): 직접 이동
+                    window.location.href = '/blog/jukebox';
+                }
             });
             observer.disconnect();
         }
@@ -146,15 +157,15 @@ function setupMusicWidget() {
 
 // 현재 페이지에 맞는 네비 버튼 활성화
 function setActiveNavButton(currentPage) {
-    setTimeout(() => {
-        const navBtns = document.querySelectorAll('.nav-btn');
-        navBtns.forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.getAttribute('data-page') === currentPage) {
-                btn.classList.add('active');
-            }
-        });
-    }, 100); // 전환시간: 0.1초 (sec)
+    // 즉시 변경
+    const navBtns = document.querySelectorAll('.nav-btn');
+    navBtns.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-page') === currentPage) {
+            btn.classList.add('active');
+        }
+    });
+    console.log(`네비 버튼 즉시 변경: ${currentPage}`);
 }
 
 // 페이지 제목 변경 함수
@@ -334,3 +345,24 @@ window.addEventListener('popstate', (event) => {
         }
     }
 });
+
+// 즉시 제목 변경 함수
+function setPageTitleImmediately(page) {
+    // 먼저 정확한 key로 찾고, 없으면 상위 페이지로 폴백
+    let pageTitle = PAGE_TITLES[page];
+
+    if (!pageTitle && page.includes('/')) {
+        const parentKey = page.split('/')[0];
+        pageTitle = PAGE_TITLES[parentKey];
+    }
+
+    pageTitle = pageTitle || '홈';
+
+    // 즉시 변경 (setTimeout 없이)
+    const titleEl = document.getElementById('page-title');
+    if (titleEl) {
+        titleEl.textContent = pageTitle;
+        console.log(`제목 즉시 변경: ${pageTitle}`);
+    }
+
+}
