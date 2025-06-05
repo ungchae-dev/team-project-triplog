@@ -92,6 +92,9 @@ public class Post {
     // 좋아요수 필드 생성
     @Formula("(SELECT COUNT(*) FROM post_like pl WHERE pl.post_id = post_id)")
     private int likeCount;
+    //댓글수 필드 생성
+    @Formula("(SELECT COUNT(*) FROM COMMENTS c WHERE c.post_id = post_id)")
+    private int commentCount;
 
     // 블로그-게시글
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

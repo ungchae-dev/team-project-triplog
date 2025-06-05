@@ -19,8 +19,10 @@ public class PostSearchResponseDto {
     private String nickname;
     private String date;
     private String thumbnailUrl;     // imagePath가 들어가는 필드
-    private int likeCount;
+
     private LocalDateTime createdAt;
     private List<String> hashtags;
     private List<String> peopleTags;
+    private int likes;    // 좋아요 수
+    private int comments; // 댓글 수
 }
