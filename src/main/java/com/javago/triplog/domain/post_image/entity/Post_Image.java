@@ -1,5 +1,6 @@
 package com.javago.triplog.domain.post_image.entity;
 
+import com.javago.constant.IsThumbnail;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,8 +31,9 @@ public class Post_Image {
     @Column(name = "image_path", updatable = false, nullable = false)
     private String imagePath;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "is_thumbnail", nullable = false)
-    private String isThumbnail;
+    private IsThumbnail isThumbnail;
 
     @CreatedDate
     @Column(name = "upload_date", updatable = false, nullable = false)

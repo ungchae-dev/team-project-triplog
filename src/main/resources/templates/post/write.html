@@ -64,6 +64,7 @@
 <body>
 <h2>글 작성</h2>
 <form id="postForm" th:attr="data-id=${post.postId}">
+  <div id="blogInfo" th:attr="data-blog-id=${blogId}, data-nickname=${nickname}" hidden></div>
   <label>제목</label><br>
   <div id="title" contenteditable="true" th:utext="${post.title}"></div><br>
 
@@ -194,6 +195,8 @@
   // 작성 버튼 이벤트
   document.getElementById('postForm').addEventListener('submit', async function (e) {
     e.preventDefault();
+    const blogId = document.getElementById('blogInfo').dataset.blogId;
+    const nickname = document.getElementById('blogInfo').dataset.nickname;
     const title = document.getElementById('title').innerText.trim();
     const content = editor.innerHTML;
     const text = editor.innerText.trim();
@@ -231,8 +234,7 @@
       visibility,
       tagIdList: checkedHashtags,
       newHashtag,
-      // 확인용 블로그 아이디 설정
-      blogId: 1
+      blogId: blogId
     };
 
     const postForm = document.getElementById("postForm");
@@ -247,7 +249,7 @@
 
     if (res.ok) {
       alert(isModify ? '글 수정 완료' : '글 작성 완료');
-      location.replace(isModify ? `/blog/post/${postId}` : `/blog/post/list`);
+      location.replace(isModify ? `/blog/@${nickname}/post/${postId}` : `/blog/@${nickname}/post`);
     } else {
       alert('작성 실패');
     }

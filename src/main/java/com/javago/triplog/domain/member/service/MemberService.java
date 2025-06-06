@@ -6,7 +6,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.javago.triplog.domain.member.dto.MemberPrincipal;
+import com.javago.constant.Role;
+import com.javago.triplog.domain.blog.service.BlogService;
+import com.javago.triplog.domain.member.entity.CustomUserDetails;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.repository.MemberRepository;
 
@@ -21,6 +23,9 @@ public class MemberService implements UserDetailsService {
     
     // 회원 데이터 접근을 위한 리포지터리
     private final MemberRepository memberRepository;
+
+    // 블로그 서비스 의존성 추가
+    private final BlogService blogService;
     
     // 이미 가입된 회원일 경우 IllegalStateException 예외 발생시킴
     // 회원가입 시 중복 가입을 방지하기 위해 사용
@@ -31,11 +36,30 @@ public class MemberService implements UserDetailsService {
         }
     }
 
-    // 회원 정보를 저장하는 메서드
-    // 중복 검증 후 문제없으면 DB에 저장
+    // 회원 정보를 저장하는 메서드 (블로그 자동 생성 포함)
     public Member saveMember(Member member) {
+        // 1. 중복 검증
         validateDuplicateMember(member);
-        return memberRepository.save(member);
+
+        // 2. 회원정보 저장
+        Member savedMember = memberRepository.save(member);
+        System.out.println("회원 저장 완료: " + savedMember.getMemberId() + " (" + savedMember.getNickname() + ") - " + savedMember.getRole());
+
+        // 3. 일반 사용자(USER)만 블로그 자동 생성
+        if (savedMember.getRole() == Role.USER) {
+            try {
+                blogService.createDefaultBlog(savedMember);
+                System.out.println("블로그 자동 생성 완료: " + savedMember.getNickname());
+            } catch (Exception e) {
+                System.err.println("블로그 생성 실패 - 회원: " + savedMember.getNickname() + ", 오류: " + e.getMessage());
+                e.printStackTrace();
+                // 블로그 생성 실패해도 회원가입은 유지
+            }
+        } else {
+            System.out.println("관리자 계정은 블로그 생성하지 않음: " + savedMember.getNickname());
+        }
+
+        return savedMember;
     }
 
     // 특정 회원 ID가 이미 존재하는지 확인하는 메서드
@@ -55,7 +79,7 @@ public class MemberService implements UserDetailsService {
         }
 
         // 커스텀 UserDetails 객체 반환 (Member의 모든 정보 포함)
-        return new MemberPrincipal(member);
+        return new CustomUserDetails(member);
 
     }
 
@@ -68,5 +92,13 @@ public class MemberService implements UserDetailsService {
         return member;
     }
 
+    // 닉네임으로 Member 엔티티 조회하는 메서드
+    public Member findByNickname(String nickname) {
+        Member member = memberRepository.findByNickname(nickname);
+        if(member == null) {
+            throw new IllegalArgumentException("존재하지 않는 닉네임입니다: " + nickname);
+        }
+        return member;
+    }
 
 }

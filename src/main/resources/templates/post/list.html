@@ -39,7 +39,7 @@
 <body>
 <h2>게시글 목록</h2>
 
-<button th:onclick="|location.href='@{/blog/post/write}'|" type="button">글 작성</button>
+<button th:if="${nickname == loginNickname}" th:onclick="|location.href='@{/blog/@{nickname}/post/write(nickname=${nickname})}'|" type="button">글 작성</button>
 
 <div>
     <div>
@@ -52,11 +52,11 @@
     <div th:each="post : ${postList}" class="post">
         <div>
             <!-- 썸네일이 있으면 보여주고, 없으면 기본 이미지를 출력 -->
-            <img th:if="${post.thumbnail != null}" th:src="@{${post.thumbnail}}" alt="썸네일" class="thumbnail"/>
+            <img th:if="${post.thumbnail != null}" th:src="${post.thumbnail}" alt="썸네일" class="thumbnail"/>
         </div>
         <div class="title">
             <!-- 게시글 제목 -->
-            <a th:href="@{'/blog/post/' + ${post.post.postId}}" th:text="${post.post.title}">게시글 제목</a>
+            <a th:href="@{'/blog/@{nickname}/post/' + ${post.post.postId}(nickname=${nickname})}" th:text="${post.post.title}">게시글 제목</a>
         </div>
         <div th:text="'조회수 | ' + ${post.post.viewCount}"></div>
         <div class="meta" th:text="${#temporals.format(post.post.createdAt, 'yyyy-MM-dd HH:mm')}">작성일</div>
@@ -70,22 +70,22 @@
 </div>
 <div class="paging" th:if="${postList.totalPages > 0}">
     <a th:if="${!postList.first}"
-       th:href="@{/blog/post/list(page=1, sort=${currentSort}, dir=${currentDir})}">&laquo;</a>
+       th:href="@{/blog/@{nickname}/post(page=1, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}">&laquo;</a>
 
     <a th:if="${!postList.first}"
-       th:href="@{/blog/post/list(page=${postList.number}, sort=${currentSort}, dir=${currentDir})}">이전</a>
+       th:href="@{/blog/@{nickname}/post(page=${postList.number}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}">이전</a>
 
     <span th:each="pageNum : ${#numbers.sequence(1, postList.totalPages)}">
-        <a th:href="@{/blog/post/list(page=${pageNum}, sort=${currentSort}, dir=${currentDir})}"
+        <a th:href="@{/blog/@{nickname}/post(page=${pageNum}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}"
            th:text="${pageNum}"
            th:classappend="${postList.number + 1 == pageNum} ? 'current' : ''">1</a>
     </span>
 
     <a th:if="${!postList.last}"
-       th:href="@{/blog/post/list(page=${postList.number + 2}, sort=${currentSort}, dir=${currentDir})}">다음</a>
+       th:href="@{/blog/@{nickname}/post(page=${postList.number + 2}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}">다음</a>
 
     <a th:if="${!postList.last}"
-       th:href="@{/blog/post/list(page=${postList.totalPages}, sort=${currentSort}, dir=${currentDir})}">&raquo;</a>
+       th:href="@{/blog/@{nickname}/post(page=${postList.totalPages}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}">&raquo;</a>
 </div>
 
 

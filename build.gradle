@@ -47,6 +47,32 @@ dependencies {
 	implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.4'
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	implementation 'org.hibernate.orm:hibernate-core:6.4.4.Final'
+
+	// QueryDSL (JPA Jakarta 대응)
+	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+	annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
+
+	// Jakarta API (Spring Boot 3.x는 jakarta 기반)
+	implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+	implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+	annotationProcessor 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+	annotationProcessor 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+
+
+	def generated = "$buildDir/generated/querydsl"
+
+	sourceSets {
+		main {
+			java {
+				srcDirs = ['src/main/java', "$buildDir/generated/querydsl"]
+			}
+		}
+	}
+
+	tasks.withType(JavaCompile) {
+		options.annotationProcessorGeneratedSourcesDirectory = file("$buildDir/generated/querydsl")
+	}
+
 }
 
 test {

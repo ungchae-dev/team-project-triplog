@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.javago.constant.Gender;
 import com.javago.constant.Role;
+import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.member.dto.MemberFormDto;
 import com.javago.triplog.domain.member_item.entity.MemberItem;
 
@@ -20,6 +21,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -47,7 +49,7 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", length = 10, nullable = false)
-    private Gender gender;      // 성별 (MALE: 남성 / FEMALE: 여성)
+    private Gender gender;      // 성별 (주민번호로 구분, F: 남성 / M: 여성)
 
     @Column(name = "nickname", length = 50, nullable = false, unique = true)
     private String nickname;  // 닉네임 (다른 사용자에게 표시됨)
@@ -77,6 +79,17 @@ public class Member {
     @Enumerated(EnumType.STRING)
     @Column(name = "role", length = 10, nullable = false)
     private Role role;
+
+    // Member -> Blog (1:1)
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Blog blog;
+    // JPA는 양방향 관계에서 한쪽만 연관관계 주인이 되어야 함
+    // 연관관계 주인: FK를 관리하는 쪽
+    // • mappedBy = "member" : 상대방 엔티티의 member 필드가 주인임.
+    // • cascade = CascadeType.ALL: 내가 변경되면 연관된 엔티티도 같이 변경하는 것
+    // • fetch = FetchType.LAZY: 필요할 때만 데이터를 가져옴(지연 로딩)
+    //  LAZY: 지연 로딩, 필요할 때 DB에서 조회 => 메모리 절약, 필요한 것만 조회
+    //  EAGER: 즉시 로딩, 항상 함께 조회 => 한 번에 조회하지만 불필요한 데이터까지 가져올 수 있음
 
     // Member -> MemberItem (1:다)
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)

@@ -1,9 +1,12 @@
 package com.javago.triplog.domain.post.entity;
 
+import com.javago.constant.Visibility;
+import com.javago.triplog.domain.comments.entity.Comments;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 
+import lombok.Setter;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Formula;
 import org.springframework.data.annotation.CreatedDate;
@@ -22,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Setter
 @Table(name = "post")
 @Entity
 @Getter
@@ -53,8 +57,9 @@ public class Post {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "visibility", nullable = false)
-    private String visibility;
+    private Visibility visibility;
 
     @Column(name = "view_count")
     @Builder.Default
@@ -65,8 +70,8 @@ public class Post {
     private List<Post_Image> postImage = new ArrayList<>();
 
     // 게시글-댓글
-    //@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    //private List<Comments> comments = new ArrayList<>();
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Comments> comments = new ArrayList<>();
 
     // 게시글-해시태그 관계
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -84,8 +89,12 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post_Like> postLike = new ArrayList<>();
 
+    // 좋아요수 필드 생성
     @Formula("(SELECT COUNT(*) FROM post_like pl WHERE pl.post_id = post_id)")
     private int likeCount;
+    //댓글수 필드 생성
+    @Formula("(SELECT COUNT(*) FROM COMMENTS c WHERE c.post_id = post_id)")
+    private int commentCount;
 
     // 블로그-게시글
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -93,14 +102,14 @@ public class Post {
     private Blog blog;
 
     @Builder
-    public Post(String title, String content, String visibility, Blog blog) {
+    public Post(String title, String content, Visibility visibility, Blog blog) {
         this.title = title;
         this.content = content;
         this.visibility = visibility;
         this.blog = blog;
     }
 
-    public void update(String title, String content, String visibility) {
+    public void update(String title, String content, Visibility visibility) {
         this.title = title;
         this.content = content;
         this.visibility = visibility;
@@ -120,5 +129,25 @@ public class Post {
         this.viewCount = post.viewCount;
         this.blog = post.blog;
     }
+    //대표 이미지 가져오기
+    public Post_Image getThumbnailImage() {
+        return this.postImage.stream()
+                .filter(img -> "Y".equals(img.getIsThumbnail()))
+                .findFirst()
+                .orElse(null);
+    }
+    //해시태그/인원태그를 분리해서 가져오기 (hashtag로 필터링)
+    public List<Post_Hashtag_people> getHashtags() {
+        return this.postHashtagPeople.stream()
+                .filter(p -> "HASHTAG".equals(p.getHashtagPeople().getTagType()))
+                .toList();
+    }
+    //해시태그/인원태그를 분리해서 가져오기 (인원테그로 필터링)
+    public List<Post_Hashtag_people> getPeopleTags() {
+        return this.postHashtagPeople.stream()
+                .filter(p -> "PEOPLE".equals(p.getHashtagPeople().getTagType()))
+                .toList();
+    }
+
 
 }

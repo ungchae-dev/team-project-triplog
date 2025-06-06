@@ -22,55 +22,9 @@
 
 
 <style>
-    .card-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr); /* 4개의 열 */
-        gap: 20px;
-        padding: 20px;
-    }
 
-    .tour-card {
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        overflow: hidden;
-        text-align: center;
-        transition: transform 0.2s;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        height: 100%;         /* 카드 높이 균일 */
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        max-height: 300px;
-        max-width: 300px;
-    }
 
-    .tour-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-    }
 
-    .tour-card img {
-        width: 100%;
-        height: 160px;
-        object-fit: cover;
-    }
-
-    .tour-card .card-body {
-        padding: 12px;
-        flex-grow: 1;
-    }
-
-    .tour-card .card-body h5 {
-        font-size: 16px;
-        margin-bottom: 6px;
-    }
-
-    .tour-card .card-body p {
-        font-size: 14px;
-        color: #555;
-        margin: 0;
-    }
 
 </style>
 
@@ -98,7 +52,7 @@
 
             <!-- 글 검색 -->
             <div class="text-center">
-                <a href="/searchpage" class="nav-link p-0">
+                <a href="/search" class="nav-link p-0">
                     <img src="/images/page/search.png" alt="글 검색" width="36">
                     <div class="small">글 검색</div>
                 </a>
@@ -139,34 +93,35 @@
     </div>
 </nav>
 
-<header style="margin-top: 100px;">
+<header style="margin-top: 100px">
+</header>
 
-    <!--검색창 -->
-    <div class="top-controls-container d-flex justify-content-center my-4">
-        <input type="text" id="searchInput" class="form-control w-50" placeholder="무엇이든 검색하세요.">
+<div class="container mt-4" id="postList">
+    <div class="container d-flex justify-content-center my-4">
+
+        <!-- 검색창 및 검색버튼-->
+        <div class="d-flex align-items-center" style="width: 100%; max-width: 600px;">
+            <input type="text" id="keywordInput" class="form-control me-2 flex-grow-1" placeholder="어떤 경험이 궁금하신가요?">
+
+            <!-- 검색 버튼 -->
+            <button id="searchButton" class="btn btn-outline-primary d-flex flex-column align-items-center p-1">
+                <img src="/images/page/enter.png" alt="enter" width="32" />
+
+            </button>
+
+        </div>
     </div>
 
-    <!--인원 필터 및 기타 컨트롤 -->
-    <div class="top-controls-container d-flex justify-content-between align-items-center px-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <!-- 오른쪽 정렬된 버튼 & 정렬 select -->
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            <div class="text-center">
+                <a href="/blog/@{nickname}/post/write" class="nav-link p-0">
+                    <img src="/images/page/boardwrite.png" alt="글쓰기" width="60">
+                    <div class="small">글쓰기</div>
+                </a>
+            </div>
 
-        <!--인원 필터 탭 (중복 허용) -->
-        <div class="category-tabs d-flex gap-2 flex-wrap">
-            <button class="tab-button" data-category="solo_man">남자혼자</button>
-            <button class="tab-button" data-category="solo_woman">여자혼자</button>
-            <button class="tab-button" data-category="couple">커플</button>
-            <button class="tab-button" data-category="with_parent">부모님과</button>
-            <button class="tab-button" data-category="with_children">아이들과</button>
-            <button class="tab-button" data-category="group">단체</button>
-            <button class="tab-button" data-category="with_men">남자끼리</button>
-            <button class="tab-button" data-category="with_women">여자끼리</button>
-            <button class="tab-button" data-category="with_all">남녀함께</button>
-        </div>
-
-        <!--글쓰기 + 정렬 드롭다운 -->
-        <div class="d-flex gap-2 align-items-center">
-            <button id="boardWriteBtn" class="btn btn-outline-primary">글쓰기</button>
-
-            <!-- 정렬 드롭다운 -->
             <select id="sortSelect" class="form-select">
                 <option value="latest" selected>최신 순</option>
                 <option value="likes">좋아요 순</option>
@@ -174,22 +129,33 @@
         </div>
     </div>
 
-</header>
 
-<!-- 콘텐츠 리스트 (4x4 카드 그리드, 대표 이미지 + 제목만) -->
-<main>
-    <section id="tourCardContainer" class="card-grid">
-        <!-- JS로 카드 동적 생성 -->
+    <!--인원 필터 탭 (중복 허용) -->
+    <div class="btn-group mb-4" role="group">
+        <button class="tab-button" data-category="남자혼자">남자혼자</button>
+        <button class="tab-button" data-category="여자혼자">여자혼자</button>
+        <button class="tab-button" data-category="커플">커플</button>
+        <button class="tab-button" data-category="부모님과">부모님과</button>
+        <button class="tab-button" data-category="아이들과">아이들과</button>
+        <button class="tab-button" data-category="단체">단체</button>
+        <button class="tab-button" data-category="남자끼리">남자끼리</button>
+        <button class="tab-button" data-category="여자끼리">여자끼리</button>
+        <button class="tab-button" data-category="남녀함께">남녀함께</button>
+    </div>
+
+
+    <section>
+        <!-- 검색어, 인원필터, 정렬(최신순, 좋아요순) 기준으로 나열된 게시글 리스트 -->
     </section>
+
     <!-- 페이징 처리 -->
     <div id="pagination" class="pagination-controls">
         <button id="prevPage">이전</button>
         <span id="pageInfo">페이지 1 / 1</span>
         <button id="nextPage">다음</button>
     </div>
-</main>
 
-
+</div>
 
 
 

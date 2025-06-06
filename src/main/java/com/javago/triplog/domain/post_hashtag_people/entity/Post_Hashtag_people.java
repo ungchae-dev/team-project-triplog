@@ -40,4 +40,6 @@ public class Post_Hashtag_people {
     @JoinColumn(name = "tag_id", updatable = false, nullable = false)
     private Hashtag_People hashtagPeople;
 
+
+
 }
