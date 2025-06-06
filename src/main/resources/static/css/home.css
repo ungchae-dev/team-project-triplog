@@ -126,20 +126,28 @@ body, html {
     object-fit: cover;
 }
 
-.intro-text, .history, .received-url {
+.intro-text {
+    background: #ffeaea;
+    border: 1px solid #f0c0c0;
+    border-radius: 8px;
+    padding: 15px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #c14d4d;
+    text-align: center;
+    margin-bottom: 12px;
+    line-height: 1.4;
+    min-height: 50px;
+    word-wrap: break-word;
+}
+
+.history, .received-url {
     background: #f7f7f7;
     border-radius: 7px;
     padding: 10px;
     font-size: 13px;
     color: #555;
     margin-bottom: 8px;
-}
-
-.history .edit {
-    margin-left: 8px;
-    color: #206cc1;
-    text-decoration: none;
-    font-size: 12px;
 }
 
 .received-url input {
@@ -336,6 +344,21 @@ body, html {
     line-height: 2;
 }
 
+/* 방명록 카드 인터랙션 개선 */
+#guestbook-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+#guestbook-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px #eedcd9bb;
+}
+
+#guestbook-card:active {
+    transform: translateY(0);
+}
+
 .photo-section-card {
     background: rgba(255, 255, 255, 0.98);
     border: 2px solid #d7bfae;
@@ -386,10 +409,39 @@ body, html {
     border-bottom: 1px solid #e5dac9;
 }
 
+/* 이미지 로드 실패 시 fallback */
+.photo-card .photo::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, #f5f5f5, #e8e8e8);
+    display: none;
+}
+
 .photo-card img {
     max-width: 100%;
     max-height: 100%;
     object-fit: cover;
+    background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+}
+
+.photo-card img[src*="via.placeholder.com"]:before {
+    content: "📷";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #999;
+    width: 100%;
+    height: 100%;
+}
+
+.photo-card img:not([src]),
+.photo-card img[src=""] {
+    display: none;
 }
 
 .photo-card .caption {

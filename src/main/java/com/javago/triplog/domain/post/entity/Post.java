@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 
+import lombok.Setter;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Formula;
 import org.springframework.data.annotation.CreatedDate;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Setter
 @Table(name = "post")
 @Entity
 @Getter
@@ -90,6 +92,9 @@ public class Post {
     // 좋아요수 필드 생성
     @Formula("(SELECT COUNT(*) FROM post_like pl WHERE pl.post_id = post_id)")
     private int likeCount;
+    //댓글수 필드 생성
+    @Formula("(SELECT COUNT(*) FROM COMMENTS c WHERE c.post_id = post_id)")
+    private int commentCount;
 
     // 블로그-게시글
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -124,5 +129,25 @@ public class Post {
         this.viewCount = post.viewCount;
         this.blog = post.blog;
     }
+    //대표 이미지 가져오기
+    public Post_Image getThumbnailImage() {
+        return this.postImage.stream()
+                .filter(img -> "Y".equals(img.getIsThumbnail()))
+                .findFirst()
+                .orElse(null);
+    }
+    //해시태그/인원태그를 분리해서 가져오기 (hashtag로 필터링)
+    public List<Post_Hashtag_people> getHashtags() {
+        return this.postHashtagPeople.stream()
+                .filter(p -> "HASHTAG".equals(p.getHashtagPeople().getTagType()))
+                .toList();
+    }
+    //해시태그/인원태그를 분리해서 가져오기 (인원테그로 필터링)
+    public List<Post_Hashtag_people> getPeopleTags() {
+        return this.postHashtagPeople.stream()
+                .filter(p -> "PEOPLE".equals(p.getHashtagPeople().getTagType()))
+                .toList();
+    }
+
 
 }

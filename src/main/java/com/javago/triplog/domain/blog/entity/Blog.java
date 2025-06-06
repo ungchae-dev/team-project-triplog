@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +22,11 @@ public class Blog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "blog_seq")
-    @SequenceGenerator(name = "blog_seq", sequenceName = "blog_seq", allocationSize = 1)
+    @SequenceGenerator(
+        name = "blog_seq", 
+        sequenceName = "blog_seq", 
+        allocationSize = 1
+    )
     @Column(name = "blog_id", updatable = false)
     private Long blogId;
 
@@ -43,6 +46,7 @@ public class Blog {
     @Column(name = "total_visitors", nullable = false)
     private Long totalVisitors = 0L;
 
+
     // Blog -> Member (1:1)
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", updatable = false, nullable = false)
@@ -51,5 +55,6 @@ public class Blog {
     // Blog -> Post (1:다)
     @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> post = new ArrayList<>();
+
 
 }

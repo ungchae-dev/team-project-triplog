@@ -1,18 +1,62 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>마이로그</title>
-  <link rel="stylesheet" href="/css/mylog.css">
+  <meta charset="UTF-8" />
+  <title>여행 블로그 - 마이로그</title>
+
+  <!-- 블로그 페이지 css 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/shop.css" />
+  <link rel="stylesheet" href="/css/profile.css" />
+  <link rel="stylesheet" href="/css/post.css" />
+  <link rel="stylesheet" href="/css/jukebox.css" />
+  <link rel="stylesheet" href="/css/mylog.css" />
+  <link rel="stylesheet" href="/css/guestbook.css" />
 </head>
 <body>
-<div class="container">
-  <h2>마이로그</h2>
-  <div class="log-content">
-    <p>로그 항목 1: 2025-05-19 작성</p>
-    <p>로그 항목 2: 2025-05-18 작성</p>
-    <p>로그 항목 3: 2025-05-17 작성</p>
+  <div class="frame">
+
+    <!-- 여백 안쪽의 실제 블로그 컨텐츠 컨테이너 -->
+    <div class="blog-container">
+
+      <!-- 왼쪽 프로필 사이드 (컴포넌트로 로드) -->
+      <div id="left-container"></div>
+
+      <!-- 중앙 메인 영역 -->
+      <div class="main-area">
+
+        <!-- 상단 헤더 (컴포넌트로 로드) -->
+        <div id="top-container"></div>
+
+        <!-- 마이로그 컨텐츠 -->
+        <div class="main-content">
+          
+          <div class="log-content">
+            <p>로그 항목 1: 2025-05-19 작성</p>
+            <p>로그 항목 2: 2025-05-18 작성</p>
+            <p>로그 항목 3: 2025-05-17 작성</p>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- 오른쪽 네비게이션 (컴포넌트로 로드) -->
+      <div id="right-container"></div>
+
+    </div>
+
   </div>
-</div>
+
+  <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
+  <script src="/js/layout.js"></script>
+  <script src="/js/home.js"></script>
+  <script src="/js/shop.js"></script>
+  <script src="/js/profile.js"></script>
+  <script src="/js/post.js"></script>
+  <script src="/js/jukebox.js"></script>
+  <script src="/js/mylog.js"></script>
+  <script src="/js/guestbook.js"></script>
+  
 </body>
 </html>
