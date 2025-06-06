@@ -2,6 +2,8 @@ package com.javago.triplog.domain.post.controller;
 
 import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.blog.service.BlogService;
+import com.javago.triplog.domain.comments.dto.CommentDto;
+import com.javago.triplog.domain.comments.entity.Comments;
 import com.javago.triplog.domain.member.entity.CustomUserDetails;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.service.MemberService;
@@ -10,6 +12,10 @@ import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.service.PostService;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -59,12 +65,20 @@ public class PostViewController {
     public String getPost(@PathVariable("nickname") String nickname, @PathVariable("id") Long id, Authentication authentication, Model model) {
         Post post = postService.findById(id);
         CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
+        Boolean exist = postService.existPostLike(id, customUserDetails.getMember().getMemberId());
+        List<CommentDto> commentList = postService.getCommentsByPostId(id);
+        /*
+        if (commentList == null) {
+            commentList = new ArrayList<>();
+        } */
 
         model.addAttribute("post", post);
         model.addAttribute("hashtagList", post.getPostHashtagPeople());
         model.addAttribute("nickname", nickname);
         model.addAttribute("userId", customUserDetails.getMember().getMemberId());
         model.addAttribute("loginNickname", customUserDetails.getMember().getNickname());
+        model.addAttribute("exist", exist);
+        model.addAttribute("commentList", commentList);
         return "post/detail";
     }
 

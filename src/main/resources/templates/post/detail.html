@@ -38,7 +38,7 @@
     </span>
   </div>
 
-  <label>좋아요</label><input type="checkbox" id="postLike"><br>
+  <label>좋아요</label><input type="checkbox" id="postLike" th:checked="${exist}"><br> <!--내일 확인할 것-->
   <div id="likeCount" th:text="${post.postLike.size()}"></div><br>
 
   <button type="button" th:onclick="|location.href='@{/blog/@{nickname}/post(nickname=${nickname})}'|">글 목록</button>
@@ -56,8 +56,104 @@
     <button id="submitComment">등록</button>
 
     <!-- 댓글 리스트 -->
-    <div id="commentList"></div>
+    <div id="commentList">
+      <div th:each="comment : ${commentList}">
+        <div class="comment" th:attr="data-comment-id=${comment.commentId}">
+          <span th:text="${comment.nickname}"></span>:
+          <span th:text="${comment.content}"></span>
+          
+          <!-- 대댓글 버튼 -->
+          <button class="reply-btn">답글</button>
+          <!-- 댓글 내 -->
+          <button class="delete-comment-btn">삭제</button>
+
+
+          <!-- 대댓글 입력창 (초기엔 숨김) -->
+          <div class="reply-form" style="display:none;">
+            <input type="text" class="reply-content" placeholder="답글을 입력하세요" />
+            <select class="reply-is_secret">
+              <option value="Y">전체 공개</option>
+              <option value="N">비공개</option>
+            </select>
+            <button class="submit-reply">등록</button>
+          </div>
+        </div>
+
+    <!-- 대댓글 출력 -->
+        <div th:if="${comment.commentList != null}">
+          <div th:each="child : ${comment.commentList}" style="margin-left: 20px;">
+            <div class="comment" th:attr="data-comment-id=${child.commentId}">
+              <span th:text="${child.nickname}"></span>:
+              <span th:text="${child.content}"></span>
+
+              <!-- 대댓글 버튼 -->
+              <button class="reply-btn">답글</button>
+              <button class="delete-comment-btn">삭제</button>
+
+              <!-- 대댓글 입력창 (초기엔 숨김) -->
+              <div class="reply-form" style="display:none;">
+                <input type="text" class="reply-content" placeholder="답글을 입력하세요" />
+                <select class="reply-is_secret">
+                  <option value="Y">전체 공개</option>
+                  <option value="N">비공개</option>
+                </select>
+                <button class="submit-reply">등록</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
+<!--
+  <label>댓글</label>
+  <div>
+    <span id="username" th:text="${loginNickname}"></span>
+    <input type="text" id="commentInput" placeholder="댓글을 입력하세요" />
+    <select id="is_secret">
+      <option value="Y">전체 공개</option>
+      <option value="N">비공개</option>
+    </select>
+    <button id="submitComment">등록</button>-->
+
+    <!-- 댓글 리스트 --><!--
+    <div id="commentList">
+      <div th:each="comment : ${commentList}" th:if="${commentList != null}">-->
+        <!-- 댓글 + 자식댓글 재귀 출력 --><!--
+        <div th:if="${comment != null}" th:replace="~{this :: commentFragment(comment, 0)}"></div>
+      </div>
+    </div>
+  </div>-->
+
+  <!-- 댓글 1개 및 자식 댓글 재귀 렌더링 fragment --><!--
+  <div th:fragment="commentFragment(comment, level)" 
+      th:with="indent=${(level != null ? level : 0) * 20}" 
+      th:style="'margin-left: ' + ${indent} + 'px; border:1px solid #ccc; padding:5px; margin-bottom:5px;'">
+    <div class="comment">
+      <span><strong th:text="${comment.nickname}">닉네임</strong>:</span>
+      <span th:text="${comment.content}">댓글 내용</span>
+      <button class="reply-btn">답글</button>
+      <button class="delete-comment-btn">삭제</button>-->
+
+      <!-- 대댓글 입력창 (초기엔 숨김) --><!--
+      <div class="reply-form" style="display:none;">
+        <input type="text" class="reply-content" placeholder="답글을 입력하세요" />
+        <select class="reply-is_secret">
+          <option value="Y">전체 공개</option>
+          <option value="N">비공개</option>
+        </select>
+        <button class="submit-reply">등록</button>
+      </div>
+    </div>-->
+
+    <!-- 자식 댓글이 있으면 재귀 호출 --><!--
+    <div th:if="${comment.commentList != null}">
+      <div th:each="childComment : ${comment.commentList}">
+        <div th:if="${comment != null}" th:replace="~{this :: commentFragment(childComment, ${level} + 1)}"></div>
+      </div>
+    </div>
+  </div>-->
 
   <script>
     const id = document.getElementById('post_id').dataset.postId;
@@ -110,69 +206,154 @@
       }
     });
 
-    /*
-    // 댓글 등록 함수
+    // 댓글 등록 함수 (수정 버튼 이벤트 제거)
     function addCommentToList(comment) {
-      const commentDiv = document.createElement('div');
-      commentDiv.classList.add('comment');
-      commentDiv.dataset.commentId = comment.id;
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('comment');
+      wrapper.dataset.commentId = comment.commentId;
 
-      commentDiv.innerHTML = `
-                <strong>${comment.username}</strong>:
-                <span class="comment-content">${comment.content}</span>
-                <button class="edit-btn">수정</button>
-            `;
+      wrapper.innerHTML = `
+        <strong>${comment.nickname}</strong>:
+        <span class="comment-content">${comment.content}</span>
+        <button class="edit-btn">수정</button>
+        <button class="delete-comment-btn">삭제</button>
+        <button class="reply-btn">답글</button>
 
-      // 수정 버튼 이벤트 추가
-      commentDiv.querySelector('.edit-btn').addEventListener('click', () => {
+        <div class="reply-form" style="display:none;">
+          <input type="text" class="reply-content" placeholder="답글을 입력하세요" />
+          <select class="reply-is_secret">
+            <option value="Y">전체 공개</option>
+            <option value="N">비공개</option>
+          </select>
+          <button class="submit-reply">등록</button>
+        </div>
+      `;
+
+      document.getElementById('commentList').appendChild(wrapper);
+    }
+
+    // 댓글 리스트 컨테이너
+    const commentList = document.getElementById('commentList');
+
+    commentList.addEventListener('click', (event) => {
+      const target = event.target;
+      const commentDiv = target.closest('.comment');
+      if (!commentDiv) return; // 댓글 영역이 아니면 무시
+      const commentId = commentDiv.dataset.commentId;
+
+      // 수정 버튼 클릭
+      if (target.classList.contains('edit-btn')) {
         const contentSpan = commentDiv.querySelector('.comment-content');
         const currentContent = contentSpan.textContent;
 
-        // 수정 input, 저장 버튼 생성
         contentSpan.innerHTML = `
-                    <input type="text" class="edit-input" value="${currentContent}" />
-                    <button class="save-btn">저장</button>
-                    <button class="cancel-btn">취소</button>
-                `;
+          <input type="text" class="edit-input" value="${currentContent}" />
+          <select class="edit-is_secret">
+            <option value="Y">전체 공개</option>
+            <option value="N">비공개</option>
+          </select>
+          <button class="save-btn">저장</button>
+          <button class="cancel-btn">취소</button>
+        `;
 
-        // 저장 버튼 클릭 시 서버에 수정 요청
-        commentDiv.querySelector('.save-btn').addEventListener('click', () => {
-          const newContent = commentDiv.querySelector('.edit-input').value.trim();
+        // 저장 버튼 클릭 이벤트 (한 번만 붙임)
+        contentSpan.querySelector('.save-btn').addEventListener('click', () => {
+          const newContent = contentSpan.querySelector('.edit-input').value.trim();
+          const is_secret = contentSpan.querySelector('.edit-is_secret').value;
+
           if (!newContent) {
             alert('댓글 내용을 입력해주세요.');
             return;
           }
 
-          fetch(`/api/${id}/comment/update}`, {
+          fetch(`/api/${commentId}/comment/update`, {
             method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ content: newContent })
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({content: newContent, is_secret: is_secret})
           })
-                  .then(res => {
-                    if (!res.ok) throw new Error('댓글 수정 실패');
-                    return res.json();
-                  })
-                  .then(updatedComment => {
-                    contentSpan.textContent = updatedComment.content;
-                  })
-                  .catch(err => alert(err.message));
+          .then(res => {
+            if (!res.ok) throw new Error('댓글 수정 실패');
+            return res.json();
+          })
+          .then(updatedComment => {
+            contentSpan.textContent = updatedComment.content;
+          })
+          .catch(err => alert(err.message));
         });
 
-        // 취소 버튼 클릭 시 원래 내용 복구
-        commentDiv.querySelector('.cancel-btn').addEventListener('click', () => {
+        // 취소 버튼 클릭 이벤트
+        contentSpan.querySelector('.cancel-btn').addEventListener('click', () => {
           contentSpan.textContent = currentContent;
         });
-      });
+      }
 
-      document.getElementById('commentList').appendChild(commentDiv);
-    }
+      // 삭제 버튼 클릭
+      if (target.classList.contains('delete-comment-btn')) {
+        if (!commentId) {
+          alert("댓글 ID를 찾을 수 없습니다.");
+          return;
+        }
+        const confirmDelete = confirm("이 댓글을 삭제하시겠습니까?");
+        if (!confirmDelete) return;
 
-    // 등록 버튼 이벤트
+        fetch(`/api/${commentId}/comment`, {
+          method: 'DELETE'
+        })
+        .then(res => {
+          if (!res.ok) throw new Error('댓글 삭제 실패');
+          return res.text();
+        })
+        .then(msg => {
+          alert(msg);
+          commentDiv.remove();
+
+          // 자식 댓글도 삭제
+          document.querySelectorAll(`.comment[data-parent-id='${commentId}']`).forEach(child => child.remove());
+        })
+        .catch(err => alert(err.message));
+      }
+
+      // 답글 버튼 클릭 (답글 폼 토글)
+      if (target.classList.contains('reply-btn')) {
+        const replyForm = commentDiv.querySelector('.reply-form');
+        replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+      }
+
+      // 대댓글 등록 버튼 클릭
+      if (target.classList.contains('submit-reply')) {
+        const content = commentDiv.querySelector('.reply-content').value.trim();
+        const isSecret = commentDiv.querySelector('.reply-is_secret').value;
+
+        if (!content) {
+          alert('답글 내용을 입력해주세요.');
+          return;
+        }
+
+        fetch(`/api/${id}/comment`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            userId: userId,
+            content: content,
+            postId: id,
+            isSecret: isSecret,
+            parentComment: commentId
+          })
+        })
+        .then(res => {
+          if (!res.ok) throw new Error('대댓글 등록 실패');
+          return res.json();
+        })
+        .then(data => {
+          location.reload(); // 필요하면 동적 렌더링으로 바꾸세요
+        })
+        .catch(err => alert(err.message));
+      }
+    });
+
+    // 댓글 등록 버튼 (기존 코드 유지)
     document.getElementById('submitComment').addEventListener('click', function () {
-      const username = document.getElementById('username').value.trim();
-      const content = document.getElementById('commentInput').value;
+      const content = document.getElementById('commentInput').value.trim();
       const isSecret = document.getElementById('is_secret').value;
 
       if (!content) {
@@ -184,24 +365,23 @@
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          // 확인용 멤버ID 설정
-          userId: "user1",
+          userId: userId,
           content: content,
-          postId: /*[[${post.postId}]]*/ 0/*
+          postId: id,
           isSecret: isSecret
         })
-      }
+      })
       .then(res => {
         if (!res.ok) throw new Error('댓글 등록 실패');
         return res.json();
       })
       .then(data => {
         addCommentToList(data);
-        document.getElementById('username').value = '';
         document.getElementById('commentInput').value = '';
       })
-      .catch(err => alert(err.message)))
-    });*/
+      .catch(err => alert(err.message));
+    });
+
   </script>
 </body>
 </html>

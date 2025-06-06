@@ -12,6 +12,7 @@ import com.javago.constant.Role;
 import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.member.dto.MemberFormDto;
 import com.javago.triplog.domain.member_item.entity.MemberItem;
+import com.javago.triplog.domain.post_like.entity.Post_Like;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -94,6 +95,10 @@ public class Member {
     // Member -> MemberItem (1:다)
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<MemberItem> memberItems = new ArrayList<>();
+
+    // Member -> Post_Like (1:다)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Post_Like> postLike = new ArrayList<>();
 
     // 생성 직전 기본값 세팅 (joinDate, acorn)
     @PrePersist
