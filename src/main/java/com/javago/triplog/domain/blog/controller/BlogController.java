@@ -62,14 +62,18 @@ public class BlogController {
 
             // 디코딩된 닉네임으로 사용자 찾기
             Member blogOwner = memberService.findByNickname(decodedNickname);
-            model.addAttribute("blogOwner", blogOwner);
+            Blog blog = blogService.findByMember(blogOwner);
 
-            // 타이틀용 닉네임 추가
+            model.addAttribute("blogOwner", blogOwner);
             model.addAttribute("blogTitle", decodedNickname + "님의 블로그");
+
+            // 스킨 정보
+            model.addAttribute("skinActive", blog.getSkinActive().name());
+            model.addAttribute("skinImage", blog.getSkinImage() != null ? blog.getSkinImage() : "/images/skins/triplog_skin_default.png");
+            model.addAttribute("blogNickname", decodedNickname); // JavaScript용 닉네임
 
             // 방문자 수 증가 (본인 블로그가 아닌 경우만)
             if (authentication == null || !authentication.getName().equals(blogOwner.getMemberId())) {
-                Blog blog = blogService.findByMember(blogOwner);
                 blogService.incrementVisitors(blog);
             }
 
@@ -88,7 +92,14 @@ public class BlogController {
             // URL 디코딩 처리
             String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
             Member blogOwner = memberService.findByNickname(decodedNickname);
+            Blog blog = blogService.findByMember(blogOwner);
+
             model.addAttribute("blogOwner", blogOwner);
+            // 스킨 정보
+            model.addAttribute("skinActive", blog.getSkinActive().name());
+            model.addAttribute("skinImage", blog.getSkinImage() != null ? blog.getSkinImage() : "/images/skins/triplog_skin_default.png");
+            model.addAttribute("blogNickname", decodedNickname); // JavaScript용 닉네임
+
             return "blog/shop";
         } catch (Exception e) {
             System.out.println("상점 로드 실패:" + e.getMessage());
@@ -102,7 +113,14 @@ public class BlogController {
         try {
             String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
             Member blogOwner = memberService.findByNickname(decodedNickname);
+            Blog blog = blogService.findByMember(blogOwner);
+
             model.addAttribute("blogOwner", blogOwner);
+            // 스킨 정보
+            model.addAttribute("skinActive", blog.getSkinActive().name());
+            model.addAttribute("skinImage", blog.getSkinImage() != null ? blog.getSkinImage() : "/images/skins/triplog_skin_default.png");
+            model.addAttribute("blogNickname", decodedNickname); // JavaScript용 닉네임
+            
             return "blog/profile";
         } catch (Exception e) {
             System.err.println("프로필 로드 실패: " + e.getMessage());
@@ -118,7 +136,14 @@ public class BlogController {
         try {
             String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
             Member blogOwner = memberService.findByNickname(decodedNickname);
+            Blog blog = blogService.findByMember(blogOwner);
+
             model.addAttribute("blogOwner", blogOwner);
+            // 스킨 정보
+            model.addAttribute("skinActive", blog.getSkinActive().name());
+            model.addAttribute("skinImage", blog.getSkinImage() != null ? blog.getSkinImage() : "/images/skins/triplog_skin_default.png");
+            model.addAttribute("blogNickname", decodedNickname); // JavaScript용 닉네임
+            
             return "blog/jukebox";
         } catch (Exception e) {
             System.err.println("주크박스 로드 실패: " + e.getMessage());
@@ -132,7 +157,14 @@ public class BlogController {
         try {
             String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
             Member blogOwner = memberService.findByNickname(decodedNickname);
+            Blog blog = blogService.findByMember(blogOwner);
+
             model.addAttribute("blogOwner", blogOwner);
+            // 스킨 정보
+            model.addAttribute("skinActive", blog.getSkinActive().name());
+            model.addAttribute("skinImage", blog.getSkinImage() != null ? blog.getSkinImage() : "/images/skins/triplog_skin_default.png");
+            model.addAttribute("blogNickname", decodedNickname); // JavaScript용 닉네임
+            
             return "blog/mylog";
         } catch (Exception e) {
             System.err.println("마이로그 로드 실패: " + e.getMessage());
@@ -146,7 +178,14 @@ public class BlogController {
         try {
             String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
             Member blogOwner = memberService.findByNickname(decodedNickname);
+            Blog blog = blogService.findByMember(blogOwner);
+
             model.addAttribute("blogOwner", blogOwner);
+            // 스킨 정보
+            model.addAttribute("skinActive", blog.getSkinActive().name());
+            model.addAttribute("skinImage", blog.getSkinImage() != null ? blog.getSkinImage() : "/images/skins/triplog_skin_default.png");
+            model.addAttribute("blogNickname", decodedNickname); // JavaScript용 닉네임
+            
             return "blog/guestbook";
         } catch (Exception e) {
             System.err.println("방명록 로드 실패: " + e.getMessage());
