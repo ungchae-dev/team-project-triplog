@@ -46,7 +46,6 @@ public class Blog {
     @Column(name = "total_visitors", nullable = false)
     private Long totalVisitors = 0L;
 
-
     // Blog -> Member (1:1)
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", updatable = false, nullable = false)
@@ -56,5 +55,32 @@ public class Blog {
     @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> post = new ArrayList<>();
 
+    // @PrePersist 메서드
+    @PrePersist
+    public void prePersist() {
+        // 스킨 활성화 기본값 설정
+        if (skinActive == null) {
+            skinActive = SkinActive.N;
+        }
+
+        // 스킨 이미지 기본값 설정
+        if (skinImage == null || skinImage.isEmpty()) {
+            skinImage = "/images/skins/triplog_skin_default.png"; // 기본 이미지로 설정
+        }
+
+        // 방문자 수 기본값 설정
+        if (dailyVisitors == null) {
+            dailyVisitors = 0L;
+        }
+        if (totalVisitors == null) {
+            totalVisitors = 0L;
+        }
+
+        // 상태메시지 기본값 설정
+        if (conditionMessage == null || conditionMessage.isEmpty()) {
+            conditionMessage = "안녕하세요~ 블로그에 오신 걸 환영합니다♥";
+        }
+
+    }
 
 }
