@@ -30,68 +30,104 @@
 
         <!-- 프로필 컨텐츠 작성 -->
         <div class="main-content">
-          <!-- 탭 메뉴 (프로필 정보/구매내역/프로필 변경) -->
+          <!-- 탭 메뉴 (구매내역/개인정보 수정) -->
           <div class="shop-header">
             <div class="shop-inner-tab-list">
-              <button id="btn-info" class="shop-inner-tab active">프로필 정보</button>
-              <button id="btn-inventory" class="shop-inner-tab">구매내역/보유내역</button>
-              <button id="btn-edit" class="shop-inner-tab">프로필 변경</button>
+              <button id="btn-inventory" class="shop-inner-tab active">구매/보유내역</button>
+              <button id="btn-edit" class="shop-inner-tab">개인정보 조회/수정</button>
             </div>
           </div>
 
-          <!-- [1] 프로필 정보 (기본 탭) -->
-          <div class="shop-tab-content profile-info-tab active">
-            <div class="profile-info-card">
-              <div class="profile-info-img-wrapper">
-                <img id="main-profile-img" src="https://via.placeholder.com/120" alt="프로필 사진">
+          <!-- [1] 구매/보유내역 (기본 탭) -->
+          <div class="shop-tab-content profile-inventory-tab active">
+            <div class="section-title">구매/보유내역</div>
+            
+            <!-- 스킨 설정 섹션 추가 -->
+            <div class="inventory-section skin-section">
+              <h3 class="inventory-section-title">🎨 내 스킨 설정</h3>
+              <div class="skin-controls">
+                <div class="current-skin-preview">
+                  <img id="current-skin-preview" src="/images/skins/triplog_skin_default.png" alt="현재 스킨" />
+                  <p>스킨 미리보기</p>
+                </div>
+                <div class="skin-upload-section">
+                  <label for="skin-upload" class="skin-upload-label">
+                    📁 스킨 이미지 업로드
+                  </label>
+                  <input type="file" id="skin-upload" accept="image/*" />
+                  <button id="apply-skin-btn" class="buy-btn">스킨 적용</button>
+                  <button id="remove-skin-btn" class="buy-btn secondary">기본 스킨으로</button>
+                </div>
               </div>
-              <div class="profile-nickname" id="main-nickname">shubi3024</div>
-              <ul class="profile-meta">
-                <li><span class="meta-label">성별</span> <span class="meta-value">남성</span></li>
-                <li><span class="meta-label">가입일</span> <span class="meta-value" id="main-joindate">2025-01-01</span></li>
+            </div>
+
+            <!-- 기존 구매내역 -->
+            <div class="inventory-section">
+              <h3 class="inventory-section-title">📦 구매/보유내역</h3>
+              <ul class="inventory-list">
+                <li><strong>보유 도토리:</strong> <span id="user-acorn-balance">120</span> </li>
+                <li><strong>보유 이모티콘:</strong> 😺😎😂</li>
+                <li><strong>보유 음악:</strong> Younha – 사건의 지평선, Sweetbox – Life Is Cool</li>
               </ul>
-              <div class="profile-bio-wrapper">
-                <div class="bio-label">자기소개</div>
-                <div class="bio-content" id="main-bio">여행을 사랑하는 블로거입니다.</div>
-              </div>
             </div>
           </div>
 
-          <!-- [2] 구매내역/보유내역 -->
-          <div class="shop-tab-content profile-inventory-tab" style="display:none;">
-            <div class="section-title">구매내역/보유내역</div>
-            <div style="display:flex;align-items:flex-start;gap:32px;">
-              <ul style="list-style:none; padding:0; margin:0;font-size:17px;">
-                <li style="margin-bottom:18px;"><strong>구매한 이모티콘:</strong> 😺😎😂</li>
-                <li style="margin-bottom:18px;"><strong>보유 음악:</strong> Younha – 사건의 지평선, Sweetbox – Life Is Cool</li>
-                <li style="margin-bottom:18px;"><strong>도토리 잔액:</strong> 120개</li>
-                <li style="margin-bottom:10px;"><strong>마지막 구매일:</strong> 2025-05-30</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- [3] 프로필 변경 (비밀번호 수정 포함) -->
-          <div class="shop-tab-content profile-edit-tab" style="display:none;">
-            <div class="section-title">프로필 변경</div>
-            <form id="profile-edit-form" autocomplete="off">
-              <label for="edit-nickname">닉네임</label>
-              <input id="edit-nickname" type="text" placeholder="닉네임을 입력하세요" maxlength="12" style="width:60%;margin-bottom:10px;" />
-
-              <label for="edit-bio">자기소개</label>
-              <textarea id="edit-bio" rows="4" placeholder="자기소개를 입력하세요" maxlength="100" style="width:90%;margin-bottom:10px;"></textarea>
-
-              <label for="edit-photo">프로필 사진 변경</label>
-              <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
-                <img id="edit-preview-img" src="https://via.placeholder.com/80" alt="프로필 미리보기" style="border-radius:10px;border:1px solid #ccc;width:80px;height:80px;">
-                <input type="file" id="edit-photo" accept="image/*" style="flex:1;" />
+          <!-- [2] 개인정보 조회/수정 -->
+          <div class="shop-tab-content profile-edit-tab">
+            <div class="section-title">개인정보 조회/수정</div>
+            
+            <!-- 현재 정보 조회 섹션 -->
+            <div class="current-info-section">
+              <h3 class="info-section-title">zzzzz 정보</h3>
+              <div class="current-info-display">
+                <div class="info-row">
+                  <span class="info-label">프로필 사진:</span>
+                  <img id="current-profile-img" src="https://via.placeholder.com/80" alt="현재 프로필" />
+                </div>
+                <div class="info-row">
+                  <span class="info-label">닉네임:</span>
+                  <span class="info-value" id="current-nickname">사용자</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">성별:</span>
+                  <span class="info-value" id="current-gender">-</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">가입일:</span>
+                  <span class="info-value" id="current-joindate">-</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">상태메시지:</span>
+                  <span class="info-value" id="current-bio">-</span>
+                </div>
               </div>
+            </div>
 
-              <label for="edit-password">비밀번호 변경</label>
-              <input id="edit-password-old" type="password" placeholder="현재 비밀번호" style="width:50%;margin-bottom:8px;" />
-              <input id="edit-password-new" type="password" placeholder="새 비밀번호" style="width:50%;margin-bottom:18px;" />
+            <!-- 개인정보 수정 폼 -->
+            <div class="edit-info-section">
+              <h3 class="info-section-title">정보 수정</h3>
+              <form id="profile-edit-form" autocomplete="off">
+                <label for="edit-nickname">닉네임</label>
+                <input id="edit-nickname" type="text" placeholder="닉네임을 입력하세요" maxlength="12" />
 
-              <button type="submit" class="buy-btn" style="width:140px;">저장</button>
-            </form>
+                <label for="edit-bio">상태메시지</label>
+                <textarea id="edit-bio" rows="4" placeholder="상태메시지를 입력하세요" maxlength="100"></textarea>
+
+                <label for="edit-photo">프로필 사진 변경</label>
+                <div class="photo-upload-section">
+                  <img id="edit-preview-img" src="https://via.placeholder.com/80" alt="프로필 미리보기" />
+                  <input type="file" id="edit-photo" accept="image/*" />
+                </div>
+
+                <label for="edit-password">비밀번호 변경</label>
+                <div class="password-section">
+                  <input id="edit-password-old" type="password" placeholder="현재 비밀번호" />
+                  <input id="edit-password-new" type="password" placeholder="새 비밀번호" />
+                </div>
+
+                <button type="submit" class="buy-btn save-btn">저장</button>
+              </form>
+            </div>
           </div>
         </div>
 
