@@ -57,6 +57,8 @@ public class SecurityConfig {
                 "/blog/@*/", // 블로그 홈
                 "/blog/@*/guestbook", // 블로그 방명록
                 "/blog/api/@*/skin", // 스킨 API (읽기)
+                "/api/charge/**", 
+                "/api/music",
                 "/music/**", // 음악 테스트 페이지
                 "/emoticon/**",
                 "/api/emoticon/**", // 선택한 이모티콘 패키지 조회 API
