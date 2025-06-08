@@ -122,6 +122,11 @@ function activatePostUI() {
     });
 
     showBoardList();
+
+    // 공통 스킨 로드
+    if (typeof window.maintainDefaultSkinForInactiveUsers === 'function') {
+        window.maintainDefaultSkinForInactiveUsers();
+    }
 }
 
 window.addEventListener('DOMContentLoaded', activatePostUI);
@@ -140,8 +145,10 @@ async function loadBlogSkin() {
             if (skinData.skinActive === 'Y' && skinData.skinImage) {
                 applySkin(skinData.skinImage);
             } else {
-                removeSkin();
+                console.log('스킨이 비활성화되어 있음 - layout.js가 기본 스킨 처리');
             }
+        } else {
+            console.log('스킨 정보를 가져올 수 없습니다:', response.status);
         }
     } catch (error) {
         console.error('스킨 로드 중 오류:', error);
@@ -176,4 +183,5 @@ function removeSkin() {
 
 // 전역으로 노출
 window.loadBlogSkin = loadBlogSkin;
+window.setupPostFeatures = activatePostUI; // SPA 네비게이션 지원 (스킨)
 // === 스킨 로드 함수 끝 ===

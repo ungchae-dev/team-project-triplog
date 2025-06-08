@@ -1,19 +1,19 @@
 // layout.js - 공통 레이아웃 및 네비게이션 관리
 
+// === 전역 변수 ===
+let cachedSkinInfo = null; // 스킨 정보 캐시
+let skinInfoloaded = false; // 스킨 정보 로드 완료 여부
+
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('=== Layout 초기화 시작 ===');
     
-    // 1. 컴포넌트 로드
-    await loadLayoutComponents();
-    
-    // 2. 네비게이션 즉시 설정 (컴포넌트 로드 완료 후)
-    setupNavigation();
-    
-    // 3. 페이지별 제목 자동 설정
-    setPageTitleByUrl();
-    
-    // 4. 음악 위젯 이벤트
-    setupMusicWidget();
+    await loadLayoutComponents(); // 1. 컴포넌트 로드
+    setupNavigation(); // 2. 네비게이션 즉시 설정 (컴포넌트 로드 완료 후)
+    setPageTitleByUrl(); // 3. 페이지별 제목 자동 설정
+    setupMusicWidget(); // 4. 음악 위젯 이벤트
+
+    // 스킨 정보 미리 캐싱 (최초 로드시)
+    await maintainDefaultSkinForInactiveUsers(); // 5. 즉시 스킨 유지 + 캐싱
     
     console.log('=== Layout 초기화 완료 ===');
 });
@@ -48,7 +48,7 @@ async function loadComponent(containerId, componentPath) {
     }
 }
 
-// 공통 레이아웃 컴포넌트들 로드
+// 공통 레이아웃 컴포넌트들(home_left, home_top, home_right) 로드
 async function loadLayoutComponents() {
     try {
         // 병렬 로드로 더 빠르게
@@ -81,10 +81,61 @@ function setupNavigation() {
             });
         });
         console.log('모든 네비게이션 이벤트 설정 완료');
+        return; // 성공 시 즉시 종료
+    }
+
+    // 버튼이 없는 경우 - MutationObserver 사용 (즉시 반응)
+    console.log('네비게이션 버튼을 찾을 수 없음 - 옵저버 설정');
+    setupNavigationObserver();
+}
+
+// 네비게이션 옵저버 설정 (즉시 반응)
+function setupNavigationObserver() {
+    const observer = new MutationObserver((mutations) => {
+        // DOM 변경이 있을 때마다 즉시 확인
+        const navBtns = document.querySelectorAll('.nav-btn');
+
+        if (navBtns.length > 0) {
+            console.log('옵저버가 네비게이션 버튼 발견:', navBtns.length);
+
+            navBtns.forEach(btn => {
+                const page = btn.getAttribute('data-page');
+
+                // 이미 이벤트가 설정된 버튼인지 확인
+                if (!btn.hasAttribute('data-event-set')) {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        console.log('버튼 클릭됨:', page);
+                        navigateToPage(page);
+                    });
+
+                    // 이벤트 설정 완료 표시
+                    btn.setAttribute('data-event-set', 'true');
+                    console.log(`옵저버로 버튼 이벤트 설정: ${page}`);
+                }
+            });
+
+            console.log('옵저버로 모든 네비게이션 이벤트 설정 완료');
+            observer.disconnect(); // 작업 완료 후 옵저버 해제
+        }
+    });
+
+    // right-container 감시 (네비게이션 버튼이 들어가는 곳)
+    const rightContainer = document.getElementById('right-container');
+
+    if (rightContainer) {
+        observer.observe(rightContainer, {
+            childList: true, 
+            subtree: true
+        });
+        console.log('네비게이션 옵저버 시작 - right-container 감시');
     } else {
-        console.log('네비게이션 버튼을 찾을 수 없습니다! 재시도 중...');
-        // 컴포넌트가 아직 로드되지 않은 경우 최소한의 재시도
-        setTimeout(setupNavigation, 100); // 100ms 후 1회만 재시도
+        // right-container도 없으면 전체 body 감시
+        observer.observe(document.body, {
+            childList: true, 
+            subtree: true
+        });
+        console.log('네비게이션 옵저버 시작 - body 감시');
     }
 }
 
@@ -102,6 +153,154 @@ function getCurrentNickname() {
     return null;
 }
 
+// === 스킨 비활성화 회원만을 위한 기본 스킨 유지 함수 ===
+async function maintainDefaultSkinForInactiveUsers() {
+    const nickname = getCurrentNickname();
+    if (!nickname) return;
+
+    // 캐시된 스킨 정보가 있으면 즉시 적용
+    if (cachedSkinInfo) {
+        console.log('캐시된 스킨 정보 사용:', cachedSkinInfo);
+        applyCachedSkin();
+        return;
+    }
+    
+    // 1. 즉시 기본 스킨 적용 (캐시가 없을 때만)
+    if (!skinInfoloaded) {
+        applyDefaultSkinOnly();
+    }
+
+    // 2. API로 실제 상태 확인 후 조정 및 캐싱
+    try {
+        const encodedNickname = encodeURIComponent(nickname);
+        const response = await fetch(`/blog/api/@${encodedNickname}/skin`);
+
+        if (response.ok) {
+            const skinData = await response.json();
+            console.log('스킨 상태 확인:', skinData);
+
+            // 스킨 정보 캐싱
+            cachedSkinInfo = skinData;
+            skinInfoloaded = true;
+
+            applyCachedSkin();
+        } 
+    } catch (error) {
+        console.error('스킨 상태 확인 중 오류:', error);
+        // 오류 시에도 기본 스킨은 이미 적용되어 있음
+    }
+}
+
+// 캐시된 스킨 정보로 스킨 적용
+function applyCachedSkin() {
+    const frame = document.querySelector('.frame');
+    
+    // frame 요소가 없으면 함수 종료 (에러 방지)
+    if (!frame) {
+        console.warn('frame 요소를 찾을 수 없습니다. 스킨 적용을 건너뜁니다.');
+        return;
+    };
+    console.log('applyCachedSkin 실행 - 캐시 정보:', cachedSkinInfo);
+
+    if (cachedSkinInfo.skinActive === 'Y' && cachedSkinInfo.skinImage) {
+        // 스킨 활성화 회원 - 커스텀 스킨 적용
+        console.log('커스텀 스킨 적용 시도:', cachedSkinInfo.skinImage);
+
+        frame.style.backgroundImage = `url("${cachedSkinInfo.skinImage}")`;
+        frame.style.backgroundSize = 'cover';
+        frame.style.backgroundPosition = 'center';
+        frame.style.backgroundRepeat = 'no-repeat';
+        frame.classList.add('has-skin', 'skin-loaded');
+
+        console.log('캐시된 커스텀 스킨 적용:', cachedSkinInfo.skinImage);
+    } else {
+        // 스킨 비활성화 회원 - 기본 스킨 적용
+        console.log('기본 스킨 적용');
+        applyDefaultSkinOnly();
+    }
+};
+
+// 캐시 강제 업데이트 함수
+// 프로필에서 스킨 변경 후 호출할 함수
+window.updateSkinCache = async function(newSkinInfo) {
+    console.log('스킨 캐시 강제 업데이트:', newSkinInfo);
+
+    if (newSkinInfo) {
+        // 새로운 스킨 정보로 캐시 직접 업데이트
+        cachedSkinInfo = {
+            skinActive: newSkinInfo.skinActive || 'Y', 
+            skinImage: newSkinInfo.skinImage
+        };
+
+        console.log('캐시 업데이트 완료:', cachedSkinInfo);
+
+        // 즉시 스킨 적용
+        applyCachedSkin();
+    } else {
+        // 새로운 정보가 없으면 API로 최신 정보 가져오기
+        await forceRefreshSkinCache();
+    }
+}
+
+// 캐시 강제 새로고침 함수
+window.forceRefreshSkinCache = async function() {
+    console.log('스킨 캐시 강제 새로고침 시작');
+
+    const nickname = getCurrentNickname();
+    if (!nickname) return;
+
+    try {
+        // 기존 캐시 무효화
+        cachedSkinInfo = null;
+        skinInfoloaded = false;
+
+        console.log('기존 캐시 무효화 완료');
+
+        // 최신 스킨 정보 가져오기
+        const encodedNickname = encodeURIComponent(nickname);
+        const response = await fetch(`/blog/api/@${encodedNickname}/skin?t=${Date.now()}`); // 캐시 방지용 타임스탬프
+
+        if (response.ok) {
+            const skinData = await response.json();
+            console.log('최신 스킨 정보 로드:', skinData);
+
+            // 새로운 정보로 캐시 업데이트
+            cachedSkinInfo = skinData;
+            skinInfoloaded = true;
+
+            // 즉시 적용
+            applyCachedSkin();
+
+            console.log('스킨 캐시 새로고침 완료');
+        } else {
+            console.error('스킨 정보 로드 실패:', response.status);
+        }
+    } catch (error) {
+        console.error('스킨 캐시 새로고침 중 오류:', error);
+    }
+}
+
+// 캐시 무효화 함수
+window.invalidateSkinCache = function() {
+    console.log('스킨 캐시 무효화');
+    cachedSkinInfo = null;
+    skinInfoloaded = false;
+}
+
+// === 기본 스킨만 적용 (스킨 비활성화 회원용) ===
+function applyDefaultSkinOnly() {
+    const frame = document.querySelector('.frame');
+    if (frame) {
+        frame.style.backgroundImage = 'url("/images/skins/triplog_skin_default.png")';
+        frame.style.backgroundSize = 'cover';
+        frame.style.backgroundPosition = 'center';
+        frame.style.backgroundRepeat = 'no-repeat';
+        frame.classList.remove('has-skin'); // 커스텀 스킨 클래스 제거
+        frame.classList.add('skin-loaded');
+        console.log('기본 스킨 적용 완료 (스킨 비활성화 회원용)');
+    }
+}
+
 // 페이지 네비게이션 함수 (즉시 반응)
 function navigateToPage(page) {
     const currentNickname = getCurrentNickname();
@@ -110,12 +309,22 @@ function navigateToPage(page) {
         window.location.href = '/member/login';
         return;
     }
-
     console.log(`즉시 페이지 이동 시작: ${page}`);
 
     // 즉시 UI 업데이트 (지연 없음)
     setActiveNavButton(page);
     setPageTitleImmediately(page);
+
+    // 캐시 상태 체크 후 스킨 적용
+    requestAnimationFrame(() => {
+        if (cachedSkinInfo) {
+            console.log('캐시된 스킨 정보 사용:', cachedSkinInfo);
+            applyCachedSkin(); // 캐시된 정보로 즉시 적용
+        } else {
+            console.log('캐시가 없어서 스킨 정보 로드');
+            maintainDefaultSkinForInactiveUsers(); // 최초 로드시만 API 호출
+        }
+    });
 
     // 페이지 내용 로드
     loadPageContent(page, currentNickname);
@@ -230,7 +439,7 @@ function setPageTitleByUrl() {
     }
     pageTitle = pageTitle || '홈';
 
-    // 즉시 설정 (setTimeout 제거)
+    // 즉시 설정
     setPageTitle(pageTitle);
 }
 
@@ -325,3 +534,6 @@ window.addEventListener('popstate', (event) => {
 });
 
 console.log('layout.js 로드 완료 - 즉시 반응 모드');
+
+// 전역 함수로 노출
+window.maintainDefaultSkinForInactiveUsers = maintainDefaultSkinForInactiveUsers;

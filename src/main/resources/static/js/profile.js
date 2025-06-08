@@ -315,7 +315,24 @@
                                 sessionStorage.setItem('customSkinImage', serverSkinUrl);
                                 sessionStorage.setItem('skinApplied', 'true');
 
-                                // 홈에서 스킨 새로고침
+                                // layout.js 캐시 업데이트
+                                if (typeof window.updateSkinCache === 'function') {
+                                    window.updateSkinCache({
+                                        skinActive: 'Y', 
+                                        skinImage: serverSkinUrl
+                                    });
+                                    console.log('layout.js 캐시 업데이트 완료:', serverSkinUrl);
+                                } else {
+                                    console.log('window.updateSkinCache 함수를 찾을 수 없음');
+
+                                    // 대안: 강제 캐시 새로고침
+                                    if (typeof window.forceRefreshSkinCache === 'function') {
+                                        await window.forceRefreshSkinCache();
+                                        console.log('layout.js 캐시 강제 새로고침 완료');
+                                    }
+                                }
+
+                                // home.js 스킨 새로고침
                                 if (typeof window.refreshSkin === 'function') {
                                     await window.refreshSkin();
                                 }
@@ -382,7 +399,24 @@
                                 skinUpload.value = '';
                             }
 
-                            // 홈에서 스킨 새로고침
+                            // layout.js 캐시 업데이트 (기본 스킨)
+                            if (typeof window.updateSkinCache == 'function') {
+                                window.updateSkinCache({
+                                    skinActive: 'Y', // 활성화는 유지, 이미지만 기본으로
+                                    skinImage: '/images/skins/triplog_skin_default.png'
+                                });
+                                console.log('layout.js 캐시 업데이트 완료: 기본 스킨');
+                            } else {
+                                console.log('window.updateSkinCache 함수를 찾을 수 없음');
+
+                                // 대안: 강제 캐시 새로고침
+                                if (typeof window.forceRefreshSkinCache == 'function') {
+                                    await window.forceRefreshSkinCache();
+                                    console.log('layout.js 캐시 강제 새로고침 완료');
+                                }
+                            }
+
+                            // home.js 스킨 새로고침
                             if (typeof window.refreshSkin === 'function') {
                                 await window.refreshSkin();
                             }
@@ -523,6 +557,11 @@
         maintainSkinOnNavigation(); // 스킨 유지 기능
         setupEventListeners();
         loadInventoryInfo(); // 기본적으로 구매내역 탭 표시
+
+        // 공통 스킨 로드
+        if (typeof window.maintainDefaultSkinForInactiveUsers === 'function') {
+            window.maintainDefaultSkinForInactiveUsers();
+        }
         
         console.log('프로필 페이지 초기화 완료');
     }
