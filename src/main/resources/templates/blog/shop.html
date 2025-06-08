@@ -31,6 +31,10 @@
         <div class="main-content">
           <!-- 상점 내부 탭 + 컨텐츠 영역 (오른쪽 정렬) -->
           <div class="shop-header">
+            <div>
+              <div class="dotori-display">🌰 보유 도토리: <span id="current-dotori"></span>개</div>
+            </div>
+            
             <div class="shop-inner-tab-list">
               <a href="#" id="btn-skin-activate" class="shop-inner-tab skin-tab">스킨 활성화</a>
               <button id="btn-dotori" class="shop-inner-tab">도토리</button>
@@ -39,10 +43,18 @@
             </div>
           </div>
 
+
+          <!-- 도토리 탭 컨텐츠 -->
+          <div class="shop-tab-content shop-dotori">
+            <div class="section-title">도토리 충전</div>
+            <div class="dotori-list" id="dotori-list"></div>
+          </div>
+
           <!-- 이모티콘 탭 컨텐츠 -->
           <div class="shop-tab-content shop-emoticon active">
             <div class="section-title">이모티콘 상점</div>
-            <div class="emoticon-list" id="emoticon-list"></div>
+            <div class="emoticon-list" id="package-list"></div>
+            <div id="sticker-list" class="sticker-preview"></div>
             <div class="pagination" id="emoticon-pagination"></div>
           </div>
 
@@ -53,12 +65,6 @@
             <div class="pagination" id="music-pagination"></div>
           </div>
 
-          <!-- 도토리 탭 컨텐츠 -->
-          <div class="shop-tab-content shop-dotori">
-            <div class="section-title">도토리 충전</div>
-            <div class="dotori-display">현재 도토리: <span id="current-dotori">100</span>개</div>
-            <div class="dotori-list" id="dotori-list"></div>
-          </div>
 
         </div>
 
@@ -72,6 +78,7 @@
   </div>
 
   <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
+  <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
   <script src="/js/layout.js"></script>
   <script src="/js/home.js"></script>
   <script src="/js/shop.js"></script>
@@ -80,6 +87,5 @@
   <script src="/js/jukebox.js"></script>
   <script src="/js/mylog.js"></script>
   <script src="/js/guestbook.js"></script>
-  
 </body>
 </html>

@@ -1,321 +1,267 @@
-/* shop.css - 상점 페이지 전용 스타일 */
+/* ========== 공통 레이아웃 ========== */
 
-/* 상점 헤더 영역 */
+/* 상단 헤더 + 탭 버튼 */
 .shop-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    background: transparent;
-    padding: 0;
-    flex-wrap: wrap;
-    gap: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 15px;
+  flex-wrap: wrap;
 }
 
-/* 도토리 포인트 표시 */
+/* 도토리 잔액 표시 */
 #point-display,
 .dotori-box {
-    font-weight: bold;
-    background: #fff6f2;
-    padding: 10px 18px;
-    font-size: 16px;
-    border-radius: 10px;
-    color: #b05a5a;
-    box-shadow: 0 2px 8px rgba(251, 234, 229, 0.7);
-    border: 1px solid #f0d4d0;
-    min-width: 120px;
-    text-align: center;
+  margin-right: auto;
+  font-weight: bold;
+  background: #fff6f2;
+  padding: 10px 18px;
+  font-size: 16px;
+  border-radius: 10px;
+  color: #b05a5a;
+  box-shadow: 0 2px 8px rgba(251, 234, 229, 0.7);
+  border: 1px solid #f0d4d0;
+  min-width: 120px;
+  text-align: center;
 }
 
-/* 상점 내부 탭 리스트 */
+/* 내부 탭 버튼 */
 .shop-inner-tab-list {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-/* 상점 내부 탭 버튼 */
 .shop-inner-tab {
-    padding: 12px 20px;
-    font-weight: 700;
-    font-size: 15px;
-    cursor: pointer;
-    background: #c18c7e;
-    color: #fff;
-    border-radius: 12px;
-    border: none;
-    box-shadow: 0 2px 7px rgba(200, 160, 153, 0.3);
-    transition: all 0.2s ease;
-    user-select: none;
-    min-width: 100px;
-    text-align: center;
+  padding: 12px 20px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  background: #c18c7e;
+  color: #fff;
+  border-radius: 12px;
+  border: none;
+  min-width: 100px;
+  text-align: center;
+  box-shadow: 0 2px 7px rgba(200, 160, 153, 0.3);
+  transition: all 0.2s ease;
 }
 
 .shop-inner-tab.active {
-    background: #fff;
-    color: #c18c7e;
-    border: 2px solid #d8b4a6;
-    box-shadow: 0 4px 16px rgba(238, 220, 217, 0.8);
-    transform: translateY(-2px);
+  background: #fff;
+  color: #c18c7e;
+  border: 2px solid #d8b4a6;
+  box-shadow: 0 4px 16px rgba(238, 220, 217, 0.8);
+  transform: translateY(-2px);
 }
 
 .shop-inner-tab:hover:not(.active) {
-    background: #a67161;
-    color: #fff;
-    transform: translateY(-1px);
+  background: #a67161;
+  color: #fff;
 }
 
-/* 상점 탭 컨텐츠 영역 */
+/* 탭 콘텐츠 박스 */
 .shop-tab-content {
-    padding: 25px;
-    background: rgba(255, 255, 255, 0.95);
-    border: 2px solid #d7bfae;
-    border-radius: 15px;
-    box-shadow: 0 4px 16px rgba(238, 220, 217, 0.6);
-    min-height: 350px;
-    margin-bottom: 20px;
-    transition: all 0.3s ease;
-    overflow-y: auto;
-    max-height: 500px;
-    display: none;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid #d7bfae;
+  border-radius: 15px;
+  box-shadow: 0 4px 16px rgba(238, 220, 217, 0.6);
+  min-height: 350px;
+  margin-bottom: 20px;
+  max-height: 500px;
+  overflow-y: auto;
+  display: none;
+  transition: all 0.3s ease;
 }
 
 .shop-tab-content.active {
-    display: block;
+  display: block;
 }
 
-/* 섹션 제목 */
 .shop-tab-content .section-title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #b865a4;
-    text-align: center;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #f0d4d0;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #b865a4;
+  text-align: center;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0d4d0;
 }
 
-/* 이모티콘/음악 아이템 리스트 */
+
+/* ========== 도토리, 이모티콘, 음악 카드 공통 스타일 ========== */
+
+.shop-list,
 .emoticon-list,
 .music-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 18px;
-    justify-items: center;
-    align-items: center;
-    max-height: 350px;
-    overflow-y: auto;
-    padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+  padding: 10px;
+  justify-items: center;
+  align-items: start;
 }
 
-/* 상점 아이템 카드 */
-.shop-item,
-.music-item {
-    background: #fff7f4;
-    border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(255, 214, 235, 0.4);
-    padding: 20px 12px 15px 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 130px;
-    min-height: 120px;
-    transition: all 0.2s ease;
-    border: 1px solid #f0e6e6;
+.dotori-item,
+.package-card,
+.music-card {
+  background: #fff7f4;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(255, 214, 235, 0.4);
+  padding: 12px;
+  border: 1px solid #f0e6e6;
+  text-align: center;
+  width: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.shop-item:hover,
-.music-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(255, 214, 235, 0.6);
+.music-card .album-img,
+.package-img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  object-fit: cover;
 }
 
-/* 아이템 아이콘 */
-.shop-item .icon,
-.music-item .icon {
-    font-size: 2.2em;
-    margin-bottom: 10px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* 아이템 제목 */
 .item-title {
-    font-size: 14px;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #af5990;
-    text-align: center;
-    line-height: 1.3;
-    min-height: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #af5990;
+  margin-bottom: 8px;
 }
 
-/* 아이템 가격 */
-.item-price {
-    font-size: 13px;
-    color: #888;
-    margin-bottom: 10px;
-    font-weight: 500;
+.item-price,
+.music-price {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 10px;
+  font-weight: 500;
 }
 
 /* 구매 버튼 */
 .buy-btn {
-    margin-top: auto;
-    background-color: #c18c7e;
-    color: #fff;
-    border: none;
-    border-radius: 18px;
-    padding: 8px 16px;
-    font-weight: 700;
-    font-size: 13px;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 7px rgba(200, 160, 153, 0.4);
-    min-width: 60px;
+  margin-top: auto;
+  background-color: #c18c7e;
+  color: #fff;
+  border: none;
+  border-radius: 18px;
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 7px rgba(200, 160, 153, 0.4);
+  min-width: 60px;
 }
 
-.buy-btn:disabled,
-.buy-btn[disabled] {
-    background: #f3d4cb;
-    color: #a78e87;
-    cursor: not-allowed;
-    box-shadow: none;
+.buy-btn:disabled {
+  background: #f3d4cb;
+  color: #a78e87;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .buy-btn:hover:not(:disabled) {
-    background-color: #a67161;
-    transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(200, 160, 153, 0.6);
+  background-color: #a67161;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(200, 160, 153, 0.6);
 }
 
-/* 페이지네이션 */
+
+/* ========== 페이지네이션 & 메시지 ========== */
+
 .pagination {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid #f0d4d0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #f0d4d0;
 }
 
 .pagination button {
-    padding: 8px 12px;
-    font-size: 14px;
-    border-radius: 8px;
-    border: 1.5px solid #d8b4a6;
-    background: #fff;
-    color: #c18c7e;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.2s ease;
-    min-width: 35px;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1.5px solid #d8b4a6;
+  background: #fff;
+  color: #c18c7e;
+  cursor: pointer;
+  min-width: 35px;
+  transition: all 0.2s ease;
 }
 
 .pagination button.active,
 .pagination button:hover {
-    background: #c18c7e;
-    color: white;
-    border-color: #c18c7e;
-    transform: translateY(-1px);
+  background: #c18c7e;
+  color: white;
+  border-color: #c18c7e;
 }
 
 .pagination button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-/* 로딩 상태 */
 .loading {
-    text-align: center;
-    padding: 40px;
-    color: #888;
-    font-size: 16px;
+  text-align: center;
+  padding: 40px;
+  color: #888;
+  font-size: 16px;
 }
 
 .loading::after {
-    content: '...';
-    animation: loading-dots 1.5s infinite;
+  content: '...';
+  animation: loading-dots 1.5s infinite;
 }
 
 @keyframes loading-dots {
-    0%, 20% { opacity: 0; }
-    50% { opacity: 1; }
-    80%, 100% { opacity: 0; }
+  0%, 20% { opacity: 0; }
+  50% { opacity: 1; }
+  80%, 100% { opacity: 0; }
 }
 
-/* 빈 상태 메시지 */
 .empty-message {
-    text-align: center;
-    padding: 60px 20px;
-    color: #999;
-    font-size: 16px;
-    background: #f9f9f9;
-    border-radius: 10px;
-    margin: 20px 0;
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+  font-size: 16px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  margin: 20px 0;
 }
 
-/* 아이콘, 제목, 가격 요소들 기본 스타일 */
-.shop-item .icon,
-.music-item .icon {
-    font-size: 2.2em;
-    margin-bottom: 10px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
 
-.shop-item .item-title,
-.music-item .item-title {
-    font-size: 14px;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #af5990;
-    text-align: center;
-    line-height: 1.3;
-    min-height: 20px;
-}
+/* ========== 반응형 대응 ========== */
 
-.shop-item .item-price,
-.music-item .item-price {
-    font-size: 13px;
-    color: #888;
-    margin-bottom: 10px;
-    font-weight: 500;
-    text-align: center;
-}
-
-/* 반응형 대응 */
 @media (max-width: 768px) {
-    .shop-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 15px;
-    }
-    
-    .shop-inner-tab-list {
-        justify-content: center;
-    }
-    
-    .shop-inner-tab {
-        flex: 1;
-        min-width: 80px;
-    }
-    
-    .emoticon-list,
-    .music-list {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 12px;
-    }
-    
-    .shop-item,
-    .music-item {
-        width: 110px;
-        min-height: 100px;
-        padding: 15px 8px 12px 8px;
-    }
+  .shop-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .shop-inner-tab {
+    flex: 1;
+    min-width: 80px;
+  }
+
+  .shop-list,
+  .emoticon-list,
+  .music-list {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+  }
+
+  .dotori-item,
+  .package-card,
+  .music-card {
+    width: 120px;
+    padding: 10px;
+  }
 }
