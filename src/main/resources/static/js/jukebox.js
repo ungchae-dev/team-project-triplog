@@ -100,6 +100,12 @@
         console.log('주크박스 페이지 초기화 시작');
         renderTrackLists();
         renderPagination();
+
+        // 공통 스킨 로드
+        if (typeof window.maintainDefaultSkinForInactiveUsers === 'function') {
+            window.maintainDefaultSkinForInactiveUsers();
+        }
+
         console.log('주크박스 페이지 초기화 완료');
     }
 
@@ -118,9 +124,11 @@
 
                 if (skinData.skinActive === 'Y' && skinData.skinImage) {
                     applySkin(skinData.skinImage);
-                } else {
-                    removeSkin();
+                }  else {
+                    console.log('스킨이 비활성화되어 있음 - layout.js가 기본 스킨 처리');
                 }
+            } else {
+                console.log('스킨 정보를 가져올 수 없습니다:', response.status);
             }
         } catch (error) {
             console.error('스킨 로드 중 오류:', error);

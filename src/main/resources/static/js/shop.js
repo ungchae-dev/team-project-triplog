@@ -468,6 +468,11 @@
         
         // 현재 스킨 활성화 상태 확인
         await checkCurrentSkinStatus();
+
+        // 공통 스킨 로드 (즉시 적용)
+        if (typeof window.maintainDefaultSkinForInactiveUsers === 'function') {
+            window.maintainDefaultSkinForInactiveUsers();
+        }
         
         console.log('상점 페이지 초기화 완료');
     }
@@ -476,7 +481,15 @@
     window.setupShopFeatures = initShopPage;
 
     // === 페이지 로드 시 초기화 ===
-    document.addEventListener('DOMContentLoaded', initShopPage);
+    document.addEventListener('DOMContentLoaded', function() {
+        // 초기화
+        initShopPage();
+
+        // 공통 스킨 로드
+        if (typeof window.maintainDefaultSkinForInactiveUsers === 'function') {
+            window.maintainDefaultSkinForInactiveUsers();
+        }
+    });
 
 
     // === 스킨 로드 함수 시작 ===
@@ -493,8 +506,10 @@
                 if (skinData.skinActive === 'Y' && skinData.skinImage) {
                     applySkin(skinData.skinImage);
                 } else {
-                    removeSkin();
+                    console.log('스킨이 비활성화되어 있음 - layout.js가 기본 스킨 처리');
                 }
+            } else {
+                console.log('스킨 정보를 가져올 수 없습니다:', response.status);
             }
         } catch (error) {
             console.error('스킨 로드 중 오류:', error);
