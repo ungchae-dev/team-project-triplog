@@ -1,3 +1,5 @@
+// post.js : 여행 블로그 - 게시판 페이지 전용 기능
+
 // 지역별 T-TAG 데이터 (이전과 동일)
 const ttagMap = {
     seoul: ["경복궁", "N서울타워", "한강공원"],
@@ -123,3 +125,55 @@ function activatePostUI() {
 }
 
 window.addEventListener('DOMContentLoaded', activatePostUI);
+
+// === 스킨 로드 함수 시작 ===
+async function loadBlogSkin() {
+    const currentNickname = getCurrentNickname();
+    if (!currentNickname) return;
+
+    try {
+        const encodedNickname = encodeURIComponent(currentNickname);
+        const response = await fetch(`/blog/api/@${encodedNickname}/skin`);
+
+        if (response.ok) {
+            const skinData = await response.json();
+            if (skinData.skinActive === 'Y' && skinData.skinImage) {
+                applySkin(skinData.skinImage);
+            } else {
+                removeSkin();
+            }
+        }
+    } catch (error) {
+        console.error('스킨 로드 중 오류:', error);
+    }
+}
+
+function getCurrentNickname() {
+    const currentPath = window.location.pathname;
+    const match = currentPath.match(/^\/blog\/@([^\/]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+}
+
+function applySkin(skinImageUrl) {
+    const frame = document.querySelector('.frame');
+    if (frame && skinImageUrl) {
+        const img = new Image();
+        img.onload = () => {
+            frame.style.backgroundImage = `url(${skinImageUrl})`;
+            frame.classList.add('has-skin');
+        };
+        img.src = skinImageUrl;
+    }
+}
+
+function removeSkin() {
+    const frame = document.querySelector('.frame');
+    if (frame) {
+        frame.style.backgroundImage = '';
+        frame.classList.remove('has-skin');
+    }
+}
+
+// 전역으로 노출
+window.loadBlogSkin = loadBlogSkin;
+// === 스킨 로드 함수 끝 ===
