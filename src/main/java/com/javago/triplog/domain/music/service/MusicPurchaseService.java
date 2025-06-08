@@ -1,5 +1,7 @@
 package com.javago.triplog.domain.music.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.javago.constant.ItemType;
@@ -7,6 +9,7 @@ import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.repository.MemberRepository;
 import com.javago.triplog.domain.member_item.entity.MemberItem;
 import com.javago.triplog.domain.member_item.repository.MemberItemRepository;
+import com.javago.triplog.domain.music.dto.MusicDto;
 import com.javago.triplog.domain.music.dto.MusicPurchaseRequest;
 import com.javago.triplog.domain.music.dto.MusicPurchaseResponse;
 import com.javago.triplog.domain.music.entity.Music;
@@ -23,6 +26,7 @@ public class MusicPurchaseService {
     private final MemberRepository memberRepository;
     private final MusicRepository musicRepository;
     private final MemberItemRepository memberItemRepository;
+    private final DeezerMusicService deezerMusicService;
 
     public MusicPurchaseResponse purchaseMusic(MusicPurchaseRequest dto, String memberId) {
 
@@ -63,4 +67,22 @@ public class MusicPurchaseService {
         // 4. 응답 반환
         return new MusicPurchaseResponse("음악 구매 성공!", member.getAcorn());
     }
+
+    public List<MusicDto> getMusicListWithPurchaseInfo(String genreId, int offset, int limit, String memberId) {
+    List<MusicDto> musicList = deezerMusicService.getTracksByGenre(genreId, offset, limit);
+
+     if (memberId != null) {
+        List<Long> purchasedIds = memberItemRepository
+                .findMusicItemIdsByMemberIdAndItemType(memberId, ItemType.MUSIC);
+
+        musicList.forEach(dto -> {
+            if (dto.getMusicId() != null && purchasedIds.contains(dto.getMusicId())) {
+                dto.setPurchased(true);
+            }
+        });
+    }
+
+    return musicList;
+}
+
 }

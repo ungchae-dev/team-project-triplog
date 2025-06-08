@@ -27,7 +27,7 @@ public class DeezerMusicController {
 
 
      @GetMapping("/music/deezer")
-public String getTracksByGenre(
+        public String getTracksByGenre(
         @RequestParam(value = "genreId", required = false) String genreId,
         @RequestParam(value = "page", defaultValue = "0") int page,
         Model model,
