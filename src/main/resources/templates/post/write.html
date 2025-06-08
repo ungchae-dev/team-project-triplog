@@ -3,6 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <title>커뮤니티 글 작성</title>
+  <!-- 블로그 페이지 css 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/shop.css" />
+  <link rel="stylesheet" href="/css/profile.css" />
+  <link rel="stylesheet" href="/css/post.css" />
+  <link rel="stylesheet" href="/css/jukebox.css" />
+  <link rel="stylesheet" href="/css/mylog.css" />
+  <link rel="stylesheet" href="/css/guestbook.css" />
   <style>
     #title {
       border: 2px solid #ccc;
@@ -62,34 +70,82 @@
   </style>
 </head>
 <body>
-<h2>글 작성</h2>
-<form id="postForm" th:attr="data-id=${post.postId}">
-  <div id="blogInfo" th:attr="data-blog-id=${blogId}, data-nickname=${nickname}" hidden></div>
-  <label>제목</label><br>
-  <div id="title" contenteditable="true" th:utext="${post.title}"></div><br>
+<div class="frame">
 
-  <label>내용</label><br>
-  <div id="editor" contenteditable="true" th:utext="${post.content}"></div><br>
-  <button id="deleteBtn" class="delete-btn" type="button">×</button>
+  <!-- 여백 안쪽의 실제 블로그 컨텐츠 컨테이너 -->
+  <div class="blog-container">
 
-  <input type="file" id="imageInput" accept="image/*"><br><br>
+    <!-- 왼쪽 프로필 사이드 (컴포넌트로 로드) -->
+    <div id="left-container"></div>
 
-  <span th:each="hashtag : ${hashtagList}" id="hashtagList">
-    <input type="checkbox" name="hashtags" th:value="${hashtag.tagId}"/>
-    <span th:text="${hashtag.tagName}"></span>
-  </span>
-  <div>
-    <input type="text" id="hashtagInput" placeholder="'#' + '해시태그'를 입력해주세요.">
+    <!-- 중앙 메인 영역 -->
+    <div class="main-area">
+
+      <!-- 상단 헤더 (컴포넌트로 로드) -->
+      <div id="top-container"></div>
+
+      <!-- 게시판 컨텐츠 -->
+      <div class="main-content">
+        <h2>글 작성</h2>
+        <form id="postForm" th:attr="data-id=${post.postId}">
+          <div id="blogInfo" th:attr="data-blog-id=${blogId}, data-nickname=${nickname}" hidden></div>
+          <label>제목</label><br>
+          <div id="title" contenteditable="true" th:utext="${post.title}"></div><br>
+
+          <label>내용</label><br>
+          <div id="editor" contenteditable="true" th:utext="${post.content}"></div><br>
+          <button id="deleteBtn" class="delete-btn" type="button">×</button>
+
+          <input type="file" id="imageInput" accept="image/*"><br><br>
+
+          <div class="tags" style="margin-bottom:10px;">
+            <span th:each="hashtag : ${hashtagList}" id="hashtagList">
+              <input type="checkbox" name="hashtags" th:value="${hashtag.tagId}"/>
+              <span th:text="${hashtag.tagName}"></span>
+            </span>
+          </div>
+          <!-- 해시태그 입력 -->
+          <div class="hashtags" style="margin-bottom:5px; display:flex; align-items:center; gap:10px;">
+            <input type="text" id="hashtagInput" name="hashtags" placeholder="'#' + '해시태그'를 입력해주세요." style="flex-grow:1;" />
+            <span id="ttag-result" style="color:#a86c44; font-size:14px; min-width:60px;">&nbsp;</span>
+          </div>
+
+          <!-- 지역-T-TAG 선택 -->
+          <small style="display:block;margin:7px 0 4px 2px;color:#b39967;font-size:13px;">
+            행사·관광·맛집 관련 <b>지역-타이틀태그(T-TAG)</b> 선택
+          </small>
+          <div class="ttag-select-row" style="display:flex;gap:14px;align-items:center;margin-bottom:10px;">
+            <select id="region-select">
+              <option value="">지역 선택</option>
+              <option value="seoul">서울</option>
+              <option value="busan">부산</option>
+              <option value="jeju">제주</option>
+            </select>
+
+            <select id="ttag-select" disabled>
+              <option value="">T-TAG 선택</option>
+            </select>
+
+            <!-- 선택된 T-TAG 해시태그 표시 영역 -->
+            <div id="ttag-tags" style="margin-left:12px; display:flex; gap:8px; flex-wrap: wrap;"></div>
+          </div>
+          <input type="text" id="location-input" name="location" placeholder="장소 입력 (예: 제주 한림)" />
+
+          <input type="radio" name="visibility" value="PUBLIC"
+              th:attr="checked=${post.visibility == null or post.visibility == 'PUBLIC'}">전체 공개
+          <input type="radio" name="visibility" value="PRIVATE"
+              th:attr="checked=${post.visibility == 'PRIVATE'}">비공개
+          <br>
+
+          <button type="submit">작성</button>
+          <button type="button" class="back-btn" th:onclick="|location.href='@{/blog/@{nickname}/post(nickname=${nickname})}'|">글 목록</button>
+        </form>
+      </div>
+    </div>
+    <!-- 오른쪽 네비게이션 (컴포넌트로 로드) -->
+    <div id="right-container"></div>
   </div>
-
-  <input type="radio" name="visibility" value="PUBLIC"
-       th:attr="checked=${post.visibility == null or post.visibility == 'PUBLIC'}">전체 공개
-  <input type="radio" name="visibility" value="PRIVATE"
-       th:attr="checked=${post.visibility == 'PRIVATE'}">비공개
-  <br>
-
-  <button type="submit">작성</button>
-</form>
+</div>
 
 <script>
   const editor = document.getElementById('editor');
@@ -255,5 +311,14 @@
     }
   });
 </script>
+<!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
+<script src="/js/layout.js"></script>
+<script src="/js/home.js"></script>
+<script src="/js/shop.js"></script>
+<script src="/js/profile.js"></script>
+<script src="/js/post.js"></script>
+<script src="/js/jukebox.js"></script>
+<script src="/js/mylog.js"></script>
+<script src="/js/guestbook.js"></script>
 </body>
 </html>

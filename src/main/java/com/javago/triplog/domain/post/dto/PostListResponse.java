@@ -10,14 +10,18 @@ import lombok.Getter;
 @Getter
 public class PostListResponse {
 
-    private final Post post;
-    private final List<Post_Hashtag_people> hashtags;
-    private final String thumbnail;
+    private Post post;
+    private List<Post_Hashtag_people> hashtags;
+    private String thumbnail;
+    private Long commentCount;
+    private Long likeCount;
     
-    public PostListResponse(Post post, List<Post_Hashtag_people> hashtags, String thumbnail) {
+    public PostListResponse(Post post, List<Post_Hashtag_people> hashtags, String thumbnail, Long commentCount, Long likeCount) {
         this.post = post;
         this.hashtags = hashtags;
         this.thumbnail = thumbnail;
+        this.commentCount = commentCount;
+        this.likeCount = likeCount;
     }
 
 }

@@ -102,7 +102,7 @@ function showDetailView() {
     document.getElementById("board-write").style.display = "none";
     document.getElementById("board-detail").style.display = "block";
 }
-
+/*
 function activatePostUI() {
     let writeBtns = document.querySelectorAll('.write-btn');
     writeBtns.forEach(btn => {
@@ -123,3 +123,4 @@ function activatePostUI() {
 }
 
 window.addEventListener('DOMContentLoaded', activatePostUI);
+*/

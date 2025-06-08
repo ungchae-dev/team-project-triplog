@@ -6,21 +6,15 @@ spring:
   application:
     name: triplog
 
-  #datasource:
-    #driver-class-name: oracle.jdbc.OracleDriver
-    #url: jdbc:oracle:thin:@localhost:1521:xe  # 본인 Oracle 설정에 맞게 수정
-    #username: javago
-    #password: 12345
-
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: sa
-    password:
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@localhost:1521:xe  # 본인 Oracle 설정에 맞게 수정
+    username: javago
+    password: 12345
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
       # 또는 update, create 등
       # update: 누락된 컬럼이나 제약 조건을 Hibernate가 자동으로 수정하려고 시도함(개발 중엔 가능)
       # => 개발 후엔 validate나 none으로 설정해야함.
@@ -29,9 +23,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
-    database-platform: org.hibernate.dialect.H2Dialect
-        # use_sql_comments: true
-    # database-platform: org.hibernate.dialect.OracleDialect
+        use_sql_comments: true
+    database-platform: org.hibernate.dialect.OracleDialect
     # 오라클 12c 이후(18c, 19c, 21c 등)는 대부분 Oracle12cDialect 또는 OracleDialect 로 통합해서 사용
   
   # Live Reload 기능 활성화

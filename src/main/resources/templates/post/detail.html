@@ -3,109 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <title>글 조회</title>
-    <style>
-        #commentList {
-          margin-top: 20px;
-        }
-        .comment {
-          margin-bottom: 10px;
-          padding: 8px;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-        }
+  <!-- 블로그 페이지 css 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/shop.css" />
+  <link rel="stylesheet" href="/css/profile.css" />
+  <link rel="stylesheet" href="/css/post.css" />
+  <link rel="stylesheet" href="/css/jukebox.css" />
+  <link rel="stylesheet" href="/css/mylog.css" />
+  <link rel="stylesheet" href="/css/guestbook.css" />
+  <style>
+    #commentList {
+      margin-top: 20px;
+    }
+    .comment {
+      margin-bottom: 10px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
-  <h2>글 조회</h2>
+  <div class="frame">
 
-  <div id="blogInfo" th:attr="data-user-id=${userId}, data-nickname=${nickname}" hidden></div>
+    <!-- 여백 안쪽의 실제 블로그 컨텐츠 컨테이너 -->
+    <div class="blog-container">
 
-  <label>블로그 ID</label><br>
-  <div id="blog_id" th:text="${post.blog.blogId}"></div><br>
+      <!-- 왼쪽 프로필 사이드 (컴포넌트로 로드) -->
+      <div id="left-container"></div>
 
-  <label>게시글 ID</label><br>
-  <div id="post_id" th:text="${post.postId}" th:attr="data-post-id=${post.postId}"></div><br>
+      <!-- 중앙 메인 영역 -->
+      <div class="main-area">
 
-  <label hidden>제목</label><br>
-  <div id="title" th:text="'제목 | ' + ${post.title} + '&nbsp;&nbsp;조회수 | ' + ${post.viewCount}"></div><br>
+        <!-- 상단 헤더 (컴포넌트로 로드) -->
+        <div id="top-container"></div>
 
-  <label>내용</label><br>
-  <div id="content" th:utext="${post.content}"></div><br>
-  <div>
-    <label>해시태그</label>
-    <span th:each="hashtag : ${post.postHashtagPeople}">
-      <span th:text="'#' + ${hashtag.hashtagPeople.tagName}">#해시태그</span>
-    </span>
-  </div>
+        <!-- 게시판 컨텐츠 -->
+        <div class="main-content">
+          <div id="board-detail">
 
-  <label>좋아요</label><input type="checkbox" id="postLike" th:checked="${exist}"><br> <!--내일 확인할 것-->
-  <div id="likeCount" th:text="${post.postLike.size()}"></div><br>
+            <h2>글 조회</h2>
 
-  <button type="button" th:onclick="|location.href='@{/blog/@{nickname}/post(nickname=${nickname})}'|">글 목록</button>
-  <button type="button" th:if="${nickname == loginNickname}" th:onclick="|location.href='@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">수정</button>
-  <button type="button" th:if="${nickname == loginNickname}" id="delete-btn">삭제</button>
+            <div id="blogInfo" th:attr="data-user-id=${userId}, data-nickname=${nickname}" hidden></div>
 
-  <label>댓글</label>
-  <div>
-    <span id="username" th:text="${loginNickname}" />
-    <input type="text" id="commentInput" placeholder="댓글을 입력하세요" />
-    <select id="is_secret">
-      <option value="Y">전체 공개</option>
-      <option value="N">비공개</option>
-    </select>
-    <button id="submitComment">등록</button>
+            <label hidden>제목</label><br>
+            <div class="post-header" th:text="'제목 | ' + ${post.title}"></div><br>
 
-    <!-- 댓글 리스트 -->
-    <div id="commentList">
-      <div th:each="comment : ${commentList}">
-        <div class="comment" th:attr="data-comment-id=${comment.commentId}">
-          <span th:text="${comment.nickname}"></span>:
-          <span th:text="${comment.content}"></span>
-          
-          <!-- 대댓글 버튼 -->
-          <button class="reply-btn">답글</button>
-          <!-- 댓글 내 -->
-          <button class="delete-comment-btn">삭제</button>
+            <div class="meta">
+              <span th:text="${nickname}">닉네임</span> | <span th:text="${post.viewCount}">조회수</span> | <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">작성시간</span>
+            </div>
+
+            <label>내용</label><br>
+            <div id="content" th:utext="${post.content}"></div><br>
+            <div>
+              <label>해시태그</label>
+              <span th:each="hashtag : ${post.postHashtagPeople}">
+                <span th:text="'#' + ${hashtag.hashtagPeople.tagName}">#해시태그</span>
+              </span>
+            </div>
+
+            <label>좋아요</label><input type="checkbox" id="postLike" th:checked="${exist}"><br>
+            <div id="likeCount" th:text="${post.postLike.size()}"></div><br>
+
+            <button type="button" th:onclick="|location.href='@{/blog/@{nickname}/post(nickname=${nickname})}'|">글 목록</button>
+            <button type="button" th:if="${nickname == loginNickname}" th:onclick="|location.href='@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">수정</button>
+            <button type="button" th:if="${nickname == loginNickname}" id="delete-btn">삭제</button>
+
+            <label>댓글</label>
+            <div class="comments-section">
+              <span id="username" th:text="${loginNickname}" />
+              <input type="text" id="commentInput" placeholder="댓글을 입력하세요" />
+              <select id="is_secret">
+                <option value="Y">전체 공개</option>
+                <option value="N">비공개</option>
+              </select>
+              <button id="submitComment">등록</button>
+
+              <!-- 댓글 리스트 -->
+              <div id="commentList">
+                <div th:each="comment : ${commentList}">
+                  <div class="comment" th:attr="data-comment-id=${comment.commentId}">
+                    <span th:text="${comment.nickname}"></span>:
+                    <span th:text="${comment.content}"></span>
+
+                    <!-- 대댓글 버튼 -->
+                    <button class="reply-btn">답글</button>
+                    <!-- 댓글 내 -->
+                    <button class="delete-comment-btn">삭제</button>
 
 
-          <!-- 대댓글 입력창 (초기엔 숨김) -->
-          <div class="reply-form" style="display:none;">
-            <input type="text" class="reply-content" placeholder="답글을 입력하세요" />
-            <select class="reply-is_secret">
-              <option value="Y">전체 공개</option>
-              <option value="N">비공개</option>
-            </select>
-            <button class="submit-reply">등록</button>
-          </div>
-        </div>
+                    <!-- 대댓글 입력창 (초기엔 숨김) -->
+                    <div class="reply-form" style="display:none;">
+                      <input type="text" class="reply-content" placeholder="답글을 입력하세요" />
+                      <select class="reply-is_secret">
+                        <option value="Y">전체 공개</option>
+                        <option value="N">비공개</option>
+                      </select>
+                      <button class="submit-reply">등록</button>
+                    </div>
+                  </div>
 
-    <!-- 대댓글 출력 -->
-        <div th:if="${comment.commentList != null}">
-          <div th:each="child : ${comment.commentList}" style="margin-left: 20px;">
-            <div class="comment" th:attr="data-comment-id=${child.commentId}">
-              <span th:text="${child.nickname}"></span>:
-              <span th:text="${child.content}"></span>
+                  <!-- 대댓글 출력 -->
+                  <div th:if="${comment.commentList != null}">
+                    <div th:each="child : ${comment.commentList}" style="margin-left: 20px;">
+                      <div class="comment" th:attr="data-comment-id=${child.commentId}">
+                        <span th:text="${child.nickname}"></span>:
+                        <span th:text="${child.content}"></span>
 
-              <!-- 대댓글 버튼 -->
-              <button class="reply-btn">답글</button>
-              <button class="delete-comment-btn">삭제</button>
+                        <!-- 대댓글 버튼 -->
+                        <button class="reply-btn">답글</button>
+                        <button class="delete-comment-btn">삭제</button>
 
-              <!-- 대댓글 입력창 (초기엔 숨김) -->
-              <div class="reply-form" style="display:none;">
-                <input type="text" class="reply-content" placeholder="답글을 입력하세요" />
-                <select class="reply-is_secret">
-                  <option value="Y">전체 공개</option>
-                  <option value="N">비공개</option>
-                </select>
-                <button class="submit-reply">등록</button>
+                        <!-- 대댓글 입력창 (초기엔 숨김) -->
+                        <div class="reply-form" style="display:none;">
+                          <input type="text" class="reply-content" placeholder="답글을 입력하세요" />
+                          <select class="reply-is_secret">
+                            <option value="Y">전체 공개</option>
+                            <option value="N">비공개</option>
+                          </select>
+                          <button class="submit-reply">등록</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <!-- 오른쪽 네비게이션 (컴포넌트로 로드) -->
+      <div id="right-container"></div>
     </div>
   </div>
-
 <!--
   <label>댓글</label>
   <div>
@@ -383,5 +413,9 @@
     });
 
   </script>
+  <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
+  <script src="/js/layout.js"></script>
+  <script src="/js/post.js"></script>
+
 </body>
 </html>

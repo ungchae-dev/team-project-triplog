@@ -124,6 +124,14 @@ public class PostService {
         Map<Long, List<Post_Hashtag_people>> hashtagMap = allHashtags.stream()
             .collect(Collectors.groupingBy(h -> h.getPost().getPostId()));
 
+        // 댓글 갯수 조회
+        Map<Long, Long> commentCountMap = posts.stream()
+                .collect(Collectors.toMap(Post::getPostId, post -> commentsRepository.countByPostPostId(post.getPostId())));
+
+        // 좋아요 갯수 조회
+        Map<Long, Long> likeCountMap = posts.stream()
+                .collect(Collectors.toMap(Post::getPostId, post -> postLikeRepository.countPostLike(post.getPostId())));
+
         List<PostListResponse> dtoList = posts.stream()
             .map(post -> {
                 String thumbnail = post.getPostImage().stream()
@@ -136,7 +144,11 @@ public class PostService {
 
                 log.info("Post ID: {}, 해시태그 개수: {}", post.getPostId(), hashtags.size());
 
-                return new PostListResponse(post, hashtags, thumbnail);
+                // 댓글 수와 좋아요 수를 함께 전달
+                Long commentCount = commentCountMap.getOrDefault(post.getPostId(), 0L);
+                Long likeCount = likeCountMap.getOrDefault(post.getPostId(), 0L);
+
+                return new PostListResponse(post, hashtags, thumbnail, commentCount, likeCount);
             })
             .collect(Collectors.toList());
         return new PageImpl<PostListResponse>(dtoList, pageable, count);
@@ -227,6 +239,12 @@ public class PostService {
         return comments.stream()
             .map(CommentDto::fromEntity)
             .collect(Collectors.toList());
+    }
+
+    // 댓글 갯수 조회
+    @Transactional
+    public  Long getCountByPostId(Long postId) {
+        return commentsRepository.countByPostPostId(postId);
     }
 
     // 댓글 수정

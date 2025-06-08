@@ -56,7 +56,7 @@ public class PostViewController {
         model.addAttribute("currentDir", direction);
         model.addAttribute("nickname", nickname);
         model.addAttribute("loginNickname", customUserDetails.getMember().getNickname());
-        return "blog/post";
+        return "post/list";
     }
 
 
@@ -103,9 +103,11 @@ public class PostViewController {
     @GetMapping("/blog/@{nickname}/post/{id}/edit")
     public String modify(@PathVariable("nickname") String nickname, @PathVariable("id") Long id, Authentication authentication, Model model) {
         CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
+        /*
         if (customUserDetails.getMember().getNickname() != nickname) {
             return "redirect:/member/login"; // 로그인 페이지로 보내기
         }
+        */
         Post post = postService.findtoUpdate(id);
 
         model.addAttribute("post", new Post(post));

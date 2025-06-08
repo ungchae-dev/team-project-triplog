@@ -3,6 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>게시글 목록</title>
+    <!-- 블로그 페이지 css 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
+    <link rel="stylesheet" href="/css/home.css" />
+    <link rel="stylesheet" href="/css/shop.css" />
+    <link rel="stylesheet" href="/css/profile.css" />
+    <link rel="stylesheet" href="/css/post.css" />
+    <link rel="stylesheet" href="/css/jukebox.css" />
+    <link rel="stylesheet" href="/css/mylog.css" />
+    <link rel="stylesheet" href="/css/guestbook.css" />
     <style>
         .post {
             border-bottom: 1px solid #ccc;
@@ -37,57 +45,84 @@
     </style>
 </head>
 <body>
-<h2>게시글 목록</h2>
+    <div class="frame">
 
-<button th:if="${nickname == loginNickname}" th:onclick="|location.href='@{/blog/@{nickname}/post/write(nickname=${nickname})}'|" type="button">글 작성</button>
+        <!-- 여백 안쪽의 실제 블로그 컨텐츠 컨테이너 -->
+        <div class="blog-container">
 
-<div>
-    <div>
-        <select id="sort">
-            <option value="createdAt" th:selected="${currentSort == 'createdAt'}">최신순</option>
-            <option value="viewCount" th:selected="${currentSort == 'viewCount'}">조회순</option>
-            <option value="likeCount" th:selected="${currentSort == 'likeCount'}">추천순</option>
-        </select>
-    </div>
-    <div th:each="post : ${postList}" class="post">
-        <div>
-            <!-- 썸네일이 있으면 보여주고, 없으면 기본 이미지를 출력 -->
-            <img th:if="${post.thumbnail != null}" th:src="${post.thumbnail}" alt="썸네일" class="thumbnail"/>
+            <!-- 왼쪽 프로필 사이드 (컴포넌트로 로드) -->
+            <div id="left-container"></div>
+
+            <!-- 중앙 메인 영역 -->
+            <div class="main-area">
+
+                <!-- 상단 헤더 (컴포넌트로 로드) -->
+                <div id="top-container"></div>
+
+                <!-- 게시판 컨텐츠 -->
+                <div class="main-content">
+
+                    <!-- 게시판 목록 -->
+                    <div id="board-list">
+                        <h2>게시글 목록</h2>
+
+                        <button class="write-btn" th:if="${nickname == loginNickname}"
+                                th:onclick="|location.href='@{/blog/@{nickname}/post/write(nickname=${nickname})}'|" type="button">글 작성</button>
+
+                        <div>
+                            <div>
+                                <select id="sort">
+                                    <option value="createdAt" th:selected="${currentSort == 'createdAt'}">최신순</option>
+                                    <option value="viewCount" th:selected="${currentSort == 'viewCount'}">조회순</option>
+                                    <option value="likeCount" th:selected="${currentSort == 'likeCount'}">추천순</option>
+                                </select>
+                            </div>
+                            <div th:each="post : ${postList}" class="post-list">
+                                <div class="post-item">
+                                    <!-- 썸네일이 있으면 보여주고, 없으면 기본 이미지를 출력 -->
+                                    <img th:if="${post.thumbnail != null}" th:src="${post.thumbnail}" alt="썸네일" class="thumbnail"/>
+                                </div>
+                                <div class="title">
+                                    <!-- 게시글 제목 -->
+                                    <a th:href="@{'/blog/@{nickname}/post/' + ${post.post.postId}(nickname=${nickname})}" th:text="${post.post.title} + ' (' + ${post.post.commentCount} + ')'">게시글 제목</a>
+                                </div>
+                                <div>
+                                    <span th:text="'조회수 | ' + ${post.post.viewCount}"></span>
+                                    <span th:text="'추천 | ' + ${post.post.likeCount}"></span>
+                                    <span class="meta" th:text="${#temporals.format(post.post.createdAt, 'yyyy-MM-dd HH:mm')}">작성일</span>
+                                    <span th:if="${post.post.createdAt != post.post.updatedAt}" th:text="${#temporals.format(post.post.updatedAt, 'yyyy-MM-dd HH:mm')}">수정일</span>
+                                </div>
+                                <span th:each="hashtag : ${post.hashtags}">
+                                    <span th:text="'#' + ${hashtag.hashtagPeople.tagName}">#해시태그</span>
+                                </span>
+                                <div th:text="${post.post.postLike.size() != null ? post.post.postLike.size() : 0}">좋아요</div>
+                            </div>
+                        </div>
+                        <div class="paging" th:if="${postList.totalPages > 0}">
+                            <a th:if="${!postList.first}"
+                                    th:href="@{/blog/@{nickname}/post(page=1, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}">&laquo;</a>
+
+                            <a th:if="${!postList.first}"
+                                    th:href="@{/blog/@{nickname}/post(page=${postList.number}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}">이전</a>
+
+                            <span th:each="pageNum : ${#numbers.sequence(1, postList.totalPages)}">
+                                <a th:href="@{/blog/@{nickname}/post(page=${pageNum}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}"
+                                        th:text="${pageNum}" th:classappend="${postList.number + 1 == pageNum} ? 'current' : ''">1</a>
+                            </span>
+
+                            <a th:if="${!postList.last}"
+                                    th:href="@{/blog/@{nickname}/post(page=${postList.number + 2}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}">다음</a>
+
+                            <a th:if="${!postList.last}"
+                                    th:href="@{/blog/@{nickname}/post(page=${postList.totalPages}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}">&raquo;</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 오른쪽 네비게이션 (컴포넌트로 로드) -->
+            <div id="right-container"></div>
         </div>
-        <div class="title">
-            <!-- 게시글 제목 -->
-            <a th:href="@{'/blog/@{nickname}/post/' + ${post.post.postId}(nickname=${nickname})}" th:text="${post.post.title}">게시글 제목</a>
-        </div>
-        <div th:text="'조회수 | ' + ${post.post.viewCount}"></div>
-        <div class="meta" th:text="${#temporals.format(post.post.createdAt, 'yyyy-MM-dd HH:mm')}">작성일</div>
-        <div th:text="${#temporals.format(post.post.updatedAt, 'yyyy-MM-dd HH:mm')}">수정일</div>
-        
-        <span th:each="hashtag : ${post.hashtags}">
-            <span th:text="'#' + ${hashtag.hashtagPeople.tagName}">#해시태그</span>
-        </span>
-        <div th:text="${post.post.postLike.size() != null ? post.post.postLike.size() : 0}">좋아요</div>
     </div>
-</div>
-<div class="paging" th:if="${postList.totalPages > 0}">
-    <a th:if="${!postList.first}"
-       th:href="@{/blog/@{nickname}/post(page=1, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}">&laquo;</a>
-
-    <a th:if="${!postList.first}"
-       th:href="@{/blog/@{nickname}/post(page=${postList.number}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}">이전</a>
-
-    <span th:each="pageNum : ${#numbers.sequence(1, postList.totalPages)}">
-        <a th:href="@{/blog/@{nickname}/post(page=${pageNum}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}"
-           th:text="${pageNum}"
-           th:classappend="${postList.number + 1 == pageNum} ? 'current' : ''">1</a>
-    </span>
-
-    <a th:if="${!postList.last}"
-       th:href="@{/blog/@{nickname}/post(page=${postList.number + 2}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}">다음</a>
-
-    <a th:if="${!postList.last}"
-       th:href="@{/blog/@{nickname}/post(page=${postList.totalPages}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}">&raquo;</a>
-</div>
-
 
 </body>
 <script>
@@ -103,4 +138,12 @@
         window.location.href = currentUrl.toString();
     });
 </script>
+<script src="/js/layout.js"></script>
+<script src="/js/home.js"></script>
+<script src="/js/shop.js"></script>
+<script src="/js/profile.js"></script>
+<script src="/js/post.js"></script>
+<script src="/js/jukebox.js"></script>
+<script src="/js/mylog.js"></script>
+<script src="/js/guestbook.js"></script>
 </html>
