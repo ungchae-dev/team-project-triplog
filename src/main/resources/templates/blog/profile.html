@@ -77,27 +77,29 @@
             
             <!-- 현재 정보 조회 섹션 -->
             <div class="current-info-section">
-              <h3 class="info-section-title">zzzzz 정보</h3>
+              <h3 class="info-section-title">내 정보</h3>
               <div class="current-info-display">
-                <div class="info-row">
-                  <span class="info-label">프로필 사진:</span>
-                  <img id="current-profile-img" src="https://via.placeholder.com/80" alt="현재 프로필" />
+                <!-- 1행: 프로필 사진 (맨 위 중앙) -->
+                <div class="profile-photo-row">
+                  <img id="current-profile-img" src="https://via.placeholder.com/100" alt="현재 프로필" />
                 </div>
-                <div class="info-row">
-                  <span class="info-label">닉네임:</span>
-                  <span class="info-value" id="current-nickname">사용자</span>
+                
+                <!-- 2행: 닉네임, 가입일 (나란히 배치) -->
+                <div class="info-row-container">
+                  <div class="info-row">
+                    <span class="info-label">닉네임:</span>
+                    <span class="info-value" id="current-nickname">뽀롱뽀롱뽀롱(ㅅ)</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">가입일:</span>
+                    <span class="info-value" id="current-joindate">2025년 6월 9일</span>
+                  </div>
                 </div>
-                <div class="info-row">
-                  <span class="info-label">성별:</span>
-                  <span class="info-value" id="current-gender">-</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">가입일:</span>
-                  <span class="info-value" id="current-joindate">-</span>
-                </div>
-                <div class="info-row">
+                
+                <!-- 3행: 상태메시지 (전체 너비) -->
+                <div class="status-message-row">
                   <span class="info-label">상태메시지:</span>
-                  <span class="info-value" id="current-bio">-</span>
+                  <span class="info-value" id="current-bio">안녕하세요~ 뽀롱뽀롱뽀롱입니다~ 잘 부탁드려요~</span>
                 </div>
               </div>
             </div>
@@ -106,9 +108,7 @@
             <div class="edit-info-section">
               <h3 class="info-section-title">정보 수정</h3>
               <form id="profile-edit-form" autocomplete="off">
-                <label for="edit-nickname">닉네임</label>
-                <input id="edit-nickname" type="text" placeholder="닉네임을 입력하세요" maxlength="12" />
-
+                
                 <label for="edit-bio">상태메시지</label>
                 <textarea id="edit-bio" rows="4" placeholder="상태메시지를 입력하세요" maxlength="100"></textarea>
 
@@ -124,7 +124,7 @@
                   <input id="edit-password-new" type="password" placeholder="새 비밀번호" />
                 </div>
 
-                <button type="submit" class="buy-btn save-btn">저장</button>
+                <button type="submit" class="buy-btn save-btn">수정완료</button>
               </form>
             </div>
           </div>
