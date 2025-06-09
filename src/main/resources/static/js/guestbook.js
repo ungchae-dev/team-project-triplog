@@ -1,15 +1,25 @@
 // guestbook.js : 블로그 - 방명록 기능
 
-// 방문자 닉네임을 무작위로 자동 입력 (readonly)
-document.addEventListener('DOMContentLoaded', () => {
+// 방명록 페이지 초기화
+function initGuestbookPage() {
+    console.log('방명록 페이지 초기화 시작');
+    
+    // 방문자 닉네임을 무작위로 자동 입력 (readonly)
     const nicknameField = document.getElementById('nickname');
     if (nicknameField && nicknameField.value.trim() === '') {
         const visitorNames = ["방문자1", "여행객7", "친구9", "게스트12", "익명"];
         const randomIdx = Math.floor(Math.random() * visitorNames.length);
         nicknameField.value = visitorNames[randomIdx];
-        nicknameField.readOnly = true; // 혹시나 안 되어있으면 추가
+        nicknameField.readOnly = true;
     }
-});
+    
+    // 공통 스킨 로드
+    if (typeof window.maintainDefaultSkinForInactiveUsers === 'function') {
+        window.maintainDefaultSkinForInactiveUsers();
+    }
+    
+    console.log('방명록 페이지 초기화 완료');
+}
 
 // 방명록 전송 버튼 이벤트 함수
 function addGuestbookEntry() {
@@ -35,13 +45,13 @@ function addGuestbookEntry() {
 
     const li = document.createElement('li');
     li.innerHTML = `
-    <div class="entry-header"><b>${nickname}</b> (${now})${secretIcon}</div>
-    <div class="entry-message">${messageText}</div>
-    <div class="entry-actions">
-      <button onclick="editEntry(this)">수정</button>
-      <button onclick="deleteEntry(this)">삭제</button>
-    </div>
-  `;
+        <div class="entry-header"><b>${nickname}</b> (${now})${secretIcon}</div>
+        <div class="entry-message">${messageText}</div>
+        <div class="entry-actions">
+        <button onclick="editEntry(this)">수정</button>
+        <button onclick="deleteEntry(this)">삭제</button>
+        </div>
+    `;
 
     guestbookList.prepend(li);
 
@@ -61,9 +71,7 @@ function deleteEntry(btn) {
     }
 }
 
-// === 스킨 로드 함수 시작 ===
-
-// 블로그 스킨 자동 로드
+// === 스킨 로드 함수 ===
 async function loadBlogSkin() {
     const currentNickname = getCurrentNickname();
     if (!currentNickname) {
@@ -81,17 +89,14 @@ async function loadBlogSkin() {
 
             if (skinData.skinActive === 'Y' && skinData.skinImage) {
                 applySkin(skinData.skinImage);
-            } else {
-                console.log('스킨이 비활성화되어 있거나 이미지가 없습니다.');
-                removeSkin();
+            }  else {
+                console.log('스킨이 비활성화되어 있음 - layout.js가 기본 스킨 처리');
             }
         } else {
             console.log('스킨 정보를 가져올 수 없습니다:', response.status);
-            removeSkin();
         }
     } catch (error) {
         console.error('스킨 로드 중 오류:', error);
-        removeSkin();
     }
 }
 
@@ -125,7 +130,6 @@ function applySkin(skinImageUrl) {
         img.onerror = () => {
             frame.classList.remove('loading-skin');
             console.log('스킨 로드 실패:', skinImageUrl);
-            removeSkin();
         };
         img.src = skinImageUrl;
     }
@@ -141,7 +145,9 @@ function removeSkin() {
     }
 }
 
-// 전역으로 노출
+// === 전역 함수로 노출 ===
+window.setupGuestbookFeatures = initGuestbookPage;
 window.loadBlogSkin = loadBlogSkin;
 
-// === 스킨 로드 함수 끝 ===
+// === 페이지 로드 시 초기화 ===
+document.addEventListener('DOMContentLoaded', initGuestbookPage);

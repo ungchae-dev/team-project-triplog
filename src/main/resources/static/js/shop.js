@@ -304,20 +304,86 @@ async function renderMusicList() {
   }
 }
 
-
-
-
 // 공동 이벤트 처리
-  function setupEventListeners() {
+  // === 상점 페이지 초기화 ===
+async function initShopPage() {
+    updateAcornDisplay();
+    
+    // 탭 초기화
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialTab = urlParams.get('tab') || 'emoticon';
+    switchTab(initialTab);
+
+    // 공통 이벤트 바인딩
+    setupEventListeners();
+
+    // 현재 스킨 활성화 상태 확인
+    await checkCurrentSkinStatus();
+
+    // 공통 스킨 유지 (비활성 사용자용)
+    if (typeof window.maintainDefaultSkinForInactiveUsers === 'function') {
+        window.maintainDefaultSkinForInactiveUsers();
+    }
+
+    console.log('상점 페이지 초기화 완료');
+}
+
+// === 탭 버튼 이벤트 바인딩 ===
+function setupEventListeners() {
     const dotoriTabBtn = document.getElementById('btn-dotori');
     if (dotoriTabBtn) {
-      dotoriTabBtn.addEventListener('click', () => {
-        location.href = location.pathname + '?tab=dotori'; // 새로고침 방식으로 해결
-      });
+        dotoriTabBtn.addEventListener('click', () => {
+            location.href = location.pathname + '?tab=dotori'; // 새로고침 방식
+        });
     }
+
     const emoticonTabBtn = document.getElementById('btn-emoticon');
     if (emoticonTabBtn) {
-      emoticonTabBtn.addEventListener('click', () => switchTab('emoticon'));
+        emoticonTabBtn.addEventListener('click', () => switchTab('emoticon'));
+    }
+
+    const musicTabBtn = document.getElementById('btn-music');
+    if (musicTabBtn) {
+        musicTabBtn.addEventListener('click', () => switchTab('music'));
+    }
+}
+
+// === 외부에서 호출 가능한 초기화 함수 등록 (SPA 대응용) ===
+window.setupShopFeatures = initShopPage;
+
+// === DOMContentLoaded 시 초기화 실행 ===
+document.addEventListener('DOMContentLoaded', function () {
+    initShopPage();
+
+    // 스킨 유지 함수 중복 호출 (예외 방지)
+    if (typeof window.maintainDefaultSkinForInactiveUsers === 'function') {
+        window.maintainDefaultSkinForInactiveUsers();
+    }
+});
+
+// === 스킨 적용 함수 ===
+async function loadBlogSkin() {
+    const currentNickname = getCurrentNickname();
+    if (!currentNickname) return;
+
+    try {
+        const encodedNickname = encodeURIComponent(currentNickname);
+        const response = await fetch(`/blog/api/@${encodedNickname}/skin`);
+
+        if (response.ok) {
+            const skinData = await response.json();
+            if (skinData.skinActive === 'Y' && skinData.skinImage) {
+                applySkin(skinData.skinImage);
+            } else {
+                console.log('스킨이 비활성화되어 있음 - layout.js가 기본 스킨 처리');
+            }
+        } else {
+            console.log('스킨 정보를 가져올 수 없습니다:', response.status);
+        }
+    } catch (error) {
+        console.error('스킨 로드 중 오류:', error);
+    }
+}
     }
      const musicTabBtn = document.getElementById('btn-music');
     if (musicTabBtn) {
