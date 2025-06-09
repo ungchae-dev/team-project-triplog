@@ -46,6 +46,7 @@ public class BlogApiController {
             userInfo.put("gender", member.getGender().name()); // 남성/여성 (MALE/FEMALE)
             userInfo.put("joinDate", member.getJoinDate()); // ex) 20250620 형태
             userInfo.put("acorn", member.getAcorn()); // 도토리
+            userInfo.put("profileImage", member.getProfileImage()); // 해당 회원 프로필 이미지
 
             // Blog 정보
             userInfo.put("conditionMessage", blog.getConditionMessage()); // 상태메시지

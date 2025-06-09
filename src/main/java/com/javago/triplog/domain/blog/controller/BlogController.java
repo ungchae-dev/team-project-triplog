@@ -150,29 +150,6 @@ public class BlogController {
             return "redirect:/";
         }
     }
-
-    /*
-    // 마이로그
-    @GetMapping("/@{nickname}/mylog")
-    public String mylog(@PathVariable String nickname, Model model) {
-        try {
-            String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
-            Member blogOwner = memberService.findByNickname(decodedNickname);
-            Blog blog = blogService.findByMember(blogOwner);
-
-            model.addAttribute("blogOwner", blogOwner);
-            // 스킨 정보
-            model.addAttribute("skinActive", blog.getSkinActive().name());
-            model.addAttribute("skinImage", blog.getSkinImage() != null ? blog.getSkinImage() : "/images/skins/triplog_skin_default.png");
-            model.addAttribute("blogNickname", decodedNickname); // JavaScript용 닉네임
-            
-            return "blog/mylog";
-        } catch (Exception e) {
-            System.err.println("마이로그 로드 실패: " + e.getMessage());
-            return "redirect:/";
-        }
-    }
-    */
     
     // 방명록
     @GetMapping("/@{nickname}/guestbook")

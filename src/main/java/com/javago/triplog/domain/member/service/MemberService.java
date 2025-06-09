@@ -133,4 +133,36 @@ public class MemberService implements UserDetailsService {
         return member;
     }
 
+    // === 프로필 - 개인정보 조회/수정 : 프로필 이미지, 상태 메시지 메서드(2) ===
+    // 프로필 이미지 업데이트 전용 메서드
+    @Transactional
+    public void updateProfileImage(String nickname, String profileImagePath) {
+        Member member = memberRepository.findByNickname(nickname);
+        if (member == null) {
+            throw new IllegalArgumentException("존재하지 않는 닉네임입니다: " + nickname);
+        }
+
+        member.setProfileImage(profileImagePath);
+        updatedMember(member);
+        System.out.println("프로필 이미지 업데이트 완료: " + member.getNickname() + " -> " + profileImagePath);
+    }
+
+    // 상태메시지 업데이트 전용 메서드
+    @Transactional
+    public void updateConditionMessage(String nickname, String conditionMessage) {
+        Member member = memberRepository.findByNickname(nickname);
+        if (member == null) {
+            throw new IllegalArgumentException("존재하지 않는 닉네임입니다: " + nickname);
+        }
+
+        if (member.getBlog() != null) {
+            member.getBlog().setConditionMessage(conditionMessage);
+            updatedMember(member); // cascade로 blog도 함께 저장됨
+            System.out.println("상태메시지 업데이트 완료: " + member.getNickname() + " -> " + conditionMessage);
+        } else {
+            System.err.println("블로그가 존재하지 않아 상태메시지 업데이트 실패: " + member.getNickname());
+            throw new IllegalArgumentException("블로그가 존재하지 않습니다: " + nickname);
+        }
+    }
+
 }
