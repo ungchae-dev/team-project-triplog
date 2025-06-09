@@ -42,15 +42,16 @@
         <div class="main-content">
           <div id="board-detail">
 
-            <h2>글 조회</h2>
-
             <div id="blogInfo" th:attr="data-user-id=${userId}, data-nickname=${nickname}" hidden></div>
 
             <label hidden>제목</label><br>
-            <div class="post-header" th:text="'제목 | ' + ${post.title}"></div><br>
+            <div class="post-header">
+              <h2 th:text="${post.title}"></h2>
+            </div><br>
 
             <div class="meta">
               <span th:text="${nickname}">닉네임</span> | <span th:text="${post.viewCount}">조회수</span> | <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">작성시간</span>
+              <span th:if="${post.createdAt != post.updatedAt}" th:text="${#temporals.format(post.updatedAt, 'yyyy--MM--dd HH:mm')}">수정시간</span>
             </div>
 
             <label>내용</label><br>

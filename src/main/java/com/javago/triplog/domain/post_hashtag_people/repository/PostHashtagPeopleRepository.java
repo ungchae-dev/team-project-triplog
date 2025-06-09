@@ -25,9 +25,8 @@ public interface PostHashtagPeopleRepository extends JpaRepository<Post_Hashtag_
 
     // 게시글 작성시 해시태그 저장
     @Modifying
-    @Query(value = "INSERT INTO post_hashtag_people (post_tag_id, post_id, tag_id) VALUES (NEXT VALUE FOR post_hashtag_people_seq, :postId, :tagId)", nativeQuery = true)
+    @Query(value = "INSERT INTO post_hashtag_people (post_tag_id, post_id, tag_id) VALUES (post_hashtag_people_seq.NEXTVAL, :postId, :tagId)", nativeQuery = true)
     void saveHashtag(@Param("tagId") Long tagId, @Param("postId") Long postId);
-    //post_hashtag_people_seq.NEXTVAL
 
     // 게시글의 해시태그ID 불러오기
     @Query("SELECT p.hashtagPeople.tagId FROM Post_Hashtag_people p WHERE p.post.postId = :postId")
