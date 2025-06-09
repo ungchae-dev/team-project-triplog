@@ -58,6 +58,8 @@ public class SecurityConfig {
                 "/blog/@*/guestbook", // 블로그 방명록
                 "/blog/api/@*/skin", // 스킨 API (읽기)
                 "/music/**", // 음악 테스트 페이지
+                "/emoticon/**",
+                "/api/emoticon/**", // 선택한 이모티콘 패키지 조회 API
                 "/api/check-duplicate", // 중복 체크 API
                 "/css/**", // CSS 파일
                 "/js/**", // JavaScript 파일

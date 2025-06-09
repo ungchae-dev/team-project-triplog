@@ -20,5 +20,7 @@ public class StipopPackageDto {
     private String packageName;
     @JsonProperty("packageImg")
     private String packageImg;
+    private Integer price; //DB에 저장되어 있는 가격
+    private long emoticonId; //DB에 저장되어 있는 시퀀스 
     
 }

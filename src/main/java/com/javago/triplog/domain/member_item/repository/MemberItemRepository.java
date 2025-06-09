@@ -26,4 +26,8 @@ public interface MemberItemRepository extends JpaRepository<MemberItem, Long> {
     // 특정 회원이 구매한 음악 ID 리스트 반환
     @Query("SELECT mi.music.musicId FROM MemberItem mi WHERE mi.member.memberId = :memberId AND mi.itemType = :itemType")
     List<Long> findMusicItemIdsByMemberIdAndItemType(@Param("memberId") String memberId, @Param("itemType") ItemType itemType);
+
+    // 특정 회원이 이미 구매한 이모티콘이 있는지 확인
+    boolean existsByMemberAndEmoticon_EmoticonId(Member member, Long emoticonId);
+
 }

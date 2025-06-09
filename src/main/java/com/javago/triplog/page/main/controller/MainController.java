@@ -58,5 +58,6 @@ public class MainController {
         model.addAttribute("contentId", contentId);
         model.addAttribute("contentTypeId", contentTypeId);
         return "page/popup"; // popup.html
+
     }
 }

@@ -62,6 +62,38 @@ public class MemberService implements UserDetailsService {
         return savedMember;
     }
 
+    // 회원 정보 업데이트 (중복 검증 없이 단순 저장)
+    // : 도토리 차감, 프로필 수정 등에 사용
+    @Transactional
+    public Member updatedMember(Member member) {
+        Member updatedMember = memberRepository.save(member);
+        System.out.println("회원 정보 업데이트 완료: " + updatedMember.getMemberId() + " (도토리: " + updatedMember.getAcorn() + ")");
+        return updatedMember;
+    }
+
+    // 도토리 차감 메서드
+    @Transactional
+    public boolean deductAcorn(Member member, int amount) {
+        if (member.getAcorn() < amount) {
+            System.out.println("도토리 부족: 현재 " + member.getAcorn() + "개, " + amount + "개 필요");
+            return false;
+        }
+
+        member.setAcorn(member.getAcorn() - amount);
+        updatedMember(member);
+        System.out.println("도토리 차감 완료: " + member.getNickname() + " (" + amount + "개 차감, 잔여: " + member.getAcorn() + "개)");
+        return true;
+    }
+
+    // 도토리 추가 메서드
+    @Transactional
+    public void addAcorn(Member member, int amount) {
+        member.setAcorn(member.getAcorn() + amount);
+        updatedMember(member);
+        System.out.println("도토리 추가 완료: " + member.getNickname() + " (" + amount + "개 추가, 보유: " + member.getAcorn() + "개)");
+        
+    }
+
     // 특정 회원 ID가 이미 존재하는지 확인하는 메서드
     // InitialDataConfig에서 관리자 계정 중복 생성 방지를 위해 사용
     public boolean existsByMemberId(String memberId) {

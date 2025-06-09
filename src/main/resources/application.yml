@@ -9,6 +9,7 @@ spring:
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver
     url: jdbc:oracle:thin:@localhost:1521:xe  # 본인 Oracle 설정에 맞게 수정
+    connectionProperties: oracle.jdbc.defaultNChar=true
     username: javago
     password: 12345
 
@@ -23,6 +24,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        use_sql_comments: true
     database-platform: org.hibernate.dialect.OracleDialect
     # 오라클 12c 이후(18c, 19c, 21c 등)는 대부분 Oracle12cDialect 또는 OracleDialect 로 통합해서 사용
   
@@ -34,6 +36,12 @@ spring:
   # Thymeleaf cache 사용 중지 => 캐싱 기능을 false로 설정
   thymeleaf:
     cache: false
+
+  # 스킨 업로드 이미지(.jpg, .jpeg, .png, .gif, .webp) 서버 파일 크기 제한 확장
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 # 서버 포트 지정
 server:
@@ -55,6 +63,7 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql: trace
+    org.hibernate.orm.jdbc.bind: trace
 
 # 초기 관리자 계정 설정
 app:
