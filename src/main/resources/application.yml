@@ -59,11 +59,11 @@ stipop:
   api-key: "d7f7de93bb1baec62995773ba0665e07"
 
 # SQL문(DDL) 로그에 출력
-logging:
-  level:
-    org.hibernate.SQL: debug
-    org.hibernate.type.descriptor.sql: trace
-    org.hibernate.orm.jdbc.bind: trace
+#logging:
+#  level:
+#    org.hibernate.SQL: debug
+#    org.hibernate.type.descriptor.sql: trace
+#    org.hibernate.orm.jdbc.bind: trace
 
 # 초기 관리자 계정 설정
 app:
