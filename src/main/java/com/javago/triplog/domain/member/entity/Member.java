@@ -49,7 +49,7 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", length = 10, nullable = false)
-    private Gender gender;      // 성별 (주민번호로 구분, F: 남성 / M: 여성)
+    private Gender gender;      // 성별 (MALE: 남성 / FEMALE: 여성)
 
     @Column(name = "nickname", length = 50, nullable = false, unique = true)
     private String nickname;  // 닉네임 (다른 사용자에게 표시됨)
@@ -94,7 +94,7 @@ public class Member {
     // Member -> MemberItem (1:다)
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<MemberItem> memberItems = new ArrayList<>();
-
+    
     // 생성 직전 기본값 세팅 (joinDate, acorn)
     @PrePersist
     public void prePersist() {

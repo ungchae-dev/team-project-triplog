@@ -435,7 +435,7 @@
         }
     }
 
-    // === 프로필 사진 미리보기 ===
+    // === 프로필 사진 미리보기 및 업로드 ===
     function setupPhotoPreview() {
         const editPhoto = document.getElementById('edit-photo');
         const editPreviewImg = document.getElementById('edit-preview-img');
@@ -444,6 +444,22 @@
             editPhoto.addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (file) {
+                    // 파일 크기 확인 (5MB 제한)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('파일 크기는 5MB 이하여야 합니다!');
+                        editPhoto.value = '';
+                        return;
+                    }
+
+                    // 파일 형식 확인 (수정됨)
+                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                    if (!allowedTypes.includes(file.type)) {
+                        alert('지원하지 않는 파일 형식입니다. (jpg, jpeg, png, gif, webp만 가능)');
+                        editPhoto.value = '';
+                        return;
+                    }
+
+                    // 미리보기 표시
                     const reader = new FileReader();
                     reader.onload = function(evt) {
                         editPreviewImg.src = evt.target.result;
@@ -455,51 +471,132 @@
     }
 
     // === 프로필 정보 저장 ===
-    function setupProfileSave() {
+    async function setupProfileSave() {
         const form = document.getElementById('profile-edit-form');
         
         if (form) {
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
-                const editNickname = document.getElementById('edit-nickname');
-                const editBio = document.getElementById('edit-bio');
-                const editPreviewImg = document.getElementById('edit-preview-img');
-                const editPasswordOld = document.getElementById('edit-password-old');
-                const editPasswordNew = document.getElementById('edit-password-new');
+                const editPhoto = document.getElementById('edit-photo');
 
-                // 닉네임/상태메시지 업데이트
-                if (editNickname && editNickname.value.trim()) {
-                    const newNickname = editNickname.value.trim();
-                    updateElement('current-nickname', newNickname);
-                    updateElement('user-info', newNickname);
-                }
-
-                if (editBio && editBio.value.trim()) {
-                    const newBio = editBio.value.trim();
-                    updateElement('current-bio', newBio);
-                    updateElement('condition-message', newBio);
-                }
-
-                // 프로필 사진 업데이트
-                if (editPreviewImg && editPreviewImg.src && !editPreviewImg.src.includes('placeholder')) {
-                    updateElement('current-profile-img', editPreviewImg.src);
-                    
-                    const sideProfileImg = document.querySelector('.profile-pic img');
-                    if (sideProfileImg) {
-                        sideProfileImg.src = editPreviewImg.src;
+                try {
+                    // 프로필 사진 업로드 처리
+                    if (editPhoto && editPhoto.files.length > 0) {
+                        const profileUpdateSuccess = await uploadProfileImage(editPhoto.files[0]);
+                        
+                        if (profileUpdateSuccess) {
+                            alert('프로필 사진이 변경되었습니다.');
+                            
+                            // 탭 전환 제거 (현재 탭 유지)
+                            // switchTab('inventory'); // 이 줄 제거
+                            
+                            // 즉시 UI 업데이트 (새로고침 대신)
+                            setTimeout(() => {
+                                loadCurrentUserInfo(); // 현재 정보 다시 로드
+                                
+                                // 수동으로 모든 프로필 이미지 강제 업데이트
+                                const profileImages = document.querySelectorAll('img[src*="/uploads/profiles/"], .profile-pic img');
+                                profileImages.forEach(img => {
+                                    const currentSrc = img.src;
+                                    img.src = currentSrc + '?t=' + Date.now(); // 캐시 무효화
+                                });
+                            }, 500);
+                            
+                        } else {
+                            alert('프로필 사진 업로드에 실패했습니다.');
+                        }
+                    } else {
+                        alert('변경할 프로필 사진을 선택해주세요.');
                     }
-                }
 
-                // 비밀번호 변경
-                if (editPasswordOld && editPasswordNew && 
-                    editPasswordOld.value && editPasswordNew.value) {
-                    console.log('비밀번호 변경 요청');
+                } catch (error) {
+                    console.error('프로필 업데이트 중 오류:', error);
+                    alert('프로필 업데이트 중 오류가 발생했습니다.');
                 }
-
-                switchTab('inventory');
-                alert('프로필이 저장되었습니다.');
             });
+        }
+    }
+
+    // === 프로필 이미지 업로드 ===
+    async function uploadProfileImage(file) {
+        try {
+            const formData = new FormData();
+            formData.append('profileImage', file);
+
+            const currentNickname = window.currentBlogNickname || getCurrentNickname();
+            if (!currentNickname) {
+                throw new Error('블로그 닉네임을 찾을 수 없습니다!');
+            }
+
+            const encodedNickname = encodeURIComponent(currentNickname);
+            const response = await fetch(`/blog/@${encodedNickname}/profile/info/upload-image`, {
+                method: 'POST', 
+                body: formData
+            });
+
+            const result = await response.json();
+            console.log('프로필 사진 업로드 응답:', result);
+
+            if (response.ok && result.success) {
+                console.log('=== 프로필 이미지 업로드 성공 ===');
+                console.log('서버 응답 이미지 URL:', result.profileImageUrl);
+                
+                // 전역 캐시 시스템 업데이트 (layout.js)
+                if (typeof window.updateProfileImageCache === 'function') {
+                    console.log('전역 캐시 업데이트 함수 호출');
+                    window.updateProfileImageCache(result.profileImageUrl);
+                    console.log('전역 프로필 이미지 캐시 업데이트 완료');
+                } else {
+                    console.error('window.updateProfileImageCache 함수를 찾을 수 없음!');
+                    
+                    // 수동으로 모든 프로필 이미지 업데이트
+                    console.log('수동 프로필 이미지 업데이트 시작');
+                    updateAllProfileImagesManually(result.profileImageUrl);
+                }
+                
+                return true;
+            } else {
+                console.error('프로필 사진 업로드 실패:', result.message);
+                alert(`프로필 사진 업로드 실패: ${result.message}`);
+                return false;
+            }
+
+        } catch (error) {
+            console.error('프로필 사진 업로드 중 오류:', error);
+            alert('프로필 사진 업로드 중 오류가 발생했습니다!');
+            return false;
+        }
+    }
+
+    // 수동 업데이트 함수 추가
+    function updateAllProfileImagesManually(profileImageUrl) {
+        const timestamp = Date.now();
+        const imageUrlWithCache = profileImageUrl + '?t=' + timestamp;
+        
+        console.log('수동 업데이트할 이미지 URL:', imageUrlWithCache);
+        
+        // 1. 사이드바 프로필 이미지
+        const sideProfileImg = document.querySelector('.profile-pic img');
+        if (sideProfileImg) {
+            sideProfileImg.src = imageUrlWithCache;
+            console.log('사이드바 프로필 이미지 업데이트');
+        } else {
+            console.log('사이드바 프로필 이미지 요소를 찾을 수 없음');
+        }
+        
+        // 2. 프로필 페이지의 현재 이미지
+        const currentProfileImg = document.getElementById('current-profile-img');
+        if (currentProfileImg) {
+            currentProfileImg.src = imageUrlWithCache;
+            console.log('프로필 페이지 현재 이미지 업데이트');
+        }
+        
+        // 3. 프로필 페이지의 미리보기 이미지
+        const editPreviewImg = document.getElementById('edit-preview-img');
+        if (editPreviewImg) {
+            editPreviewImg.src = imageUrlWithCache;
+            console.log('프로필 페이지 미리보기 이미지 업데이트');
         }
     }
 
