@@ -151,6 +151,7 @@ public class BlogController {
         }
     }
 
+    /*
     // 마이로그
     @GetMapping("/@{nickname}/mylog")
     public String mylog(@PathVariable String nickname, Model model) {
@@ -171,6 +172,7 @@ public class BlogController {
             return "redirect:/";
         }
     }
+    */
     
     // 방명록
     @GetMapping("/@{nickname}/guestbook")

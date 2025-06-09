@@ -416,7 +416,6 @@ const PAGE_TITLES = {
     'profile': '프로필', 
     'post': '게시판', 
     'jukebox': '주크박스', 
-    'mylog': '마이로그', 
     'guestbook': '방명록'
 }
 
@@ -459,7 +458,6 @@ async function loadPageContent(page, nickname) {
             'profile': `/blog/@${encodedNickname}/profile`, 
             'post': `/blog/@${encodedNickname}/post`, 
             'jukebox': `/blog/@${encodedNickname}/jukebox`, 
-            'mylog': `/blog/@${encodedNickname}/mylog`, 
             'guestbook': `/blog/@${encodedNickname}/guestbook`
         };
 
