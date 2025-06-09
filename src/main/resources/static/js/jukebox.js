@@ -1,4 +1,4 @@
-// jukebox.js - 주크박스 페이지 기능
+// jukebox.js : 여행 블로그 - 주크박스 페이지 전용 기능
 
 (function() {
     'use strict';
@@ -100,11 +100,74 @@
         console.log('주크박스 페이지 초기화 시작');
         renderTrackLists();
         renderPagination();
+
+        // 공통 스킨 로드
+        if (typeof window.maintainDefaultSkinForInactiveUsers === 'function') {
+            window.maintainDefaultSkinForInactiveUsers();
+        }
+
         console.log('주크박스 페이지 초기화 완료');
     }
 
-    // === 전역 함수로 노출 (SPA 네비게이션 연동용) ===
-    window.setupJukeboxFeatures = initJukeboxPage; // 🔥 이 줄이 핵심!
+    // === 스킨 로드 함수 시작 ===
+    async function loadBlogSkin() {
+        const currentNickname = getCurrentNickname();
+        if (!currentNickname) return;
+
+        try {
+            const encodedNickname = encodeURIComponent(currentNickname);
+            const response = await fetch(`/blog/api/@${encodedNickname}/skin`);
+
+            if (response.ok) {
+                const skinData = await response.json();
+                console.log('주크박스 페이지 스킨 데이터:', skinData);
+
+                if (skinData.skinActive === 'Y' && skinData.skinImage) {
+                    applySkin(skinData.skinImage);
+                }  else {
+                    console.log('스킨이 비활성화되어 있음 - layout.js가 기본 스킨 처리');
+                }
+            } else {
+                console.log('스킨 정보를 가져올 수 없습니다:', response.status);
+            }
+        } catch (error) {
+            console.error('스킨 로드 중 오류:', error);
+        }
+    }
+
+    function getCurrentNickname() {
+        const currentPath = window.location.pathname;
+        const match = currentPath.match(/^\/blog\/@([^\/]+)/);
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+
+    function applySkin(skinImageUrl) {
+        const frame = document.querySelector('.frame');
+        if (frame && skinImageUrl) {
+            const img = new Image();
+            img.onload = () => {
+                frame.style.backgroundImage = `url(${skinImageUrl})`;
+                frame.classList.add('has-skin');
+                console.log('주크박스 페이지 스킨 적용 완료:', skinImageUrl);
+            };
+            img.src = skinImageUrl;
+        }
+    }
+
+    function removeSkin() {
+        const frame = document.querySelector('.frame');
+        if (frame) {
+            frame.style.backgroundImage = '';
+            frame.classList.remove('has-skin');
+            console.log('주크박스 페이지 스킨 제거 완료');
+        }
+    }
+
+    // === 전역 함수로 노출 ===
+    window.setupJukeboxFeatures = initJukeboxPage;
+    window.loadBlogSkin = loadBlogSkin;
+
+    // === 스킨 로드 함수 끝 ===
 
     // === 페이지 로드 시 초기화 ===
     document.addEventListener('DOMContentLoaded', initJukeboxPage);

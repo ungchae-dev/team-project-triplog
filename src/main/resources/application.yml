@@ -36,6 +36,12 @@ spring:
   thymeleaf:
     cache: false
 
+  # 스킨 업로드 이미지(.jpg, .jpeg, .png, .gif, .webp) 서버 파일 크기 제한 확장
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
 # 서버 포트 지정
 server:
   port: 8085

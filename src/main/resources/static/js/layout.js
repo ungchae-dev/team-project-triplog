@@ -1,55 +1,62 @@
 // layout.js - 공통 레이아웃 및 네비게이션 관리
 
-document.addEventListener('DOMContentLoaded', async () => {
-    // 컴포넌트 로드
-    await loadLayoutComponents();
-    
-    // 페이지별 제목 자동 설정
-    setPageTitleByUrl();
+// === 전역 변수 ===
+let cachedSkinInfo = null; // 스킨 정보 캐시
+let skinInfoloaded = false; // 스킨 정보 로드 완료 여부
 
-    // 네비게이션 이벤트 설정
-    setupNavigation();
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('=== Layout 초기화 시작 ===');
     
-    // 음악 위젯 이벤트
-    setupMusicWidget();
+    await loadLayoutComponents(); // 1. 컴포넌트 로드
+    setupNavigation(); // 2. 네비게이션 즉시 설정 (컴포넌트 로드 완료 후)
+    setPageTitleByUrl(); // 3. 페이지별 제목 자동 설정
+    setupMusicWidget(); // 4. 음악 위젯 이벤트
+
+    // 스킨 정보 미리 캐싱 (최초 로드시)
+    await maintainDefaultSkinForInactiveUsers(); // 5. 즉시 스킨 유지 + 캐싱
+    
+    console.log('=== Layout 초기화 완료 ===');
 });
 
 // 개별 컴포넌트 로드 함수
 async function loadComponent(containerId, componentPath) {
-    console.log(`컴포넌트 로딩 시도: ${componentPath}`); // 추가
+    console.log(`컴포넌트 로딩 시도: ${componentPath}`);
 
     try {
         const response = await fetch(componentPath);
-        console.log(`응답 상태: ${response.status}`); // 추가
+        console.log(`응답 상태: ${response.status}`);
+        
         if (!response.ok) {
             throw new Error(`HTTP 에러! 상태: ${response.status}`)
         }
+        
         const html = await response.text();
-        console.log(`HTML 로드 성공: ${componentPath}`); // 추가
+        console.log(`HTML 로드 성공: ${componentPath}`);
 
         // body 태그 내용만 추출
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
         const bodyContent = tempDiv.querySelector('body')?.innerHTML || html;
 
-        document.getElementById(containerId).innerHTML = bodyContent;
-        console.log(`컴포넌트 삽입 완료: ${containerId}`); // 추가
+        const container = document.getElementById(containerId);
+        if (container) {
+            container.innerHTML = bodyContent;
+            console.log(`컴포넌트 삽입 완료: ${containerId}`);
+        }
     } catch (error) {
         console.error(`컴포넌트 로딩 실패 ${componentPath}:`, error)
     }
 }
 
-// 공통 레이아웃 컴포넌트들 로드
+// 공통 레이아웃 컴포넌트들(home_left, home_top, home_right) 로드
 async function loadLayoutComponents() {
     try {
-        // 왼쪽 사이드 로드
-        await loadComponent('left-container', '/components/home_left.html');
-
-        // 상단 헤더 로드  
-        await loadComponent('top-container', '/components/home_top.html');
-
-        // 오른쪽 네비 로드
-        await loadComponent('right-container', '/components/home_right.html');
+        // 병렬 로드로 더 빠르게
+        await Promise.all([
+            loadComponent('left-container', '/components/home_left.html'),
+            loadComponent('top-container', '/components/home_top.html'),
+            loadComponent('right-container', '/components/home_right.html')
+        ]);
 
         console.log('레이아웃 컴포넌트 로드 완료');
     } catch (error) {
@@ -57,30 +64,79 @@ async function loadLayoutComponents() {
     }
 }
 
-// 네비게이션 버튼 이벤트 설정
+// 네비게이션 버튼 이벤트 설정 (즉시 실행)
 function setupNavigation() {
+    const navBtns = document.querySelectorAll('.nav-btn');
+    console.log('네비게이션 버튼 찾음:', navBtns.length);
 
-    setTimeout(() => {
+    if (navBtns.length > 0) {
+        navBtns.forEach(btn => {
+            const page = btn.getAttribute('data-page');
+            console.log(`버튼 이벤트 설정:`, page);
+
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('버튼 클릭됨:', page);
+                navigateToPage(page);
+            });
+        });
+        console.log('모든 네비게이션 이벤트 설정 완료');
+        return; // 성공 시 즉시 종료
+    }
+
+    // 버튼이 없는 경우 - MutationObserver 사용 (즉시 반응)
+    console.log('네비게이션 버튼을 찾을 수 없음 - 옵저버 설정');
+    setupNavigationObserver();
+}
+
+// 네비게이션 옵저버 설정 (즉시 반응)
+function setupNavigationObserver() {
+    const observer = new MutationObserver((mutations) => {
+        // DOM 변경이 있을 때마다 즉시 확인
         const navBtns = document.querySelectorAll('.nav-btn');
-        console.log('네비게이션 버튼 찾음:', navBtns.length) // 디버깅
 
         if (navBtns.length > 0) {
+            console.log('옵저버가 네비게이션 버튼 발견:', navBtns.length);
+
             navBtns.forEach(btn => {
                 const page = btn.getAttribute('data-page');
-                console.log(`버튼 이벤트 설정:`, page); // 디버깅
 
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault(); // 기본 동작 방지
-                    console.log('버튼 클릭됨:', page) // 디버깅
-                    navigateToPage(page);
-                });
+                // 이미 이벤트가 설정된 버튼인지 확인
+                if (!btn.hasAttribute('data-event-set')) {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        console.log('버튼 클릭됨:', page);
+                        navigateToPage(page);
+                    });
+
+                    // 이벤트 설정 완료 표시
+                    btn.setAttribute('data-event-set', 'true');
+                    console.log(`옵저버로 버튼 이벤트 설정: ${page}`);
+                }
             });
-            console.log('모든 네비게이션 이벤트 설정 완료');
-        } else {
-            console.log('네비게이션 버튼을 찾을 수 없습니다!');
+
+            console.log('옵저버로 모든 네비게이션 이벤트 설정 완료');
+            observer.disconnect(); // 작업 완료 후 옵저버 해제
         }
-    }, 1000); // 1초 후 실행
-    
+    });
+
+    // right-container 감시 (네비게이션 버튼이 들어가는 곳)
+    const rightContainer = document.getElementById('right-container');
+
+    if (rightContainer) {
+        observer.observe(rightContainer, {
+            childList: true, 
+            subtree: true
+        });
+        console.log('네비게이션 옵저버 시작 - right-container 감시');
+    } else {
+        // right-container도 없으면 전체 body 감시
+        observer.observe(document.body, {
+            childList: true, 
+            subtree: true
+        });
+        console.log('네비게이션 옵저버 시작 - body 감시');
+    }
 }
 
 // URL에서 현재 블로그 소유자 닉네임 추출
@@ -88,76 +144,241 @@ function getCurrentNickname() {
     const currentPath = window.location.pathname;
     const match = currentPath.match(/^\/blog\/@([^\/]+)/);
     if (match) {
-        // 항상 디코딩된 상태로 반환
         try {
             return decodeURIComponent(match[1]);
         } catch (e) {
-            // 이미 디코딩된 상태면 그대로 반환
             return match[1];
         }
     }
     return null;
 }
 
-// 페이지 네비게이션 함수 (SPA 방식)
-function navigateToPage(page) {
+// === 스킨 비활성화 회원만을 위한 기본 스킨 유지 함수 ===
+async function maintainDefaultSkinForInactiveUsers() {
+    const nickname = getCurrentNickname();
+    if (!nickname) return;
 
-    // 현재 창에서 이동
+    // 캐시된 스킨 정보가 있으면 즉시 적용
+    if (cachedSkinInfo) {
+        console.log('캐시된 스킨 정보 사용:', cachedSkinInfo);
+        applyCachedSkin();
+        return;
+    }
+    
+    // 1. 즉시 기본 스킨 적용 (캐시가 없을 때만)
+    if (!skinInfoloaded) {
+        applyDefaultSkinOnly();
+    }
+
+    // 2. API로 실제 상태 확인 후 조정 및 캐싱
+    try {
+        const encodedNickname = encodeURIComponent(nickname);
+        const response = await fetch(`/blog/api/@${encodedNickname}/skin`);
+
+        if (response.ok) {
+            const skinData = await response.json();
+            console.log('스킨 상태 확인:', skinData);
+
+            // 스킨 정보 캐싱
+            cachedSkinInfo = skinData;
+            skinInfoloaded = true;
+
+            applyCachedSkin();
+        } 
+    } catch (error) {
+        console.error('스킨 상태 확인 중 오류:', error);
+        // 오류 시에도 기본 스킨은 이미 적용되어 있음
+    }
+}
+
+// 캐시된 스킨 정보로 스킨 적용
+function applyCachedSkin() {
+    const frame = document.querySelector('.frame');
+    
+    // frame 요소가 없으면 함수 종료 (에러 방지)
+    if (!frame) {
+        console.warn('frame 요소를 찾을 수 없습니다. 스킨 적용을 건너뜁니다.');
+        return;
+    };
+    console.log('applyCachedSkin 실행 - 캐시 정보:', cachedSkinInfo);
+
+    if (cachedSkinInfo.skinActive === 'Y' && cachedSkinInfo.skinImage) {
+        // 스킨 활성화 회원 - 커스텀 스킨 적용
+        console.log('커스텀 스킨 적용 시도:', cachedSkinInfo.skinImage);
+
+        frame.style.backgroundImage = `url("${cachedSkinInfo.skinImage}")`;
+        frame.style.backgroundSize = 'cover';
+        frame.style.backgroundPosition = 'center';
+        frame.style.backgroundRepeat = 'no-repeat';
+        frame.classList.add('has-skin', 'skin-loaded');
+
+        console.log('캐시된 커스텀 스킨 적용:', cachedSkinInfo.skinImage);
+    } else {
+        // 스킨 비활성화 회원 - 기본 스킨 적용
+        console.log('기본 스킨 적용');
+        applyDefaultSkinOnly();
+    }
+};
+
+// 캐시 강제 업데이트 함수
+// 프로필에서 스킨 변경 후 호출할 함수
+window.updateSkinCache = async function(newSkinInfo) {
+    console.log('스킨 캐시 강제 업데이트:', newSkinInfo);
+
+    if (newSkinInfo) {
+        // 새로운 스킨 정보로 캐시 직접 업데이트
+        cachedSkinInfo = {
+            skinActive: newSkinInfo.skinActive || 'Y', 
+            skinImage: newSkinInfo.skinImage
+        };
+
+        console.log('캐시 업데이트 완료:', cachedSkinInfo);
+
+        // 즉시 스킨 적용
+        applyCachedSkin();
+    } else {
+        // 새로운 정보가 없으면 API로 최신 정보 가져오기
+        await forceRefreshSkinCache();
+    }
+}
+
+// 캐시 강제 새로고침 함수
+window.forceRefreshSkinCache = async function() {
+    console.log('스킨 캐시 강제 새로고침 시작');
+
+    const nickname = getCurrentNickname();
+    if (!nickname) return;
+
+    try {
+        // 기존 캐시 무효화
+        cachedSkinInfo = null;
+        skinInfoloaded = false;
+
+        console.log('기존 캐시 무효화 완료');
+
+        // 최신 스킨 정보 가져오기
+        const encodedNickname = encodeURIComponent(nickname);
+        const response = await fetch(`/blog/api/@${encodedNickname}/skin?t=${Date.now()}`); // 캐시 방지용 타임스탬프
+
+        if (response.ok) {
+            const skinData = await response.json();
+            console.log('최신 스킨 정보 로드:', skinData);
+
+            // 새로운 정보로 캐시 업데이트
+            cachedSkinInfo = skinData;
+            skinInfoloaded = true;
+
+            // 즉시 적용
+            applyCachedSkin();
+
+            console.log('스킨 캐시 새로고침 완료');
+        } else {
+            console.error('스킨 정보 로드 실패:', response.status);
+        }
+    } catch (error) {
+        console.error('스킨 캐시 새로고침 중 오류:', error);
+    }
+}
+
+// 캐시 무효화 함수
+window.invalidateSkinCache = function() {
+    console.log('스킨 캐시 무효화');
+    cachedSkinInfo = null;
+    skinInfoloaded = false;
+}
+
+// === 기본 스킨만 적용 (스킨 비활성화 회원용) ===
+function applyDefaultSkinOnly() {
+    const frame = document.querySelector('.frame');
+    if (frame) {
+        frame.style.backgroundImage = 'url("/images/skins/triplog_skin_default.png")';
+        frame.style.backgroundSize = 'cover';
+        frame.style.backgroundPosition = 'center';
+        frame.style.backgroundRepeat = 'no-repeat';
+        frame.classList.remove('has-skin'); // 커스텀 스킨 클래스 제거
+        frame.classList.add('skin-loaded');
+        console.log('기본 스킨 적용 완료 (스킨 비활성화 회원용)');
+    }
+}
+
+// 페이지 네비게이션 함수 (즉시 반응)
+function navigateToPage(page) {
     const currentNickname = getCurrentNickname();
     if(!currentNickname) {
         alert('로그인이 필요합니다.');
         window.location.href = '/member/login';
         return;
     }
+    console.log(`즉시 페이지 이동 시작: ${page}`);
 
-    // 즉시 제목과 네비 버튼 변경 (페이지 로드 전에!)
+    // 즉시 UI 업데이트 (지연 없음)
     setActiveNavButton(page);
-    setPageTitleImmediately(page); // 즉시 제목 변경 함수 호출
+    setPageTitleImmediately(page);
 
-    // 페이지 내용만 동적으로 변경
+    // 캐시 상태 체크 후 스킨 적용
+    requestAnimationFrame(() => {
+        if (cachedSkinInfo) {
+            console.log('캐시된 스킨 정보 사용:', cachedSkinInfo);
+            applyCachedSkin(); // 캐시된 정보로 즉시 적용
+        } else {
+            console.log('캐시가 없어서 스킨 정보 로드');
+            maintainDefaultSkinForInactiveUsers(); // 최초 로드시만 API 호출
+        }
+    });
+
+    // 페이지 내용 로드
     loadPageContent(page, currentNickname);
 
-    // 새로고침 없이 URL 변경
+    // URL 변경
     const encodedNickname = encodeURIComponent(currentNickname);
     const newUrl = `/blog/@${encodedNickname}${page === 'home' ? '' : '/' + page}`;
     history.pushState({page}, '', newUrl);
 
-    // 네비 버튼 활성화 & 제목 변경
-    setActiveNavButton(page);
-    setPageTitleByUrl();
-
+    console.log(`페이지 이동 완료: ${page}`);
 }
 
 // 음악 위젯 이벤트 설정
 function setupMusicWidget() {
-    // LIST 버튼 감시 (컴포넌트 로드 후)
+    // 즉시 확인, 없으면 옵저버로 감시
+    const listBtn = document.getElementById('list-btn');
+    if (listBtn) {
+        setupListButtonEvent(listBtn);
+        return;
+    }
+
+    // 컴포넌트가 아직 로드되지 않은 경우 옵저버 사용
     const observer = new MutationObserver(() => {
         const listBtn = document.getElementById('list-btn');
         if (listBtn) {
-            listBtn.addEventListener('click', () => {
-                // 현재 블로그 닉네임 가져오기
-                const currentNickname = getCurrentNickname();
-                if (currentNickname) {
-                    // SPA 방식으로 주크박스 페이지로 이동
-                    navigateToPage('jukebox');
-                } else {
-                    // fallback(폴백): 직접 이동
-                    window.location.href = '/blog/jukebox';
-                }
-            });
+            setupListButtonEvent(listBtn);
             observer.disconnect();
         }
     });
 
-    observer.observe(document.getElementById('top-container'), {
-        childList: true,
-        subtree: true
-    });
+    const topContainer = document.getElementById('top-container');
+    if (topContainer) {
+        observer.observe(topContainer, {
+            childList: true,
+            subtree: true
+        });
+    }
 }
 
-// 현재 페이지에 맞는 네비 버튼 활성화
+// LIST 버튼 이벤트 설정
+function setupListButtonEvent(listBtn) {
+    listBtn.addEventListener('click', () => {
+        const currentNickname = getCurrentNickname();
+        if (currentNickname) {
+            navigateToPage('jukebox');
+        } else {
+            window.location.href = '/blog/jukebox';
+        }
+    });
+    console.log('LIST 버튼 이벤트 설정 완료');
+}
+
+// 현재 페이지에 맞는 네비 버튼 활성화 (즉시 실행)
 function setActiveNavButton(currentPage) {
-    // 즉시 변경
     const navBtns = document.querySelectorAll('.nav-btn');
     navBtns.forEach(btn => {
         btn.classList.remove('active');
@@ -168,23 +389,28 @@ function setActiveNavButton(currentPage) {
     console.log(`네비 버튼 즉시 변경: ${currentPage}`);
 }
 
-// 페이지 제목 변경 함수
+// 페이지 제목 변경 함수 (즉시 실행)
 function setPageTitle(title) {
-    setTimeout(() => {
-        const titleEl = document.getElementById('page-title');
-        if (titleEl) {
-            titleEl.textContent = title;
-        }
-    }, 100);
+    const titleEl = document.getElementById('page-title');
+    if (titleEl) {
+        titleEl.textContent = title;
+        console.log(`제목 즉시 변경: ${title}`);
+    }
+}
+
+// 즉시 제목 변경 함수
+function setPageTitleImmediately(page) {
+    const pageTitle = PAGE_TITLES[page] || '홈';
+    setPageTitle(pageTitle);
 }
 
 // 외부에서 호출 가능한 함수들로 노출
 window.setActiveNavButton = setActiveNavButton;
 window.setPageTitle = setPageTitle;
+window.navigateToPage = navigateToPage;
 
 // 페이지 제목 매핑 테이블
 const PAGE_TITLES = {
-    // 기본 페이지들
     'home': '홈', 
     'shop': '상점', 
     'profile': '프로필', 
@@ -194,53 +420,39 @@ const PAGE_TITLES = {
     'guestbook': '방명록'
 }
 
-// URL 기반 페이지 제목 자동 설정
+// URL 기반 페이지 제목 자동 설정 (즉시 실행)
 function setPageTitleByUrl() {
     const currentPath = window.location.pathname;
+    let pageKey = 'home';
 
-    // URL에서 페이지 식별
-    let pageKey = 'home'; // 기본값
-
-    // /blog/@nickname/xxx 패턴에서 xxx 추출
     const match = currentPath.match(/\/blog\/@[^\/]+\/(.+)/);
     if (match) {
-        pageKey = match[1]; // shop, profile, ... 등등
+        pageKey = match[1];
     } else if (currentPath.match(/\/blog\@[^\/]+$/)) {
-        pageKey = 'home' // 블로그 홈
+        pageKey = 'home';
     }
 
-    // 먼저 정확한 key로 찾고, 없으면 상위 페이지로 폴백(fallback, 대체)
     let pageTitle = PAGE_TITLES[pageKey];
-
     if (!pageTitle && pageKey.includes('/')) {
-        // 만약 profile/items(구매/보유내역)이면 -> 'profile'로 폴백
         const parentKey = pageKey.split('/')[0];
         pageTitle = PAGE_TITLES[parentKey];
     }
+    pageTitle = pageTitle || '홈';
 
-    pageTitle = pageTitle || '홈'; // 최종 폴백
-
-    // 컴포넌트 로드 후 제목 설정
-    setTimeout(() => {
-        setPageTitle(pageTitle);
-    }, 200);
-
-};
+    // 즉시 설정
+    setPageTitle(pageTitle);
+}
 
 // 페이지 컨텐츠 동적 로드
 async function loadPageContent(page, nickname) {
-    
     const mainContent = document.querySelector('.main-content');
     if (!mainContent) return;
 
     try {
-        // 로딩 표시
-        mainContent.innerHTML = '<div style="text-align: center; padding: 50px;">로딩 중...</div>';
+        // 즉시 로딩 표시
+        mainContent.innerHTML = '<div style="text-align: center; padding: 50px; color: #666;">로딩 중...</div>';
 
-        // 닉네임을 항상 인코딩해서 URL 생성
         const encodedNickname = encodeURIComponent(nickname);
-
-        // 블로그 페이지(7) URL
         const pageUrls = {
             'home': `/blog/@${encodedNickname}`, 
             'shop': `/blog/@${encodedNickname}/shop`, 
@@ -251,34 +463,26 @@ async function loadPageContent(page, nickname) {
             'guestbook': `/blog/@${encodedNickname}/guestbook`
         };
 
-        console.log(`페이지 로드 시도: ${pageUrls[page]}`); // 디버깅 로그
+        console.log(`페이지 로드 시도: ${pageUrls[page]}`);
 
         const response = await fetch(pageUrls[page]);
 
         if (response.ok) {
             const html = await response.text();
-
-            // HTML에서 main-content 부분만 추출
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = html;
             const pageContent = tempDiv.querySelector('.main-content')?.innerHTML;
 
             if (pageContent) {
                 mainContent.innerHTML = pageContent;
-                console.log(`${page} 페이지 콘텐츠 삽입 완료`); // 디버깅
-                initializePage(page); // 페이지별 초기화 함수 호출
+                console.log(`${page} 페이지 콘텐츠 삽입 완료`);
+                
+                // 즉시 페이지 초기화
+                initializePage(page);
                 console.log(`${page} 페이지 로드 성공`);
             } else {
-                // 디버깅 코드 추가
-                console.log('=== 디버깅 정보 ===');
-                console.log('전체 HTML 길이:', html.length);
-                console.log('tempDiv 내용 (처음 1000자):', tempDiv.innerHTML.substring(0, 1000));
-                console.log('main-content 요소 찾기 결과:', tempDiv.querySelector('.main-content'));
-                console.log('===================');
-
                 throw new Error('main-content를 찾을 수 없습니다.');
             }
-
         } else {
             throw new Error(`페이지 로드 실패: ${response.status}`);
         }
@@ -289,49 +493,32 @@ async function loadPageContent(page, nickname) {
             <div style="text-align: center; padding: 50px;">
                 <h3>※ 페이지 준비 중</h3>
                 <p>${page} 페이지가 아직 개발 중입니다.</p>
-                <button onclick="navigateToPage('home')" style="padding: 10px 20px; margin-top: 20px;">홈으로 돌아가기</button>
+                <button onclick="navigateToPage('home')" style="padding: 10px 20px; margin-top: 20px; cursor: pointer;">홈으로 돌아가기</button>
             </div>
         `;
     }
-
 }
 
-// 페이지별 초기화 함수
+// 페이지별 초기화 함수 (즉시 실행)
 function initializePage(page) {
-    
-    // 각 페이지별 초기화 함수가 있으면 호출
+    // 각 페이지별 초기화 함수가 있으면 즉시 호출
     const initFunctionName = `setup${page.charAt(0).toUpperCase() + page.slice(1)}Features`;
 
     if (typeof window[initFunctionName] === 'function') {
         window[initFunctionName]();
         console.log(`${page} 페이지 초기화 완료`);
     } else {
-        console.log(`$${page} 페이지는 별도 초기화 함수가 없습니다.`);
+        console.log(`${page} 페이지는 별도 초기화 함수가 없습니다.`);
     }
 
-    // 디버깅 로그 추가
-    console.log('=== 공통 데이터 로드 시작 ===');
-    console.log('window.loadUserData 존재:', typeof window.loadUserData);
-    console.log('window.loadBlogSkin 존재:', typeof window.loadBlogSkin);
-
-    // 모든 페이지에서 공통 데이터 로드
+    // 공통 데이터 로드도 즉시 실행
     if (typeof window.loadUserData === 'function') {
-        console.log('loadUserData 호출 시작'); // 디버깅
-        setTimeout(() => {
-            window.loadUserData();
-        }, 100);
+        window.loadUserData();
     }
 
-    // 모든 페이지에서 스킨 로드
     if (typeof window.loadBlogSkin === 'function') {
-        console.log('loadBlogSkin 호출 시작'); // 디버깅
-        setTimeout(() => {
-            window.loadBlogSkin();
-        }, 100);
-    } else {
-        console.log('loadBlogSkin 함수를 찾을 수 없음'); // 디버깅
+        window.loadBlogSkin();
     }
-        
 }
 
 // 브라우저 뒤로가기 지원
@@ -346,23 +533,7 @@ window.addEventListener('popstate', (event) => {
     }
 });
 
-// 즉시 제목 변경 함수
-function setPageTitleImmediately(page) {
-    // 먼저 정확한 key로 찾고, 없으면 상위 페이지로 폴백
-    let pageTitle = PAGE_TITLES[page];
+console.log('layout.js 로드 완료 - 즉시 반응 모드');
 
-    if (!pageTitle && page.includes('/')) {
-        const parentKey = page.split('/')[0];
-        pageTitle = PAGE_TITLES[parentKey];
-    }
-
-    pageTitle = pageTitle || '홈';
-
-    // 즉시 변경 (setTimeout 없이)
-    const titleEl = document.getElementById('page-title');
-    if (titleEl) {
-        titleEl.textContent = pageTitle;
-        console.log(`제목 즉시 변경: ${pageTitle}`);
-    }
-
-}
+// 전역 함수로 노출
+window.maintainDefaultSkinForInactiveUsers = maintainDefaultSkinForInactiveUsers;

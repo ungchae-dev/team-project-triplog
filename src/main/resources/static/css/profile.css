@@ -6,11 +6,13 @@
     margin-bottom: 10px;
     gap: 8px;
 }
+
 .shop-inner-tab {
-    min-width: 120px;
+    min-width: 140px;
     font-size: 15px;
     font-weight: 600;
 }
+
 .shop-header {
     display: flex;
     justify-content: flex-end;   /* 오른쪽 정렬 */
@@ -19,173 +21,337 @@
     background: transparent;
     padding: 0 10px 0 0;
 }
+
 /* 탭별 컨텐츠 */
 .shop-tab-content {
     /* home.css의 .shop-tab-content를 상속받음 */
 }
 
-.profile-info-tab,
 .profile-inventory-tab,
 .profile-edit-tab {
     /* 공통 탭 스타일 */
 }
 
-/* 프로필 정보 */
-.profile-info-tab .section-title,
+/* 섹션 제목들 */
 .profile-inventory-tab .section-title,
 .profile-edit-tab .section-title {
     margin-top: 2px;
     font-size: 18px;
     color: #b865a4;
-    margin-bottom: 18px;
+    margin-bottom: 25px;
+    text-align: center;
 }
 
-.profile-info-tab ul {
-    margin-top: 8px;
-    margin-bottom: 0;
+/* === 구매/보유내역 탭 === */
+.inventory-section {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #e8d5c4;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(232, 213, 196, 0.3);
+}
+
+.inventory-section-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #a86c44;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #f0e6d8;
+}
+
+.inventory-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
     font-size: 16px;
     color: #333;
 }
 
-.profile-info-tab li {
-    margin-bottom: 10px;
+.inventory-list li {
+    margin-bottom: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f5f5f5;
 }
 
-/* 구매내역/보유내역 */
-.profile-inventory-tab ul {
-    font-size: 17px;
+.inventory-list li:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+/* === 스킨 설정 섹션 === */
+.skin-section {
+    background: linear-gradient(135deg, #fff9f5 0%, #f8f0e8 100%);
+    border: 2px solid #d4b896;
+}
+
+.skin-controls {
+    display: flex;
+    gap: 25px;
+    align-items: flex-start;
+}
+
+.current-skin-preview {
+    flex: 1;
+    text-align: center;
+}
+
+.current-skin-preview img {
+    width: 180px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid #d4b896;
+    box-shadow: 0 4px 12px rgba(212, 184, 150, 0.3);
+    margin-bottom: 8px;
+}
+
+.current-skin-preview p {
+    font-size: 14px;
+    color: #8d7054;
+    margin: 0;
+    font-weight: 500;
+}
+
+.skin-upload-section {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.skin-upload-label {
+    display: inline-block;
+    background: #e8d5c4;
+    color: #8d7054;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.2s;
+    border: 2px solid #d4b896;
+}
+
+.skin-upload-label:hover {
+    background: #dcc7b0;
+}
+
+/* 스킨 비활성화 상태 스타일 */
+.skin-upload-label[style*="opacity: 0.5"] {
+    background: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+    border-color: #ddd;
+}
+
+.skin-upload-label[style*="opacity: 0.5"]:hover {
+    background: #f5f5f5;
+}
+
+#skin-upload {
+    display: none;
+}
+
+.buy-btn.secondary {
+    background: #999;
+    color: white;
+}
+
+.buy-btn.secondary:hover:not(:disabled) {
+    background: #777;
+}
+
+.buy-btn:disabled {
+    background: #ccc !important;
+    color: #888 !important;
+    cursor: not-allowed !important;
+    opacity: 0.5;
+}
+
+/* 스킨 비활성화 안내 메시지 */
+.skin-notice {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* === 개인정보 조회/수정 탭 === */
+.current-info-section,
+.edit-info-section {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #e8d5c4;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(232, 213, 196, 0.3);
+}
+
+.info-section-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #a86c44;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #f0e6d8;
+}
+
+/* 현재 정보 표시 */
+.current-info-display {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: #faf7f2;
+    border-radius: 8px;
+    border: 1px solid #eee5da;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #8d7054;
+    min-width: 80px;
+    font-size: 14px;
+}
+
+.info-value {
     color: #333;
+    font-size: 15px;
 }
 
-.profile-inventory-tab li {
-    margin-bottom: 18px;
+#current-profile-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #d4b896;
+    object-fit: cover;
 }
 
-.profile-inventory-tab img {
-    background: #f7f4ef;
-    border-radius: 14px;
-    border: 1.5px solid #ecd;
-    box-shadow: 0 2px 10px #e8d0b899;
-    margin-right: 8px;
-}
-
-/* 프로필 변경(폼) */
+/* 정보 수정 폼 */
 .profile-edit-tab label {
     display: block;
     font-weight: bold;
-    margin-top: 10px;
-    margin-bottom: 5px;
-    color: #b865a4;
+    margin-top: 15px;
+    margin-bottom: 8px;
+    color: #a86c44;
     font-size: 14px;
 }
 
 .profile-edit-tab input,
 .profile-edit-tab textarea {
-    border: 1.2px solid #fccfd7;
-    border-radius: 7px;
-    padding: 7px 12px;
+    width: 100%;
+    border: 2px solid #e8d5c4;
+    border-radius: 8px;
+    padding: 12px;
     font-size: 15px;
-    background: #fff7f4;
-    margin-bottom: 8px;
+    background: #faf7f2;
+    margin-bottom: 12px;
     outline: none;
-    transition: border 0.15s;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
 }
-.profile-edit-tab input[type="file"] {
-    margin-bottom: 0;
-}
+
 .profile-edit-tab input:focus,
 .profile-edit-tab textarea:focus {
     border-color: #c18c7e;
 }
 
-/* 프로필 사진 미리보기 */
+.photo-upload-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
 #edit-preview-img {
-    margin-right: 8px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid #d4b896;
+    object-fit: cover;
+}
+
+.password-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.password-section input {
+    margin-bottom: 0;
 }
 
 /* 저장 버튼 */
 .buy-btn {
-    margin-top: 12px;
     background-color: #c18c7e;
     color: #fff;
     border: none;
-    border-radius: 16px;
-    padding: 8px 24px;
+    border-radius: 10px;
+    padding: 12px 24px;
     font-weight: 700;
     font-size: 15px;
     cursor: pointer;
     user-select: none;
     transition: background-color 0.2s;
-    box-shadow: 0 2px 7px #c8a099aa;
+    box-shadow: 0 4px 12px rgba(193, 140, 126, 0.3);
+    min-width: 120px;
 }
+
 .buy-btn:hover {
     background-color: #a67161;
+    transform: translateY(-1px);
 }
 
-/* 필요 시 세부 스타일 추가 */
-.profile-info-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 38px 38px 32px 38px;
-    background: linear-gradient(145deg, #fff7f4 70%, #ffe7db 100%);
-    border-radius: 24px;
-    box-shadow: 0 8px 36px #eddcd994, 0 1.5px 0 #f1e1d9 inset;
-    max-width: 370px;
-    margin: 38px auto 0 auto;
-    min-height: 420px;
-    border: 1.7px solid #fae0c6;
-    transition: box-shadow 0.2s;
-}
-
-.profile-info-img-wrapper {
-    background: #fff8f2;
-    border-radius: 50%;
-    padding: 8px;
-    box-shadow: 0 2px 16px #f1dcc5cc;
-    margin-bottom: 18px;
-    border: 1.5px solid #ecd7c1;
-}
-
-.profile-info-card img {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 50%;
-    box-shadow: 0 3px 14px #ecd2c955;
-    display: block;
-}
-
-.profile-nickname {
-    font-size: 22px;
-    font-weight: bold;
-    color: #a8794b;
-    letter-spacing: 1px;
-    margin-bottom: 14px;
-    margin-top: 2px;
-    text-shadow: 0 1px 0 #fff9f5, 0 2px 10px #f1e5dc35;
-}
-
-.profile-meta {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 20px 0;
+.save-btn {
+    margin-top: 20px;
+    width: 150px;
+    padding: 15px 30px;
     font-size: 16px;
-    color: #775b41;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    gap: 28px;
 }
 
-.profile-meta li {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-weight: 500;
-}
-
-.meta-label {
-    font-size: 13px;
-    color: #c0a174;
+/* 반응형 대응 */
+@media (max-width: 768px) {
+    .skin-controls {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .current-info-display {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .photo-upload-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .password-section {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .shop-inner-tab {
+        min-width: 110px;
+        font-size: 14px;
+    }
+    
+    .inventory-section,
+    .current-info-section,
+    .edit-info-section {
+        padding: 20px 15px;
+    }
 }

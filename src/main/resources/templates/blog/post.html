@@ -33,52 +33,94 @@
 
           <!-- 게시판 목록 -->
           <div id="board-list">
-            <button class="write-btn" onclick="showWriteForm()">글쓰기</button>
-            <div class="board-sorting">
-              <button class="active">최신순</button>
-              <button>좋아요순</button>
-              <button>댓글순</button>
-            </div>
-            <ul class="post-list">
-              <li class="post-item">
-                <a href="javascript:void(0)" onclick="showDetailView()">
-                  <h3>일본 도쿄 스카이트리 여행기</h3>
-                  <p class="preview">도쿄의 스카이트리에서 본 야경이 정말 멋졌어요...</p>
-                  <div class="meta">
-                    <span>by 닉네임</span>
-                    <span>2025.05.04</span>
-                    <span>❤️ 20</span>
-                    <span>💬 5</span>
+            <!-- 🔥 새로운 헤더 (페이징 드롭다운 추가) -->
+            <div class="board-header">
+              <div class="board-left-controls">
+                <button class="board-btn write-btn" onclick="showWriteForm()">글쓰기</button>
+              </div>
+              <div class="board-right-controls">
+                <!-- 🔥 페이지 사이즈 드롭다운 -->
+                <div class="page-size-dropdown">
+                  <button class="board-btn dropdown-btn">5개씩 ▼</button>
+                  <div class="dropdown-menu">
+                    <div class="dropdown-item" data-size="3">3개씩</div>
+                    <div class="dropdown-item active" data-size="5">5개씩</div>
+                    <div class="dropdown-item" data-size="10">10개씩</div>
                   </div>
-                </a>
-              </li>
-            </ul>
-            <div class="pagination">
-              <button disabled>이전</button>
-              <button class="active">1</button>
-              <button>2</button>
-              <button>3</button>
-              <button>다음</button>
+                </div>
+                <button class="board-btn active">최신순</button>
+                <button class="board-btn">좋아요순</button>
+                <button class="board-btn">댓글순</button>
+              </div>
             </div>
+            
+            <!-- 🔥 게시글 목록 (JavaScript로 동적 렌더링) -->
+            <ul class="post-list">
+              <!-- 게시글들이 JavaScript로 동적으로 추가됩니다 -->
+            </ul>
+            
+            <!-- 🔥 페이지네이션 (JavaScript로 동적 렌더링) -->
+            <div class="pagination">
+              <!-- 페이지 버튼들이 JavaScript로 동적으로 추가됩니다 -->
+            </div>
+
+            <!-- 게시글 상세보기 (페이징 바로 아래) -->
+            <div id="board-detail" style="display:none;">
+              <div class="post-detail-container">
+                <div class="post-header">
+                  <h2 id="detail-title">게시글 제목</h2>
+                  <div class="meta">
+                    <span id="detail-author">작성자</span> | <span id="detail-date">작성일</span>
+                  </div>
+                </div>
+                <div class="post-body">
+                  <div id="detail-content">
+                    게시글 내용이 여기에 표시됩니다.
+                  </div>
+                  <div id="detail-tags" style="margin-top: 15px; color: #b865a4;">
+                    <!-- 태그들이 여기에 표시 -->
+                  </div>
+                </div>
+                <div class="post-actions">
+                  <button>❤️ 좋아요 <span id="detail-likes">0</span></button>
+                  <button>🔗 공유</button>
+                  <button>✏️ 수정</button>
+                  <button>🗑 삭제</button>
+                </div>
+                <div class="comments-section">
+                  <h3>💬 댓글 (<span id="detail-comments-count">0</span>)</h3>
+                  <ul class="comment-list" id="detail-comments">
+                    <!-- 댓글들이 동적으로 추가됩니다 -->
+                  </ul>
+                  <textarea placeholder="댓글을 입력하세요..." id="comment-input"></textarea>
+                  <button class="comment-btn">댓글 달기</button>
+                  <button type="button" class="back-btn" onclick="hidePostDetail()">▲ 접기</button>
+                </div>
+              </div>
+            </div>
+            
           </div>
 
           <!-- 게시글 작성 -->
           <div id="board-write" style="display:none;">
-            <h2>📝 여행기 작성</h2>
+            <h2>📝 여행기록 작성</h2>
             <form id="write-form" autocomplete="off">
               <input type="text" name="title" placeholder="제목을 입력해주세요" required />
 
-              <textarea name="content" rows="10" placeholder="여행 로그를 작성하세요" required></textarea>
+              <textarea name="content" rows="10" placeholder="여행기록을 작성하세요" required></textarea>
 
-              <!-- 태그 체크박스 -->
+              <!-- 인원수 태그 (9) 체크박스 -->
+              <!-- #남자혼자 #여자혼자 #커플 #부모님과 #아이들과 #단체 #남자끼리 #여자끼리 #남녀함께 -->
               <div class="tags" style="margin-bottom:10px;">
-                <label><input type="checkbox" name="tag" value="#친구" /> #친구</label>
-                <label><input type="checkbox" name="tag" value="#부모님과" /> #부모님과</label>
-                <label><input type="checkbox" name="tag" value="#부부동반" /> #부부동반</label>
-                <label><input type="checkbox" name="tag" value="#아이들과" /> #아이들과</label>
+                <label><input type="checkbox" name="tag" value="#남자혼자" /> #남자혼자</label>
+                <label><input type="checkbox" name="tag" value="#여자혼자" /> #여자혼자</label>
                 <label><input type="checkbox" name="tag" value="#커플" /> #커플</label>
-                <label><input type="checkbox" name="tag" value="#나홀로" /> #나홀로</label>
+                <label><input type="checkbox" name="tag" value="#부모님과" /> #부모님과</label>
+                <label><input type="checkbox" name="tag" value="#아이들과" /> #아이들과</label>
                 <label><input type="checkbox" name="tag" value="#단체" /> #단체</label>
+                <label><input type="checkbox" name="tag" value="#남자끼리" /> #남자끼리</label>
+                <label><input type="checkbox" name="tag" value="#여자끼리" /> #여자끼리</label>
+                <label><input type="checkbox" name="tag" value="#남녀함께" /> #남녀함께</label>
               </div>
 
               <!-- 해시태그 입력 -->
@@ -119,45 +161,8 @@
               </div>
 
               <button type="submit" class="submit-btn">작성 완료</button>
-              <button type="button" class="back-btn" onclick="showBoardList()">← 목록</button>
+              <button type="button" class="back-btn" onclick="showBoardList()">← 글 목록</button>
             </form>
-          </div>
-
-          <!-- 게시글 상세 -->
-          <div id="board-detail" style="display:none;">
-            <div class="post-header">
-              <h2>일본 도쿄 스카이트리 여행기</h2>
-              <div class="meta">
-                <span>닉네임</span> | <span>2025.05.04</span>
-              </div>
-            </div>
-            <div class="post-body">
-              <p>도쿄의 하늘을 보며...</p>
-              <img src="/images/tokyo.jpg" alt="스카이트리" />
-              <p>#친구 #관광 #스카이트리</p>
-            </div>
-            <div class="post-actions">
-              <button>❤️ 좋아요 20</button>
-              <button>🔗 공유</button>
-              <button>✏️ 수정</button>
-              <button>🗑 삭제</button>
-            </div>
-            <div class="comments-section">
-              <h3>💬 댓글 (5)</h3>
-              <ul class="comment-list">
-                <li>
-                  <span><strong>나나</strong>: 너무 멋져요!</span>
-                  <button>❤️</button>
-                  <button>답글</button>
-                </li>
-                <li class="reply">
-                  <span><strong>닉네임</strong>: 감사합니다 😊</span>
-                </li>
-              </ul>
-              <textarea placeholder="댓글을 입력하세요..."></textarea>
-              <button class="comment-btn">댓글 달기</button>
-              <button type="button" class="back-btn" onclick="showBoardList()">← 목록</button>
-            </div>
           </div>
           
         </div>

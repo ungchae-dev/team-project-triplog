@@ -1,7 +1,5 @@
 package com.javago.triplog.domain.blog.controller;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +17,7 @@ import com.javago.triplog.domain.blog.service.BlogService;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.service.MemberService;
 
+// BlogApiController.java - 블로그 조회/정보 관련 API 담당
 @RestController
 @RequestMapping("/blog/api")
 public class BlogApiController {
@@ -28,12 +27,15 @@ public class BlogApiController {
     
     @Autowired
     private BlogService blogService;
+
+    @Autowired
+    private BlogControllerUtils blogControllerUtils;
     
     // 블로그 소유자 정보 조회 API (JSON 응답)
     @GetMapping("/@{nickname}/user-info")
     public ResponseEntity<Map<String, Object>> getBlogUserInfo(@PathVariable String nickname) {
         try {
-            String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
+            String decodedNickname = blogControllerUtils.decodeNickname(nickname);
             Member member = memberService.findByNickname(decodedNickname);
             Blog blog = blogService.findByMember(member);
 
@@ -55,7 +57,7 @@ public class BlogApiController {
 
             return ResponseEntity.ok(userInfo);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return blogControllerUtils.notFoundResponse("블로그를 찾을 수 없습니다!");
         }
     }
     
@@ -75,4 +77,24 @@ public class BlogApiController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+
+    // 스킨 정보 조회 API (읽기 전용)
+    @GetMapping("/@{nickname}/skin")
+    public ResponseEntity<Map<String, Object>> getBlogSkin(@PathVariable String nickname) {
+        try {
+            String decodedNickname = blogControllerUtils.decodeNickname(nickname);
+            Member member = memberService.findByNickname(decodedNickname);
+            Blog blog = blogService.findByMember(member);
+
+            Map<String, Object> skinData = new HashMap<>();
+            skinData.put("skinImage", blog.getSkinImage());
+            skinData.put("skinActive", blog.getSkinActive().name());
+
+            return ResponseEntity.ok(skinData);
+        } catch (Exception e) {
+            return blogControllerUtils.notFoundResponse("스킨 정보를 찾을 수 없습니다!");
+        }
+    }
+
+
 }
