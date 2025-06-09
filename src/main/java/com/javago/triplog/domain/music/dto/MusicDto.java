@@ -17,4 +17,6 @@ public class MusicDto {
     private String album; // = imageUrl
     private String musicFile; // previewUrl
     private int price;
+
+    private boolean purchased;
 }

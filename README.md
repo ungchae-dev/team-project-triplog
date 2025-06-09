@@ -10,7 +10,7 @@ TripLog - 여행 블로그 프로젝트 <br><br>
 [기술 스택] <br>
 <b>Backend</b>
 - Java 17
-- Spring Boot 3.4.5
+- Spring Boot 3.5.0
 - Spring Data JPA
 - Spring Security
 - Gradle
@@ -33,7 +33,8 @@ TripLog - 여행 블로그 프로젝트 <br><br>
   홈 페이지 기능 구현 <br>프로필 페이지 (개인정보 조회/수정) <br>
   마이로그 페이지 (지도 API 연동 및 여행 위치 시각화) <br>
   방명록 페이지 <br>
-  <b>프론트엔드</b>: <br>- 회원가입/로그인 UI 구성 <br><br>
+  <b>프론트엔드</b>: <br>- 회원가입/로그인 UI 구성 <br>
+  여행 블로그 전체 페이지 UI 디자인 구성 <br><br>
 
 - 신동영(부팀장, @DongYoung406) : <br>
   <b>백엔드, 프론트엔드</b> : <br>
