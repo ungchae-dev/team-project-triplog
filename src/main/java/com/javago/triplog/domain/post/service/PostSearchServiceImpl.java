@@ -30,6 +30,7 @@ public class PostSearchServiceImpl implements PostSearchService {
             sortOption = Sort.by("likeCount").descending();
         }
 
+
         Pageable sortedPageable = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
