@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8" />
   <title>여행 블로그 - 프로필</title>
@@ -12,6 +13,7 @@
   <link rel="stylesheet" href="/css/guestbook.css" />
 
 </head>
+
 <body>
   <div class="frame">
 
@@ -40,7 +42,7 @@
           <!-- [1] 구매/보유내역 (기본 탭) -->
           <div class="shop-tab-content profile-inventory-tab active">
             <div class="section-title">구매/보유내역</div>
-            
+
             <!-- 스킨 설정 섹션 추가 -->
             <div class="inventory-section skin-section">
               <h3 class="inventory-section-title">🎨 내 스킨 설정</h3>
@@ -62,26 +64,25 @@
 
             <!-- 기존 구매내역 -->
             <div class="inventory-section">
-      <h3 class="inventory-section-title">📦 구매/보유내역</h3>
-      <ul class="inventory-list">
-        <li><strong>보유 도토리:</strong> <span id="current-acorn">0</span></li>
-        <li>
-          <strong>보유 이모티콘:</strong>
-          <div id="owned-emoticon-list" class="owned-list"></div>
-        </li>
-        <li>
-          <strong>보유 음악:</strong>
-          <div id="owned-music-list" class="owned-list"></div>
-        </li>
-      </ul>
-    </div>
+              <h3 class="inventory-section-title">📦 구매/보유내역</h3>
+              <ul class="inventory-list">
+                <li><strong>보유 도토리:</strong> <span id="current-acorn">0</span></li>
+                <li>
+                  <strong>보유 이모티콘:</strong>
+                  <div id="owned-emoticon-list" class="owned-list"></div>
+                </li>
+                <li>
+                  <strong>보유 음악:</strong>
+                  <div id="owned-music-list" class="owned-list"></div>
+                </li>
+              </ul>
+            </div>
+          </div>
 
-     
-
-          <!-- [2] 개인정보 조회/수정 -->
+          <!-- [2] 개인정보 조회/수정 (별도 탭으로 분리!) -->
           <div class="shop-tab-content profile-edit-tab">
             <div class="section-title">개인정보 조회/수정</div>
-            
+
             <!-- 현재 정보 조회 섹션 -->
             <div class="current-info-section">
               <h3 class="info-section-title">내 정보</h3>
@@ -90,7 +91,7 @@
                 <div class="profile-photo-row">
                   <img id="current-profile-img" src="https://via.placeholder.com/100" alt="현재 프로필" />
                 </div>
-                
+
                 <!-- 2행: 닉네임, 가입일 (나란히 배치) -->
                 <div class="info-row-container">
                   <div class="info-row">
@@ -102,7 +103,7 @@
                     <span class="info-value" id="current-joindate">2025년 6월 9일</span>
                   </div>
                 </div>
-                
+
                 <!-- 3행: 상태메시지 (전체 너비) -->
                 <div class="status-message-row">
                   <span class="info-label">상태메시지:</span>
@@ -115,7 +116,7 @@
             <div class="edit-info-section">
               <h3 class="info-section-title">정보 수정</h3>
               <form id="profile-edit-form" autocomplete="off">
-                
+
                 <label for="edit-bio">상태메시지</label>
                 <textarea id="edit-bio" rows="4" placeholder="상태메시지를 입력하세요" maxlength="100"></textarea>
 
@@ -135,25 +136,25 @@
               </form>
             </div>
           </div>
+
         </div>
+
+        <!-- 오른쪽 네비게이션 (컴포넌트로 로드) -->
+        <div id="right-container"></div>
 
       </div>
 
-      <!-- 오른쪽 네비게이션 (컴포넌트로 로드) -->
-      <div id="right-container"></div>
-
     </div>
 
-  </div>
+    <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-방명록) 홈에서 로드 -->
+    <script src="/js/layout.js"></script>
+    <script src="/js/home.js"></script>
+    <script src="/js/shop.js"></script>
+    <script src="/js/profile.js"></script>
+    <script src="/js/post.js"></script>
+    <script src="/js/jukebox.js"></script>
+    <script src="/js/guestbook.js"></script>
 
-  <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-방명록) 홈에서 로드 -->
-  <script src="/js/layout.js"></script>
-  <script src="/js/home.js"></script>
-  <script src="/js/shop.js"></script>
-  <script src="/js/profile.js"></script>
-  <script src="/js/post.js"></script>
-  <script src="/js/jukebox.js"></script>
-  <script src="/js/guestbook.js"></script>
-  
 </body>
+
 </html>
