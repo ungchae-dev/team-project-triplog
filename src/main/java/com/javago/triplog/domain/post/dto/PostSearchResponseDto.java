@@ -16,8 +16,8 @@ public class PostSearchResponseDto {
     private String title;
     private String content;
 
-    private int likeCount;
-    private int commentCount;
+    private int likes;
+    private int comments;
 
     private String nickname;
 
@@ -33,8 +33,8 @@ public class PostSearchResponseDto {
         dto.postId = post.getPostId();
         dto.title = post.getTitle();
         dto.content = post.getContent();
-        dto.likeCount = post.getLikeCount();
-        dto.commentCount = post.getCommentCount(); // 댓글 수가 따로 없으면 size로 계산
+        dto.likes = post.getLikeCount();
+        dto.comments = post.getCommentCount(); // 댓글 수가 따로 없으면 size로 계산
         // 닉네임
         if (post.getBlog() != null && post.getBlog().getMember() != null) {
             dto.nickname = post.getBlog().getMember().getNickname();
