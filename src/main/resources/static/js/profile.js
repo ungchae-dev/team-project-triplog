@@ -478,8 +478,11 @@
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
+                // 프로필 - 개인정보 조회/수정
                 const editBio = document.getElementById('edit-bio');
                 const editPhoto = document.getElementById('edit-photo');
+                const editPasswordOld = document.getElementById('edit-password-old');
+                const editPasswordNew = document.getElementById('edit-password-new');
 
                 let hasChanges = false;
                 let updateMessages = [];
@@ -521,7 +524,20 @@
                         }
                     }
 
-                    // 3. 비밀번호 변경 (추후 진행)
+                    // 3. 비밀번호 변경 확인 및 처리
+                    if (editPasswordOld && editPasswordNew && 
+                    editPasswordOld.value.trim() && editPasswordNew.value.trim()) {
+                        hasChanges = true;
+                        totalAttempts++;
+
+                        const passwordUpdateSuccess = await updatePassword(editPasswordOld.value, editPasswordNew.value);
+                        if (passwordUpdateSuccess) {
+                            updateMessages.push('비밀번호가 변경되었습니다.');
+                            successCount++;
+                        } else {
+                            updateMessages.push('비밀번호 변경에 실패했습니다!');
+                        }
+                    }
 
                     // 4. 결과 메시지 표시
                     if (!hasChanges) {
@@ -535,7 +551,10 @@
                             updateAllProfileImagesManually(); // 프로필 이미지 강제 업데이트
 
                             // 입력 필드 초기화
-                            if (editBio) editPhoto.value = '';
+                            if (editBio) editBio.value = '';
+                            if (editPhoto) editPhoto.value = '';
+                            if (editPasswordOld) editPasswordOld.value = '';
+                            if (editPasswordNew) editPasswordNew.value = '';
 
                             console.log('개인정보 수정 완료 - 개인정보 탭 유지');
                         }, 500);
@@ -968,6 +987,126 @@
     }
     //
     // === 스킨 로드 함수 끝 ===
+
+    // === 클라이언트 사이드 비밀번호 검증 ===
+    function validatePasswordClient(password) {
+        // 1. 길이 체크
+        if (password.length < 8) {
+            return {
+                isValid: false, 
+                message: '비밀번호는 8자 이상이어야 합니다!'
+            };
+        }
+
+        if (password.length > 20) {
+            return {
+                isValid: false, 
+                message: '비밀번호는 20자 이하여야 합니다!'
+            };
+        }
+
+        // 2. 영문 포함 체크
+        if (!/[a-zA-Z]/.test(password)) {
+            return {
+                isValid: false, 
+                message: '비밀번호는 영문을 포함해야 합니다!'
+            };
+        }
+
+        // 3. 숫자 포함 체크
+        if (!/[0-9]/.test(password)) {
+            return {
+                isValid: false, 
+                message: '비밀번호는 숫자를 포함해야 합니다!'
+            };
+        }
+
+        // 4. 특수문자 포함 체크
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+            return {
+                isValid: false, 
+                message: '비밀번호는 특수문자를 포함해야 합니다!'
+            };
+        }
+
+        // 5. 공백 체크
+        if (password.includes(' ')) {
+            return {
+                isValid: false, 
+                message: '비밀번호에는 공백이 포함될 수 없습니다!'
+            };
+        }
+
+        return {
+            isValid: true, 
+            message: '검증 통과'
+        }
+    }
+
+    // === 비밀번호 변경 함수 ===
+    async function updatePassword(currentPassword, newPassword) {
+        try {
+            // 1. 클라이언트 사이드 검증
+            if (!currentPassword || currentPassword.trim() === '') {
+                alert('현재 비밀번호를 입력해주세요.');
+                return false;
+            }
+
+            if (!newPassword || newPassword.trim() === '') {
+                alert('새 비밀번호를 입력해주세요.')
+                return false;
+            }
+
+            // 2. 비밀번호 강도 검증 (클라이언트 사이드)
+            const passwordValidation = validatePasswordClient(newPassword);
+            if (!passwordValidation.isValid) {
+                alert(passwordValidation.message);
+                return false;
+            }
+
+            // 3. 현재 비밀번호와 새 비밀번호가 같은지 확인
+            if (currentPassword === newPassword) {
+                alert('새 비밀번호는 현재 비밀번호와 달라야 합니다!');
+                return false;
+            }
+
+            // 4. API 호출
+            const currentNickname = window.currentBlogNickname || getCurrentNickname();
+            if (!currentNickname) {
+                throw new Error('블로그 닉네임을 찾을 수 없습니다!');
+            }
+
+            const encodedNickname = encodeURIComponent(currentNickname);
+            const response = await fetch(`/blog/@${encodedNickname}/profile/info/update-password`, {
+                method: 'POST', 
+                headers: {
+                    'Content-type': 'application/json', 
+                },
+                body: JSON.stringify({
+                    currentPassword: currentPassword, 
+                    newPassword: newPassword
+                })
+            });
+
+            const result = await response.json();
+            console.log('비밀번호 변경 응답:', result);
+            
+            if (response.ok && result.success) {
+                console.log('비밀번호 변경 성공:', result.message);
+                // alert는 여기서 하지 말고, setupProfileSave에서 통합 처리
+                return true;
+            } else {
+                console.error('비밀번호 변경 실패:', result.message);
+                alert(`비밀번호 변경 실패! ${result.message}`);
+                return false;
+            }
+
+        } catch (error) {
+            console.error('비밀번호 변경 중 오류:', error);
+            alert('비밀번호 변경 중 오류가 발생했습니다!');
+            return false;
+        }
+    }
 
     // === 전역 함수들 ===
     window.loadBlogSkin = loadBlogSkin;

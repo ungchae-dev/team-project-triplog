@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +34,9 @@ public class ProfileInfoApiController {
 
     @Autowired
     private BlogControllerUtils blogControllerUtils;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     // 프로필 사진 업로드
     @PostMapping("/@{nickname}/profile/info/upload-image")
@@ -248,5 +252,109 @@ public class ProfileInfoApiController {
         }
     }
 
+    // 비밀번호 변경 API
+    @PostMapping("/@{nickname}/profile/info/update-password")
+    public ResponseEntity<Map<String, Object>> updatePassword(
+    @PathVariable String nickname, 
+    @RequestBody Map<String, String> request, 
+    Authentication authentication) {
+
+        try {
+            // 1. 로그인 체크
+            if (authentication == null) {
+                return blogControllerUtils.badRequestResponse("로그인이 필요합니다!");
+            }
+
+            // 2. 권한 체크 (본인 계정인지 확인)
+            if (!blogControllerUtils.isAuthorized(nickname, authentication)) {
+                return blogControllerUtils.unauthorizedResponse();
+            }
+
+            // 3. 입력값 검증
+            String currentPassword = request.get("currentPassword");
+            String newPassword = request.get("newPassword");
+
+            if (currentPassword == null || currentPassword.trim().isEmpty()) {
+                return blogControllerUtils.badRequestResponse("현재 비밀번호를 입력해주세요.");
+            }
+
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                return blogControllerUtils.badRequestResponse("새 비밀번호를 입력해주세요.");
+            }
+
+            // 4. 새 비밀번호 정책 검증
+            String passwordValidationError = validatePassword(newPassword);
+            if (passwordValidationError != null) {
+                return blogControllerUtils.badRequestResponse(passwordValidationError);
+            }
+
+            // 5. 현재 사용자 정보 가져오기
+            String decodedNickname = blogControllerUtils.decodeNickname(nickname);
+            Member member = memberService.findByNickname(decodedNickname);
+
+            // 6. 현재 비밀번호 검증
+            if (!passwordEncoder.matches(currentPassword, member.getPassword())) {
+                return blogControllerUtils.badRequestResponse("현재 비밀번호가 올바르지 않습니다!");
+            }
+
+            // 7. 현재 비밀번호와 새 비밀번호가 같은지 확인
+            if (passwordEncoder.matches(newPassword, member.getPassword())) {
+                return blogControllerUtils.badRequestResponse("새 비밀번호는 현재 비밀번호와 달라야 합니다!");
+            }
+
+            // 8. 새 비밀번호 암호화 및 저장
+            String encodedNewPassword = passwordEncoder.encode(newPassword);
+            member.setPassword(encodedNewPassword);
+            memberService.updatedMember(member);
+            System.out.println("비밀번호 변경 성공: " + decodedNickname);
+
+            // 9. 성공 응답
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "비밀번호가 성공적으로 변경되었습니다.");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("비밀번호 변경 실패: " + e.getMessage());
+            e.printStackTrace();
+            return blogControllerUtils.serverErrorResponse("비밀번호 변경 중 오류가 발생했습니다!");
+        }
+        
+    }
+    
+    // 비밀번호 정책 검증 메서드
+    private String validatePassword(String password) {
+        // 1. 길이 체크 (8자 이상)
+        if (password.length() < 8) {
+            return "비밀번호는 8자 이상이어야 합니다!";
+        }
+
+        // 2. 최대 길이 체크 (20자 이하)
+        if (password.length() > 20) {
+            return "비밀번호는 20자 이하여야 합니다!";
+        }
+
+        // 3. 영문 포함 여부
+        if (!password.matches(".*[a-zA-Z].*")) {
+            return "비밀번호는 영문을 포함해야 합니다!";
+        }
+
+        // 4. 숫자 포함 여부
+        if (!password.matches(".*[0-9].*")) {
+            return "비밀번호는 숫자를 포함해야 합니다!";
+        }
+
+        // 5. 특수문자 포함 여부
+        if (!password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
+            return "비밀번호는 특수문자를 포함해야 합니다!";
+        }
+
+        // 6. 공백 포함 여부 체크
+        if (password.contains(" ")) {
+            return "비밀번호에는 공백이 포함될 수 없습니다!";
+        }
+
+        return null; // 검증 통과
+    }
 
 }
