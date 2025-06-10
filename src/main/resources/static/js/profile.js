@@ -4,6 +4,7 @@
     'use strict';
 
     // === 전역 변수 ===
+    let userAcorn = 30;
     let currentSkinFile = null;
     let skinActivated = false; // 스킨 활성화 상태
 
@@ -211,8 +212,63 @@
         // 현재 스킨 미리보기 업데이트
         await loadCurrentSkinPreview();
 
+        fetchUserAcorn();
         console.log('=== 구매/보유내역 탭 로드 완료 ===')
     }
+    // 도토리 잔액 조회 및 업데이트
+    async function fetchUserAcorn() {
+    try {
+      const res = await fetch('/api/charge/acorn');
+      if (!res.ok) throw new Error('잔액 조회 실패');
+      const acorn = await res.json();
+      userAcorn = acorn;
+      updateAcornDisplay();
+    } catch (e) {
+      console.error('도토리 잔액 조회 오류:', e);
+    }
+  }
+
+  function updateAcornDisplay() {
+    const el = document.getElementById('current-acorn');
+    if (el) el.textContent = userAcorn;
+  }
+  // 보유 이모티콘
+  function loadOwnedEmoticons() {
+  fetch("/api/profile/items/emoticons")
+    .then(res => res.json())
+    .then(data => {
+      const emoticonListEl = document.getElementById("owned-emoticon-list");
+      emoticonListEl.innerHTML = ""; // 기존 내용 비우기
+
+      data.forEach(emoticon => {
+        const item = document.createElement("div");
+        item.className = "owned-item";
+        item.innerHTML = `
+          <img src="${emoticon.emoticonImage}" alt="${emoticon.emoticonName}" style="height: 32px; vertical-align: middle;" />
+          <span style="margin-left: 8px;">${emoticon.emoticonName}</span>
+        `;
+        emoticonListEl.appendChild(item);
+      });
+    })
+    .catch(err => console.error("이모티콘 불러오기 실패", err));
+}
+    // 보유 음악
+    function loadOwnedMusic() {
+  fetch("/api/profile/items/music")
+    .then(res => res.json())
+    .then(data => {
+      const musicListEl = document.getElementById("owned-music-list");
+      musicListEl.innerHTML = ""; // 기존 내용 비우기
+
+      data.forEach(music => {
+        const item = document.createElement("div");
+        item.className = "owned-item";
+        item.innerText = `${music.title} - ${music.artist}`;
+        musicListEl.appendChild(item);
+      });
+    })
+    .catch(err => console.error("음악 불러오기 실패", err));
+}
 
     // === 스킨 업로드 및 적용 ===
     function setupSkinUpload() {
@@ -654,7 +710,8 @@
         maintainSkinOnNavigation(); // 스킨 유지 기능
         setupEventListeners();
         loadInventoryInfo(); // 기본적으로 구매내역 탭 표시
-
+        loadOwnedEmoticons();
+        loadOwnedMusic();
         // 공통 스킨 로드
         if (typeof window.maintainDefaultSkinForInactiveUsers === 'function') {
             window.maintainDefaultSkinForInactiveUsers();
@@ -668,7 +725,9 @@
     window.maintainSkinOnNavigation = maintainSkinOnNavigation; // 다른 페이지에서도 호출 가능
 
     // === 페이지 로드 시 초기화 ===
-    document.addEventListener('DOMContentLoaded', initProfilePage);
+    document.addEventListener('DOMContentLoaded', () => {
+        initProfilePage();
+    });
 
 
     // === 스킨 로드 함수 시작 ===

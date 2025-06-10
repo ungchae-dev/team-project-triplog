@@ -60,6 +60,23 @@
     padding-bottom: 8px;
     border-bottom: 2px solid #f0e6d8;
 }
+.owned-list {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.owned-item {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  padding: 4px 8px;
+  background-color: #fff6f2;
+  border: 1px solid #f0d4d0;
+  border-radius: 6px;
+}
 
 .inventory-list {
     list-style: none;

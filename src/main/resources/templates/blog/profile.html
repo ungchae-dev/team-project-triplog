@@ -62,14 +62,21 @@
 
             <!-- 기존 구매내역 -->
             <div class="inventory-section">
-              <h3 class="inventory-section-title">📦 구매/보유내역</h3>
-              <ul class="inventory-list">
-                <li><strong>보유 도토리:</strong> <span id="user-acorn-balance">120</span> </li>
-                <li><strong>보유 이모티콘:</strong> 😺😎😂</li>
-                <li><strong>보유 음악:</strong> Younha – 사건의 지평선, Sweetbox – Life Is Cool</li>
-              </ul>
-            </div>
-          </div>
+      <h3 class="inventory-section-title">📦 구매/보유내역</h3>
+      <ul class="inventory-list">
+        <li><strong>보유 도토리:</strong> <span id="current-acorn">0</span></li>
+        <li>
+          <strong>보유 이모티콘:</strong>
+          <div id="owned-emoticon-list" class="owned-list"></div>
+        </li>
+        <li>
+          <strong>보유 음악:</strong>
+          <div id="owned-music-list" class="owned-list"></div>
+        </li>
+      </ul>
+    </div>
+
+     
 
           <!-- [2] 개인정보 조회/수정 -->
           <div class="shop-tab-content profile-edit-tab">
