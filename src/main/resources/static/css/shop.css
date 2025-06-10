@@ -296,6 +296,18 @@
     box-shadow: 0 3px 10px rgba(200, 160, 153, 0.6);
 }
 
+.section-title-wrapper{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.genre-select{
+    padding: 6px 10px;
+    border-radius: 6px; 
+    font-size: 14px;
+}
+
 /* 페이지네이션 */
 .pagination {
     display: flex;
