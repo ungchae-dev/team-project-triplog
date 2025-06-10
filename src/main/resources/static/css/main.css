@@ -512,6 +512,10 @@ progress {
     margin: 40px 0; /* 위아래 간격 */
 }
 
+.custom-color {
+    color: #faebd7; /* 예: DodgerBlue */
+}
+
 .my-divider {
     width: 60%;
     height: 2px;

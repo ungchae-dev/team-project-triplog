@@ -2,7 +2,9 @@ package com.javago.triplog.domain.post.dto;
 
 import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post_image.entity.Post_Image;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -11,6 +13,8 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class PostSearchResponseDto {
     private Long postId;
     private String title;
@@ -27,6 +31,13 @@ public class PostSearchResponseDto {
     private List<String> peopleTags;
 
     private String date;
+
+    public PostSearchResponseDto(Long postId, String title, String thumbnailUrl, int likes) {
+        this.postId = postId;
+        this.title = title;
+        this.thumbnailUrl = thumbnailUrl;
+        this.likes = likes;
+    }
 
     public static PostSearchResponseDto fromEntity(Post post) {
         PostSearchResponseDto dto = new PostSearchResponseDto();

@@ -65,7 +65,8 @@ public class SecurityConfig {
                 "/js/**", // JavaScript 파일
                 "/images/**", // 이미지 파일
                 "/uploads/**", // 업로드된 파일 (스킨 이미지 등)
-                "/components/**" // 정적 리소스(/static) 하위 레이아웃 템플릿 파일(4)
+                "/components/**", // 정적 리소스(/static) 하위 레이아웃 템플릿 파일(4)
+                        "/weekly-best"
                 ).permitAll()
                 // 그 외 모든 요청 로그인 필요
                 .anyRequest().authenticated()

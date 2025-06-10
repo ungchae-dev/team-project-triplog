@@ -31,4 +31,5 @@ public class PostSearchController {
         Page<PostSearchResponseDto> result = postSearchService.searchPosts(keyword, people, sort, pageable);
         return ResponseEntity.ok(result);
     }
+
 }
