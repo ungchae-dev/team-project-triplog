@@ -37,10 +37,7 @@ public String getTracksByGenre(
         genreId = "132"; // 기본값
     }
 
-    int limit = 5;
-    int offset = page * limit;
-
-    List<MusicDto> musicList = deezerMusicService.getTracksByGenre(genreId, offset, limit);
+    List<MusicDto> musicList = deezerMusicService.getTracksByGenre(genreId);
     model.addAttribute("musicList", musicList);
 
     // ✅ 로그인한 유저가 구매한 음악 ID 리스트 조회
