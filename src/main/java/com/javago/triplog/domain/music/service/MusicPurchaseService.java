@@ -68,8 +68,8 @@ public class MusicPurchaseService {
         return new MusicPurchaseResponse("음악 구매 성공!", member.getAcorn());
     }
 
-    public List<MusicDto> getMusicListWithPurchaseInfo(String genreId, int offset, int limit, String memberId) {
-    List<MusicDto> musicList = deezerMusicService.getTracksByGenre(genreId, offset, limit);
+    public List<MusicDto> getMusicListWithPurchaseInfo(String genreId, String memberId) {
+    List<MusicDto> musicList = deezerMusicService.getTracksByGenre(genreId);
 
      if (memberId != null) {
         List<Long> purchasedIds = memberItemRepository

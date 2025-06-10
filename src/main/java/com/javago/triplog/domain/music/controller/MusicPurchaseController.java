@@ -48,19 +48,17 @@ public class MusicPurchaseController {
     }
         @GetMapping("/list")
         public ResponseEntity<?> getMusicList(
-                @RequestParam(defaultValue = "132") String genreId, // 132 = Pop
-                @RequestParam(defaultValue = "0") int offset,
-                @RequestParam(defaultValue = "10") int limit,
-                @AuthenticationPrincipal UserDetails userDetails
-        ) {
-            String memberId = (userDetails != null) ? userDetails.getUsername() : null;
+                @RequestParam(defaultValue = "132") String genreId,
+                 @AuthenticationPrincipal UserDetails userDetails
+           ){
+    String memberId = (userDetails != null) ? userDetails.getUsername() : null;
 
-            try {
-                List<MusicDto> musicList = musicPurchaseService.getMusicListWithPurchaseInfo(genreId, offset, limit, memberId);
-                return ResponseEntity.ok(musicList);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return ResponseEntity.internalServerError().body("음악 목록 조회 실패: " + e.getMessage());
-            }
-        }
-        }
+    try {
+        List<MusicDto> musicList = musicPurchaseService.getMusicListWithPurchaseInfo(genreId, memberId);
+        return ResponseEntity.ok(musicList);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.internalServerError().body("음악 목록 조회 실패: " + e.getMessage());
+    }
+  }
+}

@@ -3,7 +3,9 @@
 
   let userAcorn = 30;
   let skinActivated = false;
-  const ITEMS_PER_PAGE = 4; 
+  let currentMusicGenreId = '132'; // 기본값: Pop
+  const EMOTICON_ITEMS_PER_PAGE = 4; 
+  const MUSIC_ITEMS_PER_PAGE = 8;
 
   const acornData = [
     { id: 'acorn_100', amount: 100, price: 10000 },
@@ -57,7 +59,7 @@
     sessionStorage.setItem('acornTabReloaded', 'true');
     location.reload();
     return; // 이 뒤 코드는 실행 안 함
-  }
+  } 
     
     const listElem = document.getElementById('acorn-list');
     if (!listElem) return;
@@ -148,45 +150,68 @@
 // 도토리 충전 영역 끝 
 // 이모티콘 영역
 
-async function renderEmoticonList() {
+async function renderEmoticonList(Page = 1) {
   const container = document.getElementById('package-list');
   if (!container) return;
 
-  container.innerHTML = '';
+  container.innerHTML = '<div class="loading">⏳ 이모티콘 불러오는 중...</div>';
 
-  const res = await fetch('/api/emoticon/selected');
-  const data = await res.json();
+  try {
+    const res = await fetch('/api/emoticon/selected');
+    const data = await res.json();
 
-  for (const pkg of data) {
-    const check = await fetch(`/api/emoticon/purchased?emoticonId=${pkg.emoticonId}`);
-    const isPurchased = await check.json();
+    const totalItems = data.length;
+    const startIndex = (Page - 1) * EMOTICON_ITEMS_PER_PAGE;
+    const endIndex = startIndex + EMOTICON_ITEMS_PER_PAGE;
+    const visibleItems = data.slice(startIndex, endIndex);
 
-    const div = document.createElement('div');
-    div.className = 'shop-item';
+    // ✅ 병렬로 구매 여부 체크
+    const purchaseChecks = await Promise.all(
+      visibleItems.map(pkg =>
+        fetch(`/api/emoticon/purchased?emoticonId=${pkg.emoticonId}`).then(res => res.json())
+      )
+    );
 
-    const img = document.createElement('img');
-    img.src = pkg.packageImg;
-    img.className = 'icon';
-    img.alt = pkg.packageName;
-    img.onclick = () => loadStickers(pkg.packageId);
-    div.appendChild(img);
+    container.innerHTML = ''; // 초기화
 
-    const name = document.createElement('div');
-    name.textContent = pkg.packageName;
-    div.appendChild(name);
+    visibleItems.forEach((pkg, index) => {
+      const isPurchased = purchaseChecks[index];
 
-    const price = document.createElement('div');
-    price.textContent = `🐿️ ${pkg.price} 도토리`;
-    div.appendChild(price);
+      const div = document.createElement('div');
+      div.className = 'shop-item';
 
-    const btn = document.createElement('button');
-    btn.className = 'buy-btn';
-    btn.textContent = isPurchased ? '구매 완료' : '구매';
-    btn.disabled = isPurchased;
-    btn.onclick = () => buyEmoticon(pkg);
-    div.appendChild(btn);
+      const img = document.createElement('img');
+      img.src = pkg.packageImg;
+      img.className = 'icon';
+      img.alt = pkg.packageName;
+      img.loading = 'lazy';
+      img.onclick = () => loadStickers(pkg.packageId);
+      div.appendChild(img);
 
-    container.appendChild(div);
+      const name = document.createElement('div');
+      name.textContent = pkg.packageName;
+      div.appendChild(name);
+
+      const price = document.createElement('div');
+      price.textContent = `🐿️ ${pkg.price} 도토리`;
+      div.appendChild(price);
+
+      const btn = document.createElement('button');
+      btn.className = 'buy-btn';
+      btn.textContent = isPurchased ? '구매 완료' : '구매';
+      btn.disabled = isPurchased;
+      btn.onclick = () => buyEmoticon(pkg);
+      div.appendChild(btn);
+
+      container.appendChild(div);
+    });
+
+    // 페이지네이션 렌더링
+    renderPagination('emoticon', totalItems, Page, renderEmoticonList);
+
+  } catch (err) {
+    console.error('이모티콘 로딩 실패:', err);
+    container.innerHTML = '<div class="error">❌ 로딩 실패</div>';
   }
 }
 
@@ -235,19 +260,26 @@ async function buyEmoticon(emoticon) {
 
 // 이모티콘 영역 끝  
 // 음악 영역
-async function renderMusicList() {
-  const container = document.getElementById('music-list');
+async function renderMusicList(Page = 1, genreId = currentMusicGenreId) {
+ const container = document.getElementById('music-list');
   if (!container) return;
 
-  container.innerHTML = '';
+  container.innerHTML = '<div class="loading">⏳ 음악 불러오는 중...</div>';
 
   try {
-    const res = await fetch('/api/music/list');
+    const res = await fetch(`/api/music/list?genreId=${genreId}`);
     if (!res.ok) throw new Error('음악 정보를 불러오는 데 실패했습니다.');
 
     const musicList = await res.json();
 
-    musicList.forEach(track => {
+    // === 클라이언트 측 페이징 ===
+    const startIdx = (Page - 1) * MUSIC_ITEMS_PER_PAGE;
+    const endIdx = startIdx + MUSIC_ITEMS_PER_PAGE;
+    const pagedList = musicList.slice(startIdx, endIdx);
+
+    container.innerHTML = ''; // 기존 내용 제거
+
+    pagedList.forEach(track => {
       const div = document.createElement('div');
       div.className = 'music-item';
 
@@ -259,10 +291,7 @@ async function renderMusicList() {
 
       const info = document.createElement('div');
       info.className = 'item-title';
-      info.innerHTML = `
-        <strong>${track.title}</strong><br />
-        <span>${track.artist}</span>
-      `;
+      info.innerHTML = `<strong>${track.title}</strong><br /><span>${track.artist}</span>`;
       div.appendChild(info);
 
       const price = document.createElement('div');
@@ -299,7 +328,8 @@ async function renderMusicList() {
 
           const result = await response.json();
           alert(result.message + '\n남은 도토리: ' + result.remainingAcorn);
-          switchTab('music'); // 구매 후 갱신
+          await fetchUserAcorn()
+          renderMusicList(Page, genreId); // 현재 페이지 & 장르 유지
         } catch (err) {
           console.error('구매 요청 실패:', err);
           alert('서버 오류로 인해 구매에 실패했습니다.');
@@ -309,8 +339,13 @@ async function renderMusicList() {
       div.appendChild(btn);
       container.appendChild(div);
     });
+
+    // === 페이징 렌더링 ===
+    renderPagination('music', musicList.length, Page, (page) => renderMusicList(page, genreId));
+
   } catch (err) {
     console.error('음악 리스트 로딩 실패:', err);
+    container.innerHTML = '<div class="error">❌ 음악 로딩 실패</div>';
   }
 }
 
@@ -318,42 +353,45 @@ async function renderMusicList() {
 
    // === 페이지네이션 렌더링 ===
     function renderPagination(type, totalItems, currentPage, renderFunction) {
-        const container = document.getElementById(`${type}-pagination`);
-        if (!container) return;
+         const container = document.getElementById(`${type}-pagination`);
+    if (!container) return;
 
-        const pageCount = Math.ceil(totalItems / ITEMS_PER_PAGE);
-        container.innerHTML = '';
+    // ✅ 타입별로 페이지당 항목 수 결정
+    const itemsPerPage = (type === 'emoticon') ? EMOTICON_ITEMS_PER_PAGE : MUSIC_ITEMS_PER_PAGE;
 
-        // 이전 버튼
-        if (currentPage > 1) {
-            const prevBtn = document.createElement('button');
-            prevBtn.textContent = '이전';
-            prevBtn.className = 'prev-btn';
-            prevBtn.addEventListener('click', () => renderFunction(currentPage - 1));
-            container.appendChild(prevBtn);
-        }
+    const pageCount = Math.ceil(totalItems / itemsPerPage);
+    container.innerHTML = '';
 
-        // 페이지 번호 버튼들
-        const startPage = Math.max(1, currentPage - 4);
-        const endPage = Math.min(pageCount, startPage + 9);
-
-        for (let i = startPage; i <= endPage; i++) {
-            const btn = document.createElement('button');
-            btn.textContent = i;
-            btn.className = (i === currentPage) ? 'active' : '';
-            btn.addEventListener('click', () => renderFunction(i));
-            container.appendChild(btn);
-        }
-
-        // 다음 버튼
-        if (currentPage < pageCount) {
-            const nextBtn = document.createElement('button');
-            nextBtn.textContent = '다음';
-            nextBtn.className = 'next-btn';
-            nextBtn.addEventListener('click', () => renderFunction(currentPage + 1));
-            container.appendChild(nextBtn);
-        }
+    // 이전 버튼
+    if (currentPage > 1) {
+        const prevBtn = document.createElement('button');
+        prevBtn.textContent = '이전';
+        prevBtn.className = 'prev-btn';
+        prevBtn.addEventListener('click', () => renderFunction(currentPage - 1));
+        container.appendChild(prevBtn);
     }
+
+    // 페이지 번호 버튼들
+    const startPage = Math.max(1, currentPage - 4);
+    const endPage = Math.min(pageCount, startPage + 9);
+
+    for (let i = startPage; i <= endPage; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = (i === currentPage) ? 'active' : '';
+        btn.addEventListener('click', () => renderFunction(i));
+        container.appendChild(btn);
+    }
+
+    // 다음 버튼
+    if (currentPage < pageCount) {
+        const nextBtn = document.createElement('button');
+        nextBtn.textContent = '다음';
+        nextBtn.className = 'next-btn';
+        nextBtn.addEventListener('click', () => renderFunction(currentPage + 1));
+        container.appendChild(nextBtn);
+    }
+}
 
      // === 스킨 활성화 처리 ===
     async function handleSkinActivation() {
@@ -537,7 +575,15 @@ async function renderMusicList() {
         updateAcornDisplay();
         renderEmoticonList(); // 기본적으로 이모티콘 탭 표시
         setupEventListeners();
-        
+        // 음악 장르 선택
+        const genreSelect = document.getElementById('genre-select');
+        if (genreSelect) {
+        genreSelect.addEventListener('change', (e) => {
+            const selectedGenre = e.target.value;
+            currentMusicGenreId = selectedGenre;
+            renderMusicList(1, selectedGenre); // 1페이지부터 다시 렌더링
+         });
+       }
         // 현재 스킨 활성화 상태 확인
         await checkCurrentSkinStatus();
 
