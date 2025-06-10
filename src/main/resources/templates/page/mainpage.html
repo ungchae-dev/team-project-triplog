@@ -112,6 +112,7 @@
             <div class="card shadow-sm border rounded position-relative" style="width: 23%;"
                  th:each="post, iterStat : ${bestPosts}">
                 <!-- 등수별 메달 아이콘 왼쪽 상단 고정 -->
+
                 <img th:if="${iterStat.index == 0}" src="/images/page/gold.png" class="position-absolute"
                      style="top: 0px; left: 0px; width: 40px; height: 40px; z-index: 10;" alt="Gold Medal">
                 <img th:if="${iterStat.index == 1}" src="/images/page/silver.png" class="position-absolute"
