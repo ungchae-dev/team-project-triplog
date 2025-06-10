@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface PostSearchService {
     Page<PostSearchResponseDto> searchPosts(String keyword, List<String> people, String sort, Pageable pageable);
+
+
 }

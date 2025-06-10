@@ -6,6 +6,7 @@ import com.javago.triplog.domain.hashtag_people.entity.QHashtag_People;
 import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.entity.QPost;
 import com.javago.triplog.domain.post_hashtag_people.entity.QPost_Hashtag_people;
+import com.javago.triplog.domain.post_image.entity.QPost_Image;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.JPAExpressions;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.List;
 
 @Repository
@@ -31,6 +33,7 @@ public class PostSearchRepositoryImpl implements PostSearchRepositoryCustom {
         QPost post = QPost.post;
         QPost_Hashtag_people php = QPost_Hashtag_people.post_Hashtag_people;
         QHashtag_People tag = QHashtag_People.hashtag_People;
+        QPost_Image pi = QPost_Image.post_Image;
 
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(post.visibility.eq(Visibility.PUBLIC));
@@ -72,16 +75,31 @@ public class PostSearchRepositoryImpl implements PostSearchRepositoryCustom {
             default -> post.createdAt.desc();
         };
 
-        JPAQuery<Post> query = queryFactory
-                .selectFrom(post)
+        // 1. 먼저 postId만 페이징으로 가져오기 (서브쿼리 방식)
+        List<Long> pagedPostIds = queryFactory
+                .select(post.postId)
+                .from(post)
                 .where(builder)
-                .orderBy(orderSpecifier);
-
-        List<Post> results = query
+                .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
+        if (pagedPostIds.isEmpty()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
+        }
+
+        // 2. fetchJoin으로 연관 엔티티 로딩
+        List<Post> results = queryFactory
+                .selectFrom(post)
+                .leftJoin(post.postImage, pi)  // ❌ fetchJoin 제거 (bag 충돌 회피)
+                .leftJoin(post.postHashtagPeople, php).fetchJoin() // ✅ 먼저 owner fetchJoin
+                .leftJoin(php.hashtagPeople, tag).fetchJoin()      // ✅ 이후 단일 연관 fetchJoin
+                .where(post.postId.in(pagedPostIds))
+                .orderBy(orderSpecifier)
+                .fetch();
+
+        // 3. 전체 개수는 기존 방식 유지
         long total = queryFactory
                 .select(post.count())
                 .from(post)

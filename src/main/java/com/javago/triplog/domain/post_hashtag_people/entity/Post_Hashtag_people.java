@@ -1,5 +1,6 @@
 package com.javago.triplog.domain.post_hashtag_people.entity;
 
+import org.hibernate.annotations.BatchSize;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.javago.triplog.domain.hashtag_people.entity.Hashtag_People;
