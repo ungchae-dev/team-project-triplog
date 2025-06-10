@@ -13,11 +13,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupNavigation(); // 2. 네비게이션 즉시 설정 (컴포넌트 로드 완료 후)
     setPageTitleByUrl(); // 3. 페이지별 제목 자동 설정
     setupMusicWidget(); // 4. 음악 위젯 이벤트
+    setupEditButtonEvent(); // 5. 블로그 좌측 EDIT 버튼 이벤트
 
     // 스킨 정보 미리 캐싱 (최초 로드시)
-    await maintainDefaultSkinForInactiveUsers(); // 5. 즉시 스킨 유지 + 캐싱
-    
-    await loadUserProfileImage(); // 6. 프로필 이미지 캐시 초기화
+    await maintainDefaultSkinForInactiveUsers(); // 6. 즉시 스킨 유지 + 캐싱
+    await loadUserProfileImage(); // 7. 프로필 이미지 캐시 초기화
     
     console.log('=== Layout 초기화 완료 ===');
 });
@@ -156,6 +156,82 @@ function getCurrentNickname() {
     }
     return null;
 }
+
+// === 블로그 좌측 EDIT 기능 관련 함수 시작 ===
+//
+async function setupEditButtonEvent() {
+    // EDIT 버튼이 로드될 때까지 기다리기
+    const editBtn = document.querySelector('.edit');
+
+    if (editBtn) {
+        setupEditButtonClick(editBtn);
+        return;
+    }
+
+    // 버튼이 없으면 옵저버로 감시
+    const observer = new MutationObserver(() => {
+        const editBtn = document.querySelector('.edit');
+        if (editBtn) {
+            setupEditButtonClick(editBtn);
+            observer.disconnect(); // 작업 완료 후 옵저버 해제
+        }
+    });
+
+    // left-container 감시 (EDIT 버튼이 들어가는 곳)
+    const leftContainer = document.getElementById('left-container');
+    if (leftContainer) {
+        observer.observe(leftContainer, {
+            childList: true, 
+            subtree: true
+        });
+    }
+}
+
+// EDIT 버튼 클릭 이벤트 설정
+function setupEditButtonClick(editBtn) {
+    editBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        const currentNickname = getCurrentNickname();
+        if (!currentNickname) {
+            alert('로그인이 필요합니다.');
+            window.location.href = '/member/login';
+            return;
+        }
+
+        console.log('EDIT 버튼 클릭 - 개인정보 조회/수정으로 이동');
+
+        // 프로필 페이지로 이동 후 개인정보 탭 활성화
+        navigateToProfileEdit();
+    });
+
+    console.log('EDIT 버튼 이벤트 설정 완료');
+}
+
+// 프로필 개인정보 수정으로 이동하는 함수
+function navigateToProfileEdit() {
+    const currentNickname = getCurrentNickname();
+    if (!currentNickname) return;
+
+    console.log('프로필 개인정보 조회/수정으로 이동 시작');
+
+    // 1. 프로필 페이지로 이동
+    navigateToPage('profile');
+
+    // 2. 페이지 로드 완료 후 개인정보 탭으로 전환
+    setTimeout(() => {
+        // 개인정보 수정 탭 버튼 찾기
+        const editTabBtn = document.getElementById('btn-edit');
+        if (editTabBtn) {
+            editTabBtn.click(); // 개인정보 탭으로 전환
+            console.log('개인정보 조회/수정 탭 활성화');
+        } else {
+            console.log('개인정보 탭 버튼을 찾을 수 없음!');
+        }
+    }, 100); // 페이지 로드 대기시간
+}
+//
+// === 블로그 좌측 EDIT 기능 관련 함수 끝 ===
 
 // === 스킨 비활성화 회원만을 위한 기본 스킨 유지 함수 ===
 async function maintainDefaultSkinForInactiveUsers() {
@@ -528,11 +604,6 @@ function setPageTitleImmediately(page) {
     setPageTitle(pageTitle);
 }
 
-// 외부에서 호출 가능한 함수들로 노출
-window.setActiveNavButton = setActiveNavButton;
-window.setPageTitle = setPageTitle;
-window.navigateToPage = navigateToPage;
-
 // 페이지 제목 매핑 테이블
 const PAGE_TITLES = {
     'home': '홈', 
@@ -666,4 +737,8 @@ window.addEventListener('popstate', (event) => {
 console.log('layout.js 로드 완료 - 즉시 반응 모드');
 
 // 전역 함수로 노출
+window.setActiveNavButton = setActiveNavButton;
+window.setPageTitle = setPageTitle;
+window.navigateToPage = navigateToPage;
 window.maintainDefaultSkinForInactiveUsers = maintainDefaultSkinForInactiveUsers;
+window.navigateToProfileEdit = navigateToProfileEdit;

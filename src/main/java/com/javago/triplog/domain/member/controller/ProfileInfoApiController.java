@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,9 +33,6 @@ public class ProfileInfoApiController {
 
     @Autowired
     private BlogControllerUtils blogControllerUtils;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
 
     // 프로필 사진 업로드
     @PostMapping("/@{nickname}/profile/info/upload-image")
@@ -201,6 +197,54 @@ public class ProfileInfoApiController {
                 System.err.println("기존 프로필 이미지 삭제 실패: " + e.getMessage());
                 e.printStackTrace();
             }
+        }
+    }
+
+    // 상태메시지 업데이트 API
+    @PostMapping("/@{nickname}/profile/info/update-condition-message")
+    public ResponseEntity<Map<String, Object>> updateConditionMessage(
+    @PathVariable String nickname, 
+    @RequestBody Map<String, String> request, 
+    Authentication authentication) {
+        try {
+            // 1. 로그인 체크
+            if (authentication == null) {
+                return blogControllerUtils.badRequestResponse("로그인이 필요합니다!");
+            }
+
+            // 2. 권한 체크 (본인 블로그인지 확인)
+            if (!blogControllerUtils.isAuthorized(nickname, authentication)) {
+                return blogControllerUtils.unauthorizedResponse();
+            }
+
+            // 3. 상태메시지 검증
+            String conditionMessage = request.get("conditionMessage");
+            if (conditionMessage == null || conditionMessage.trim().isEmpty()) {
+                return blogControllerUtils.badRequestResponse("상태메시지를 입력해주세요!");
+            }
+
+            if (conditionMessage.length() > 100) {
+                return blogControllerUtils.badRequestResponse("상태메시지는 100자 이하로 입력해주세요!");
+            }
+
+            // 4. 현재 사용자 정보 가져오기
+            String decodedNickname = blogControllerUtils.decodeNickname(nickname);
+
+            // 5. 상태메시지 업데이트
+            memberService.updateConditionMessage(decodedNickname, conditionMessage);
+            System.out.println("상태메시지 업데이트 성공: " + decodedNickname + " -> " + conditionMessage);
+
+            // 6. 성공 응답
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "상태메시지가 성공적으로 변경되었습니다.");
+            response.put("conditionMessage", conditionMessage);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("상태메시지 업데이트 실패: " + e.getMessage());
+            e.printStackTrace();
+            return blogControllerUtils.serverErrorResponse("상태메시지 업데이트 중 오류가 발생했습니다!");
         }
     }
 
