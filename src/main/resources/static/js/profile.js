@@ -534,36 +534,88 @@
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
+                // 프로필 - 개인정보 조회/수정
+                const editBio = document.getElementById('edit-bio');
                 const editPhoto = document.getElementById('edit-photo');
+                const editPasswordOld = document.getElementById('edit-password-old');
+                const editPasswordNew = document.getElementById('edit-password-new');
+
+                let hasChanges = false;
+                let updateMessages = [];
+                let successCount = 0;
+                let totalAttempts = 0;
 
                 try {
-                    // 프로필 사진 업로드 처리
+                    // 1. 상태메시지 변경 확인 및 처리
+                    if (editBio && editBio.value.trim()) {
+                        const newConditionMessage = editBio.value.trim();
+                        const currentConditionMessage = document.getElementById('current-bio')?.textContent || '';
+
+                        if (newConditionMessage !== currentConditionMessage) {
+                            hasChanges = true;
+                            totalAttempts++;
+
+                            const conditionUpdateSuccess = await updateConditionMessage(newConditionMessage);
+                            if (conditionUpdateSuccess) {
+                                updateMessages.push('상태메시지가 변경되었습니다.');
+                                successCount++;
+                            } else {
+                                updateMessages.push('상태메시지 변경에 실패했습니다!');
+                            }
+                        }
+                    }
+
+                    // 2. 프로필 사진 변경 확인 및 처리
                     if (editPhoto && editPhoto.files.length > 0) {
+                        hasChanges = true;
+                        totalAttempts++;
+
                         const profileUpdateSuccess = await uploadProfileImage(editPhoto.files[0]);
                         
                         if (profileUpdateSuccess) {
-                            alert('프로필 사진이 변경되었습니다.');
-                            
-                            // 탭 전환 제거 (현재 탭 유지)
-                            // switchTab('inventory'); // 이 줄 제거
-                            
-                            // 즉시 UI 업데이트 (새로고침 대신)
-                            setTimeout(() => {
-                                loadCurrentUserInfo(); // 현재 정보 다시 로드
-                                
-                                // 수동으로 모든 프로필 이미지 강제 업데이트
-                                const profileImages = document.querySelectorAll('img[src*="/uploads/profiles/"], .profile-pic img');
-                                profileImages.forEach(img => {
-                                    const currentSrc = img.src;
-                                    img.src = currentSrc + '?t=' + Date.now(); // 캐시 무효화
-                                });
-                            }, 500);
-                            
+                            updateMessages.push('프로필 사진이 변경되었습니다.');
+                            successCount++;
                         } else {
-                            alert('프로필 사진 업로드에 실패했습니다.');
+                            updateMessages.push('프로필 사진 업로드에 실패했습니다.');
                         }
+                    }
+
+                    // 3. 비밀번호 변경 확인 및 처리
+                    if (editPasswordOld && editPasswordNew && 
+                    editPasswordOld.value.trim() && editPasswordNew.value.trim()) {
+                        hasChanges = true;
+                        totalAttempts++;
+
+                        const passwordUpdateSuccess = await updatePassword(editPasswordOld.value, editPasswordNew.value);
+                        if (passwordUpdateSuccess) {
+                            updateMessages.push('비밀번호가 변경되었습니다.');
+                            successCount++;
+                        } else {
+                            updateMessages.push('비밀번호 변경에 실패했습니다!');
+                        }
+                    }
+
+                    // 4. 결과 메시지 표시
+                    if (!hasChanges) {
+                        alert('변경된 사항이 없습니다!');
+                    } else if (successCount === totalAttempts) {
+                        alert('개인정보가 수정되었습니다.');
+
+                        // 성공시 UI 업데이트
+                        setTimeout(() => {
+                            loadCurrentUserInfo(); // 현재 정보 다시 로드
+                            updateAllProfileImagesManually(); // 프로필 이미지 강제 업데이트
+
+                            // 입력 필드 초기화
+                            if (editBio) editBio.value = '';
+                            if (editPhoto) editPhoto.value = '';
+                            if (editPasswordOld) editPasswordOld.value = '';
+                            if (editPasswordNew) editPasswordNew.value = '';
+
+                            console.log('개인정보 수정 완료 - 개인정보 탭 유지');
+                        }, 500);
                     } else {
-                        alert('변경할 프로필 사진을 선택해주세요.');
+                        alert('일부 정보 업데이트에 실패했습니다:\n' + updateMessages.join('\n')); 
                     }
 
                 } catch (error) {
@@ -597,6 +649,19 @@
             if (response.ok && result.success) {
                 console.log('=== 프로필 이미지 업로드 성공 ===');
                 console.log('서버 응답 이미지 URL:', result.profileImageUrl);
+
+                // 우선 현재 화면의 프로필 이미지들 즉시 업데이트
+                const currentProfileImg = document.getElementById('current-profile-img');
+                const editPreviewImg = document.getElementById('edit-preview-img');
+
+                if (currentProfileImg) {
+                    currentProfileImg.src = result.profileImageUrl;
+                    console.log('current-profile-img 즉시 업데이트');
+                }
+                if (editPreviewImg) {
+                    editPreviewImg.src = result.profileImageUrl;
+                    console.log('edit-preview-img 즉시 업데이트');
+                }
                 
                 // 전역 캐시 시스템 업데이트 (layout.js)
                 if (typeof window.updateProfileImageCache === 'function') {
@@ -608,7 +673,7 @@
                     
                     // 수동으로 모든 프로필 이미지 업데이트
                     console.log('수동 프로필 이미지 업데이트 시작');
-                    updateAllProfileImagesManually(result.profileImageUrl);
+                    updateAllProfileImagesManually();
                 }
                 
                 return true;
@@ -625,34 +690,139 @@
         }
     }
 
-    // 수동 업데이트 함수 추가
-    function updateAllProfileImagesManually(profileImageUrl) {
-        const timestamp = Date.now();
-        const imageUrlWithCache = profileImageUrl + '?t=' + timestamp;
+    // 수동 프로필 이미지 업데이트 함수
+    function updateAllProfileImagesManually() {
+        console.log('=== 수동 프로필 이미지 업데이트 시작 ===');
         
-        console.log('수동 업데이트할 이미지 URL:', imageUrlWithCache);
-        
-        // 1. 사이드바 프로필 이미지
-        const sideProfileImg = document.querySelector('.profile-pic img');
-        if (sideProfileImg) {
-            sideProfileImg.src = imageUrlWithCache;
-            console.log('사이드바 프로필 이미지 업데이트');
-        } else {
-            console.log('사이드바 프로필 이미지 요소를 찾을 수 없음');
-        }
-        
-        // 2. 프로필 페이지의 현재 이미지
+        // 최신 업로드된 프로필 이미지 URL 가져오기 (여러 방법 시도)
+        let newImageUrl = null;
+
+        // 방법 1. current-profile-img에서 가져오기
         const currentProfileImg = document.getElementById('current-profile-img');
-        if (currentProfileImg) {
-            currentProfileImg.src = imageUrlWithCache;
-            console.log('프로필 페이지 현재 이미지 업데이트');
+        if (currentProfileImg && currentProfileImg.src && !currentProfileImg.src.includes('placeholder')) {
+            newImageUrl = currentProfileImg.src;
         }
-        
-        // 3. 프로필 페이지의 미리보기 이미지
-        const editPreviewImg = document.getElementById('edit-preview-img');
-        if (editPreviewImg) {
+
+        // 방법 2: edit-preview-img에서 가져오기 (방법1이 실패한 경우)
+        if (!newImageUrl) {
+            const editPreviewImg = document.getElementById('edit-preview-img');
+            if (editPreviewImg && editPreviewImg.src && !editPreviewImg.src.includes('placeholder')) {
+                newImageUrl = editPreviewImg.src;
+            }
             editPreviewImg.src = imageUrlWithCache;
             console.log('프로필 페이지 미리보기 이미지 업데이트');
+        }
+
+        // 방법 3: 전역 캐시에서 가져오기
+        if (!newImageUrl && window.cachedProfileImage) {
+            newImageUrl = window.cachedProfileImage;
+        }
+
+        if (!newImageUrl) {
+            console.log('업데이트할 프로필 이미지 URL을 찾을 수 없음');
+            return;
+        }
+        console.log('업데이트할 이미지 URL:', newImageUrl);
+
+        // 캐시 무효화를 위한 타임스탬프 추가
+        const timestamp = Date.now();
+        const baseUrl = newImageUrl.split('?')[0]; // 기존 쿼리 파라미터 제거
+        const imageUrlWithCache = baseUrl + '?t=' + timestamp;
+
+        console.log('캐시 무효화된 URL:', imageUrlWithCache);
+
+        // 모든 프로필 이미지 업데이트
+        updateMultipleImages(imageUrlWithCache);
+
+        // 전역 캐시도 업데이트
+        if (typeof window.updateProfileImageCache === 'function') {
+            window.updateProfileImageCache(baseUrl);
+            console.log('전역 캐시 시스템 업데이트');
+        }
+
+        console.log('=== 수동 프로필 이미지 업데이트 완료 ===');
+    }
+
+    // 여러 이미지 업데이트 함수 (강력한 버전)
+    function updateMultipleImages(imageUrlWithCache) {
+        const imagesToUpdate = [
+            // 1. 사이드바 프로필 이미지
+            { selector: 'profile-pic img', name: '사이드바 프로필' }, 
+            // 2. 프로필 페이지 현재 이미지
+            { selector: '#current-profile-img', name: '프로필 페이지 현재 이미지' }, 
+            // 3. 프로필 페이지 미리보기 이미지
+            { selector: '#edit-preview-img', name: '프로필 페이지 미리보기' }, 
+            // 4. 기타 모든 프로필 이미지
+            { selector: 'img[src*="/uploads/profiles/"]', name: '업로드된 프로필 이미지들' }
+        ];
+
+        imagesToUpdate.forEach(({ selector, name }) => {
+            const elements = document.querySelectorAll(selector);
+
+            if (elements.length > 0) {
+                elements.forEach((img, index) => {
+                    // 이미지 로드 확인 후 적용
+                    const testImg = new Image();
+                    testImg.onload = () => {
+                        img.src = imageUrlWithCache;
+                        console.log(`${name} ${index + 1} 업데이트 성공`);
+                    };
+                    testImg.onerror = () => {
+                        console.log(`${name} ${index + 1} 이미지 로드 실패:`, imageUrlWithCache);
+                    };
+                    testImg.src = imageUrlWithCache;
+                });
+            } else {
+                console.log(`${name} 요소를 찾을 수 없음: ${selector}`);
+            }
+        });
+    }
+
+    // === 상태메시지 업데이트 함수 ===
+    async function updateConditionMessage(conditionMessage) {
+        try {
+            const currentNickname = window.currentBlogNickname || getCurrentNickname();
+            if (!currentNickname) {
+                throw new Error('블로그 닉네임을 찾을 수 없습니다!');
+            }
+
+            const encodedNickname = encodeURIComponent(currentNickname);
+            const response = await fetch(`/blog/@${encodedNickname}/profile/info/update-condition-message`, {
+                method: 'POST', 
+                headers: {
+                    'Content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    conditionMessage: conditionMessage
+                })
+            });
+
+            const result = await response.json();
+            console.log('상태메시지 업데이트 응답:', result);
+
+            if (response.ok && result.success) {
+                // 현재 정보 화면 즉시 업데이트
+                const currentBioElement = document.getElementById('current-bio');
+                if (currentBioElement) {
+                    currentBioElement.textContent = conditionMessage;
+                }
+
+                // home_left의 상태메시지도 업데이트
+                const conditionMessageElement = document.getElementById('condition-message');
+                if (conditionMessageElement) {
+                    conditionMessageElement.textContent = conditionMessage;
+                }
+
+                console.log('상태메시지 업데이트 성공:', conditionMessage);
+                return true;
+            } else {
+                console.error('상태메시지 업데이트 실패:', result.message);
+                return false;
+            }
+
+        } catch (error) {
+            console.error('상태메시지 업데이트 중 오류:', error);
+            return false;
         }
     }
 
@@ -720,10 +890,6 @@
         console.log('프로필 페이지 초기화 완료');
     }
 
-    // === 외부에서 호출 가능한 함수들 ===
-    window.setupProfileFeatures = initProfilePage;
-    window.maintainSkinOnNavigation = maintainSkinOnNavigation; // 다른 페이지에서도 호출 가능
-
     // === 페이지 로드 시 초기화 ===
     document.addEventListener('DOMContentLoaded', () => {
         initProfilePage();
@@ -731,6 +897,7 @@
 
 
     // === 스킨 로드 함수 시작 ===
+    //
     async function loadBlogSkin() {
         const currentNickname = getCurrentNickname();
         if (!currentNickname) return;
@@ -877,10 +1044,133 @@
             console.error('스킨 동기화 중 오류:', error);
         }
     }
+    //
+    // === 스킨 로드 함수 끝 ===
 
-    // 전역으로 노출
+    // === 클라이언트 사이드 비밀번호 검증 ===
+    function validatePasswordClient(password) {
+        // 1. 길이 체크
+        if (password.length < 8) {
+            return {
+                isValid: false, 
+                message: '비밀번호는 8자 이상이어야 합니다!'
+            };
+        }
+
+        if (password.length > 20) {
+            return {
+                isValid: false, 
+                message: '비밀번호는 20자 이하여야 합니다!'
+            };
+        }
+
+        // 2. 영문 포함 체크
+        if (!/[a-zA-Z]/.test(password)) {
+            return {
+                isValid: false, 
+                message: '비밀번호는 영문을 포함해야 합니다!'
+            };
+        }
+
+        // 3. 숫자 포함 체크
+        if (!/[0-9]/.test(password)) {
+            return {
+                isValid: false, 
+                message: '비밀번호는 숫자를 포함해야 합니다!'
+            };
+        }
+
+        // 4. 특수문자 포함 체크
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+            return {
+                isValid: false, 
+                message: '비밀번호는 특수문자를 포함해야 합니다!'
+            };
+        }
+
+        // 5. 공백 체크
+        if (password.includes(' ')) {
+            return {
+                isValid: false, 
+                message: '비밀번호에는 공백이 포함될 수 없습니다!'
+            };
+        }
+
+        return {
+            isValid: true, 
+            message: '검증 통과'
+        }
+    }
+
+    // === 비밀번호 변경 함수 ===
+    async function updatePassword(currentPassword, newPassword) {
+        try {
+            // 1. 클라이언트 사이드 검증
+            if (!currentPassword || currentPassword.trim() === '') {
+                alert('현재 비밀번호를 입력해주세요.');
+                return false;
+            }
+
+            if (!newPassword || newPassword.trim() === '') {
+                alert('새 비밀번호를 입력해주세요.')
+                return false;
+            }
+
+            // 2. 비밀번호 강도 검증 (클라이언트 사이드)
+            const passwordValidation = validatePasswordClient(newPassword);
+            if (!passwordValidation.isValid) {
+                alert(passwordValidation.message);
+                return false;
+            }
+
+            // 3. 현재 비밀번호와 새 비밀번호가 같은지 확인
+            if (currentPassword === newPassword) {
+                alert('새 비밀번호는 현재 비밀번호와 달라야 합니다!');
+                return false;
+            }
+
+            // 4. API 호출
+            const currentNickname = window.currentBlogNickname || getCurrentNickname();
+            if (!currentNickname) {
+                throw new Error('블로그 닉네임을 찾을 수 없습니다!');
+            }
+
+            const encodedNickname = encodeURIComponent(currentNickname);
+            const response = await fetch(`/blog/@${encodedNickname}/profile/info/update-password`, {
+                method: 'POST', 
+                headers: {
+                    'Content-type': 'application/json', 
+                },
+                body: JSON.stringify({
+                    currentPassword: currentPassword, 
+                    newPassword: newPassword
+                })
+            });
+
+            const result = await response.json();
+            console.log('비밀번호 변경 응답:', result);
+            
+            if (response.ok && result.success) {
+                console.log('비밀번호 변경 성공:', result.message);
+                // alert는 여기서 하지 말고, setupProfileSave에서 통합 처리
+                return true;
+            } else {
+                console.error('비밀번호 변경 실패:', result.message);
+                alert(`비밀번호 변경 실패! ${result.message}`);
+                return false;
+            }
+
+        } catch (error) {
+            console.error('비밀번호 변경 중 오류:', error);
+            alert('비밀번호 변경 중 오류가 발생했습니다!');
+            return false;
+        }
+    }
+
+    // === 전역 함수들 ===
     window.loadBlogSkin = loadBlogSkin;
     window.syncSkinWithServer = syncSkinWithServer;
-    // === 스킨 로드 함수 끝 ===
+    window.setupProfileFeatures = initProfilePage;
+    window.maintainSkinOnNavigation = maintainSkinOnNavigation;
 
 })();
