@@ -489,3 +489,8 @@
     }
     /* === 프로필 개인정보 조회/수정 내 정보 css 끝 === */
 }
+
+/* === 최소한의 수정 === */
+.profile-edit-tab.active {
+    min-height: 200px !important;
+}
