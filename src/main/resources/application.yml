@@ -9,7 +9,6 @@ spring:
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver
     url: jdbc:oracle:thin:@localhost:1521:xe  # 본인 Oracle 설정에 맞게 수정
-    connectionProperties: oracle.jdbc.defaultNChar=true
     username: javago
     password: 12345
 

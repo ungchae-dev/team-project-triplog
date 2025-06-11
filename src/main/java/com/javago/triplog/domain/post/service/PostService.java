@@ -2,6 +2,9 @@ package com.javago.triplog.domain.post.service;
 
 import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.blog.repository.BlogRepository;
+import com.javago.triplog.domain.comments.dto.AddCommentRequest;
+import com.javago.triplog.domain.comments.dto.CommentDto;
+import com.javago.triplog.domain.comments.dto.UpdateCommentRequest;
 import com.javago.triplog.domain.comments.entity.Comments;
 import com.javago.triplog.domain.comments.repository.CommentsRepository;
 import com.javago.triplog.domain.hashtag_people.entity.Hashtag_People;
@@ -28,8 +31,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -98,7 +103,7 @@ public class PostService {
     public Page<PostListResponse> findPostList(Pageable pageable, String nickname) {
         Long blogId = memberRepository.findByNickname(nickname).getBlog().getBlogId();
         List<Post> posts = postRepository.findPostsWithThumbnail(pageable, blogId);
-        long count = postRepository.countPostsWithThumbnail(blogId);
+        long postCount = postRepository.countPostsWithThumbnail(blogId);
 
         log.info("조회된 게시글 수: {}", posts.size());
         for (Post post : posts) {
@@ -121,6 +126,24 @@ public class PostService {
         Map<Long, List<Post_Hashtag_people>> hashtagMap = allHashtags.stream()
             .collect(Collectors.groupingBy(h -> h.getPost().getPostId()));
 
+        // 댓글 갯수 조회
+        List<Object[]> commentCounts = commentsRepository.countCommentsByPostIds(postIds);
+        Map<Long, Long> commentCountMap = new HashMap<>();
+        for (Object[] row : commentCounts) {
+            Long postId = (Long) row[0];
+            Long count = (Long) row[1];
+            commentCountMap.put(postId, count);
+        }
+
+        // 좋아요 갯수 조회
+        List<Object[]> likeCounts = postLikeRepository.countCommentsByPostIds(postIds);
+        Map<Long, Long> likeCountMap = new HashMap<>();
+        for(Object[] row : likeCounts) {
+            Long postId = (Long) row[0];
+            Long count = (Long) row[1];
+            likeCountMap.put(postId, count);
+        }
+
         List<PostListResponse> dtoList = posts.stream()
             .map(post -> {
                 String thumbnail = post.getPostImage().stream()
@@ -129,14 +152,22 @@ public class PostService {
                     .findFirst()
                     .orElse(null);
 
-                List<Post_Hashtag_people> hashtags = hashtagMap.getOrDefault(post.getPostId(), Collections.emptyList());
+                List<String> hashtags = hashtagMap.getOrDefault(post.getPostId(), Collections.emptyList())
+                    .stream()
+                    .map(h -> h.getHashtagPeople() != null ? h.getHashtagPeople().getTagName() : null)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
                 log.info("Post ID: {}, 해시태그 개수: {}", post.getPostId(), hashtags.size());
 
-                return new PostListResponse(post, hashtags, thumbnail);
+                // 댓글 수와 좋아요 수를 함께 전달
+                Long commentCount = commentCountMap.getOrDefault(post.getPostId(), 0L);
+                Long likeCount = likeCountMap.getOrDefault(post.getPostId(), 0L);
+
+                return new PostListResponse(post, hashtags, thumbnail, commentCount, likeCount);
             })
             .collect(Collectors.toList());
-        return new PageImpl<PostListResponse>(dtoList, pageable, count);
+        return new PageImpl<PostListResponse>(dtoList, pageable, postCount);
     }
 
 
@@ -195,16 +226,52 @@ public class PostService {
         postLikeRepository.deleteByPostPostIdAndMemberMemberId(postId, userId);
     }
 
-    /*
+    // 좋아요 존재 여부 확인
+    @Transactional
+    public Boolean existPostLike(Long postId, String userId){
+        Post_Like postLike = postLikeRepository.findByPostIdAndMemberId(postId, userId);
+        if(postLike == null){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
     // 댓글 저장
     @Transactional
-    public Comments saveComment(AddCommentRequest request){
+    public CommentDto saveComment(AddCommentRequest request){
         Post post = postRepository.findById(request.getPostId()).orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
-        Member member = memberRepository.findByNickname((request.getUsername());
-        Comments parentComment = commentsRepository.findById(request.getCommentId());
-        Comments comment = AddCommentRequest.toEntity(member, post, parentComment);
-        return commentsRepository.save(comment);
+        Member member = memberRepository.findByMemberId(request.getUserId());
+        Comments parentComment = commentsRepository.findByCommentId(request.getParentComment());
+        Comments comment = request.toEntity(member, post, parentComment);
+        return CommentDto.fromEntity(commentsRepository.save(comment));
     }
-    */
+
+    // 댓글 조회
+    @Transactional
+    public List<CommentDto> getCommentsByPostId(Long postId) {
+        List<Comments> comments = commentsRepository.findAllByPostPostId(postId); // 모든 댓글
+        return CommentDto.buildCommentTree(comments);
+    }
+
+    // 댓글 갯수 조회
+    @Transactional
+    public  Long getCountByPostId(Long postId) {
+        return commentsRepository.countByPostPostId(postId);
+    }
+
+    // 댓글 수정
+    @Transactional
+    public Comments updateComment(Long commentId, UpdateCommentRequest request){
+        Comments comment = commentsRepository.findByCommentId(commentId);
+        comment.update(request.getContent(), request.getIs_secret());
+        return comment;
+    }
+
+    // 댓글 삭제
+    @Transactional
+    public void deleteComment(Long commentId){
+        commentsRepository.deleteByCommentId(commentId);
+    }
     
 }

@@ -8,16 +8,20 @@ import com.javago.triplog.domain.post.entity.Post;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
+
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "comments")
 @Getter
+@Setter
 @EntityListeners(AuditingEntityListener.class)
 public class Comments {
 
@@ -52,14 +56,14 @@ public class Comments {
     @JoinColumn(name = "member_id", nullable = false, updatable = false)
     private Member member;
 
-    // 부모댓글-대댓글
+    // 부모 댓글
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "parent_comment_id", updatable = false, nullable = true)
     private Comments comment;
 
     // 대댓글 목록
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private ArrayList<Comments> commentList = new ArrayList<>();
+    private List<Comments> commentList = new ArrayList<>();
 
     @Builder
     public Comments(Post post, Member member, Comments comment, String content, IsSecret isSecret) {
@@ -68,6 +72,11 @@ public class Comments {
         this.member = member;
         this.comment = comment;
         this.isSecret = isSecret;
+    }
+
+    public void update(String content, String isSecret){
+        this.content = content;
+        this.isSecret = IsSecret.valueOf(isSecret);
     }
 
     public Comments() {
