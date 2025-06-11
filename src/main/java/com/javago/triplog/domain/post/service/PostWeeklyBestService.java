@@ -38,7 +38,7 @@ public class PostWeeklyBestService {
                             .map(Post_Image::getImagePath)
                             .orElse("/images/page/default_IsThumbnail.png");
 
-                    return new PostSearchResponseDto(post.getPostId(), post.getTitle(), thumbnailUrl, post.getLikeCount());
+                    return new PostSearchResponseDto(post.getPostId(), post.getTitle(), thumbnailUrl, post.getLikeCount(), post.getBlog().getMember().getNickname());
                 })
                 .collect(Collectors.toList());
     }

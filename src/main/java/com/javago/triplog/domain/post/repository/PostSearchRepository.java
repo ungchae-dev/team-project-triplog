@@ -20,4 +20,5 @@ public interface PostSearchRepository extends JpaRepository<Post, Long>, PostSea
     List<Post> findTop4WeeklyBestPosts(@Param("start") LocalDateTime start,
                                        @Param("end") LocalDateTime end,
                                        Pageable pageable);
+
 }
