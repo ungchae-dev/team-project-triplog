@@ -1,230 +1,16 @@
-// post.js : 여행 블로그 - 게시판 페이지 전용 기능
+async function fetchPosts(nickname, page = 0, size = 5, sort = 'latest') {
+    try {
+        const response = await fetch(`/api/posts?nickname=${nickname}&page=${page + 1}&size=${size}&sort=${sort}`);
 
-// 더미 게시글 데이터 (기존 5개 + 새로운 7개 = 총 12개)
-const dummyPosts = {
-    1: {
-        title: "일본 도쿄 스카이트리 여행기",
-        author: "닉네임",
-        date: "2025.05.04",
-        content: `도쿄의 스카이트리에서 본 야경이 정말 멋졌어요! 🌃
-        
-높이 634m의 세계에서 두 번째로 높은 전파탑에서 바라본 도쿄의 모습은 정말 장관이었습니다.
+        if (!response.ok) throw new Error("서버 오류");
 
-특히 해질녘부터 밤까지의 시간대가 가장 아름다웠는데, 도쿠의 불빛들이 하나둘씩 켜지면서 마치 보석상자 같은 모습을 연출했어요.
-
-전망대에서 보는 도쿄타워와 레인보우 브릿지의 모습도 인상적이었습니다.`,
-        tags: "#친구 #관광 #스카이트리 #도쿄야경",
-        likes: 20,
-        comments: [
-            { author: "나나", content: "너무 멋져요!", replies: [
-                { author: "닉네임", content: "감사합니다 😊" }
-            ]},
-            { author: "여행러버", content: "저도 가보고 싶어요!" },
-            { author: "도쿄여행자", content: "야경이 정말 예쁘죠~" }
-        ]
-    },
-    2: {
-        title: "제주도 한라산 등반 후기",
-        author: "등산러버",
-        date: "2025.05.03",
-        content: `한라산 정상에서 보는 일출은 정말 장관이었습니다! 🌅
-
-새벽 4시에 출발해서 6시간 정도 등반했는데, 힘들었지만 정상에서 본 풍경은 모든 피로를 날려주었어요.
-
-특히 백록담에서 보는 일출은 평생 잊지 못할 추억이 될 것 같습니다.
-
-등반 코스는 성판악 코스를 이용했는데, 초보자도 충분히 오를 수 있는 코스였어요.`,
-        tags: "#나홀로 #등산 #한라산 #일출",
-        likes: 15,
-        comments: [
-            { author: "산악회장", content: "대단하세요! 저도 도전해봐야겠어요" },
-            { author: "제주도민", content: "한라산 일출은 정말 아름답죠!" }
-        ]
-    },
-    3: {
-        title: "부산 해운대 맛집 투어",
-        author: "맛집헌터",
-        date: "2025.05.02",
-        content: `해운대에서 먹은 회와 밀면이 너무 맛있었어요! 🍜
-
-특히 해운대 해변가에 있는 횟집에서 먹은 광어회는 정말 신선하고 달콤했습니다.
-
-그리고 부산의 대표 음식인 밀면도 빼놓을 수 없죠! 시원하고 깔끔한 육수가 일품이었어요.
-
-디저트로는 호떡과 씨앗호떡을 먹었는데, 겉은 바삭하고 속은 달콤해서 완벽했습니다.`,
-        tags: "#친구 #맛집 #해운대 #부산여행",
-        likes: 25,
-        comments: [
-            { author: "부산토박이", content: "맛집을 잘 찾으셨네요!" },
-            { author: "먹방러버", content: "저도 그 횟집 가봤는데 정말 맛있어요" },
-            { author: "여행중독자", content: "다음에 부산 가면 꼭 들러봐야겠어요" }
-        ]
-    },
-    4: {
-        title: "경주 역사 유적지 탐방",
-        author: "역사여행자",
-        date: "2025.05.01",
-        content: `불국사와 석굴암에서 느낀 천년의 역사... 🏛️
-
-신라 천년의 수도 경주에서 우리나라의 찬란한 문화유산을 직접 볼 수 있어서 정말 의미있는 여행이었습니다.
-
-불국사의 다보탑과 석가탑은 정말 아름다웠고, 석굴암의 본존불상은 숨이 멎을 정도로 장엄했어요.
-
-첨성대에서 바라본 경주의 전경도 인상적이었습니다.`,
-        tags: "#부모님과 #역사 #경주 #문화유산",
-        likes: 12,
-        comments: [
-            { author: "역사선생님", content: "교육적 가치가 높은 여행이네요!" },
-            { author: "경주시민", content: "경주에 와주셔서 감사해요~" }
-        ]
-    },
-    5: {
-        title: "강릉 카페 거리 힐링 여행",
-        author: "카페투어",
-        date: "2025.04.30",
-        content: `강릉의 예쁜 카페들과 바다 풍경이 힐링되었어요... ☕
-
-안목해변 카페거리에서 바다를 바라보며 마신 커피는 정말 특별했습니다.
-
-특히 손님이 직접 로스팅한 원두로 내린 커피는 향과 맛이 일품이었어요.
-
-카페에서 바라본 일출 풍경도 잊을 수 없는 추억이 되었습니다.`,
-        tags: "#커플 #카페 #강릉 #힐링",
-        likes: 18,
-        comments: [
-            { author: "커피애호가", content: "강릉 커피 정말 유명하죠!" },
-            { author: "바다러버", content: "바다 보며 마시는 커피는 정말 특별해요" },
-            { author: "힐링여행자", content: "저도 힐링하러 가고 싶어요" }
-        ]
-    },
-    // 🔥 새로 추가된 7개 게시글
-    6: {
-        title: "여수 밤바다 야경 크루즈",
-        author: "바다여행자",
-        date: "2025.04.29",
-        content: `여수 밤바다에서 즐긴 야경 크루즈가 환상적이었어요! 🚢
-
-특히 돌산대교와 여수 엑스포 해상공원의 야경이 정말 아름다웠습니다.
-
-크루즈에서 바라본 여수 시내의 불빛들은 마치 보석처럼 반짝였어요.
-
-바다 위에서 느끼는 시원한 바람과 함께 로맨틱한 시간을 보낼 수 있었습니다.`,
-        tags: "#커플 #야경 #여수 #크루즈",
-        likes: 22,
-        comments: [
-            { author: "로맨티스트", content: "정말 로맨틱하네요!" },
-            { author: "여수토박이", content: "우리 동네 자랑이에요~" }
-        ]
-    },
-    7: {
-        title: "속초 동명항 활어회 맛집",
-        author: "회덕후",
-        date: "2025.04.28",
-        content: `속초 동명항에서 먹은 물회와 활어회가 정말 신선했어요! 🐟
-
-특히 방금 잡은 싱싱한 오징어와 광어회는 입에서 녹을 정도였습니다.
-
-물회의 시원한 육수와 쫄깃한 회의 조합이 완벽했어요.
-
-바닷가에서 먹는 회라 그런지 더욱 맛있게 느껴졌습니다.`,
-        tags: "#친구 #맛집 #속초 #회",
-        likes: 28,
-        comments: [
-            { author: "횟집사장", content: "맛있게 드셨나 보네요!" },
-            { author: "속초사랑", content: "동명항 회는 정말 최고죠!" }
-        ]
-    },
-    8: {
-        title: "전주 한옥마을 전통 체험",
-        author: "전통문화",
-        date: "2025.04.27",
-        content: `전주 한옥마을에서 한복을 입고 전통문화를 체험했어요! 👘
-
-한복 대여점에서 예쁜 한복을 입고 한옥마을을 걸어다니니 조선시대로 돌아간 기분이었습니다.
-
-전통차를 마시며 한지 만들기 체험도 했는데 정말 재미있었어요.
-
-비빔밥과 콩나물국밥도 맛있었고, 전주의 맛과 멋을 모두 느낄 수 있었습니다.`,
-        tags: "#가족 #전통문화 #전주 #한복체험",
-        likes: 16,
-        comments: [
-            { author: "한복러버", content: "한복이 정말 잘 어울리세요!" },
-            { author: "전주시민", content: "전주에 와주셔서 감사해요" }
-        ]
-    },
-    9: {
-        title: "설악산 단풍 명소 탐방",
-        author: "단풍헌터",
-        date: "2025.04.26",
-        content: `설악산의 가을 단풍이 정말 장관이었어요! 🍂
-
-케이블카를 타고 권금성까지 올라가는 길에 보이는 단풍들이 너무 아름다웠습니다.
-
-특히 울산바위 주변의 단풍은 마치 자연이 그린 그림 같았어요.
-
-신흥사에서 바라본 단풍 풍경도 정말 인상적이었습니다.`,
-        tags: "#나홀로 #등산 #설악산 #단풍",
-        likes: 19,
-        comments: [
-            { author: "등산매니아", content: "설악산 단풍은 정말 최고죠!" },
-            { author: "사진작가", content: "사진 찍기 좋은 명소네요" }
-        ]
-    },
-    10: {
-        title: "통영 케이블카 & 한려수도",
-        author: "섬여행러",
-        date: "2025.04.25",
-        content: `통영 케이블카에서 내려다본 한려수도가 정말 멋졌어요! 🏝️
-
-미륵산 정상에서 바라본 통영의 섬들과 푸른 바다는 숨이 멎을 정도로 아름다웠습니다.
-
-특히 해질녘의 풍경은 마치 한 폭의 그림 같았어요.
-
-동피랑 벽화마을도 귀엽고 예뻤고, 충무김밥도 맛있었습니다.`,
-        tags: "#커플 #케이블카 #통영 #한려수도",
-        likes: 24,
-        comments: [
-            { author: "바다러버", content: "한려수도 정말 아름답죠!" },
-            { author: "통영토박이", content: "우리 동네를 좋게 봐주셔서 감사해요" }
-        ]
-    },
-    11: {
-        title: "남해 독일마을 이국적 풍경",
-        author: "유럽풍여행",
-        date: "2025.04.24",
-        content: `남해 독일마을의 이국적인 풍경이 정말 신기했어요! 🏰
-
-마치 독일에 온 것 같은 분위기의 건물들과 예쁜 정원들이 인상적이었습니다.
-
-특히 마을 전망대에서 바라본 남해의 푸른 바다와 독일풍 건물들의 조화가 환상적이었어요.
-
-독일 전통 음식도 맛볼 수 있어서 색다른 경험이었습니다.`,
-        tags: "#가족 #이국풍 #남해 #독일마을",
-        likes: 21,
-        comments: [
-            { author: "건축러버", content: "독일 건축 양식이 정말 예뻐요!" },
-            { author: "남해여행자", content: "남해에 이런 곳이 있다니 신기하네요" }
-        ]
-    },
-    12: {
-        title: "양평 두물머리 일출 명소",
-        author: "일출사냥꾼",
-        date: "2025.04.23",
-        content: `양평 두물머리에서 본 일출이 정말 감동적이었어요! 🌅
-
-새벽 5시에 도착해서 기다린 보람이 있었습니다.
-
-한강과 남한강이 만나는 지점에서 떠오르는 태양은 정말 장관이었어요.
-
-400년 된 느티나무와 함께 보는 일출 풍경은 평생 잊지 못할 추억이 될 것 같습니다.`,
-        tags: "#나홀로 #일출 #양평 #두물머리",
-        likes: 17,
-        comments: [
-            { author: "사진작가", content: "일출 사진 정말 예쁘게 나왔겠어요!" },
-            { author: "양평러버", content: "두물머리는 정말 명소죠!" }
-        ]
+        const data = await response.json(); // Page 객체(JSON 형태)
+        console.log(data);
+        return data;
+    } catch (error) {
+        console.error("게시글 불러오기 실패:", error);
     }
-};
+}
 
 // 지역별 T-TAG 데이터 (이전과 동일)
 const ttagMap = {
@@ -242,7 +28,7 @@ const selectedTags = new Map();
 let currentPage = 1;
 let postsPerPage = 5; // 기본값 5개씩
 let currentSort = 'latest'; // 기본값 최신순
-
+/*
 function initTTag() {
     regionSelect = document.getElementById('region-select');
     ttagSelect = document.getElementById('ttag-select');
@@ -315,8 +101,8 @@ function renderSelectedTags() {
             ttagTagsContainer.appendChild(tagSpan);
         });
     });
-}
-
+}*/
+/*
 // 🔥 게시글 정렬 함수
 function sortPosts(sortType) {
     const posts = Object.values(dummyPosts);
@@ -339,7 +125,7 @@ function getPostsForPage(page, perPage, sortType) {
     const startIndex = (page - 1) * perPage;
     const endIndex = startIndex + perPage;
     return sortedPosts.slice(startIndex, endIndex);
-}
+}*/
 
 // 🔥 총 페이지 수 계산
 function getTotalPages() {
@@ -347,45 +133,46 @@ function getTotalPages() {
 }
 
 // 🔥 게시글 목록 렌더링
-function renderPostList() {
+async function renderPostList() {
+    console.log("게시글 렌더링 시작");
+    const nickname = getCurrentNickname(); // 현재 사용자
+    const postData = await fetchPosts(nickname, currentPage - 1, postsPerPage, currentSort);
+    console.log("받은 데이터:", postData);
+    if (!postData || !Array.isArray(postData)) return;
+
     const postList = document.querySelector('.post-list');
-    const postsToShow = getPostsForPage(currentPage, postsPerPage, currentSort);
-    
     postList.innerHTML = '';
-    
-    postsToShow.forEach((post, index) => {
-        const postId = Object.keys(dummyPosts).find(key => dummyPosts[key] === post);
+
+    postData.forEach(post => {
+        console.log("렌더링할 게시글:", post);
         const li = document.createElement('li');
         li.className = 'post-item';
-        li.setAttribute('data-post-id', postId);
-        
+        li.setAttribute('data-post-id', post.postId);
+
         li.innerHTML = `
-            <a href="javascript:void(0)" onclick="showPostDetail(${postId})">
+            <a href="javascript:void(0)" onclick="showPostDetail(${post.postId})">
                 <h3>${post.title}</h3>
-                <p class="preview">${post.content.substring(0, 50)}...</p>
+                
                 <div class="meta">
-                    <span>by ${post.author}</span>
-                    <span>${post.date}</span>
-                    <span>❤️ ${post.likes}</span>
-                    <span>💬 ${post.comments.length}</span>
+                    <span>by ${post.nickname}</span>
+                    <span>${post.createdAt}</span>
+                    <span>❤️ ${post.likeCount}</span>
+                    <span>💬 ${post.commentCount}</span>
                 </div>
             </a>
         `;
-        
+
         postList.appendChild(li);
     });
-    
-    renderPagination();
+
+    renderPagination(postData.totalPages);
 }
 
 // 🔥 페이지네이션 렌더링
-function renderPagination() {
+function renderPagination(totalPages) {
     const pagination = document.querySelector('.pagination');
-    const totalPages = getTotalPages();
-    
     pagination.innerHTML = '';
-    
-    // 이전 버튼
+
     const prevBtn = document.createElement('button');
     prevBtn.textContent = '이전';
     prevBtn.disabled = currentPage === 1;
@@ -396,8 +183,7 @@ function renderPagination() {
         }
     };
     pagination.appendChild(prevBtn);
-    
-    // 페이지 번호 버튼들
+
     for (let i = 1; i <= totalPages; i++) {
         const pageBtn = document.createElement('button');
         pageBtn.textContent = i;
@@ -408,8 +194,7 @@ function renderPagination() {
         };
         pagination.appendChild(pageBtn);
     }
-    
-    // 다음 버튼
+
     const nextBtn = document.createElement('button');
     nextBtn.textContent = '다음';
     nextBtn.disabled = currentPage === totalPages;
@@ -443,81 +228,103 @@ function changeSortType(sortType) {
 }
 
 // 게시글 상세보기 표시
-function showPostDetail(postId) {
-    const post = dummyPosts[postId];
+let currentPostId = null;
+
+async function showPostDetail(postId) {
+    currentPostId = postId;
+    const nickname = getCurrentNickname();
+    const postData = await fetchPosts(nickname, currentPage - 1, postsPerPage);
+    const post = postData.find(p => p.postId === postId);
+
     if (!post) {
         console.error('게시글을 찾을 수 없습니다:', postId);
         return;
     }
 
-    // 상세보기 데이터 설정
     document.getElementById('detail-title').textContent = post.title;
-    document.getElementById('detail-author').textContent = post.author;
-    document.getElementById('detail-date').textContent = post.date;
+    document.getElementById('detail-author').textContent = post.nickname;
+    document.getElementById('detail-date').textContent = post.createdAt;
     document.getElementById('detail-content').innerHTML = post.content.replace(/\n/g, '<br>');
-    document.getElementById('detail-tags').textContent = post.tags;
-    document.getElementById('detail-likes').textContent = post.likes;
-    document.getElementById('detail-comments-count').textContent = post.comments.length;
+    document.getElementById('detail-tags').textContent = post.tagText || '';
+    document.getElementById('detail-likes').textContent = post.likeCount;
+    document.getElementById('detail-comments-count').textContent = post.commentCount;
 
-    // 댓글 렌더링
-    renderComments(post.comments);
+    // 댓글 처리 생략 또는 따로 fetchComments(postId) 필요
 
-    // 선택된 게시글 하이라이트
-    document.querySelectorAll('.post-item').forEach(item => {
-        item.classList.remove('selected');
-    });
+    document.querySelectorAll('.post-item').forEach(item => item.classList.remove('selected'));
     const selectedPost = document.querySelector(`[data-post-id="${postId}"]`);
-    if (selectedPost) {
-        selectedPost.classList.add('selected');
-    }
+    if (selectedPost) selectedPost.classList.add('selected');
 
-    // 상세보기 표시
     document.getElementById('board-detail').style.display = 'block';
-    
-    // 스크롤
-    document.getElementById('board-detail').scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-    });
+    document.getElementById('board-detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     console.log('게시글 상세보기 표시:', post.title);
 }
 
+
+// 좋아요 추가, 취소
+let isLiked = false;
+
+document.getElementById('detail-likes').addEventListener('click', function () {
+    const postId = currentPostId; // 전역 변수 또는 HTML에서 가져와야 함
+    const userId = getCurrentUserId(); // 사용자 ID 얻는 함수가 필요함
+
+    if (!postId || !userId) {
+        console.warn("postId 또는 userId가 없습니다.");
+        return;
+    }
+
+    fetch(`/api/${postId}/like`, {
+        method: isLiked ? 'POST' : 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+        })
+    .then(res => {
+        if (!res.ok) throw new Error("서버 오류");
+        return res.json();
+    })
+    .then(data => {
+        console.log(data.message); // 성공 메시지
+        document.querySelector('#detail-likes').textContent = data.likeCount;
+        isLiked = !isLiked;
+    })
+    .catch(err => {
+        console.error("오류 발생:", err);
+    });
+});
+
 // 스크롤 없이 상세보기만 표시하는 함수
-function showPostDetailWithoutScroll(postId) {
-    const post = dummyPosts[postId];
+async function showPostDetailWithoutScroll(postId) {
+    const nickname = getCurrentNickname();
+    const postData = await fetchPosts(nickname, currentPage - 1, postsPerPage, currentSort);
+    const post = postData.find(p => p.postId === postId);
+
     if (!post) {
         console.error('게시글을 찾을 수 없습니다:', postId);
         return;
     }
 
-    // 상세보기 데이터 설정 (기존과 동일)
     document.getElementById('detail-title').textContent = post.title;
-    document.getElementById('detail-author').textContent = post.author;
-    document.getElementById('detail-date').textContent = post.date;
+    document.getElementById('detail-author').textContent = post.nickname;
+    document.getElementById('detail-date').textContent = post.createdAt;
     document.getElementById('detail-content').innerHTML = post.content.replace(/\n/g, '<br>');
-    document.getElementById('detail-tags').textContent = post.tags;
-    document.getElementById('detail-likes').textContent = post.likes;
-    document.getElementById('detail-comments-count').textContent = post.comments.length;
+    document.getElementById('detail-tags').textContent = (post.hashtags || []).map(tag => `#${tag}`).join(' ');
+    document.getElementById('detail-likes').textContent = post.likeCount;
+    document.getElementById('detail-comments-count').textContent = post.commentCount;
 
-    // 댓글 렌더링
-    renderComments(post.comments);
-
-    // 선택된 게시글 하이라이트
     document.querySelectorAll('.post-item').forEach(item => {
         item.classList.remove('selected');
     });
     const selectedPost = document.querySelector(`[data-post-id="${postId}"]`);
-    if (selectedPost) {
-        selectedPost.classList.add('selected');
-    }
+    if (selectedPost) selectedPost.classList.add('selected');
 
-    // 🔥 중요! 스크롤 없이 상세보기만 표시
     document.getElementById('board-detail').style.display = 'block';
-    // scrollIntoView() 부분 제거!
 
     console.log('게시글 상세보기 표시 (스크롤 없음):', post.title);
 }
+
 
 // 댓글 렌더링
 function renderComments(comments) {
@@ -527,7 +334,7 @@ function renderComments(comments) {
     comments.forEach(comment => {
         const li = document.createElement('li');
         li.innerHTML = `
-            <span><strong>${comment.author}</strong>: ${comment.content}</span>
+            <span><strong>${comment.nickname}</strong>: ${comment.content}</span>
             <button onclick="likeComment(this)" style="background:none;border:none;cursor:pointer;">❤️</button>
             <button onclick="showReplyForm(this)" style="background:none;border:none;cursor:pointer;color:#b865a4;">답글</button>
         `;
@@ -581,6 +388,209 @@ function hidePostDetail() {
     console.log('게시글 상세보기 숨김');
 }
 
+// 글 작성
+document.addEventListener('DOMContentLoaded', () => {
+    const editor = document.getElementById('editor');
+    const imageInput = document.getElementById('imageInput');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const postForm = document.getElementById('write-form');
+    const locationInput = document.getElementById('location-input');
+    const hashtagInput = document.getElementById('hashtags-input');
+    const ttagSelect = document.getElementById('ttag-select');
+    const ttagTags = document.getElementById('ttag-tags');
+    const regionSelect = document.getElementById('region-select');
+    const blogInfo = document.getElementById('blogInfo');
+    const nickname = blogInfo.dataset.nickname;
+    const blogId = blogInfo.dataset.blogId;
+
+    let currentImage = null;
+
+    // 이미지 업로드 처리
+    imageInput.addEventListener('change', async () => {
+      const file = imageInput.files[0];
+      if (!file) return;
+
+      if (file.size > 2 * 1024 * 1024) {
+        alert('이미지 크기는 최대 2MB까지 가능합니다.');
+        imageInput.value = '';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const res = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) {
+          throw new Error('이미지 업로드 실패');
+        }
+
+        const result = await res.json();
+        const img = document.createElement('img');
+        img.src = result.imageUrl;
+        img.style.maxWidth = '600px';
+        img.style.height = 'auto';
+
+        const br = document.createElement('br');
+        insertAtCursor(br);
+        insertAtCursor(img);
+        insertAtCursor(document.createElement('br'));
+
+        imageInput.value = '';
+      } catch (error) {
+        console.error(error);
+        alert('이미지 업로드 중 오류가 발생했습니다.');
+      }
+    });
+
+    // 커서 위치에 노드 삽입
+    function insertAtCursor(node) {
+      const selection = window.getSelection();
+      if (!selection.rangeCount) {
+        editor.appendChild(node);
+        return;
+      }
+
+      const range = selection.getRangeAt(0);
+      const container = range.commonAncestorContainer;
+
+      if (!editor.contains(container)) {
+        editor.appendChild(node);
+        return;
+      }
+
+      range.deleteContents();
+      range.insertNode(node);
+      range.setStartAfter(node);
+      range.setEndAfter(node);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    // 이미지 클릭 시 삭제 버튼 위치 조정
+    editor.addEventListener('click', (e) => {
+      if (e.target.tagName === 'IMG') {
+        currentImage = e.target;
+        const rect = e.target.getBoundingClientRect();
+        deleteBtn.style.top = `${rect.top + window.scrollY}px`;
+        deleteBtn.style.left = `${rect.left + rect.width - 10 + window.scrollX}px`;
+        deleteBtn.style.display = 'block';
+      } else {
+        deleteBtn.style.display = 'none';
+        currentImage = null;
+      }
+    });
+
+    // 이미지 삭제 버튼 클릭 시 이미지 삭제
+    deleteBtn.addEventListener('click', () => {
+      if (currentImage) {
+        currentImage.remove();
+        deleteBtn.style.display = 'none';
+        currentImage = null;
+      }
+    });
+/*
+    // 지역 선택 시 T-TAG 옵션 업데이트
+    regionSelect.addEventListener('change', async () => {
+      const region = regionSelect.value;
+      if (!region) {
+        ttagSelect.disabled = true;
+        ttagTags.innerHTML = '';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/ttags?region=${region}`);
+        const tags = await res.json();
+
+        ttagSelect.innerHTML = '<option value="">T-TAG 선택</option>';
+        tags.forEach(tag => {
+          const option = document.createElement('option');
+          option.value = tag.id;
+          option.textContent = tag.name;
+          ttagSelect.appendChild(option);
+        });
+
+        ttagSelect.disabled = false;
+      } catch (error) {
+        console.error(error);
+        alert('T-TAG 로딩 중 오류가 발생했습니다.');
+      }
+    });
+
+    // T-TAG 선택 시 해시태그 표시
+    ttagSelect.addEventListener('change', () => {
+      const selectedOptions = Array.from(ttagSelect.selectedOptions);
+      ttagTags.innerHTML = selectedOptions.map(option => {
+        const span = document.createElement('span');
+        span.className = 'ttag';
+        span.textContent = `#${option.textContent}`;
+        return span.outerHTML;
+      }).join('');
+    });
+*/
+    // 폼 제출 시 데이터 처리
+    console.log('postForm:', postForm);
+    postForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      console.log('submit 이벤트 발생');
+
+      const title = postForm.querySelector('input[name="title"]').value.trim();
+      const content = editor.innerHTML.trim();
+      const visibility = postForm.querySelector('select[name="privacy"]').value;
+      //const location = locationInput.value.trim();
+      const checkedHashtags = Array.from(document.querySelectorAll('input[name="tag"]:checked')).map(el => el.value);
+      const newHashtag = postForm.querySelector('input[name="hashtags"]').value.trim();
+      //const ttags = Array.from(ttagSelect.selectedOptions).map(option => option.value);
+
+      if (!title || !content) {
+        alert('제목과 내용을 모두 입력해주세요.');
+        return;
+      }
+
+      if (checkedHashtags.length === 0) {
+        alert('해시태그를 하나 이상 입력해주세요.');
+        return;
+      }
+
+      const data = {
+        title,
+        content,
+        visibility,
+        tagIdList: checkedHashtags,
+        //location,
+        newHashtag,
+        //ttags,
+        blogId: blogId
+      };
+
+      try {
+        const res = await fetch('/api/write', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        console.log('서버 응답:', result);
+
+        if (res.ok) {
+          alert('글 작성 완료');
+          showBoardList();
+        } else {
+          throw new Error('글 작성 실패');
+        }
+      } catch (error) {
+        console.error(error);
+        alert('글 작성 중 오류가 발생했습니다.');
+      }
+    });
+});
+
 function showBoardList() {
     document.getElementById("board-list").style.display = "block";
     document.getElementById("board-write").style.display = "none";
@@ -588,6 +598,7 @@ function showBoardList() {
     // 페이지 전체 최상단으로 즉시 이동
     window.scrollTo(0, 0);
     
+    /*
     // 목록 렌더링
     renderPostList();
     
@@ -600,6 +611,19 @@ function showBoardList() {
             showPostDetailWithoutScroll(firstPostId);
         }
     }, 100);
+    */
+    renderPostList().then(async () => {
+        const nickname = getCurrentNickname();
+        const postData = await fetchPosts(nickname, 0, postsPerPage, currentSort);
+        if (postData && Array.isArray(postData) && postData.length > 0) {
+            const firstPostId = postData[0].postId;
+            showPostDetailWithoutScroll(firstPostId);
+        }
+    });
+
+    if (typeof window.maintainDefaultSkinForInactiveUsers === 'function') {
+        window.maintainDefaultSkinForInactiveUsers();
+    }
 
 }
 
@@ -615,7 +639,7 @@ function showDetailView() {
     document.getElementById("board-write").style.display = "none";
     document.getElementById("board-detail").style.display = "block";
 }
-/*
+
 function activatePostUI() {
     let writeBtns = document.querySelectorAll('.write-btn');
     writeBtns.forEach(btn => {
@@ -709,7 +733,7 @@ function activatePostUI() {
 }
 
 window.addEventListener('DOMContentLoaded', activatePostUI);
-*/
+
 
 // === 스킨 로드 함수 시작 ===
 async function loadBlogSkin() {

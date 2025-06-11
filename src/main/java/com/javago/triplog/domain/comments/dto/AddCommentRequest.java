@@ -20,9 +20,8 @@ public class AddCommentRequest {
     public Comments toEntity(Member member, Post post, Comments parentComment){
         IsSecret i = IsSecret.valueOf(isSecret);
         return Comments.builder()
-                .content(content)
+                .content(this.content)
                 .isSecret(i)
-                //.comment(comment)
                 .comment(parentComment)
                 .post(post)
                 .member(member).build();

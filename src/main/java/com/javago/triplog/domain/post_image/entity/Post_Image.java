@@ -1,5 +1,6 @@
 package com.javago.triplog.domain.post_image.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.javago.constant.IsThumbnail;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -31,6 +32,7 @@ public class Post_Image {
     @Column(name = "image_path", updatable = false, nullable = false)
     private String imagePath;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     @Enumerated(EnumType.STRING)
     @Column(name = "is_thumbnail", nullable = false)
     private IsThumbnail isThumbnail;

@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="/css/mylog.css" />
   <link rel="stylesheet" href="/css/guestbook.css" />
   <style>
+    /*
     #title {
       border: 2px solid #ccc;
       padding: 12px;
@@ -51,7 +52,7 @@
       max-width: 600px;
       height: auto;
     }
-
+*/
     .delete-btn {
       position: fixed;
       background: red;
@@ -86,21 +87,22 @@
 
       <!-- 게시판 컨텐츠 -->
       <div class="main-content">
+        <div id="board-write">
         <h2>글 작성</h2>
-        <form id="postForm" th:attr="data-id=${post.postId}">
+        <form id="write-form" th:attr="data-id=${post.postId}">
           <div id="blogInfo" th:attr="data-blog-id=${blogId}, data-nickname=${nickname}" hidden></div>
           <label>제목</label><br>
-          <div id="title" contenteditable="true" th:utext="${post.title}"></div><br>
+          <div id="title" name="title" contenteditable="true" th:utext="${post.title}"></div><br>
 
           <label>내용</label><br>
-          <div id="editor" contenteditable="true" th:utext="${post.content}"></div><br>
+          <div id="editor" name="content" contenteditable="true" th:utext="${post.content}"></div><br>
           <button id="deleteBtn" class="delete-btn" type="button">×</button>
 
           <input type="file" id="imageInput" accept="image/*"><br><br>
 
           <div class="tags" style="margin-bottom:10px;">
             <span th:each="hashtag : ${hashtagList}" id="hashtagList">
-              <input type="checkbox" name="hashtags" th:value="${hashtag.tagId}"/>
+              <input type="checkbox" name="tag" th:value="${hashtag.tagId}"/>
               <span th:text="${hashtag.tagName}"></span>
             </span>
           </div>
@@ -131,15 +133,19 @@
           </div>
           <input type="text" id="location-input" name="location" placeholder="장소 입력 (예: 제주 한림)" />
 
-          <input type="radio" name="visibility" value="PUBLIC"
-              th:attr="checked=${post.visibility == null or post.visibility == 'PUBLIC'}">전체 공개
-          <input type="radio" name="visibility" value="PRIVATE"
-              th:attr="checked=${post.visibility == 'PRIVATE'}">비공개
-          <br>
+          <div class="options" style="margin-bottom:13px;">
+            <label>공개 설정:
+              <input type="radio" name="visibility" value="PUBLIC"
+                  th:attr="checked=${post.visibility == null or post.visibility == 'PUBLIC'}">전체 공개
+              <input type="radio" name="visibility" value="PRIVATE"
+                  th:attr="checked=${post.visibility == 'PRIVATE'}">비공개
+            </label>
+          </div>
 
-          <button type="submit">작성</button>
-          <button type="button" class="back-btn" th:onclick="|location.href='@{/blog/@{nickname}/post(nickname=${nickname})}'|">글 목록</button>
+          <button type="submit" class="submit-btn">작성</button>
+          <button type="button" class="back-btn" onclick="navigateToPage('post')">글 목록</button>
         </form>
+        </div>
       </div>
     </div>
     <!-- 오른쪽 네비게이션 (컴포넌트로 로드) -->
@@ -249,7 +255,7 @@
   });
 
   // 작성 버튼 이벤트
-  document.getElementById('postForm').addEventListener('submit', async function (e) {
+  document.getElementById('write-form').addEventListener('submit', async function (e) {
     e.preventDefault();
     const blogId = document.getElementById('blogInfo').dataset.blogId;
     const nickname = document.getElementById('blogInfo').dataset.nickname;
@@ -258,7 +264,7 @@
     const text = editor.innerText.trim();
     const visibilityInput = document.querySelector('input[name="visibility"]:checked');
     const visibility = visibilityInput.value;
-    const checkedHashtags = Array.from(document.querySelectorAll('input[name="hashtags"]:checked')).map(el => el.value);
+    const checkedHashtags = Array.from(document.querySelectorAll('input[name="tag"]:checked')).map(el => el.value);
     const newHashtag = document.getElementById('hashtagInput').value.trim();
     
 
@@ -293,7 +299,7 @@
       blogId: blogId
     };
 
-    const postForm = document.getElementById("postForm");
+    const postForm = document.getElementById("write-form");
     const postId = postForm.dataset.id;
     const isModify = !!postId;
 
@@ -305,7 +311,12 @@
 
     if (res.ok) {
       alert(isModify ? '글 수정 완료' : '글 작성 완료');
-      location.replace(isModify ? `/blog/@${nickname}/post/${postId}` : `/blog/@${nickname}/post`);
+      if(isModify){
+        location.replace(`/blog/@${nickname}/post/${postId}`);
+      }else{
+        navigateToPage('post');
+      }
+       
     } else {
       alert('작성 실패');
     }
@@ -316,7 +327,7 @@
 <script src="/js/home.js"></script>
 <script src="/js/shop.js"></script>
 <script src="/js/profile.js"></script>
-<script src="/js/post.js"></script>
+
 <script src="/js/jukebox.js"></script>
 <script src="/js/mylog.js"></script>
 <script src="/js/guestbook.js"></script>

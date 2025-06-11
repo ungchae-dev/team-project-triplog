@@ -43,91 +43,55 @@
           <div id="board-detail">
 
             <div id="blogInfo" th:attr="data-user-id=${userId}, data-nickname=${nickname}" hidden></div>
-
-            <label hidden>제목</label><br>
-            <div class="post-header">
-              <h2 th:text="${post.title}"></h2>
-            </div><br>
-
-            <div class="meta">
-              <span th:text="${nickname}">닉네임</span> | <span th:text="${post.viewCount}">조회수</span> | <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">작성시간</span>
-              <span th:if="${post.createdAt != post.updatedAt}" th:text="${#temporals.format(post.updatedAt, 'yyyy--MM--dd HH:mm')}">수정시간</span>
-            </div>
-
-            <label>내용</label><br>
-            <div id="content" th:utext="${post.content}"></div><br>
-            <div>
-              <label>해시태그</label>
-              <span th:each="hashtag : ${post.postHashtagPeople}">
-                <span th:text="'#' + ${hashtag.hashtagPeople.tagName}">#해시태그</span>
-              </span>
-            </div>
-
-            <label>좋아요</label><input type="checkbox" id="postLike" th:checked="${exist}"><br>
-            <div id="likeCount" th:text="${post.postLike.size()}"></div><br>
-
-            <button type="button" th:onclick="|location.href='@{/blog/@{nickname}/post(nickname=${nickname})}'|">글 목록</button>
-            <button type="button" th:if="${nickname == loginNickname}" th:onclick="|location.href='@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">수정</button>
-            <button type="button" th:if="${nickname == loginNickname}" id="delete-btn">삭제</button>
-
-            <label>댓글</label>
-            <div class="comments-section">
-              <span id="username" th:text="${loginNickname}" />
-              <input type="text" id="commentInput" placeholder="댓글을 입력하세요" />
-              <select id="is_secret">
-                <option value="Y">전체 공개</option>
-                <option value="N">비공개</option>
-              </select>
-              <button id="submitComment">등록</button>
-
-              <!-- 댓글 리스트 -->
-              <div id="commentList">
-                <div th:each="comment : ${commentList}">
-                  <div class="comment" th:attr="data-comment-id=${comment.commentId}">
-                    <span th:text="${comment.nickname}"></span>:
-                    <span th:text="${comment.content}"></span>
-
-                    <!-- 대댓글 버튼 -->
-                    <button class="reply-btn">답글</button>
-                    <!-- 댓글 내 -->
-                    <button class="delete-comment-btn">삭제</button>
-
-
-                    <!-- 대댓글 입력창 (초기엔 숨김) -->
-                    <div class="reply-form" style="display:none;">
-                      <input type="text" class="reply-content" placeholder="답글을 입력하세요" />
-                      <select class="reply-is_secret">
-                        <option value="Y">전체 공개</option>
-                        <option value="N">비공개</option>
-                      </select>
-                      <button class="submit-reply">등록</button>
-                    </div>
-                  </div>
-
-                  <!-- 대댓글 출력 -->
-                  <div th:if="${comment.commentList != null}">
-                    <div th:each="child : ${comment.commentList}" style="margin-left: 20px;">
-                      <div class="comment" th:attr="data-comment-id=${child.commentId}">
-                        <span th:text="${child.nickname}"></span>:
-                        <span th:text="${child.content}"></span>
-
-                        <!-- 대댓글 버튼 -->
-                        <button class="reply-btn">답글</button>
-                        <button class="delete-comment-btn">삭제</button>
-
-                        <!-- 대댓글 입력창 (초기엔 숨김) -->
-                        <div class="reply-form" style="display:none;">
-                          <input type="text" class="reply-content" placeholder="답글을 입력하세요" />
-                          <select class="reply-is_secret">
-                            <option value="Y">전체 공개</option>
-                            <option value="N">비공개</option>
-                          </select>
-                          <button class="submit-reply">등록</button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+            <div id="post_id" th:attr="data-post-id=${post.postId}" hidden></div>
+            <div class="post-detail-container">
+              <div class="post-header">
+                <h2 id="detail-title" th:text="${post.title}">게시글 제목</h2>
+                <div class="meta">
+                  <span id="detail-author" th:text="${nickname}">닉네임</span> | <span th:text="${post.viewCount}">조회수</span> | <span id="detail-date" th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">작성시간</span>
+                  <span th:if="${post.createdAt != post.updatedAt}" th:text="${#temporals.format(post.updatedAt, 'yyyy--MM--dd HH:mm')}">수정시간</span>
                 </div>
+              </div>
+
+              <div class="post-body">
+                <div id="detail-content" th:utext="${post.content}"></div><br>
+                <div id="detail-tags" style="margin-top: 15px; color: #b865a4;">
+                  <span th:each="hashtag : ${post.postHashtagPeople}">
+                    <span th:text="'#' + ${hashtag.hashtagPeople.tagName}">#해시태그</span>
+                  </span>
+                </div>
+              </div>
+            
+              <div class="post-actions">
+                <button id="addPostLike" type="button" 
+                    th:style="${exist} ? 'display:none;' : 'display:inline-block;'">
+                  좋아요 <span id="like-count-add" th:text="${post.postLike.size()}">0</span>
+                </button>
+                <button id="delPostLike" type="button" 
+                    th:style="${exist} ? 'display:inline-block;' : 'display:none;'">
+                  ❤️ 좋아요 <span id="like-count-del" th:text="${post.postLike.size()}">0</span>
+                </button>
+                <button type="button" onclick="navigateToPage('post')">글 목록</button>
+                <button type="button" th:if="${nickname == loginNickname}" th:onclick="|location.href='@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">✏️ 수정</button>
+                <button type="button" th:if="${nickname == loginNickname}" id="delete-btn">🗑 삭제</button>
+              </div>
+              <label>댓글</label>
+              <div class="comments-section">
+                <h3>💬 댓글 (<span id="detail-comments-count" th:text="${commentList.size()}">0</span>)</h3>
+                <span id="username" th:text="${loginNickname}" />
+                <input type="text" id="commentInput" placeholder="댓글을 입력하세요" />
+                <select id="is_secret">
+                  <option value="Y">전체 공개</option>
+                  <option value="N">비공개</option>
+                </select>
+                <button id="submitComment">등록</button>
+
+                <!-- 댓글 리스트 -->
+                <ul class="comment-list" id="detail-comments">
+                  <!-- 댓글들이 동적으로 추가됩니다 -->
+                </ul>
+                <textarea placeholder="댓글을 입력하세요..." id="comment-input"></textarea>
+                <button class="comment-btn">댓글 달기</button>
               </div>
             </div>
           </div>
@@ -137,87 +101,51 @@
       <div id="right-container"></div>
     </div>
   </div>
-<!--
-  <label>댓글</label>
-  <div>
-    <span id="username" th:text="${loginNickname}"></span>
-    <input type="text" id="commentInput" placeholder="댓글을 입력하세요" />
-    <select id="is_secret">
-      <option value="Y">전체 공개</option>
-      <option value="N">비공개</option>
-    </select>
-    <button id="submitComment">등록</button>-->
-
-    <!-- 댓글 리스트 --><!--
-    <div id="commentList">
-      <div th:each="comment : ${commentList}" th:if="${commentList != null}">-->
-        <!-- 댓글 + 자식댓글 재귀 출력 --><!--
-        <div th:if="${comment != null}" th:replace="~{this :: commentFragment(comment, 0)}"></div>
-      </div>
-    </div>
-  </div>-->
-
-  <!-- 댓글 1개 및 자식 댓글 재귀 렌더링 fragment --><!--
-  <div th:fragment="commentFragment(comment, level)" 
-      th:with="indent=${(level != null ? level : 0) * 20}" 
-      th:style="'margin-left: ' + ${indent} + 'px; border:1px solid #ccc; padding:5px; margin-bottom:5px;'">
-    <div class="comment">
-      <span><strong th:text="${comment.nickname}">닉네임</strong>:</span>
-      <span th:text="${comment.content}">댓글 내용</span>
-      <button class="reply-btn">답글</button>
-      <button class="delete-comment-btn">삭제</button>-->
-
-      <!-- 대댓글 입력창 (초기엔 숨김) --><!--
-      <div class="reply-form" style="display:none;">
-        <input type="text" class="reply-content" placeholder="답글을 입력하세요" />
-        <select class="reply-is_secret">
-          <option value="Y">전체 공개</option>
-          <option value="N">비공개</option>
-        </select>
-        <button class="submit-reply">등록</button>
-      </div>
-    </div>-->
-
-    <!-- 자식 댓글이 있으면 재귀 호출 --><!--
-    <div th:if="${comment.commentList != null}">
-      <div th:each="childComment : ${comment.commentList}">
-        <div th:if="${comment != null}" th:replace="~{this :: commentFragment(childComment, ${level} + 1)}"></div>
-      </div>
-    </div>
-  </div>-->
 
   <script>
     const id = document.getElementById('post_id').dataset.postId;
     const userId = document.getElementById('blogInfo').dataset.userId;
     const nickname = document.getElementById('blogInfo').dataset.nickname;
 
-    // 좋아요 추가, 취소
-    document.getElementById('postLike').addEventListener('change', function () {
-      const isLiked = this.checked;
-    
-      const data = {
-        userId: userId
-      }
+    // 좋아요 추가, 제거
+    const addLikeBtn = document.getElementById('addPostLike');
+    const delLikeBtn = document.getElementById('delPostLike');
 
-      fetch(`/api/${id}/like`, {
-        method: isLiked ? 'POST' : 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
+    if (addLikeBtn) {
+      addLikeBtn.addEventListener('click', () => {
+        fetch(`/api/${id}/like`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: userId })
         })
-      .then(res => {
-        if (!res.ok) throw new Error("서버 오류");
-        return res.json();
-      })
-      .then(data => {
-        console.log(data.message); // 성공 메시지
-        document.querySelector('#likeCount').textContent = data.likeCount;
-      })
-      .catch(err => {
-        console.error("오류 발생:", err);
+        .then(res => res.json())
+        .then(data => {
+          console.log(data.message);
+          document.querySelector('#like-count-del').textContent = data.likeCount;
+          //location.reload(); // UI를 갱신하려면 reload 또는 동적 토글
+          addLikeBtn.style.display = 'none';
+          delLikeBtn.style.display = 'inline-block';
+        });
       });
-    });
+    }
+
+    if (delLikeBtn) {
+      delLikeBtn.addEventListener('click', () => {
+        fetch(`/api/${id}/like`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: userId })
+        })
+        .then(res => res.json())
+        .then(data => {
+          console.log(data.message);
+          document.querySelector('#like-count-add').textContent = data.likeCount;
+          //location.reload();
+          addLikeBtn.style.display = 'inline-block';
+          delLikeBtn.style.display = 'none';
+        });
+      });
+    }
 
     // 글 삭제
     document.getElementById("delete-btn").addEventListener('click', function(){
@@ -236,7 +164,7 @@
         });
       }
     });
-
+/*
     // 댓글 등록 함수 (수정 버튼 이벤트 제거)
     function addCommentToList(comment) {
       const wrapper = document.createElement('div');
@@ -412,11 +340,68 @@
       })
       .catch(err => alert(err.message));
     });
+*/
 
+async function fetchComments(postId) {
+  try {
+    const response = await fetch(`/api/${postId}/comments`);
+    if (!response.ok) {
+      throw new Error('댓글을 가져오는 데 실패했습니다.');
+    }
+    const comments = await response.json();
+    renderComments(comments);
+  } catch (error) {
+    console.error(error);
+    alert('댓글을 가져오는 데 오류가 발생했습니다.');
+  }
+}
+
+  // 댓글 렌더링
+function renderComments(comments) {
+    const commentsList = document.getElementById('detail-comments');
+    commentsList.innerHTML = '';
+
+    comments.forEach(comment => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span><strong>${comment.nickname}</strong>: ${comment.content}</span>
+            <button onclick="likeComment(this)" style="background:none;border:none;cursor:pointer;">❤️</button>
+            <button onclick="showReplyForm(this)" style="background:none;border:none;cursor:pointer;color:#b865a4;">답글</button>
+        `;
+        commentsList.appendChild(li);
+
+        // 답글이 있으면 렌더링
+        if (comment.replies) {
+            comment.replies.forEach(reply => {
+                const replyLi = document.createElement('li');
+                replyLi.className = 'reply';
+                replyLi.innerHTML = `<span><strong>${reply.author}</strong>: ${reply.content}</span>`;
+                commentsList.appendChild(replyLi);
+            });
+        }
+    });
+}
+
+// 댓글 좋아요
+function likeComment(button) {
+    // 간단한 좋아요 효과
+    button.style.color = '#ff6b6b';
+    setTimeout(() => {
+        button.style.color = '';
+    }, 1000);
+}
+
+// 답글 폼 표시 (간단한 프롬프트로 구현)
+function showReplyForm(button) {
+    const reply = prompt('답글을 입력하세요:');
+    if (reply && reply.trim()) {
+        alert('답글이 등록되었습니다: ' + reply);
+        // 실제로는 여기서 서버에 답글을 저장하고 화면을 업데이트
+    }
+}
   </script>
   <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
   <script src="/js/layout.js"></script>
-  <script src="/js/post.js"></script>
 
 </body>
 </html>

@@ -6,6 +6,7 @@ import com.javago.triplog.domain.comments.dto.CommentDto;
 import com.javago.triplog.domain.comments.dto.UpdateCommentRequest;
 import com.javago.triplog.domain.comments.entity.Comments;
 import com.javago.triplog.domain.post.dto.AddPostRequest;
+import com.javago.triplog.domain.post.dto.PostListResponse;
 import com.javago.triplog.domain.post.dto.UpdatePostRequest;
 import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.service.PostService;
@@ -20,9 +21,13 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -46,8 +51,8 @@ import java.util.UUID;
 public class PostApiController {
 
     private final PostService postService;
-    private final PostImageRepository imageRepository;
-    
+    private final PostImageRepository imageRepository; 
+
     // 게시판 글 작성
     @Transactional
     @PostMapping("/api/write")
@@ -63,7 +68,7 @@ public class PostApiController {
     // 게시글 이미지 서버에 업로드
     @PostMapping("/api/upload-image")
         public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("image") MultipartFile file) throws IOException {
-        String uploadDir = "uploads/posts";
+        String uploadDir = "src/main/resources/static/uploads/posts";
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Path uploadPath = Paths.get(uploadDir);
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8" />
   <title>여행 블로그 - 게시판</title>
@@ -82,8 +82,8 @@
                   </div>
                 </div>
                 <div class="post-actions">
-                  <button>❤️ 좋아요 <span id="detail-likes">0</span></button>
-                  <button>🔗 공유</button>
+                  <button>❤️ 좋아요 <span id="detail-likes"></span></button>
+                  <!--<button>🔗 공유</button>-->
                   <button>✏️ 수정</button>
                   <button>🗑 삭제</button>
                 </div>
@@ -105,27 +105,26 @@
           <div id="board-write" style="display:none;">
             <h2>📝 여행기록 작성</h2>
             <form id="write-form" autocomplete="off">
+              <div id="blogInfo" th:attr="data-blog-id=${blogId}, data-nickname=${nickname}" hidden></div>
               <input type="text" name="title" placeholder="제목을 입력해주세요" required />
 
-              <textarea name="content" rows="10" placeholder="여행기록을 작성하세요" required></textarea>
+              <textarea id="editor" name="content" rows="10" placeholder="여행기록을 작성하세요" required></textarea>
+              <button id="deleteBtn" class="delete-btn" type="button">×</button>
+
+              <input type="file" id="imageInput" accept="image/*"><br><br>
 
               <!-- 인원수 태그 (9) 체크박스 -->
               <!-- #남자혼자 #여자혼자 #커플 #부모님과 #아이들과 #단체 #남자끼리 #여자끼리 #남녀함께 -->
               <div class="tags" style="margin-bottom:10px;">
-                <label><input type="checkbox" name="tag" value="#남자혼자" /> #남자혼자</label>
-                <label><input type="checkbox" name="tag" value="#여자혼자" /> #여자혼자</label>
-                <label><input type="checkbox" name="tag" value="#커플" /> #커플</label>
-                <label><input type="checkbox" name="tag" value="#부모님과" /> #부모님과</label>
-                <label><input type="checkbox" name="tag" value="#아이들과" /> #아이들과</label>
-                <label><input type="checkbox" name="tag" value="#단체" /> #단체</label>
-                <label><input type="checkbox" name="tag" value="#남자끼리" /> #남자끼리</label>
-                <label><input type="checkbox" name="tag" value="#여자끼리" /> #여자끼리</label>
-                <label><input type="checkbox" name="tag" value="#남녀함께" /> #남녀함께</label>
+                <span th:each="hashtag : ${hashtagList}">
+                  <input type="checkbox" name="tag" th:value="${hashtag.tagId}" />
+                  <label th:text="${hashtag.tagName}"></label>
+                </span>
               </div>
 
               <!-- 해시태그 입력 -->
               <div class="hashtags" style="margin-bottom:5px; display:flex; align-items:center; gap:10px;">
-                <input type="text" id="hashtags-input" name="hashtags" placeholder="#고유해시태그 여러 개 입력(쉼표 구분)" style="flex-grow:1;" />
+                <input type="text" id="hashtags-input" name="hashtags" placeholder="'#' + '해시태그'를 입력해주세요." style="flex-grow:1;" />
                 <span id="ttag-result" style="color:#a86c44; font-size:14px; min-width:60px;">&nbsp;</span>
               </div>
 
@@ -152,9 +151,8 @@
               <div class="options" style="margin-bottom:13px;">
                 <label>공개 설정:
                   <select name="privacy">
-                    <option value="public">전체공개</option>
-                    <option value="neighbors">이웃공개</option>
-                    <option value="private">비공개</option>
+                    <option value="PUBLIC">전체공개</option>
+                    <option value="PRIVATE">비공개</option>
                   </select>
                 </label>
                 <input type="text" id="location-input" name="location" placeholder="장소 입력 (예: 제주 한림)" />
@@ -178,13 +176,7 @@
 
   <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
   <script src="/js/layout.js"></script>
-  <script src="/js/home.js"></script>
-  <script src="/js/shop.js"></script>
-  <script src="/js/profile.js"></script>
   <script src="/js/post.js"></script>
-  <script src="/js/jukebox.js"></script>
-  <script src="/js/mylog.js"></script>
-  <script src="/js/guestbook.js"></script>
 
 </body>
 </html>

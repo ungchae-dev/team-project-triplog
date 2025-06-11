@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,21 +42,38 @@ public class PostViewController {
     public String list(
             @PathVariable("nickname") String nickname,
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "sort", defaultValue = "createdAt") String sortBy,
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            @RequestParam(value = "sort", defaultValue = "updatedAt") String sortBy,
             @RequestParam(value = "dir", defaultValue = "desc") String direction,
             Authentication authentication, Model model) {
+
+        List<String> allowedSorts = List.of("updatedAt", "likeCount", "commentCount");
+        if (!allowedSorts.contains(sortBy)) {
+            sortBy = "updatedAt";
+        }
+
+        if (!direction.equalsIgnoreCase("asc") && !direction.equalsIgnoreCase("desc")) {
+            direction = "desc";
+        }
 
         Sort sort = direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
-        CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
+        
         Page<PostListResponse> postList = postService.findPostList(pageable, nickname);
+
+        String loginNickname = null;
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
+                loginNickname = customUserDetails.getMember().getNickname();
+        }
         model.addAttribute("postList", postList);
+        model.addAttribute("currentSize", size);
         model.addAttribute("currentSort", sortBy);
         model.addAttribute("currentDir", direction);
         model.addAttribute("nickname", nickname);
-        model.addAttribute("loginNickname", customUserDetails.getMember().getNickname());
+        model.addAttribute("loginNickname", loginNickname);
         return "post/list";
     }
 

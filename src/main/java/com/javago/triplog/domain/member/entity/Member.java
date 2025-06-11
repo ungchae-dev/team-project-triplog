@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.javago.constant.Gender;
 import com.javago.constant.Role;
 import com.javago.triplog.domain.blog.entity.Blog;
+import com.javago.triplog.domain.comments.entity.Comments;
 import com.javago.triplog.domain.member.dto.MemberFormDto;
 import com.javago.triplog.domain.member_item.entity.MemberItem;
 import com.javago.triplog.domain.post_like.entity.Post_Like;
@@ -99,6 +100,10 @@ public class Member {
     // Member -> Post_Like (1:다)
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Post_Like> postLike = new ArrayList<>();
+
+    // Member -> Comments (1:다)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Comments> comment = new ArrayList<>();
 
     // 생성 직전 기본값 세팅 (joinDate, acorn)
     @PrePersist
