@@ -1,19 +1,26 @@
 package com.javago.triplog.page.search.controller;
 
+import com.javago.triplog.domain.member.dto.MemberDetails;
+import com.javago.triplog.domain.member.entity.Member;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.ui.Model;
 @Controller
 @RequiredArgsConstructor
 public class SearchController {
-    //글 검색 페이지로 매핑
-    @GetMapping("/search")
-    public String searchPage(@RequestParam(defaultValue = "서울") String region, Model model) {
 
-        //model.addAttribute("posts");
+    @GetMapping("/search")
+    public String searchPage(@RequestParam(defaultValue = "서울") String region,
+                             Model model,
+                             @AuthenticationPrincipal MemberDetails memberDetails) {
+        if (memberDetails != null) {
+            Member member = memberDetails.getMember();
+            model.addAttribute("nickname", member.getNickname());
+        }
+
         return "page/searchpage";
     }
-
 }

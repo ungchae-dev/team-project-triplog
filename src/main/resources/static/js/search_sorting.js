@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
             postCard.innerHTML = `
             <!-- 썸네일 -->
             <a href="/blog/@${post.nickname}/post" class="post-thumbnail">
-                    <img src="${post.thumbnailUrl || '/images/page/noimage.png'}" alt="대표 이미지"/>
+                    <img src="${post.thumbnailUrl}"onerror="this.onerror=null;this.src='/images/page/default_IsThumbnail.png';" alt="대표 이미지"/>
             </a>
                 
             
@@ -81,7 +81,8 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="post-info">
                 <!-- 해시태그 -->
                 <div class="post-tags">
-                    ${hashtags} ${peopleTags}
+                    <div>${hashtags}</div>
+                    <div>${peopleTags}</div>
                 </div>
 
                 <!-- 제목 -->
@@ -98,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 <!-- 좋아요 / 댓글 -->
                 <div class="post-meta">
-                    <span>❤️ ${post.likes}</span>
+                    <span>❤️ ${post.likeCount}</span>
                     <span>💬 ${post.comments}</span>
                 </div>
             </div>

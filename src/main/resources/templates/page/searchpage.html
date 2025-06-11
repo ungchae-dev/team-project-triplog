@@ -116,14 +116,14 @@
         <!-- 오른쪽 정렬된 버튼 & 정렬 select -->
         <div class="d-flex align-items-center gap-2 ms-auto">
             <div class="text-center">
-                <a href="/blog/@{nickname}/post/write" class="nav-link p-0">
+                <a th:href="@{/blog/@{nickname}/post/write(nickname=${nickname})}" class="nav-link p-0">
                     <img src="/images/page/boardwrite.png" alt="글쓰기" width="60">
                     <div class="small">글쓰기</div>
                 </a>
             </div>
 
             <select id="sortSelect" class="form-select">
-                <option value="latest" selected>최신 순</option>
+                <option value="date" selected>최신 순</option>
                 <option value="likes">좋아요 순</option>
             </select>
         </div>

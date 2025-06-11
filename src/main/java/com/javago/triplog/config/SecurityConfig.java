@@ -1,17 +1,17 @@
 package com.javago.triplog.config;
 
+import com.javago.triplog.domain.member.service.CustomUserDetailsService;
+import com.javago.triplog.domain.member.service.MemberDetailsService;
+import com.javago.triplog.domain.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
-import com.javago.triplog.domain.member.service.CustomUserDetailsService;
-import com.javago.triplog.domain.member.service.MemberService;
 
 // Spring Security 설정을 담고 있는 설정 클래스
 @Configuration
@@ -23,6 +23,7 @@ public class SecurityConfig {
     @Autowired
     CustomUserDetailsService customUserDetailsService;
 
+    MemberDetailsService memberDetailsService;
     // SecurityFilterChain: Spring Security 보안 설정의 핵심 구성 요소
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -105,6 +106,12 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return memberDetailsService;
+    }
+
 
     // 비밀번호 암호화를 위한 BCryptPasswordEncoder 빈 등록
     // BCrypt: 단방향 해시 알고리즘으로 안전한 비밀번호 저장을 위해 사용
