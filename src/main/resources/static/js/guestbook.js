@@ -230,6 +230,16 @@ window.addEmoticonToMessage = addEmoticonToMessage;
 async function loadGuestbookData() {
     console.log('방명록 데이터 로드 시작');
     
+    // === '방명록 DOM 요소 준비되지 않음' 무한 반복 디버깅 ===
+    // 현재 페이지가 방명록 페이지인지 확인
+    const currentPath = window.location.pathname;
+    const isGuestbookPage = currentPath.includes('/guestbook');
+
+    if (!isGuestbookPage) {
+        console.log('방명록 페이지가 아니므로 로드 중단');
+        return;
+    }
+
     // DOM 요소 확인
     const guestbookList = document.getElementById('guestbookList');
     const pagination = document.getElementById('pagination');
