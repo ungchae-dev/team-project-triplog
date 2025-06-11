@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>관리자 페이지</title>
+  <link href="/css/admin.css" rel="stylesheet" />
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="admin-container">
+  <aside class="admin-sidebar">
+    <h2>관리자 메뉴</h2>
+    <ul>
+      <li class="active" onclick="showSection('posts')">게시글/댓글 관리</li>
+      <li onclick="showSection('acorn')">도토리 구매 통계</li>
+      <li onclick="showSection('notice')">공지사항</li>
+    </ul>
+  </aside>
+  <main class="admin-main">
+    <header>
+      <h1>관리자 대시보드</h1>
+      <div class="admin-profile">
+        <span th:text="${nickname}"></span>
+        <button onclick="openNoticeWriteModal()" class="notice-btn">공지 작성</button>
+        <button>로그아웃</button>
+      </div>
+    </header>
+
+    <!-- 게시글/댓글 관리 영역 -->
+    <section class="admin-content" id="section-posts">
+      <h2>게시글/댓글 관리</h2>
+      <table class="admin-table" id="postsTable">
+        <thead>
+        <tr>
+          <th>번호</th>
+          <th>유형</th>
+          <th>작성자</th>
+          <th>제목</th>
+          <th>작성일</th>
+          <th>삭제</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr data-post-id="post123">
+          <td>12</td>
+          <td>게시글</td>
+          <td>user123</td>
+          <td>
+            <a href="viewPost.html?id=post123" target="_blank" class="post-link">첫 번째 게시글 내용입니다.</a>
+          </td>
+          <td>2025-06-08</td>
+          <td><button class="delete-btn" onclick="deleteRow(this)">삭제</button></td>
+        </tr>
+        <tr data-post-id="post123">
+          <td>13</td>
+          <td>댓글</td>
+          <td>abc456</td>
+          <td>
+            <a href="viewPost.html?id=post123" target="_blank" class="post-link">좋은 글이네요!</a>
+          </td>
+          <td>2025-06-08</td>
+          <td><button class="delete-btn" onclick="deleteRow(this)">삭제</button></td>
+        </tr>
+        <tr data-post-id="post123">
+          <td>14</td>
+          <td>대댓글</td>
+          <td>park88</td>
+          <td>
+            <a href="viewPost.html?id=post123" target="_blank" class="post-link">동의합니다.</a>
+          </td>
+          <td>2025-06-09</td>
+          <td><button class="delete-btn" onclick="deleteRow(this)">삭제</button></td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 도토리 구매 통계 영역 -->
+    <section class="admin-content" id="section-acorn" style="display:none;">
+      <h2>월별 도토리 구매 통계</h2>
+      <div style="max-width: 600px; margin: 30px auto;">
+        <canvas id="acornChart"></canvas>
+      </div>
+    </section>
+
+    <!-- 공지사항 관리 영역 -->
+    <section class="admin-content" id="section-notice" style="display:none;">
+      <h2>공지사항 목록</h2>
+      <table class="admin-table" id="noticeTable">
+        <thead>
+        <tr>
+          <th>번호</th>
+          <th>제목</th>
+          <th>내용</th>
+          <th>작성일</th>
+          <th>수정</th>
+          <th>삭제</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr data-id="1001">
+          <td>1</td>
+          <td>서비스 점검 안내</td>
+          <td>6월 15일 01시~03시 서비스 점검이 있습니다.</td>
+          <td>2025-06-09</td>
+          <td><button class="edit-btn" onclick="editNotice(this)">수정</button></td>
+          <td><button class="delete-btn" onclick="deleteNoticeRow(this)">삭제</button></td>
+        </tr>
+        <tr data-id="1002">
+          <td>2</td>
+          <td>신규 기능 추가</td>
+          <td>도토리 구매 통계 기능이 추가되었습니다.</td>
+          <td>2025-06-05</td>
+          <td><button class="edit-btn" onclick="editNotice(this)">수정</button></td>
+          <td><button class="delete-btn" onclick="deleteNoticeRow(this)">삭제</button></td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+<!-- 공지 작성/수정 모달(팝업) -->
+<div id="noticeWriteModal" class="modal-backdrop">
+  <div class="modal-box">
+    <div class="modal-header" id="noticeModalHeader">공지사항 작성</div>
+    <form class="modal-form" onsubmit="return submitNotice(event)">
+      <input type="hidden" id="noticeId">
+      <input type="text" id="noticeTitle" placeholder="공지사항 제목" required>
+      <textarea id="noticeContent" placeholder="공지사항 내용" required rows="4"></textarea>
+      <button type="submit" class="submit-btn">등록</button>
+      <button type="button" class="close-btn" onclick="closeNoticeWriteModal()">취소</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function showSection(section) {
+    document.getElementById('section-posts').style.display = (section === 'posts') ? '' : 'none';
+    document.getElementById('section-acorn').style.display = (section === 'acorn') ? '' : 'none';
+    document.getElementById('section-notice').style.display = (section === 'notice') ? '' : 'none';
+    const lis = document.querySelectorAll('.admin-sidebar li');
+    lis.forEach(li => li.classList.remove('active'));
+    if(section === 'posts') lis[0].classList.add('active');
+    if(section === 'acorn') lis[1].classList.add('active');
+    if(section === 'notice') lis[2].classList.add('active');
+  }
+  // 게시글/댓글 삭제
+  function deleteRow(btn) {
+    if (confirm('정말로 삭제하시겠습니까?')) {
+      btn.closest('tr').remove();
+    }
+  }
+  // 도토리 구매 통계 차트
+  window.onload = function() {
+    const ctx = document.getElementById('acornChart').getContext('2d');
+    const months = ['2025-02', '2025-03', '2025-04', '2025-05', '2025-06'];
+    const purchaseCounts = [150000, 210000, 580000, 250000, 730000];
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: months,
+        datasets: [{
+          label: '도토리 구매량',
+          data: purchaseCounts,
+          backgroundColor: 'rgba(68, 82, 250, 0.7)',
+          borderRadius: 6,
+          barPercentage: 0.6,
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            min: 0,
+            max: 800000,
+            title: { display: true, text: '구매량' },
+            ticks: {
+              callback: function(value) {
+                if (value === 0) return '0';
+                if (value === 800000) return '80만';
+                return (value / 10000) + '만';
+              }
+            }
+          },
+          x: {
+            title: { display: true, text: '월' }
+          }
+        }
+      }
+    });
+  }
+  // 공지 작성/수정 팝업 열기
+  function openNoticeWriteModal(isEdit = false) {
+    document.getElementById('noticeModalHeader').textContent = isEdit ? '공지사항 수정' : '공지사항 작성';
+    if(!isEdit) {
+      document.getElementById('noticeId').value = '';
+      document.getElementById('noticeTitle').value = '';
+      document.getElementById('noticeContent').value = '';
+    }
+    document.getElementById('noticeWriteModal').style.display = 'flex';
+  }
+  // 공지 작성/수정 팝업 닫기
+  function closeNoticeWriteModal() {
+    document.getElementById('noticeWriteModal').style.display = 'none';
+  }
+  // 공지 등록/수정
+  function submitNotice(e) {
+    e.preventDefault();
+    const id = document.getElementById('noticeId').value;
+    const title = document.getElementById('noticeTitle').value.trim();
+    const content = document.getElementById('noticeContent').value.trim();
+    if(!title || !content) return false;
+    const table = document.getElementById('noticeTable').getElementsByTagName('tbody')[0];
+    const now = new Date();
+    const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+
+    if(id) { // 수정
+      const rows = table.rows;
+      for(let i=0;i<rows.length;i++) {
+        if(rows[i].getAttribute('data-id') === id) {
+          rows[i].cells[1].textContent = title;
+          rows[i].cells[2].textContent = content;
+          rows[i].cells[3].textContent = today;
+        }
+      }
+    } else { // 등록(맨 위에 추가)
+      const newRow = table.insertRow(0);
+      const newId = Date.now().toString();
+      newRow.setAttribute('data-id', newId);
+      newRow.insertCell(0); // 번호(임시)
+      newRow.insertCell(1).textContent = title;
+      newRow.insertCell(2).textContent = content;
+      newRow.insertCell(3).textContent = today;
+      newRow.insertCell(4).innerHTML = `<button class="edit-btn" onclick="editNotice(this)">수정</button>`;
+      newRow.insertCell(5).innerHTML = `<button class="delete-btn" onclick="deleteNoticeRow(this)">삭제</button>`;
+    }
+    // 번호 재정렬 (최신이 1번)
+    Array.from(table.rows).forEach((row, idx) => {
+      row.cells[0].textContent = idx + 1;
+    });
+    closeNoticeWriteModal();
+    return false;
+  }
+  // 공지사항 수정 버튼 클릭
+  function editNotice(btn) {
+    const row = btn.closest('tr');
+    document.getElementById('noticeId').value = row.getAttribute('data-id') || '';
+    document.getElementById('noticeTitle').value = row.cells[1].textContent;
+    document.getElementById('noticeContent').value = row.cells[2].textContent;
+    openNoticeWriteModal(true);
+  }
+  // 공지사항 삭제
+  function deleteNoticeRow(btn) {
+    if(confirm('정말로 삭제하시겠습니까?')) {
+      const table = document.getElementById('noticeTable').getElementsByTagName('tbody')[0];
+      btn.closest('tr').remove();
+      // 번호 재정렬
+      Array.from(table.rows).forEach((row, idx) => {
+        row.cells[0].textContent = idx + 1;
+      });
+    }
+  }
+</script>
+</body>
+</html>

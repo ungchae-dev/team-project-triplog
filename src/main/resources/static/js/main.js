@@ -94,3 +94,27 @@ function openMyBlogwrite(){
     // 새 창에서 블로그 열기
     window.open('/blog/post/write', 'myBlogWrite', options);
 }
+
+function openAdmin(){
+    // 새 창 크기 설정(메인보다 작은 사이즈로)
+    const width = 1350; // 폭
+    const height = 900; // 높이
+    const left = (screen.width - width) / 2; // 화면 중앙
+    const top = (screen.height - height) / 2; // 화면 중앙
+
+    // 새 창 옵션
+    const options = `
+        width=${width}, 
+        height=${height}, 
+        left=${left}, 
+        top=${top}, 
+        resizable=yes,
+        toolbar=no, 
+        menubar=no, 
+        location=no, 
+        status=no
+    `;
+
+    // 새 창에서 블로그 열기
+    window.open('/admin', 'myBlogWrite', options);
+}
