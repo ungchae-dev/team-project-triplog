@@ -48,6 +48,14 @@
 
         <!-- 오른쪽 메뉴 아이콘들 -->
         <div class="d-flex align-items-center gap-3">
+            <!--관리자 페이지-->
+            <div class="text-center"
+                 th:if="${role == 'ADMIN'}">
+                <a href="/" onclick="openAdmin()" class="nav-link p-0">
+                    <img src="/images/page/admin.png" alt="관리자" width="36">
+                    <div class="small">관리자</div>
+                </a>
+            </div>
 
             <!-- 내 블로그 -->
             <div class="text-center">

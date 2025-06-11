@@ -1,0 +1,176 @@
+body {
+    margin: 0;
+    font-family: 'Noto Sans KR', sans-serif;
+    background: #f6f8fa;
+}
+
+.admin-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.admin-sidebar {
+    width: 220px;
+    background: #232d3b;
+    color: #fff;
+    padding: 24px 0;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+}
+
+.admin-sidebar h2 {
+    margin: 0 0 24px 24px;
+    font-size: 20px;
+}
+
+.admin-sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.admin-sidebar li {
+    padding: 14px 28px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.admin-sidebar li.active,
+.admin-sidebar li:hover {
+    background: #344051;
+}
+
+.admin-main {
+    flex: 1;
+    padding: 32px 48px;
+}
+
+.admin-main header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-profile button {
+    padding: 6px 18px;
+    border: none;
+    border-radius: 5px;
+    background: #4452fa;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.admin-profile button:hover {
+    background: #222ebf;
+}
+
+.admin-content h2 {
+    margin-bottom: 18px;
+    color: #232d3b;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 14px 10px;
+    text-align: left;
+}
+
+.admin-table th {
+    background: #4452fa;
+    color: #fff;
+    font-weight: 500;
+}
+
+.admin-table tr:not(:last-child) {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.admin-table td {
+    color: #232d3b;
+}
+
+.delete-btn {
+    padding: 4px 14px;
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.delete-btn:hover {
+    background: #c0392b;
+}
+/* 모달(팝업) 관련 */
+.modal-backdrop {
+    position: fixed; left:0; top:0; width:100vw; height:100vh;
+    background:rgba(0,0,0,0.25); z-index:1000; display: none; align-items: center; justify-content: center;
+}
+.modal-box {
+    background: #fff; padding: 32px 24px; border-radius: 16px; max-width: 400px;
+    box-shadow: 0 4px 24px rgba(44,62,80,0.12);
+    animation: fadein 0.25s;
+}
+@keyframes fadein { from {transform:translateY(-20px); opacity:0} to {transform:translateY(0); opacity:1} }
+.modal-header {
+    font-size: 19px; font-weight: bold; margin-bottom: 18px;
+}
+.close-btn {
+    margin-top: 12px; padding:7px 18px;
+    background: #4452fa; color: #fff; border: none; border-radius: 5px; cursor:pointer;
+}
+.submit-btn {
+    margin-top: 12px; padding:7px 18px;
+    background: #2ecc71; color: #fff; border: none; border-radius: 5px; cursor:pointer;
+}
+.modal-form input,
+.modal-form textarea {
+    width: 96%;
+    padding:8px;
+    margin-bottom:14px;
+    border:1px solid #d3d3d3;
+    border-radius:7px;
+}
+.edit-btn {
+    padding: 4px 14px;
+    background: #2ecc71;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 3px;
+    transition: background 0.2s;
+}
+.edit-btn:hover {
+    background: #119e43;
+}
+.delete-btn {
+    padding: 4px 14px;
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.delete-btn:hover {
+    background: #c0392b;
+}
+/* 이외에 테이블, 버튼, 모달 관련 기존 스타일은 그대로 유지 */

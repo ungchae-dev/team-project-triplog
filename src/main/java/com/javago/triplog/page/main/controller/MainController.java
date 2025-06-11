@@ -1,14 +1,14 @@
 package com.javago.triplog.page.main.controller;
 
+import com.javago.triplog.domain.member.entity.CustomUserDetails;
+import com.javago.triplog.domain.member.entity.Member;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
@@ -24,7 +24,16 @@ public class MainController {
             // 로그인 상태 확인 및 모델에 추가
             boolean isLoggedIn = (authentication != null && authentication.isAuthenticated() && !authentication.getName().equals("anonymousUser"));
 
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             model.addAttribute("isLoggedIn", isLoggedIn);
+
+            if (auth != null && auth.isAuthenticated()
+                && auth.getPrincipal() instanceof CustomUserDetails customUserDetails ) {
+
+            Member member = customUserDetails.getMember();
+            model.addAttribute("nickname", member.getNickname());
+            model.addAttribute("role", member.getRole().name()); // USER 또는 ADMIN
+        }
 
             if (isLoggedIn && authentication != null) {
                 // 로그인된 사용자 정보 추가
@@ -60,4 +69,5 @@ public class MainController {
         return "page/popup"; // popup.html
 
     }
+    //관리자 페이지로 매핑
 }

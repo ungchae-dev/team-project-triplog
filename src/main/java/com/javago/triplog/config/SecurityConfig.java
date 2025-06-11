@@ -68,6 +68,7 @@ public class SecurityConfig {
                 "/components/**", // 정적 리소스(/static) 하위 레이아웃 템플릿 파일(4)
                         "/weekly-best"
                 ).permitAll()
+                    .requestMatchers("/admin/**").hasRole("ADMIN") // 관리자 전용
                 // 그 외 모든 요청 로그인 필요
                 .anyRequest().authenticated()
             )
