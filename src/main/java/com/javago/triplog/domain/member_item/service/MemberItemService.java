@@ -1,54 +1,74 @@
 package com.javago.triplog.domain.member_item.service;
 
-import com.javago.triplog.domain.member_item.dto.PurchasedItemDto;
-import com.javago.triplog.domain.member_item.entity.MemberItem;
 import com.javago.constant.ItemType;
+import com.javago.triplog.domain.emoticon.dto.EmoticonDto;
 import com.javago.triplog.domain.emoticon.entity.Emoticon;
-import com.javago.triplog.domain.music.entity.Music;
-import com.javago.triplog.domain.emoticon.repository.EmoticonRepository;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.repository.MemberRepository;
-import com.javago.triplog.domain.music.repository.MusicRepository;
+import com.javago.triplog.domain.member_item.entity.MemberItem;
 import com.javago.triplog.domain.member_item.repository.MemberItemRepository;
-
+import com.javago.triplog.domain.music.dto.MusicDto;
+import com.javago.triplog.domain.music.entity.Music;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-// 내 보유 현황 관리 서비스
 @Service
 @RequiredArgsConstructor
 public class MemberItemService {
 
-    private final MemberItemRepository memberItemRepository;
     private final MemberRepository memberRepository;
+    private final MemberItemRepository memberItemRepository;
 
-    public List<PurchasedItemDto> getPurchasedItemsByMemberId(String memberId) {
-        // 1. memberId로 Member 엔티티 조회
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("해당 사용자를 찾을 수 없습니다."));
-
-        // 2. Member 엔티티를 기준으로 구매한 아이템 조회
-        List<MemberItem> items = memberItemRepository.findByMember(member);
-
-        // 3. DTO 변환
-        return items.stream().map(item -> {
-            if (item.getItemType() == ItemType.EMOTICON && item.getEmoticon() != null) {
-                Emoticon emoticon = item.getEmoticon();
-                return new PurchasedItemDto("EMOTICON", emoticon.getEmoticonName(),
-                        emoticon.getEmoticonImage(), emoticon.getPrice());
-            } else if (item.getItemType() == ItemType.MUSIC && item.getMusic() != null) {
-                Music music = item.getMusic();
-                return new PurchasedItemDto("MUSIC", music.getTitle(),
-                        music.getArtist(), music.getPrice());
-            } else {
-                throw new IllegalStateException("유효하지 않은 아이템 타입 또는 누락된 참조");
-            }
-        }).collect(Collectors.toList());
+    // 공통: 멤버 유효성 검사
+    private Member findMemberById(String memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
     }
 
+    /**
+     * 특정 회원이 보유한 이모티콘 목록 반환
+     */
+    public List<EmoticonDto> getOwnedEmoticons(String memberId) {
+        Member member = findMemberById(memberId);
+
+        return memberItemRepository.findByMemberAndItemType(member, ItemType.EMOTICON).stream()
+                .map(item -> item.getEmoticon())
+                .filter(emoticon -> emoticon != null)
+                .map(emoticon -> EmoticonDto.builder()
+                        .emoticonId(emoticon.getEmoticonId())
+                        .emoticonName(emoticon.getEmoticonName())
+                        .emoticonImage(emoticon.getEmoticonImage())
+                        .price(emoticon.getPrice())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 특정 회원이 보유한 음악 목록 반환
+     */
+    public List<MusicDto> getOwnedMusic(String memberId) {
+        Member member = findMemberById(memberId);
+
+        return memberItemRepository.findByMemberAndItemType(member, ItemType.MUSIC).stream()
+                .map(item -> item.getMusic())
+                .filter(music -> music != null)
+                .map(music -> MusicDto.builder()
+                        .musicId(music.getMusicId())
+                        .title(music.getTitle())
+                        .artist(music.getArtist())
+                        .album(music.getAlbum())
+                        .musicFile(music.getMusicFile())
+                        .price(music.getPrice())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 구매한 음악 ID 리스트만 반환 (내부 로직용)
+     */
     public List<Long> getPurchasedMusicIds(String memberId) {
         return memberItemRepository.findMusicItemIdsByMemberIdAndItemType(memberId, ItemType.MUSIC);
     }

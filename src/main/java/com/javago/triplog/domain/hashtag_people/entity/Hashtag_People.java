@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.javago.constant.TagType;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Check;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 

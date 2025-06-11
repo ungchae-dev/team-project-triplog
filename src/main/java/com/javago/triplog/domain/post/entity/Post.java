@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Formula;
 import org.springframework.data.annotation.CreatedDate;
@@ -43,8 +44,9 @@ public class Post {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "content", nullable = false)
     @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(columnDefinition = "CLOB")
     private String content;
 
     // 생성 시간 저장
@@ -67,6 +69,7 @@ public class Post {
 
     // 게시글-이미지
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @BatchSize(size = 50)
     private List<Post_Image> postImage = new ArrayList<>();
 
     // 게시글-댓글

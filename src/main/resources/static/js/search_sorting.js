@@ -54,6 +54,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 게시글 렌더링
     function renderPosts(posts) {
+
+        if (!Array.isArray(posts)) {
+            console.error("posts is not an array:", posts);
+            return;
+        }
+
         postList.querySelector("section").innerHTML = "";
 
         posts.forEach(post => {
@@ -108,20 +114,24 @@ document.addEventListener("DOMContentLoaded", function () {
         const people = Array.from(selectedPeopleTags).join(",");
         const sort = sortSelect.value;
 
-        const params = new URLSearchParams({
-            keyword,
-            people,
-            sort,
-            page: currentPage
-        });
+        const url = `/search/posts?keyword=${keyword}&people=${people}&sort=${sort}&page=${currentPage - 1}&size=12`;
 
 
-        fetch(`/search/posts?${params}`)
+        fetch(url)
             .then(response => response.json())
             .then(data => {
-                renderPosts(data.posts);
-                updatePagination(data.page, data.totalPages);
-                renderPagination(data.page, data.totalPages);
+                console.log("전체 응답 데이터:", data);
+
+                //현재 페이지는 1이지만 결과가 없고 totalElements는 있을 경우 → 잘못된 페이지 요청
+                if (data.content.length === 0 && data.totalElements > 0 && currentPage > 1) {
+                    currentPage = 1;
+                    fetchAndRenderPosts();  //1페이지로 리다이렉트
+                    return;
+                }
+
+                renderPosts(data.content);
+                updatePagination(data.number, data.totalPages);
+                renderPagination(data.number + 1, data.totalPages);
             })
             .catch(error => {
                 console.error("게시글 불러오기 실패:", error);
@@ -130,9 +140,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 페이지 정보 업데이트
     function updatePagination(page, totalPages) {
-        pageInfo.textContent = `페이지 ${page} / ${totalPages}`;
-        prevBtn.disabled = page <= 1;
-        nextBtn.disabled = page >= totalPages;
+        const displayPage = page + 1; // 1-based 표기
+        pageInfo.textContent = `페이지 ${displayPage} / ${totalPages}`;
+        prevBtn.disabled = page <= 0;
+        nextBtn.disabled = displayPage >= totalPages;
     }
 
     // 초기 로딩

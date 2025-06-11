@@ -38,20 +38,23 @@
     color: #b05a5a;
     text-align: center;
     border: 2px solid #f0d4d0;
+    order: -1;
+    margin-right: auto;
 }
 
 /* 상점 내부 탭 리스트 */
 .shop-inner-tab-list {
     display: flex;
     gap: 8px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
 }
 
 /* 상점 내부 탭 버튼 */
 .shop-inner-tab {
-    padding: 12px 20px;
+    padding: 10px 14px;
     font-weight: 700;
-    font-size: 15px;
+    font-size: 14px;
     cursor: pointer;
     background: #c18c7e;
     color: #fff;
@@ -60,7 +63,8 @@
     box-shadow: 0 2px 7px rgba(200, 160, 153, 0.3);
     transition: all 0.2s ease;
     user-select: none;
-    min-width: 100px;
+    min-width: auto;
+    white-space: nowrap;
     text-align: center;
     text-decoration: none;
 }
@@ -77,6 +81,19 @@
     background: #a67161;
     color: #fff;
     transform: translateY(-1px);
+}
+
+.shop-message{
+  text-align: center;
+  font-size: 15px;
+  color: #aa6688;
+  font-weight: 500;
+  margin-bottom: 15px;
+  background: #fff8fa;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #f3d6e0;
+  box-shadow: 0 2px 5px rgba(255, 200, 230, 0.2);
 }
 
 /* 상점 탭 컨텐츠 영역 */
@@ -277,6 +294,18 @@
     background-color: #a67161;
     transform: translateY(-1px);
     box-shadow: 0 3px 10px rgba(200, 160, 153, 0.6);
+}
+
+.section-title-wrapper{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.genre-select{
+    padding: 6px 10px;
+    border-radius: 6px; 
+    font-size: 14px;
 }
 
 /* 페이지네이션 */

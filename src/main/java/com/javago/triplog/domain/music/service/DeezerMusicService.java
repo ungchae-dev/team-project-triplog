@@ -23,8 +23,8 @@ public class DeezerMusicService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final MusicRepository musicRepository; // ✅ DB 조회용
 
-    public List<MusicDto> getTracksByGenre(String genreId, int offset, int limit) {
-        String url = "https://api.deezer.com/chart/" + genreId + "/tracks?index=" + offset + "&limit=" + limit;
+    public List<MusicDto> getTracksByGenre(String genreId) {
+        String url = "https://api.deezer.com/chart/" + genreId + "/tracks?index=" + "&limit=100";
 
         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                 url, HttpMethod.GET, null,

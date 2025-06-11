@@ -106,29 +106,9 @@
 <!-- Mashead header-->
 <header class="masthead p-0 m-0" >
     <section class="weekly-best container mt-5 pt-5 mb-4">
-        <h5 class="fw-bold mb-4 text-white">주간 베스트</h5>
+        <h5 class="mt-4 mb-4" style="color: saddlebrown">이번주, 이웃들이 좋아해요 !</h5>
         <div class="d-flex justify-content-between flex-wrap gap-3">
-            <!--각각의 게시글에 둥근 모서리 사각형테두리 추가-->
-            <div class="card shadow-sm border rounded position-relative" style="width: 23%;"
-                 th:each="post, iterStat : ${bestPosts}">
-                <!-- 등수별 메달 아이콘 왼쪽 상단 고정 -->
-                <img th:if="${iterStat.index == 0}" src="/images/page/gold.png" class="position-absolute"
-                     style="top: 0px; left: 0px; width: 40px; height: 40px; z-index: 10;" alt="Gold Medal">
-                <img th:if="${iterStat.index == 1}" src="/images/page/silver.png" class="position-absolute"
-                     style="top: 0px; left: 0px; width: 40px; height: 40px; z-index: 10;" alt="Silver Medal">
-                <img th:if="${iterStat.index == 2}" src="/images/page/bronze.png" class="position-absolute"
-                     style="top: 0px; left: 0px; width: 40px; height: 40px; z-index: 10;" alt="Bronze Medal">
-
-                <!-- 대표 이미지 -->
-                <a th:href="@{|/post/${post.id}|}">
-                    <img th:src="@{${post.imageUrl}}" class="card-img-top" alt="대표 이미지"
-                         style="height: 180px; object-fit: cover;">
-                </a>
-                <!-- 게시글 제목 -->
-                <div class="card-body">
-                    <h6 class="card-title text-truncate mb-0" th:text="${post.title}">게시글 제목</h6>
-                </div>
-            </div>
+            <!-- JavaScript가 주간 인기글 4개를 여기에 삽입 -->
         </div>
     </section>
 
@@ -330,6 +310,7 @@
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
 <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
 <script src="/js/main_regionselect.js"></script>
+<script src="/js/main_weeklybestpost.js"></script>
 <script>
     function openPopup(contentId, contentTypeId) {
         const w = 800, h = 600;

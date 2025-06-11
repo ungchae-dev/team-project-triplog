@@ -3,6 +3,8 @@
 // === 전역 변수 ===
 let cachedSkinInfo = null; // 스킨 정보 캐시
 let skinInfoloaded = false; // 스킨 정보 로드 완료 여부
+let cachedProfileImage = null; // 프로필 이미지 캐시
+let profileImageLoaded = false; // 프로필 이미지 로드 완료 여부
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('=== Layout 초기화 시작 ===');
@@ -11,9 +13,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupNavigation(); // 2. 네비게이션 즉시 설정 (컴포넌트 로드 완료 후)
     setPageTitleByUrl(); // 3. 페이지별 제목 자동 설정
     setupMusicWidget(); // 4. 음악 위젯 이벤트
+    setupEditButtonEvent(); // 5. 블로그 좌측 EDIT 버튼 이벤트
 
     // 스킨 정보 미리 캐싱 (최초 로드시)
-    await maintainDefaultSkinForInactiveUsers(); // 5. 즉시 스킨 유지 + 캐싱
+    await maintainDefaultSkinForInactiveUsers(); // 6. 즉시 스킨 유지 + 캐싱
+    await loadUserProfileImage(); // 7. 프로필 이미지 캐시 초기화
     
     console.log('=== Layout 초기화 완료 ===');
 });
@@ -152,6 +156,82 @@ function getCurrentNickname() {
     }
     return null;
 }
+
+// === 블로그 좌측 EDIT 기능 관련 함수 시작 ===
+//
+async function setupEditButtonEvent() {
+    // EDIT 버튼이 로드될 때까지 기다리기
+    const editBtn = document.querySelector('.edit');
+
+    if (editBtn) {
+        setupEditButtonClick(editBtn);
+        return;
+    }
+
+    // 버튼이 없으면 옵저버로 감시
+    const observer = new MutationObserver(() => {
+        const editBtn = document.querySelector('.edit');
+        if (editBtn) {
+            setupEditButtonClick(editBtn);
+            observer.disconnect(); // 작업 완료 후 옵저버 해제
+        }
+    });
+
+    // left-container 감시 (EDIT 버튼이 들어가는 곳)
+    const leftContainer = document.getElementById('left-container');
+    if (leftContainer) {
+        observer.observe(leftContainer, {
+            childList: true, 
+            subtree: true
+        });
+    }
+}
+
+// EDIT 버튼 클릭 이벤트 설정
+function setupEditButtonClick(editBtn) {
+    editBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        const currentNickname = getCurrentNickname();
+        if (!currentNickname) {
+            alert('로그인이 필요합니다.');
+            window.location.href = '/member/login';
+            return;
+        }
+
+        console.log('EDIT 버튼 클릭 - 개인정보 조회/수정으로 이동');
+
+        // 프로필 페이지로 이동 후 개인정보 탭 활성화
+        navigateToProfileEdit();
+    });
+
+    console.log('EDIT 버튼 이벤트 설정 완료');
+}
+
+// 프로필 개인정보 수정으로 이동하는 함수
+function navigateToProfileEdit() {
+    const currentNickname = getCurrentNickname();
+    if (!currentNickname) return;
+
+    console.log('프로필 개인정보 조회/수정으로 이동 시작');
+
+    // 1. 프로필 페이지로 이동
+    navigateToPage('profile');
+
+    // 2. 페이지 로드 완료 후 개인정보 탭으로 전환
+    setTimeout(() => {
+        // 개인정보 수정 탭 버튼 찾기
+        const editTabBtn = document.getElementById('btn-edit');
+        if (editTabBtn) {
+            editTabBtn.click(); // 개인정보 탭으로 전환
+            console.log('개인정보 조회/수정 탭 활성화');
+        } else {
+            console.log('개인정보 탭 버튼을 찾을 수 없음!');
+        }
+    }, 100); // 페이지 로드 대기시간
+}
+//
+// === 블로그 좌측 EDIT 기능 관련 함수 끝 ===
 
 // === 스킨 비활성화 회원만을 위한 기본 스킨 유지 함수 ===
 async function maintainDefaultSkinForInactiveUsers() {
@@ -301,6 +381,126 @@ function applyDefaultSkinOnly() {
     }
 }
 
+// === 프로필 이미지 캐시 관리 함수들 시작 ===
+//
+// 프로필 이미지 캐시 업데이트 (전역 함수)
+window.updateProfileImageCache = function(newProfileImageUrl) {
+    console.log('프로필 이미지 캐시 업데이트:', newProfileImageUrl);
+
+    // 캐시 업데이트
+    cachedProfileImage = newProfileImageUrl;
+    profileImageLoaded = true;
+
+    // 모든 페이지의 프로필 이미지 즉시 업데이트
+    updateAllProfileImages(newProfileImageUrl);
+}
+
+// 모든 프로필 이미지 업데이트
+function updateAllProfileImages(profileImageUrl) {
+    if (!profileImageUrl) return;
+
+    const timestamp = Date.now(); // 캐시 무효화 용도
+    const imageUrlWithCache = profileImageUrl + '?t=' + timestamp;
+
+    console.log('모든 프로필 이미지 업데이트 시작:', imageUrlWithCache);
+
+    // 1. 사이드바 프로필 이미지
+    const sideProfileImg = document.querySelector('.profile-pic img');
+    if (sideProfileImg) {
+        sideProfileImg.src = imageUrlWithCache;
+        console.log('사이드바 프로필 이미지 업데이트');
+    }
+
+    // 2. 프로필 페이지의 이미지들
+    const currentProfileImg = document.getElementById('current-profile-img');
+    if (currentProfileImg) {
+        currentProfileImg.src = imageUrlWithCache;
+        console.log('프로필 페이지 현재 이미지 업데이트');
+    }
+
+    const editPreviewImg = document.getElementById('edit-preview-img');
+    if (editPreviewImg) {
+        editPreviewImg.src = imageUrlWithCache;
+        console.log('프로필 페이지 미리보기 이미지 업데이트');
+    }
+
+    // 3. 기타 모든 프로필 이미지 (CSS 선택자로 찾기)
+    const allProfileImages = document.querySelectorAll(`
+        img[src*="/uploads/profiles/"], 
+        img[src*="placeholder"], 
+        .profile-image, 
+        .user-profile-img,
+        img[alt*="프로필"],
+        img[alt*="profile"]
+    `);
+
+    allProfileImages.forEach((img, index) => {
+        // 이미 업데이트한 이미지는 제외
+        if (img !== sideProfileImg && 
+        img !== currentProfileImg && 
+        img !== editPreviewImg) {
+            img.src = imageUrlWithCache;
+            console.log(`추가 프로필 이미지 ${index + 1} 업데이트`);
+        }
+    });
+
+    console.log(`총 ${allProfileImages.length}개의 프로필 이미지 업데이트 완료.`);    
+}
+
+// 캐시된 프로필 이미지 적용 (페이지 로드시)
+function applyCachedProfileImage() {
+    if (cachedProfileImage && profileImageLoaded) {
+        console.log('캐시된 프로필 이미지 적용:', cachedProfileImage);
+        updateAllProfileImages(cachedProfileImage);
+    }
+}
+
+// 프로필 이미지 캐시 초기화 (사용자 정보 로드시)
+async function loadUserProfileImage() {
+    const nickname = getCurrentNickname();
+    if (!nickname || profileImageLoaded) return;
+
+    // 이미 로드되었으면 스킵
+    if (profileImageLoaded && cachedProfileImage) {
+        console.log('이미 캐시된 프로필 이미지 사용:', cachedProfileImage);
+        updateAllProfileImages(cachedProfileImage);
+        return;
+    }
+
+    try {
+        // 사용자 정보에서 프로필 이미지 가져오기 (API 호출)
+        const encodedNickname = encodeURIComponent(nickname);
+        const response = await fetch(`/blog/api/@${encodedNickname}/user-info`);
+
+        if (response.ok) {
+            const userData = await response.json();
+            console.log('사용자 정보 로드:', userData);
+
+            if (userData.profileImage) {
+                cachedProfileImage = userData.profileImage;
+                profileImageLoaded = true;
+                console.log('프로필 이미지 캐시 초기화:', cachedProfileImage);
+
+                // 즉시 모든 이미지 업데이트
+                updateAllProfileImages(cachedProfileImage);
+            } else {
+                console.log('프로필 이미지가 설정되지 않음 - 기본 이미지 사용');
+                // 기본 placeholder 이미지 사용
+                const defaultImage = '/images/default_profile.png';
+                cachedProfileImage = defaultImage;
+                profileImageLoaded = true;
+                updateAllProfileImages(defaultImage);
+            }
+        } else {
+            console.error('사용자 정보 로드 실패:', response.status);
+        }
+    } catch (error) {
+        console.error('프로필 이미지 로드 실패:', error);
+    }
+}
+// 
+// === 프로필 이미지 캐시 관리 함수들 종료 ===
+
 // 페이지 네비게이션 함수 (즉시 반응)
 function navigateToPage(page) {
     const currentNickname = getCurrentNickname();
@@ -404,11 +604,6 @@ function setPageTitleImmediately(page) {
     setPageTitle(pageTitle);
 }
 
-// 외부에서 호출 가능한 함수들로 노출
-window.setActiveNavButton = setActiveNavButton;
-window.setPageTitle = setPageTitle;
-window.navigateToPage = navigateToPage;
-
 // 페이지 제목 매핑 테이블
 const PAGE_TITLES = {
     'home': '홈', 
@@ -416,7 +611,6 @@ const PAGE_TITLES = {
     'profile': '프로필', 
     'post': '게시판', 
     'jukebox': '주크박스', 
-    'mylog': '마이로그', 
     'guestbook': '방명록'
 }
 
@@ -459,7 +653,6 @@ async function loadPageContent(page, nickname) {
             'profile': `/blog/@${encodedNickname}/profile`, 
             'post': `/blog/@${encodedNickname}/post`, 
             'jukebox': `/blog/@${encodedNickname}/jukebox`, 
-            'mylog': `/blog/@${encodedNickname}/mylog`, 
             'guestbook': `/blog/@${encodedNickname}/guestbook`
         };
 
@@ -519,6 +712,14 @@ function initializePage(page) {
     if (typeof window.loadBlogSkin === 'function') {
         window.loadBlogSkin();
     }
+
+    // 캐시된 프로필 이미지 적용 (모든 페이지에서)
+    applyCachedProfileImage();
+
+    // 프로필 이미지가 아직 로드되지 않았으면 로드
+    if (!profileImageLoaded) {
+        loadUserProfileImage();
+    }
 }
 
 // 브라우저 뒤로가기 지원
@@ -536,4 +737,8 @@ window.addEventListener('popstate', (event) => {
 console.log('layout.js 로드 완료 - 즉시 반응 모드');
 
 // 전역 함수로 노출
+window.setActiveNavButton = setActiveNavButton;
+window.setPageTitle = setPageTitle;
+window.navigateToPage = navigateToPage;
 window.maintainDefaultSkinForInactiveUsers = maintainDefaultSkinForInactiveUsers;
+window.navigateToProfileEdit = navigateToProfileEdit;

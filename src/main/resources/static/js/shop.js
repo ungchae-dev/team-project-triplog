@@ -1,253 +1,399 @@
-// shop.js - 상점 페이지 기능
+(function () {
+  'use strict';
 
-(function() {
-    'use strict';
+  let userAcorn = 30;
+  let skinActivated = false;
+  let currentMusicGenreId = '132'; // 기본값: Pop
+  const EMOTICON_ITEMS_PER_PAGE = 4; 
+  const MUSIC_ITEMS_PER_PAGE = 8;
+
+  const acornData = [
+    { id: 'acorn_100', amount: 100, price: 10000 },
+    { id: 'acorn_1000', amount: 1000, price: 90000 },
+    { id: 'acorn_10000', amount: 10000, price: 800000 }
+  ];
+
+  function switchTab(tabName) {
+    document.querySelectorAll('.shop-inner-tab').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.shop-tab-content').forEach(content => content.classList.remove('active'));
+
+    const tabBtn = document.getElementById(`btn-${tabName}`);
+    const tabContent = document.querySelector(`.shop-${tabName}`);
+
+    if (tabBtn) tabBtn.classList.add('active');
+    if (tabContent) tabContent.classList.add('active');
+
+    if (tabName === 'acorn') {
+      fetchUserAcorn();
+      renderAcornList();
+    } else if (tabName === 'emoticon') {
+      fetchUserAcorn();
+      renderEmoticonList();
+    } else if (tabName === 'music') {
+      fetchUserAcorn();
+      renderMusicList();
+    }
+  }
+
+  async function fetchUserAcorn() {
+    try {
+      const res = await fetch('/api/charge/acorn');
+      if (!res.ok) throw new Error('잔액 조회 실패');
+      const acorn = await res.json();
+      userAcorn = acorn;
+      updateAcornDisplay();
+    } catch (e) {
+      console.error('도토리 잔액 조회 오류:', e);
+    }
+  }
+
+  function updateAcornDisplay() {
+    const el = document.getElementById('current-acorn');
+    if (el) el.textContent = userAcorn;
+  }
+
+  function renderAcornList() {
     
-    // === 전역 변수 ===
-    let userAcorn = 100;       // 현재 유저 도토리 잔액
-    let skinActivated = false;  // 스킨 활성화 여부
-    const ITEMS_PER_PAGE = 10;  // 페이지당 아이템 수
+    // 최초 1회 페이지 자동새로고침 
+    if (!sessionStorage.getItem('acornTabReloaded')) {
+    sessionStorage.setItem('acornTabReloaded', 'true');
+    location.reload();
+    return; // 이 뒤 코드는 실행 안 함
+  } 
+    
+    const listElem = document.getElementById('acorn-list');
+    if (!listElem) return;
 
-    // === 더미 데이터 ===
-    const emoticonData = [];
-    const musicData = [];
-    const acornData = [
-        { id: 1, amount: 100, price: 10000, size: 'small' },
-        { id: 2, amount: 1000, price: 90000, size: 'medium' },
-        { id: 3, amount: 10000, price: 800000, size: 'large' }
-    ];
+    listElem.innerHTML = acornData.map(p => `
+      <div class="acorn-item" data-id="${p.id}">
+        <div class="acorn-image">🌰</div>
+        <div class="item-title">${p.amount.toLocaleString()}개</div>
+        <div class="item-price">${p.price.toLocaleString()}원</div>
+        <button class="buy-btn"
+                data-id="${p.id}"
+                data-amount="${p.amount}"
+                data-price="${p.price}">
+          충전하기
+        </button>
+      </div>
+    `).join('');
 
-    // 이모티콘 더미 데이터 생성 (30개)
-    for (let i = 1; i <= 30; i++) {
-        const emojis = ['😊', '😎', '😂', '😍', '🥳', '😭', '🤔', '😴', '🤗', '😋'];
-        emoticonData.push({
-            id: i,
-            name: `이모티콘${i}`,
-            icon: emojis[(i - 1) % emojis.length],
-            price: 10 + (i * 2)
+    waitForPortOne(() => {
+      document.querySelectorAll('.buy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const amount = parseInt(btn.dataset.amount);
+          const price = parseInt(btn.dataset.price);
+          const id = btn.dataset.id;
+
+          if (confirm(`${amount.toLocaleString()}개 도토리를 ${price.toLocaleString()}원에 충전하시겠습니까?`)) {
+            requestAcornPayment(amount, price, id);
+          }
         });
+      });
+    });
+  }
+
+  function waitForPortOne(callback) {
+    const interval = setInterval(() => {
+      if (typeof PortOne !== 'undefined') {
+        clearInterval(interval);
+        callback();
+      }
+    }, 50);
+  }
+
+  async function requestAcornPayment(amount, price, id) {
+    const paymentId = crypto.randomUUID();
+
+    try {
+      const payment = await PortOne.requestPayment({
+        storeId: "store-4e640aa5-588e-43a9-acf5-ebaeff70b074",
+        channelKey: "channel-key-8c3e9cfb-a553-471c-bea5-148c3270fea1",
+        paymentId: paymentId,
+        orderName: `도토리 ${amount}개`,
+        totalAmount: price,
+        currency: "CURRENCY_KRW",
+        payMethod: "EASY_PAY",
+        customData: { item: id }
+      });
+
+     if (payment?.txId || payment.status === "PAY_APPROVED") {
+          await postChargeResult(amount);
+    } else {
+        alert("결제가 완료되지 않았습니다.");
+    }
+    } catch (err) {
+      console.error("결제 중 오류:", err);
+      alert("결제 처리에 실패했습니다.");
+    }
+  }
+
+  async function postChargeResult(amount) {
+    try {
+      const res = await fetch('/api/charge/acorn', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount })
+      });
+
+      if (!res.ok) throw new Error('충전 실패');
+
+      const newBalance = await res.json();
+      userAcorn = newBalance;
+      updateAcornDisplay();
+      alert(`${amount}개 도토리 충전 완료!`);
+    } catch (err) {
+      console.error('충전 요청 실패:', err);
+      alert('충전 중 오류가 발생했습니다.');
+    }
+  }
+// 도토리 충전 영역 끝 
+// 이모티콘 영역
+
+async function renderEmoticonList(Page = 1) {
+  const container = document.getElementById('package-list');
+  if (!container) return;
+
+  container.innerHTML = '<div class="loading">⏳ 이모티콘 불러오는 중...</div>';
+
+  try {
+    const res = await fetch('/api/emoticon/selected');
+    const data = await res.json();
+
+    const totalItems = data.length;
+    const startIndex = (Page - 1) * EMOTICON_ITEMS_PER_PAGE;
+    const endIndex = startIndex + EMOTICON_ITEMS_PER_PAGE;
+    const visibleItems = data.slice(startIndex, endIndex);
+
+    // ✅ 병렬로 구매 여부 체크
+    const purchaseChecks = await Promise.all(
+      visibleItems.map(pkg =>
+        fetch(`/api/emoticon/purchased?emoticonId=${pkg.emoticonId}`).then(res => res.json())
+      )
+    );
+
+    container.innerHTML = ''; // 초기화
+
+    visibleItems.forEach((pkg, index) => {
+      const isPurchased = purchaseChecks[index];
+
+      const div = document.createElement('div');
+      div.className = 'shop-item';
+
+      const img = document.createElement('img');
+      img.src = pkg.packageImg;
+      img.className = 'icon';
+      img.alt = pkg.packageName;
+      img.loading = 'lazy';
+      img.onclick = () => loadStickers(pkg.packageId);
+      div.appendChild(img);
+
+      const name = document.createElement('div');
+      name.textContent = pkg.packageName;
+      div.appendChild(name);
+
+      const price = document.createElement('div');
+      price.textContent = `🐿️ ${pkg.price} 도토리`;
+      div.appendChild(price);
+
+      const btn = document.createElement('button');
+      btn.className = 'buy-btn';
+      btn.textContent = isPurchased ? '구매 완료' : '구매';
+      btn.disabled = isPurchased;
+      btn.onclick = () => buyEmoticon(pkg);
+      div.appendChild(btn);
+
+      container.appendChild(div);
+    });
+
+    // 페이지네이션 렌더링
+    renderPagination('emoticon', totalItems, Page, renderEmoticonList);
+
+  } catch (err) {
+    console.error('이모티콘 로딩 실패:', err);
+    container.innerHTML = '<div class="error">❌ 로딩 실패</div>';
+  }
+}
+
+async function loadStickers(packageId) {
+  const res = await fetch(`/api/emoticon/stickers?packageId=${packageId}`);
+  const data = await res.json();
+  const container = document.getElementById('sticker-list');
+  if (!container) return;
+
+  container.innerHTML = '';
+  data.forEach(sticker => {
+    const img = document.createElement('img');
+    img.src = sticker.stickerImg_300;
+    img.className = 'sticker-img';
+    container.appendChild(img);
+  });
+}
+
+async function buyEmoticon(emoticon) {
+  const payload = {
+    emoticonId: emoticon.emoticonId,
+    emoticonName: emoticon.packageName,
+    emoticonImage: emoticon.packageImg,
+    price: emoticon.price
+  };
+
+  try {
+    const res = await fetch('/api/emoticon/buy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text);
     }
 
-    // 음악 더미 데이터 생성 (25개)
-    for (let i = 1; i <= 25; i++) {
-        const artists = ['아이유', 'BTS', '블랙핑크', '뉴진스', '르세라핌'];
-        const artist = artists[(i - 1) % artists.length];
-        musicData.push({
-            id: i,
-            name: `${artist} - 제목${i}`,
-            artist: artist,
-            album: `앨범${i}`,
-            price: 50
-        });
-    }
+    const data = await res.json();
+    alert(`✅ ${data.message} 남은 도토리: ${data.remainingAcorn}`);
+    location.reload();
+  } catch (err) {
+    alert(`❗ 오류: ${err.message}`);
+  }
+}
 
-    // === 도토리 표시 갱신 ===
-    function updateAcornDisplay() {
-        const acornDisplay = document.getElementById('current-acorn');
-        if (acornDisplay) {
-            acornDisplay.textContent = userAcorn;
-        }
-    }
+// 이모티콘 영역 끝  
+// 음악 영역
+async function renderMusicList(Page = 1, genreId = currentMusicGenreId) {
+ const container = document.getElementById('music-list');
+  if (!container) return;
 
-    // === 이모티콘 리스트 렌더링 ===
-    function renderEmoticonList(page = 1) {
-        const listElem = document.getElementById('emoticon-list');
-        const paginationElem = document.getElementById('emoticon-pagination');
-        
-        if (!listElem || !paginationElem) return;
+  container.innerHTML = '<div class="loading">⏳ 음악 불러오는 중...</div>';
 
-        const totalItems = emoticonData.length;
-        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-        const startIdx = (page - 1) * ITEMS_PER_PAGE;
-        const endIdx = Math.min(startIdx + ITEMS_PER_PAGE, totalItems);
+  try {
+    const res = await fetch(`/api/music/list?genreId=${genreId}`);
+    if (!res.ok) throw new Error('음악 정보를 불러오는 데 실패했습니다.');
 
-        // 아이템 리스트 생성
-        let itemsHTML = '';
-        for (let i = startIdx; i < endIdx; i++) {
-            const item = emoticonData[i];
-            const isAffordable = userAcorn >= item.price;
-            
-            itemsHTML += `
-                <div class="shop-item" data-id="${item.id}">
-                    <div class="icon">${item.icon}</div>
-                    <div class="item-title">${item.name}</div>
-                    <div class="item-price">${item.price} 도토리</div>
-                    <button class="buy-btn" 
-                            data-type="emoticon" 
-                            data-id="${item.id}" 
-                            data-price="${item.price}"
-                            ${!isAffordable ? 'disabled' : ''}>
-                        ${!isAffordable ? '도토리 부족' : '구매'}
-                    </button>
-                </div>
-            `;
-        }
-        
-        listElem.innerHTML = itemsHTML;
-        renderPagination('emoticon', totalItems, page, renderEmoticonList);
-    }
+    const musicList = await res.json();
 
-    // === 음악 리스트 렌더링 ===
-    function renderMusicList(page = 1) {
-        const listElem = document.getElementById('music-list');
-        const paginationElem = document.getElementById('music-pagination');
-        
-        if (!listElem || !paginationElem) return;
+    // === 클라이언트 측 페이징 ===
+    const startIdx = (Page - 1) * MUSIC_ITEMS_PER_PAGE;
+    const endIdx = startIdx + MUSIC_ITEMS_PER_PAGE;
+    const pagedList = musicList.slice(startIdx, endIdx);
 
-        const totalItems = musicData.length;
-        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-        const startIdx = (page - 1) * ITEMS_PER_PAGE;
-        const endIdx = Math.min(startIdx + ITEMS_PER_PAGE, totalItems);
+    container.innerHTML = ''; // 기존 내용 제거
 
-        // 아이템 리스트 생성
-        let itemsHTML = '';
-        for (let i = startIdx; i < endIdx; i++) {
-            const item = musicData[i];
-            const isAffordable = userAcorn >= item.price;
-            
-            itemsHTML += `
-                <div class="music-item" data-id="${item.id}">
-                    <div class="album-cover">🎵</div>
-                    <div class="item-title">${item.name}</div>
-                    <div class="item-price">${item.price} 도토리</div>
-                    <button class="buy-btn" 
-                            data-type="music" 
-                            data-id="${item.id}" 
-                            data-price="${item.price}"
-                            ${!isAffordable ? 'disabled' : ''}>
-                        ${!isAffordable ? '도토리 부족' : '구매'}
-                    </button>
-                </div>
-            `;
-        }
-        
-        listElem.innerHTML = itemsHTML;
-        renderPagination('music', totalItems, page, renderMusicList);
-    }
+    pagedList.forEach(track => {
+      const div = document.createElement('div');
+      div.className = 'music-item';
 
-    // === 도토리 충전 리스트 렌더링 ===
-    function renderAcornList() {
-        const listElem = document.getElementById('acorn-list');
-        if (!listElem) {
-            console.error('도토리 리스트 요소를 찾을 수 없습니다!');
+      const img = document.createElement('img');
+      img.src = track.album;
+      img.alt = `${track.title} 앨범`;
+      img.className = 'icon';
+      div.appendChild(img);
+
+      const info = document.createElement('div');
+      info.className = 'item-title';
+      info.innerHTML = `<strong>${track.title}</strong><br /><span>${track.artist}</span>`;
+      div.appendChild(info);
+
+      const price = document.createElement('div');
+      price.className = 'item-price';
+      price.textContent = `🐿️ ${track.price} 도토리`;
+      div.appendChild(price);
+
+      const btn = document.createElement('button');
+      btn.className = 'buy-btn';
+      btn.textContent = track.purchased ? '구매 완료' : '구매';
+      btn.disabled = track.purchased;
+
+      btn.addEventListener('click', async () => {
+        const confirmBuy = confirm(`${track.title} 을(를) 구매하시겠습니까? 도토리 10개가 차감됩니다.`);
+        if (!confirmBuy) return;
+
+        try {
+          const response = await fetch('/api/music/purchase', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: track.title,
+              artist: track.artist,
+              album: track.album,
+              previewUrl: track.musicFile
+            })
+          });
+
+          if (!response.ok) {
+            const errText = await response.text();
+            alert('구매 실패: ' + errText);
             return;
+          }
+
+          const result = await response.json();
+          alert(result.message + '\n남은 도토리: ' + result.remainingAcorn);
+          await fetchUserAcorn()
+          renderMusicList(Page, genreId); // 현재 페이지 & 장르 유지
+        } catch (err) {
+          console.error('구매 요청 실패:', err);
+          alert('서버 오류로 인해 구매에 실패했습니다.');
         }
+      });
 
-        let itemsHTML = '';
-        acornData.forEach(item => {
-            itemsHTML += `
-                <div class="acorn-item ${item.size}" data-id="${item.id}">
-                    <div class="acorn-image">🌰</div>
-                    <div class="item-title">${item.amount.toLocaleString()}개</div>
-                    <div class="item-price">${item.price.toLocaleString()}원</div>
-                    <button class="buy-btn" 
-                            data-type="acorn" 
-                            data-id="${item.id}" 
-                            data-amount="${item.amount}"
-                            data-price="${item.price}">
-                        충전하기
-                    </button>
-                </div>
-            `;
-        });
-        
-        listElem.innerHTML = itemsHTML;
-    }
+      div.appendChild(btn);
+      container.appendChild(div);
+    });
 
-    // === 페이지네이션 렌더링 ===
+    // === 페이징 렌더링 ===
+    renderPagination('music', musicList.length, Page, (page) => renderMusicList(page, genreId));
+
+  } catch (err) {
+    console.error('음악 리스트 로딩 실패:', err);
+    container.innerHTML = '<div class="error">❌ 음악 로딩 실패</div>';
+  }
+}
+
+// 공동 이벤트 처리
+
+   // === 페이지네이션 렌더링 ===
     function renderPagination(type, totalItems, currentPage, renderFunction) {
-        const container = document.getElementById(`${type}-pagination`);
-        if (!container) return;
+         const container = document.getElementById(`${type}-pagination`);
+    if (!container) return;
 
-        const pageCount = Math.ceil(totalItems / ITEMS_PER_PAGE);
-        container.innerHTML = '';
+    // ✅ 타입별로 페이지당 항목 수 결정
+    const itemsPerPage = (type === 'emoticon') ? EMOTICON_ITEMS_PER_PAGE : MUSIC_ITEMS_PER_PAGE;
 
-        // 이전 버튼
-        if (currentPage > 1) {
-            const prevBtn = document.createElement('button');
-            prevBtn.textContent = '이전';
-            prevBtn.className = 'prev-btn';
-            prevBtn.addEventListener('click', () => renderFunction(currentPage - 1));
-            container.appendChild(prevBtn);
-        }
+    const pageCount = Math.ceil(totalItems / itemsPerPage);
+    container.innerHTML = '';
 
-        // 페이지 번호 버튼들
-        const startPage = Math.max(1, currentPage - 4);
-        const endPage = Math.min(pageCount, startPage + 9);
-
-        for (let i = startPage; i <= endPage; i++) {
-            const btn = document.createElement('button');
-            btn.textContent = i;
-            btn.className = (i === currentPage) ? 'active' : '';
-            btn.addEventListener('click', () => renderFunction(i));
-            container.appendChild(btn);
-        }
-
-        // 다음 버튼
-        if (currentPage < pageCount) {
-            const nextBtn = document.createElement('button');
-            nextBtn.textContent = '다음';
-            nextBtn.className = 'next-btn';
-            nextBtn.addEventListener('click', () => renderFunction(currentPage + 1));
-            container.appendChild(nextBtn);
-        }
+    // 이전 버튼
+    if (currentPage > 1) {
+        const prevBtn = document.createElement('button');
+        prevBtn.textContent = '이전';
+        prevBtn.className = 'prev-btn';
+        prevBtn.addEventListener('click', () => renderFunction(currentPage - 1));
+        container.appendChild(prevBtn);
     }
 
-    // === 구매 처리 ===
-    function handlePurchase(type, itemId, price, amount = null) {
-        if (type === 'acorn') {
-            // 도토리 충전 처리
-            const acornItem = acornData.find(item => item.id === itemId);
-            if (acornItem && confirm(`${acornItem.amount.toLocaleString()}개 도토리를 ${acornItem.price.toLocaleString()}원에 충전하시겠습니까?`)) {
-                userAcorn += acornItem.amount;
-                updateAcornDisplay();
-                alert(`${acornItem.amount.toLocaleString()}개 도토리 충전 완료!`);
-                
-                // 다른 탭들 새로고침 (구매 가능 상태 업데이트)
-                const activeTab = document.querySelector('.shop-tab-content.active');
-                if (activeTab.classList.contains('shop-emoticon')) {
-                    renderEmoticonList();
-                } else if (activeTab.classList.contains('shop-music')) {
-                    renderMusicList();
-                }
-            }
-            return;
-        }
+    // 페이지 번호 버튼들
+    const startPage = Math.max(1, currentPage - 4);
+    const endPage = Math.min(pageCount, startPage + 9);
 
-        // 일반 아이템 구매 처리
-        if (userAcorn < price) {
-            alert('도토리가 부족합니다');
-            return;
-        }
-
-        const itemName = getItemName(type, itemId);
-        if (confirm(`${itemName}을(를) 구매하시겠습니까? (${price} 도토리)`)) {
-            userAcorn -= price;
-            updateAcornDisplay();
-            alert(`${itemName} 구매 완료!`);
-            
-            // 현재 탭의 아이템 리스트 다시 렌더링
-            if (type === 'emoticon') {
-                renderEmoticonList();
-            } else if (type === 'music') {
-                renderMusicList();
-            }
-        }
+    for (let i = startPage; i <= endPage; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = (i === currentPage) ? 'active' : '';
+        btn.addEventListener('click', () => renderFunction(i));
+        container.appendChild(btn);
     }
 
-    // === 아이템 이름 가져오기 ===
-    function getItemName(type, itemId) {
-        if (type === 'emoticon') {
-            const item = emoticonData.find(item => item.id === itemId);
-            return item ? item.name : `이모티콘 ${itemId}`;
-        } else if (type === 'music') {
-            const item = musicData.find(item => item.id === itemId);
-            return item ? item.name : `음악 ${itemId}`;
-        }
-        return `${type} ${itemId}`;
+    // 다음 버튼
+    if (currentPage < pageCount) {
+        const nextBtn = document.createElement('button');
+        nextBtn.textContent = '다음';
+        nextBtn.className = 'next-btn';
+        nextBtn.addEventListener('click', () => renderFunction(currentPage + 1));
+        container.appendChild(nextBtn);
     }
+}
 
-    // === 스킨 활성화 처리 ===
+     // === 스킨 활성화 처리 ===
     async function handleSkinActivation() {
         if (skinActivated) {
             alert('이미 스킨이 활성화되어 있습니다');
@@ -321,45 +467,9 @@
             }
         }
     }
-
-    // === 탭 전환 ===
-    function switchTab(tabName) {
-        console.log(`탭 전환: ${tabName}`); // 디버깅용
-        
-        // 모든 탭 버튼과 컨텐츠 비활성화
-        document.querySelectorAll('.shop-inner-tab').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        document.querySelectorAll('.shop-tab-content').forEach(content => {
-            content.classList.remove('active');
-        });
-
-        // 선택된 탭 활성화
-        const tabBtn = document.getElementById(`btn-${tabName}`);
-        const tabContent = document.querySelector(`.shop-${tabName}`);
-        
-        if (tabBtn && !tabBtn.classList.contains('skin-tab')) {
-            tabBtn.classList.add('active');
-        }
-        if (tabContent) {
-            tabContent.classList.add('active');
-            console.log(`${tabName} 탭 컨텐츠 활성화됨`); // 디버깅용
-        }
-
-        // 해당 탭의 데이터 로드
-        if (tabName === 'emoticon') {
-            renderEmoticonList();
-        } else if (tabName === 'music') {
-            renderMusicList();
-        } else if (tabName === 'acorn') {
-            renderAcornList();
-            console.log('도토리 리스트 렌더링 완료'); // 디버깅용
-        }
-    }
-
-    // === 이벤트 리스너 등록 ===
-    function setupEventListeners() {
-        console.log('상점 이벤트 리스너 등록 시작...'); // 디버깅 로그
+ // === 이벤트 리스너 등록 ===
+  function setupEventListeners() {
+     console.log('상점 이벤트 리스너 등록 시작...'); // 디버깅 로그
         
         // 구매 버튼 클릭 이벤트 (이벤트 위임 - 상점 페이지에서만)
         document.addEventListener('click', function(e) {
@@ -465,7 +575,15 @@
         updateAcornDisplay();
         renderEmoticonList(); // 기본적으로 이모티콘 탭 표시
         setupEventListeners();
-        
+        // 음악 장르 선택
+        const genreSelect = document.getElementById('genre-select');
+        if (genreSelect) {
+        genreSelect.addEventListener('change', (e) => {
+            const selectedGenre = e.target.value;
+            currentMusicGenreId = selectedGenre;
+            renderMusicList(1, selectedGenre); // 1페이지부터 다시 렌더링
+         });
+       }
         // 현재 스킨 활성화 상태 확인
         await checkCurrentSkinStatus();
 
@@ -490,7 +608,6 @@
             window.maintainDefaultSkinForInactiveUsers();
         }
     });
-
 
     // === 스킨 로드 함수 시작 ===
     async function loadBlogSkin() {
@@ -542,8 +659,9 @@
         }
     }
 
-    // 전역으로 노출
+     // 전역으로 노출
     window.loadBlogSkin = loadBlogSkin;
+    fetchUserAcorn();
     // === 스킨 로드 함수 끝 ===
 
 })(); // 즉시 실행 함수 종료

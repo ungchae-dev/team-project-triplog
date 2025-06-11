@@ -1,13 +1,18 @@
 package com.javago.triplog.domain.music.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.javago.triplog.domain.music.dto.MusicDto;
 import com.javago.triplog.domain.music.dto.MusicPurchaseRequest;
 import com.javago.triplog.domain.music.dto.MusicPurchaseResponse;
 import com.javago.triplog.domain.music.service.MusicPurchaseService;
@@ -41,4 +46,19 @@ public class MusicPurchaseController {
             return ResponseEntity.internalServerError().body("서버 오류: " + e.getMessage());
         }
     }
+        @GetMapping("/list")
+        public ResponseEntity<?> getMusicList(
+                @RequestParam(defaultValue = "132") String genreId,
+                 @AuthenticationPrincipal UserDetails userDetails
+           ){
+    String memberId = (userDetails != null) ? userDetails.getUsername() : null;
+
+    try {
+        List<MusicDto> musicList = musicPurchaseService.getMusicListWithPurchaseInfo(genreId, memberId);
+        return ResponseEntity.ok(musicList);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.internalServerError().body("음악 목록 조회 실패: " + e.getMessage());
+    }
+  }
 }

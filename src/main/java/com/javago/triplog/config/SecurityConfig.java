@@ -57,15 +57,16 @@ public class SecurityConfig {
                 "/blog/@*/", // 블로그 홈
                 "/blog/@*/guestbook", // 블로그 방명록
                 "/blog/api/@*/skin", // 스킨 API (읽기)
-                "/music/**", // 음악 테스트 페이지
-                "/emoticon/**",
+                "/api/charge/**", 
+                "/api/music",
                 "/api/emoticon/**", // 선택한 이모티콘 패키지 조회 API
                 "/api/check-duplicate", // 중복 체크 API
                 "/css/**", // CSS 파일
                 "/js/**", // JavaScript 파일
                 "/images/**", // 이미지 파일
                 "/uploads/**", // 업로드된 파일 (스킨 이미지 등)
-                "/components/**" // 정적 리소스(/static) 하위 레이아웃 템플릿 파일(4)
+                "/components/**", // 정적 리소스(/static) 하위 레이아웃 템플릿 파일(4)
+                        "/weekly-best"
                 ).permitAll()
                 // 그 외 모든 요청 로그인 필요
                 .anyRequest().authenticated()
