@@ -167,6 +167,19 @@
     cursor: pointer;
 }
 
+.thumbnail {
+            display: none;
+            width: 100px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+.post-item:hover .thumbnail {
+    display: block;
+}
+
 /* 🔥 새로 추가: 선택된 게시글 하이라이트 */
 .post-item.selected {
     background: #fff5f0;
@@ -452,8 +465,7 @@ button:hover,
 }
 
 /* 작성 폼 */
-#board-write input[type="text"],
-#board-write textarea {
+#board-write #title {
     width: 100%;
     border-radius: 8px;
     border: 1.3px solid #efd8c4;
@@ -462,6 +474,22 @@ button:hover,
     font-size: 15px;
     background: #fff7f4;
     box-sizing: border-box;
+    outline: none;
+}
+
+#board-write #editor {
+    width: 100%;
+    border-radius: 8px;
+    min-height: 300px;
+    border: 1.3px solid #efd8c4;
+    margin-bottom: 14px;
+    padding: 8px 13px;
+    font-size: 15px;
+    background: #fff7f4;
+    box-sizing: border-box;
+    outline: none;
+    overflow-y: auto;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 #board-write .tags {

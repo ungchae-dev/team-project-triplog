@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8" />
   <title>여행 블로그 - 방명록</title>
@@ -12,6 +13,7 @@
   <link rel="stylesheet" href="/css/jukebox.css" />
   <link rel="stylesheet" href="/css/guestbook.css" />
 </head>
+
 <body>
   <div class="frame">
     <div class="blog-container">
@@ -23,28 +25,49 @@
       <div class="main-area">
         <div id="top-container"></div>
 
-        <!-- ✅ guestbook 조각으로 교체된 main-content -->
+        <!-- guestbook 조각으로 교체된 main-content -->
         <div class="main-content">
+
+          <!-- layout.js에서 로드할 방명록 조각 파일 -->
           <div class="section-container">
+
             <!-- 방명록 목록 (위) -->
             <div class="section-box guestbook-list-section">
-              <ul id="guestbookList" class="guestbook-list"></ul>
-              <div class="pagination" id="pagination"></div>
+              <ul id="guestbookList" class="guestbook-list">
+                <!-- 방명록 목록이 여기에 동적으로 생성됩니다 -->
+              </ul>
+
+              <!-- 페이징 영역 -->
+              <div class="pagination" id="pagination">
+                <!-- 페이징 버튼들이 여기에 동적으로 생성됩니다 -->
+              </div>
             </div>
 
             <!-- 방명록 작성 (항상 하단) -->
             <div class="section-box guestbook-form-section">
               <h3 class="section-title">방명록 작성</h3>
               <div class="form-section guestbook-entry">
-                <input type="text" id="nickname" class="input-field nickname" placeholder="방문자 닉네임" readonly>
-                <input type="text" id="message" class="input-field message-content" placeholder="작성 내용">
-                <button onclick="addGuestbookEntry()" class="submit-button">전송</button>
-                <label class="secret-checkbox">
-                  <input type="checkbox" id="secret-check"> 비밀글
-                </label>
+                <!-- 첫 번째 줄: 프로필 이미지 + 닉네임 + 이모티콘 버튼 -->
+                <div class="user-info-row">
+                  <img id="currentUserProfile" class="current-user-profile" src="/images/default_profile.png" alt="프로필">
+                  <span id="currentUserNickname" class="current-user-nickname">닉네임</span>
+                  <button id="emoticonButton" class="emoticon-popup-button">내 이모티콘</button>
+                </div>
+
+                <!-- 두 번째 줄: 메시지 입력 + 버튼들 -->
+                <div class="input-row">
+                  <input type="text" id="guestMessage" class="input-field message-content"
+                    placeholder="~퍼뜨런 방명록 작성을 부탁해요~">
+                  <button id="submitGuestbook" class="submit-button">확인</button>
+                  <label class="secret-checkbox">
+                    <input type="checkbox" id="secretCheck"> 비밀로 하기
+                  </label>
+                </div>
               </div>
             </div>
+
           </div>
+
         </div>
       </div>
 
@@ -64,4 +87,5 @@
   <script src="/js/guestbook.js"></script>
 
 </body>
+
 </html>
