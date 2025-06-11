@@ -72,4 +72,12 @@ public class MemberItemService {
     public List<Long> getPurchasedMusicIds(String memberId) {
         return memberItemRepository.findMusicItemIdsByMemberIdAndItemType(memberId, ItemType.MUSIC);
     }
+
+    // 특정 회원이 보유한 이모티콘 리스트 반환
+    public List<Integer> getOwnedEmoticonPackageIds(String memberId) {
+    return memberItemRepository.findByMemberIdAndItemType(memberId, ItemType.EMOTICON)
+                               .stream()
+                               .map(item -> item.getEmoticon().getEmoticonId().intValue())
+                               .collect(Collectors.toList());
+    }
 }

@@ -1,8 +1,12 @@
 package com.javago.triplog.domain.emoticon.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 //이모티콘 package에 포함된 낱개 이모티콘 정보를 담는 DTO 클래스
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class StickerDto {
     private int stickerId;
