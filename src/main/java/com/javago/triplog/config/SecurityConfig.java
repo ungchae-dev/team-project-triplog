@@ -8,7 +8,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.javago.triplog.domain.member.service.CustomUserDetailsService;
 import com.javago.triplog.domain.member.service.MemberService;
@@ -58,7 +57,7 @@ public class SecurityConfig {
                 "/blog/@*/guestbook", // 블로그 방명록
                 "/blog/api/@*/skin", // 스킨 API (읽기)
                 "/api/charge/**", 
-                "/api/music",
+                "/api/music/**",            
                 "/api/emoticon/**", // 선택한 이모티콘 패키지 조회 API
                 "/api/check-duplicate", // 중복 체크 API
                 "/css/**", // CSS 파일
