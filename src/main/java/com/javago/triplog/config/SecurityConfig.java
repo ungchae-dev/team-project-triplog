@@ -1,14 +1,12 @@
 package com.javago.triplog.config;
 
 import com.javago.triplog.domain.member.service.CustomUserDetailsService;
-import com.javago.triplog.domain.member.service.MemberDetailsService;
 import com.javago.triplog.domain.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -23,7 +21,7 @@ public class SecurityConfig {
     @Autowired
     CustomUserDetailsService customUserDetailsService;
 
-    MemberDetailsService memberDetailsService;
+
     // SecurityFilterChain: Spring Security 보안 설정의 핵심 구성 요소
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -105,11 +103,6 @@ public class SecurityConfig {
             .userDetailsService(customUserDetailsService); // CustomUserDetailsService 사용
 
         return http.build();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return memberDetailsService;
     }
 
 
