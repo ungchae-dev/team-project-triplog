@@ -136,9 +136,9 @@
           <div class="options" style="margin-bottom:13px;">
             <label>공개 설정:
               <input type="radio" name="visibility" value="PUBLIC"
-                  th:attr="checked=${post.visibility == null or post.visibility == 'PUBLIC'}">전체 공개
+                  th:attr="checked=${post.visibility == null or post.visibility.name == 'PUBLIC'}">전체 공개
               <input type="radio" name="visibility" value="PRIVATE"
-                  th:attr="checked=${post.visibility == 'PRIVATE'}">비공개
+                  th:attr="checked=${post.visibility.name == 'PRIVATE'}">비공개
             </label>
           </div>
 
@@ -266,19 +266,6 @@
     const visibility = visibilityInput.value;
     const checkedHashtags = Array.from(document.querySelectorAll('input[name="tag"]:checked')).map(el => el.value);
     const newHashtag = document.getElementById('hashtagInput').value.trim();
-    
-
-    if (checkedHashtags.length === 0) {
-      alert("해시태그를 하나 이상 선택해주세요");
-      return;
-    }
-
-    /*
-    if(!visibility){
-      alert("공개 여부를 설정해주세요");
-      return;
-    }
-    */
 
     if (!title){
       alert("제목을 입력해주세요");
@@ -287,6 +274,16 @@
 
     if (!text){
       alert("내용을 입력해주세요");
+      return;
+    }
+
+    if (checkedHashtags.length === 0) {
+      alert("해시태그를 하나 이상 선택해주세요");
+      return;
+    }
+
+    if(visibilityInput == null){
+      alert("공개 여부를 설정해주세요");
       return;
     }
 
