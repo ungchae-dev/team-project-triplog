@@ -38,24 +38,24 @@
                                         th:onclick="|location.href='@{/blog/@{nickname}/post/write(nickname=${nickname})}'|" type="button">글 작성</button>
                             </div>
                             <div class="board-right-controls">
-                                <!-- 🔥 페이지 사이즈 드롭다운 -->
-                                <div class="page-size-dropdown">
-                                    <button class="board-btn dropdown-btn">5개씩 ▼</button>
-                                    <div class="dropdown-menu">
-                                        <div class="dropdown-item" data-size="3">3개씩</div>
-                                        <div class="dropdown-item" data-size="5">5개씩</div>
-                                        <div class="dropdown-item" data-size="10">10개씩</div>
-                                    </div>
-                                </div>
                                 <a th:href="@{/blog/@{nickname}/post(page=1, sort=updatedAt, dir=${currentDir}, nickname=${nickname})}">
-                                    <button class="board-btn active" data-sort="latest">최신순</button>
+                                    <button class="board-btn" data-sort="latest" th:classappend="${currentSort == 'updatedAt'} ? ' active' : ''">최신순</button>
                                 </a>
                                 <a th:href="@{/blog/@{nickname}/post(page=1, sort=likeCount, dir=${currentDir}, nickname=${nickname})}">
-                                    <button class="board-btn" data-sort="likes">좋아요순</button>
+                                    <button class="board-btn" data-sort="likes" th:classappend="${currentSort == 'likeCount'} ? ' active' : ''">좋아요순</button>
                                 </a>
                                 <a th:href="@{/blog/@{nickname}/post(page=1, sort=commentCount, dir=${currentDir}, nickname=${nickname})}">
-                                    <button class="board-btn" data-sort="comments">댓글순</button>
+                                    <button class="board-btn" data-sort="comments" th:classappend="${currentSort == 'commentCount'} ? ' active' : ''">댓글순</button>
                                 </a>
+                                <!-- 🔥 페이지 사이즈 드롭다운 -->
+                                <div class="page-size-dropdown">
+                                    <button class="board-btn dropdown-btn" th:text="${currentSize + '개씩 ▼'}">5개씩 ▼</button>
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-item" data-size="3" th:classappend="${currentSize == 3} ? ' active' : ''">3개씩</div>
+                                        <div class="dropdown-item" data-size="5" th:classappend="${currentSize == 5} ? ' active' : ''">5개씩</div>
+                                        <div class="dropdown-item" data-size="10" th:classappend="${currentSize == 10} ? ' active' : ''">10개씩</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div>
