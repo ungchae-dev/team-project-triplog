@@ -67,4 +67,11 @@ public class EmoticonController {
     
         return ResponseEntity.ok(isPurchased);
     }
+
+    // 보유한 이모티콘의 모든 스티커 반환
+    @GetMapping("/owned-stickers")
+    public ResponseEntity<List<StickerDto>> getOwnedStickers() {
+    List<StickerDto> result = stipopService.getStickersOwnedByCurrentUser();
+    return ResponseEntity.ok(result);
+    }
 }
