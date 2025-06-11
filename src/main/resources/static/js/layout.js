@@ -411,7 +411,14 @@ function updateAllProfileImages(profileImageUrl) {
         console.log('사이드바 프로필 이미지 업데이트');
     }
 
-    // 2. 프로필 페이지의 이미지들
+    // 2. 방명록 현재 사용자 프로필 이미지 ⭐ 추가
+    const guestbookProfileImg = document.getElementById('currentUserProfile');
+    if (guestbookProfileImg) {
+        guestbookProfileImg.src = imageUrlWithCache;
+        console.log('방명록 현재 사용자 프로필 이미지 업데이트');
+    }
+
+    // 3. 프로필 페이지의 이미지들
     const currentProfileImg = document.getElementById('current-profile-img');
     if (currentProfileImg) {
         currentProfileImg.src = imageUrlWithCache;
@@ -424,12 +431,13 @@ function updateAllProfileImages(profileImageUrl) {
         console.log('프로필 페이지 미리보기 이미지 업데이트');
     }
 
-    // 3. 기타 모든 프로필 이미지 (CSS 선택자로 찾기)
+    // 4. 기타 모든 프로필 이미지 (CSS 선택자로 찾기)
     const allProfileImages = document.querySelectorAll(`
         img[src*="/uploads/profiles/"], 
         img[src*="placeholder"], 
         .profile-image, 
         .user-profile-img,
+        .current-user-profile,
         img[alt*="프로필"],
         img[alt*="profile"]
     `);
@@ -438,13 +446,14 @@ function updateAllProfileImages(profileImageUrl) {
         // 이미 업데이트한 이미지는 제외
         if (img !== sideProfileImg && 
         img !== currentProfileImg && 
-        img !== editPreviewImg) {
+        img !== editPreviewImg &&
+        img !== guestbookProfileImg) {
             img.src = imageUrlWithCache;
             console.log(`추가 프로필 이미지 ${index + 1} 업데이트`);
         }
     });
 
-    console.log(`총 ${allProfileImages.length}개의 프로필 이미지 업데이트 완료.`);    
+    console.log(`총 ${allProfileImages.length}개의 프로필 이미지 업데이트 완료.`);
 }
 
 // 캐시된 프로필 이미지 적용 (페이지 로드시)
@@ -694,12 +703,25 @@ async function loadPageContent(page, nickname) {
 
 // 페이지별 초기화 함수 (즉시 실행)
 function initializePage(page) {
+    console.log(`${page} 페이지 초기화 시작`);
+    
     // 각 페이지별 초기화 함수가 있으면 즉시 호출
     const initFunctionName = `setup${page.charAt(0).toUpperCase() + page.slice(1)}Features`;
 
     if (typeof window[initFunctionName] === 'function') {
-        window[initFunctionName]();
-        console.log(`${page} 페이지 초기화 완료`);
+        // 방명록 페이지는 특별히 더 확실하게 초기화
+        if (page === 'guestbook') {
+            console.log('방명록 페이지 특별 초기화 시작');
+            
+            // DOM이 완전히 준비될 때까지 기다린 후 초기화
+            setTimeout(() => {
+                window[initFunctionName]();
+                console.log(`${page} 페이지 초기화 완료 (지연 실행)`);
+            }, 150);
+        } else {
+            window[initFunctionName]();
+            console.log(`${page} 페이지 초기화 완료`);
+        }
     } else {
         console.log(`${page} 페이지는 별도 초기화 함수가 없습니다.`);
     }
@@ -720,6 +742,8 @@ function initializePage(page) {
     if (!profileImageLoaded) {
         loadUserProfileImage();
     }
+    
+    console.log(`${page} 페이지 초기화 프로세스 완료`);
 }
 
 // 브라우저 뒤로가기 지원

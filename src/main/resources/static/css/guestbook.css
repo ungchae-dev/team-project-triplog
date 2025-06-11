@@ -1,176 +1,377 @@
-/* 방명록 입력 영역 */
-.form-section {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 15px;
-}
+/* guestbook.css 블로그 - 방명록 css */
 
-.input-field {
-    padding: 10px;
-    font-size: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    outline: none;
-}
-
-.submit-button {
-    padding: 10px;
-    background-color: #ff8a65;
-    color: white;
-    font-weight: bold;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
-}
-
-.submit-button:hover {
-    background-color: #e57373;
-}
-
-.secret-label {
-    font-size: 14px;
-    color: #444;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-/* 방명록 출력 목록 */
-.guestbook-list {
-    list-style-type: none;
-    padding: 0;
-    margin: 10px 0;
-}
-
-.guestbook-list li {
-    background-color: #fffaf7;
-    border: 1px solid #f2dcdc;
-    padding: 10px 15px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    position: relative;
-}
-
-.guestbook-list li .entry-meta {
-    font-size: 13px;
-    color: #999;
-    margin-bottom: 4px;
-}
-
-.guestbook-list li .entry-actions {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-.entry-actions button {
-    background: none;
-    border: none;
-    font-size: 13px;
-    color: #999;
-    cursor: pointer;
-    margin-left: 5px;
-}
-
-.entry-actions button:hover {
-    color: #555;
-}
-
-/* 페이징 영역 */
-.pagination {
-    display: flex;
-    justify-content: center;
-    gap: 5px;
-    margin-top: 15px;
-}
-
-.pagination button {
-    background-color: #f5f5f5;
-    border: 1px solid #ddd;
-    padding: 5px 10px;
-    border-radius: 3px;
-    cursor: pointer;
-}
-
-.pagination button.active {
-    background-color: #ffab91;
-    color: white;
-    font-weight: bold;
-}
-
-.pagination button:hover {
-    background-color: #ffe0b2;
-}
-/* guestbook-entry: 방명록 작성 한 줄 입력폼 */
-.guestbook-entry {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 10px;
-    flex-direction: row;
-}
-
-/* 닉네임 입력창 */
-.input-field.nickname {
-    width: 120px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    padding: 8px;
-}
-
-/* 메시지 입력창 */
-.input-field.message-content {
-    flex: 1 1 280px;
-    min-width: 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    padding: 8px;
-}
-
-/* 전송 버튼 */
-.submit-button {
-    padding: 8px 16px;
-    background-color: #ff8a65;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.submit-button:hover {
-    background-color: #e57373;
-}
-
-/* 비밀글 체크박스 */
-.secret-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 13px;
-    margin-left: 4px;
-}
 .section-container {
     display: flex;
     flex-direction: column;
-    height: 100%;           /* 또는 원하는 전체 높이 */
+    height: 100%;
+    padding: 10px;
+}
+
+.section-box {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .guestbook-list-section {
     flex: 1 1 auto;
     overflow-y: auto;
-    min-height: 160px;      /* 내용에 따라 조정 */
-    margin-bottom: 18px;
+    min-height: 300px;
+    margin-bottom: 20px;
 }
 
 .guestbook-form-section {
     flex-shrink: 0;
-    padding-bottom: 8px;
-    /* 원하는 스타일 추가 가능 */
+    padding-bottom: 10px;
+}
+
+.section-title {
+    color: #ff8a65;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 0 15px 0;
+    text-align: center;
+}
+
+/* ============= 방명록 목록 스타일 ============= */
+.guestbook-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.guestbook-entry-item {
+    background: linear-gradient(135deg, #fff9f7 0%, #ffeee9 100%);
+    border: 2px solid #f2dcdc;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.guestbook-entry-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: #ff8a65;
+}
+
+.entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.nickname-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 방명록 목록의 작성자 프로필 이미지 */
+.entry-profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ff8a65;
+    object-fit: cover;
+}
+
+.entry-nickname {
+    font-weight: bold;
+    color: #d32f2f;
+    font-size: 15px;
+}
+
+.entry-date {
+    color: #666;
+    font-size: 12px;
+}
+
+.secret-badge {
+    background-color: #ff8a65;
+    color: white;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.entry-message {
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid #ff8a65;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.entry-actions {
+    text-align: right;
+}
+
+.entry-actions button {
+    background: none;
+    border: 1px solid #ff8a65;
+    color: #ff8a65;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 15px;
+    cursor: pointer;
+    margin-left: 5px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.entry-actions button:hover {
+    background-color: #ff8a65;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* ============= 방명록 작성 폼 (2줄 구조) ============= */
+.guestbook-entry {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 15px;
+    background: linear-gradient(135deg, #fff9f7 0%, #ffeee9 100%);
+    border-radius: 12px;
+    border: 2px solid #f2dcdc;
+}
+
+/* 첫 번째 줄: 프로필 이미지 + 닉네임 + 이모티콘 버튼 */
+.user-info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 현재 사용자 프로필 이미지 */
+.current-user-profile {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ff8a65;
+    object-fit: cover;
+}
+
+/* 현재 사용자 닉네임 */
+.current-user-nickname {
+    font-weight: bold;
+    color: #d32f2f;
+    font-size: 15px;
+}
+
+/* 내 이모티콘 버튼 */
+.emoticon-popup-button {
+    background: linear-gradient(135deg, #ff8a65 0%, #ff7043 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.emoticon-popup-button:hover {
+    background: linear-gradient(135deg, #e57373 0%, #f44336 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(255, 138, 101, 0.3);
+}
+
+/* 두 번째 줄: 메시지 입력 + 버튼들 */
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.input-field.message-content {
+    flex: 1 1 300px;
+    min-width: 300px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    padding: 10px;
+    transition: all 0.3s ease;
+}
+
+.input-field.message-content:focus {
+    outline: none;
+    border-color: #ff8a65;
+    box-shadow: 0 0 0 3px rgba(255, 138, 101, 0.1);
+}
+
+.submit-button {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #ff8a65 0%, #ff7043 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    box-shadow: 0 2px 6px rgba(255, 138, 101, 0.3);
+}
+
+.submit-button:hover {
+    background: linear-gradient(135deg, #e57373 0%, #f44336 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 138, 101, 0.4);
+}
+
+.submit-button:active {
+    transform: translateY(0);
+}
+
+.secret-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.secret-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* ============= 페이징 스타일 ============= */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.pagination button {
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 35px;
+    color: #666;
+}
+
+.pagination button:hover {
+    background: linear-gradient(135deg, #ffe0b2 0%, #ffcc80 100%);
+    border-color: #ff8a65;
+    color: #ff8a65;
+    transform: translateY(-1px);
+}
+
+.pagination button.active {
+    background: linear-gradient(135deg, #ff8a65 0%, #ff7043 100%);
+    color: white;
+    font-weight: bold;
+    border-color: #ff7043;
+    box-shadow: 0 2px 6px rgba(255, 138, 101, 0.3);
+}
+
+.pagination button.active:hover {
+    background: linear-gradient(135deg, #e57373 0%, #f44336 100%);
+    transform: translateY(-1px);
+}
+
+.pagination button:disabled {
+    background: #f9f9f9;
+    color: #ccc;
+    cursor: not-allowed;
+    border-color: #e0e0e0;
+}
+
+.pagination button:disabled:hover {
+    transform: none;
+    background: #f9f9f9;
+}
+
+/* 페이징 텍스트 버튼 스타일 */
+.pagination .nav-button {
+    padding: 8px 15px;
+    font-weight: 600;
+}
+
+/* ============= 반응형 디자인 ============= */
+@media (max-width: 768px) {
+    .guestbook-entry {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .current-user-profile,
+    .current-user-nickname {
+        align-self: flex-start;
+    }
+    
+    .emoji-selector {
+        align-self: flex-start;
+    }
+    
+    .input-field.message-content {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .secret-checkbox {
+        align-self: flex-start;
+    }
+    
+    .pagination {
+        gap: 3px;
+    }
+    
+    .pagination button {
+        padding: 6px 8px;
+        font-size: 12px;
+        min-width: 30px;
+    }
+}
+
+/* ============= 로딩 및 빈 상태 스타일 ============= */
+.loading-message {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-style: italic;
+}
+
+.empty-guestbook {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.empty-guestbook::before {
+    content: "✏️";
+    display: block;
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.empty-guestbook p {
+    font-size: 16px;
+    margin: 0;
 }
