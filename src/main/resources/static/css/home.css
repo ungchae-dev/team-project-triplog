@@ -466,7 +466,7 @@ body, html {
     border-top: 1px solid #e5dac9;
 }
 /* ========== 음악 플레이어 전용 스타일 ========== */
-.music-list {
+.musicplayer-list {
   position: absolute;
   top: 100%;
   right: 0;
