@@ -224,6 +224,7 @@ body, html {
 }
 
 .nav-btn.active {
+    white-space: nowrap;
     background: #fff;
     color: #c18c7e;
     border: 2px solid #d8b4a6;
@@ -463,6 +464,25 @@ body, html {
     background: #f5eadd;
     width: 100%;
     border-top: 1px solid #e5dac9;
+}
+/* ========== 음악 플레이어 전용 스타일 ========== */
+.music-list {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1000;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  width: 250px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.hidden {
+  display: none !important;
 }
 
 /* 로딩 상태 처리 */
