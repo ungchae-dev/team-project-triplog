@@ -313,7 +313,7 @@
     font-weight: 600;
 }
 
-/* ============= 반응형 디자인 ============= */
+/* === 반응형 디자인 === */
 @media (max-width: 768px) {
     .guestbook-entry {
         flex-direction: column;
@@ -348,6 +348,22 @@
         font-size: 12px;
         min-width: 30px;
     }
+
+    /* 방명록 수정 반응형 디자인 */
+    .edit-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .edit-buttons {
+        justify-content: center;
+    }
+    
+    .edit-secret-checkbox {
+        justify-content: center;
+    }
+
 }
 
 /* ============= 로딩 및 빈 상태 스타일 ============= */
@@ -374,4 +390,112 @@
 .empty-guestbook p {
     font-size: 16px;
     margin: 0;
+}
+
+/* === 방명록 수정 form 스타일 === */
+.edit-form-container {
+    margin: 10px 0;
+    padding: 15px;
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+    border: 2px solid #ffcccb;
+    border-radius: 12px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.edit-form h4 {
+    margin: 0 0 10px 0;
+    color: #d32f2f;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.edit-textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+.edit-textarea:focus {
+    outline: none;
+    border-color: #ff8a65;
+    box-shadow: 0 0 0 3px rgba(255, 138, 101, 0.1);
+}
+
+.edit-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.edit-secret-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+}
+
+.edit-secret-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.edit-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.edit-save-btn, .edit-cancel-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.edit-save-btn {
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.edit-save-btn:hover {
+    background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(76, 175, 80, 0.4);
+}
+
+.edit-cancel-btn {
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(244, 67, 54, 0.3);
+}
+
+.edit-cancel-btn:hover {
+    background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(244, 67, 54, 0.4);
+}
+
+.edit-save-btn:active, .edit-cancel-btn:active {
+    transform: translateY(0);
 }
