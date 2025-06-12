@@ -36,7 +36,7 @@ public class Music {
     private String artist; // 가수 이름
 
     @Column(name = "album", nullable = false, length = 1000)
-    private String album; // 앨범명 (nullable)
+    private String album; // 앨범 사진
 
     @Column(name = "music_file", nullable = false, length = 4000)
     private String musicFile; // 음악 파일 경로

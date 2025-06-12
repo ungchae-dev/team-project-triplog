@@ -57,4 +57,29 @@ public class DeezerMusicService {
                     .build();
         }).collect(Collectors.toList());
     }
+
+    // 플레이어 재생 시 실시간으로 Preview URL 초기화
+    public Optional<String> fetchPreviewUrlByTitleAndArtist(String title, String artist) {
+    String searchUrl = "https://api.deezer.com/search?q=track:\"" + title + "\" artist:\"" + artist + "\"";
+
+    try {
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+            searchUrl, HttpMethod.GET, null,
+            new ParameterizedTypeReference<>() {}
+        );
+
+        Map<String, Object> body = response.getBody();
+        if (body == null || !body.containsKey("data")) return Optional.empty();
+
+        List<Map<String, Object>> results = (List<Map<String, Object>>) body.get("data");
+        if (results.isEmpty()) return Optional.empty();
+
+        // 첫 번째 결과의 preview URL 사용
+        return Optional.ofNullable((String) results.get(0).get("preview"));
+
+    } catch (Exception e) {
+        System.err.println("Deezer API 미리듣기 URL 검색 실패: " + e.getMessage());
+        return Optional.empty();
+    }
+  } 
 }

@@ -1,5 +1,6 @@
 package com.javago.triplog.domain.music.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -83,5 +84,37 @@ public class MusicPurchaseService {
     }
 
     return musicList;
+  }
+
+  public List<MusicDto> getOwnedMusic(String memberId) {
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+    List<MemberItem> items = memberItemRepository.findByMemberAndItemType(member, ItemType.MUSIC);
+
+    List<MusicDto> ownedMusic = new ArrayList<>();
+    for (MemberItem item : items) {
+        Music music = item.getMusic();
+        if (music != null) {
+            // Deezer API로 최신 preview URL 가져오기 (title + artist 기반)
+            String previewUrl = deezerMusicService
+                .fetchPreviewUrlByTitleAndArtist(music.getTitle(), music.getArtist())
+                .orElse(music.getMusicFile()); // 실패 시 기존 URL 유지
+
+            MusicDto dto = MusicDto.builder()
+                .musicId(music.getMusicId())
+                .title(music.getTitle())
+                .artist(music.getArtist())
+                .album(music.getAlbum())
+                .musicFile(previewUrl)  // 최신 URL 반영
+                .price(music.getPrice())
+                .purchased(true)
+                .build();
+
+            ownedMusic.add(dto);
+        }
+    }
+
+    return ownedMusic;
   }
 }
