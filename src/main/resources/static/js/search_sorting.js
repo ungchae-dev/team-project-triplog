@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fetchAndRenderPosts();
     });
 
+
     //검색창 이벤트 (검색버튼 클릭시)
     document.getElementById("searchButton").addEventListener("click", triggerSearch);
 
