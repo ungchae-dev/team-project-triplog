@@ -387,16 +387,41 @@
     background: #fff;
     border-radius: 8px;
     border-left: 3px solid #f7cac5;
-    display: flex;
+    /*display: flex;*/
+    list-style: none;
     justify-content: space-between;
     align-items: center;
 }
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.comment-head {
+    display: flex;
+}
+
+.comment-date {
+    margin-left: 20px;
+    font-size: 12px;
+    padding-top: 2px;
+}
+
+.comment-button {
+    display: flex;
+    justify-self: flex-end;
+}
+/*
+.comment-content {
+    display: block;
+}
+*/
 
 .comment-list ul {
   margin-left: 20px;
   padding-left: 0;
 }
-
 
 .comment-list .reply {
     margin-left: 25px;

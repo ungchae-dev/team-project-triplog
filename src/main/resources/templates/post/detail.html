@@ -201,7 +201,7 @@
       const li = document.querySelector(`[data-comment-id="${commentId}"]`);
       if (!li) return;
 
-      // 현재 댓글 텍스트 요소 선택 (강제로 첫 번째 span 안에 있다고 가정)
+      // 현재 댓글 텍스트 요소 선택
       const contentSpan = li.querySelector('span');
       if (!contentSpan) return;
 
@@ -302,18 +302,25 @@
         console.log(comment.nickname);
         console.log(loginNickname);
         li.innerHTML = `
-            <div class="comment-container">
-              <strong>${comment.nickname}</strong> 
-              ${comment.createdAt} 
-              ${comment.createdAt !== comment.updatedAt ? `${comment.updatedAt}(수정)` : ''}
-              ${isAuthor ? `
-                  <button onclick="editComment('${comment.commentId}')" style="color:#b865a4;">수정</button>
-                  <button onclick="deleteComment('${comment.commentId}')" style="color:#b865a4;">삭제</button>
-              ` : ''}
-              <button onclick="likeComment(this)">❤️</button>
-              <button onclick="showReplyForm(this)" style="color:#b865a4;">답글</button>
+            <div class="comment-header">
+              <div class="comment-head">
+                <strong>${comment.nickname}</strong>
+                <div class="comment-date">
+                  ${comment.createdAt} 
+                  ${comment.createdAt !== comment.updatedAt ? ` ${comment.updatedAt}(수정)` : ''}
+                </div>
+              </div>
+              <div class="comment-button">
+                ${isAuthor ? `
+                    <button onclick="editComment('${comment.commentId}')" style="color:#b865a4;">수정</button>
+                    <button onclick="deleteComment('${comment.commentId}')" style="color:#b865a4;">삭제</button>
+                ` : ''}
+                <button onclick="likeComment(this)">❤️</button>
+                <button onclick="showReplyForm(this)" style="color:#b865a4;">답글</button>
+              </div>
             </div>
-            <div>
+            
+            <div class="comment-content">
               <span>${comment.content}</span>
             </div>
         `;
@@ -349,6 +356,44 @@
         setTimeout(() => {
             button.style.color = '';
         }, 1000);
+    }
+
+    // 댓글 좋아요 추가
+    if (likeComment) {
+      addLikeBtn.addEventListener('click', () => {
+        fetch(`/api/${id}/commentlike`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: userId })
+        })
+        .then(res => res.json())
+        .then(data => {
+          console.log(data.message);
+          document.querySelector('#like-count-del').textContent = data.likeCount;
+          //location.reload(); // UI를 갱신하려면 reload 또는 동적 토글
+          addLikeBtn.style.display = 'none';
+          delLikeBtn.style.display = 'inline-block';
+        });
+      });
+    }
+
+    // 댓글 좋아요 제거
+    if (delLikeBtn) {
+      delLikeBtn.addEventListener('click', () => {
+        fetch(`/api/${id}/commentlike`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: userId })
+        })
+        .then(res => res.json())
+        .then(data => {
+          console.log(data.message);
+          document.querySelector('#like-count-add').textContent = data.likeCount;
+          //location.reload();
+          addLikeBtn.style.display = 'inline-block';
+          delLikeBtn.style.display = 'none';
+        });
+      });
     }
 
     // 답글 버튼
