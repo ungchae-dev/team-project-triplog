@@ -7,10 +7,13 @@ let guestbookTotalEntries = [];
 let guestbookTotalPages = 0;
 let emoticonPopupWindow = null; // 이모티콘 팝업 창 참조
 
-// ============= 방명록 페이지 초기화 =============
+// === 방명록 페이지 초기화 함수 (템플릿 생성 추가) ===
 function initGuestbookPage() {
     console.log('방명록 페이지 초기화 시작');
     
+    // 템플릿 생성 먼저
+    createEditTemplate();
+
     setupEventListeners();
     loadCurrentUserInfo();
     
@@ -56,40 +59,73 @@ function setupEventListeners() {
 // ============= 현재 로그인한 사용자 정보 로드 =============
 async function loadCurrentUserInfo() {
     try {
-        // TODO: 실제 API 연동시 현재 로그인한 사용자 정보 가져오기
-        // const response = await fetch('/api/current-user');
-        // const userData = await response.json();
-        
-        // 임시 더미 데이터
-        const userData = {
-            nickname: '닉네임7',
-            profileImage: '/images/default_profile.png'
-        };
+        // API 호출로 현재 로그인한 사용자 정보 가져오기
+        const response = await fetch(`/blog/api/current-user`);
+
+        if (!response.ok) {
+            throw new Error(`API 호출 실패: ${response.status}`);
+        }
+
+        const userData = await response.json();
+        console.log('서버에서 받은 사용자 데이터:', userData);
         
         // 프로필 이미지 및 닉네임 설정
         const profileImg = document.getElementById('currentUserProfile');
         const nicknameSpan = document.getElementById('currentUserNickname');
         
         if (profileImg) {
-            profileImg.src = userData.profileImage || '/images/default_profile.png';
+            // 프로필 이미지 분기 처리
+            let imageUrl;
+
+            if (userData.profileImage) {
+                imageUrl = userData.profileImage; // 업로드된 이미지 사용
+                console.log('업로드된 프로필 이미지 사용:', imageUrl);
+            } else {
+                imageUrl = '/images/default_profile.png'; // 기본 이미지 사용
+                console.log('기본 프로필 이미지 사용:', imageUrl);
+            }
+
+            profileImg.src = imageUrl;
             profileImg.alt = userData.nickname + '의 프로필';
+            console.log('프로필 이미지 최종 설정:', imageUrl);
         }
         
         if (nicknameSpan) {
-            nicknameSpan.textContent = userData.nickname || '닉네임';
+            // 닉네임 분기 처리
+            let displayNickname;
+
+            if (userData.nickname) {
+                displayNickname = userData.nickname; // 실제 닉네임 사용
+                console.log('실제 닉네임 사용:', displayNickname);
+            } else {
+                displayNickname = '닉네임'; // 기본값 사용
+                console.log('기본 닉네임 사용:', displayNickname);
+            }
+
+            nicknameSpan.textContent = displayNickname;
+            console.log('닉네임 최종 설정:', displayNickname);
         }
         
         console.log('현재 사용자 정보 로드 완료:', userData);
         
     } catch (error) {
         console.error('사용자 정보 로드 실패:', error);
-        
-        // 기본값 설정
+
+        // 로그인되지 않았거나 API 오류 시 기본값으로 설정    
         const profileImg = document.getElementById('currentUserProfile');
         const nicknameSpan = document.getElementById('currentUserNickname');
         
-        if (profileImg) profileImg.src = '/images/default_profile.png';
-        if (nicknameSpan) nicknameSpan.textContent = '게스트';
+        if (profileImg) {
+            profileImg.src = '/images/default_profile.png';
+            profileImg.alt = '기본 프로필';
+            console.log('에러로 인한 기본 프로필 이미지 설정');
+        }
+        if (nicknameSpan) {
+            nicknameSpan.textContent = '게스트';
+            console.log('에러로 인한 게스트 닉네임 설정');
+        }
+
+        console.log('기본값으로 설정됨 (로그인 필요 또는 API 오류)');
     }
 }
 
@@ -226,11 +262,10 @@ function addEmoticonToMessage(emoticonText) {
 // 전역 함수로 노출 (팝업에서 호출할 수 있도록)
 window.addEmoticonToMessage = addEmoticonToMessage;
 
-// ============= 방명록 데이터 로드 =============
+// === 방명록 목록 로드 함수 ===
 async function loadGuestbookData() {
-    console.log('방명록 데이터 로드 시작');
+    console.log('방명록 데이터 로드 시작 - 페이지:', guestbookCurrentPage);
     
-    // === '방명록 DOM 요소 준비되지 않음' 무한 반복 디버깅 ===
     // 현재 페이지가 방명록 페이지인지 확인
     const currentPath = window.location.pathname;
     const isGuestbookPage = currentPath.includes('/guestbook');
@@ -253,18 +288,26 @@ async function loadGuestbookData() {
     try {
         showLoadingMessage();
         
-        // TODO: 실제 API 연동 시 아래 주석 해제
-        // const currentNickname = getCurrentNickname();
-        // const response = await fetch(`/blog/api/@${encodeURIComponent(currentNickname)}/guestbook?page=${guestbookCurrentPage}&size=${guestbookItemsPerPage}`);
-        // const data = await response.json();
-        // guestbookTotalEntries = data.entries;
-        // guestbookTotalPages = data.totalPages;
-        
-        // 임시 더미 데이터 생성
-        generateDummyData();
-        
-        console.log('더미 데이터 생성 완료. 총 방명록 수:', guestbookTotalEntries.length);
-        
+        const currentNickname = getCurrentNickname();
+        // 서버에서 현재 페이지의 데이터만 요청
+        const response = await fetch(`/blog/api/@${encodeURIComponent(currentNickname)}/guestbook?page=${guestbookCurrentPage}&size=${guestbookItemsPerPage}`);
+        const data = await response.json();
+
+        // 서버에서 받은 데이터 그대로 사용 (클라이언트 페이징 제거)
+        guestbookTotalEntries = data.entries;
+        guestbookTotalPages = data.totalPages;
+
+        console.log('=== API 응답 디버깅 ===');
+        console.log('현재 요청 페이지:', guestbookCurrentPage);
+        console.log('서버 응답:', {
+            entries: data.entries?.length, 
+            totalElements: data.totalElements, 
+            totalPages: data.totalPages, 
+            currentPage: data.currentPage
+        });
+        console.log('방명록 ID 목록:', data.entries?.map(e => e.guestbookId));
+        console.log('==================');
+
         renderGuestbookList();
         renderPagination();
         
@@ -274,44 +317,7 @@ async function loadGuestbookData() {
     }
 }
 
-// ============= 더미 데이터 생성 (개발용) =============
-function generateDummyData() {
-    const dummyEntries = [];
-    
-    // 더미 프로필 이미지들
-    const profileImages = [
-        '/images/default_profile.png',
-        '/images/default_profile.png', // 기본 이미지들
-        null, // null인 경우 기본 이미지 사용
-        '/images/default_profile.png'
-    ];
-    
-    // 많은 더미 데이터 생성 (페이징 테스트용)
-    for (let i = 1; i <= 77; i++) {
-        dummyEntries.push({
-            id: i,
-            nickname: `방문자${i}`,
-            message: `${i}번째 방명록입니다! 안녕하세요~ 좋은 블로그네요! 😊`,
-            isSecret: i % 7 === 0, // 7의 배수마다 비밀글
-            profileImage: profileImages[i % profileImages.length], // 랜덤 프로필 이미지
-            createdAt: `2025.${String(5 + Math.floor(i/30)).padStart(2, '0')}.${String(Math.floor(i%30) + 1).padStart(2, '0')} ${String(Math.floor(Math.random()*24)).padStart(2, '0')}:${String(Math.floor(Math.random()*60)).padStart(2, '0')}`
-        });
-    }
-    
-    // 최신순으로 정렬 (최근 데이터가 앞에)
-    dummyEntries.reverse();
-    
-    guestbookTotalEntries = dummyEntries;
-    guestbookTotalPages = Math.ceil(guestbookTotalEntries.length / guestbookItemsPerPage);
-    
-    console.log('더미 데이터 생성 완료:', {
-        totalEntries: guestbookTotalEntries.length,
-        totalPages: guestbookTotalPages,
-        itemsPerPage: guestbookItemsPerPage
-    });
-}
-
-// ============= 방명록 목록 렌더링 =============
+// === 방명록 목록 렌더링 ===
 function renderGuestbookList() {
     const guestbookList = document.getElementById('guestbookList');
     if (!guestbookList) {
@@ -319,33 +325,54 @@ function renderGuestbookList() {
         return;
     }
     
-    console.log('방명록 목록 렌더링 시작. 총 항목:', guestbookTotalEntries.length);
+    console.log(`방명록 목록 렌더링 시작 - 페이지 ${guestbookCurrentPage}, 항목 수: ${guestbookTotalEntries.length}`);
     
     if (guestbookTotalEntries.length === 0) {
         showEmptyMessage();
         return;
     }
     
-    const startIndex = (guestbookCurrentPage - 1) * guestbookItemsPerPage;
-    const endIndex = startIndex + guestbookItemsPerPage;
-    const currentEntries = guestbookTotalEntries.slice(startIndex, endIndex);
-    
-    console.log(`페이지 ${guestbookCurrentPage}: ${startIndex}~${endIndex-1} 인덱스 표시`);
-    
     guestbookList.innerHTML = '';
-    
-    currentEntries.forEach(entry => {
+
+    // 서버에서 받은 데이터를 그대로 표시 (클라이언트에서 슬라이싱 안함)
+    guestbookTotalEntries.forEach(entry => {
         const listItem = createGuestbookEntryElement(entry);
         guestbookList.appendChild(listItem);
     });
-    
+
     console.log('방명록 목록 렌더링 완료');
 }
 
-// ============= 방명록 항목 HTML 생성 =============
+// === 방명록 항목 HTML 생성 ===
+// 1. 수정/삭제 기능
+// 2. 비밀글을 볼 수 없는 사람: 제3자 (블로그 주인도 아니고 작성자도 아닌 사람)
 function createGuestbookEntryElement(entry) {
+
+    // 비밀글 필드 확인 및 백엔드 코드와 통합
+    const isSecret = entry.isSecret || entry.secret || false;
+
+    // === 디버깅 로그 ===
+    console.log('방명록 렌더링:', {
+        id: entry.guestbookId,
+        isSecret: entry.isSecret, 
+        secret: entry.secret, 
+        finalIsSecret: isSecret, // 최종 결정된 값 (비밀글 여부)
+        content: entry.content?.substring(0, 20) + '...', 
+        contentLength: entry.content?.length
+    });
+
     const li = document.createElement('li');
     li.className = 'guestbook-entry-item';
+    
+    // ID 필드 확인 및 설정 (디버깅 로그)
+    const entryId = entry.guestbookId || entry.id; // guestbookId 또는 id 둘 다
+    console.log('방명록 항목 ID:', entryId);
+
+    if (entryId) {
+        li.setAttribute('data-entry-id', entryId);
+    } else {
+        console.warn('방명록 항목에 ID가 없습니다:', entry);
+    }
     
     const headerDiv = document.createElement('div');
     headerDiv.className = 'entry-header';
@@ -357,7 +384,7 @@ function createGuestbookEntryElement(entry) {
     // 프로필 이미지 추가
     const profileImg = document.createElement('img');
     profileImg.className = 'entry-profile-image';
-    profileImg.src = entry.profileImage || '/images/default_profile.png'; // 기본 이미지 또는 사용자 이미지
+    profileImg.src = entry.profileImage || '/images/default_profile.png'; // 사용자 프로필 이미지 또는 기본 프로필 이미지
     profileImg.alt = entry.nickname + '의 프로필';
     nicknameContainer.appendChild(profileImg);
     
@@ -366,26 +393,33 @@ function createGuestbookEntryElement(entry) {
     nicknameSpan.textContent = entry.nickname;
     nicknameContainer.appendChild(nicknameSpan);
     
-    // 수정/삭제 버튼들을 닉네임 바로 옆에 추가
-    const actionButtonsDiv = document.createElement('div');
-    actionButtonsDiv.className = 'inline-actions';
+    // 수정/삭제 버튼들 (권한 체크)
+    if (entry.canEdit || entry.canDelete) {
+        const actionButtonsDiv = document.createElement('div');
+        actionButtonsDiv.className = 'inline-actions';
+
+        if (entry.canEdit) {
+            const editButton = document.createElement('button');
+            editButton.textContent = '수정';
+            editButton.className = 'action-button edit-button';
+            editButton.onclick = () => editGuestbookEntry(entryId);
+            actionButtonsDiv.appendChild(editButton);
+        }
+
+        if (entry.canDelete) {
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = '삭제';
+            deleteButton.className = 'action-button delete-button';
+            deleteButton.onclick = () => deleteGuestbookEntry(entryId);
+            actionButtonsDiv.appendChild(deleteButton);
+        }
+        
+        nicknameContainer.appendChild(actionButtonsDiv);
+    }
     
-    const editButton = document.createElement('button');
-    editButton.textContent = '수정';
-    editButton.className = 'action-button edit-button';
-    editButton.onclick = () => editGuestbookEntry(entry.id);
-    actionButtonsDiv.appendChild(editButton);
-    
-    const deleteButton = document.createElement('button');
-    deleteButton.textContent = '삭제';
-    deleteButton.className = 'action-button delete-button';
-    deleteButton.onclick = () => deleteGuestbookEntry(entry.id);
-    actionButtonsDiv.appendChild(deleteButton);
-    
-    nicknameContainer.appendChild(actionButtonsDiv);
-    
-    // 비밀글인 경우 삭제 버튼 바로 옆에 아이콘 추가
-    if (entry.isSecret) {
+    // 비밀글 배지는 비밀글이면 항상 표시 (권한과 무관)
+    if (isSecret) {
+        console.log('비밀글 배지 추가:', entry.guestbookId, '- isSecret:', isSecret); // 디버깅
         const secretBadge = document.createElement('span');
         secretBadge.className = 'secret-badge';
         secretBadge.textContent = '🔒비밀글';
@@ -402,8 +436,20 @@ function createGuestbookEntryElement(entry) {
     
     const messageDiv = document.createElement('div');
     messageDiv.className = 'entry-message';
-    messageDiv.textContent = entry.isSecret ? '(비밀글입니다)' : entry.message;
+
+    // ※ 핵심 수정: 백엔드에서 이미 권한 처리된 content를 그대로 사용
+    messageDiv.textContent = entry.content;
     
+    // 디버깅: 비밀글 처리 결과 확인
+    if (isSecret) {
+        console.log(`비밀글 표시 결과:`, {
+            guestbookId: entry.guestbookId, 
+            isSecret: isSecret, 
+            displayedContent: entry.content.substring(0, 30) + '...', 
+            isHidden: entry.content === '(비밀글입니다)'
+        });
+    }
+
     li.appendChild(headerDiv);
     li.appendChild(messageDiv);
     
@@ -435,20 +481,20 @@ function renderPagination() {
     const groupEndPage = Math.min(currentGroup * pagesPerGroup, guestbookTotalPages); // 현재 그룹 끝 페이지
     
     console.log(`페이징 정보: 현재페이지=${guestbookCurrentPage}, 현재그룹=${currentGroup}/${totalGroups}, 그룹범위=${groupStartPage}-${groupEndPage}`);
-    
+     
+    // 처음 버튼 (마지막 그룹에서만 표시)
+    if (currentGroup === totalGroups && totalGroups > 1) {
+        const firstButton = createPaginationButton('처음', () => goToPage(1));
+        firstButton.className += ' nav-button';
+        pagination.appendChild(firstButton);
+    }
+
     // 이전 그룹 버튼 (2그룹부터 표시)
     if (currentGroup > 1) {
         const prevGroupPage = (currentGroup - 2) * pagesPerGroup + 1; // 이전 그룹의 첫 페이지
         const prevButton = createPaginationButton('이전', () => goToPage(prevGroupPage));
         prevButton.className += ' nav-button';
         pagination.appendChild(prevButton);
-    }
-    
-    // 처음 버튼 (마지막 그룹에서만 표시)
-    if (currentGroup === totalGroups && totalGroups > 1) {
-        const firstButton = createPaginationButton('처음', () => goToPage(1));
-        firstButton.className += ' nav-button';
-        pagination.appendChild(firstButton);
     }
     
     // 현재 그룹의 페이지 번호들
@@ -486,17 +532,22 @@ function createPaginationButton(text, onClick) {
     return button;
 }
 
-// ============= 페이지 이동 =============
+// === 페이지 이동 (서버 요청) ===
 function goToPage(pageNumber) {
     if (pageNumber < 1 || pageNumber > guestbookTotalPages || pageNumber === guestbookCurrentPage) {
+        console.log('페이지 이동 불가:', {
+            요청페이지: pageNumber, 
+            현재페이지: guestbookCurrentPage, 
+            총페이지:guestbookTotalPages
+        });        
         return;
     }
     
     console.log(`페이지 이동: ${guestbookCurrentPage} → ${pageNumber}`);
     
+    // 페이지 번호 변경 후 서버에서 새 데이터 요청
     guestbookCurrentPage = pageNumber;
-    renderGuestbookList();
-    renderPagination();
+    loadGuestbookData(); // 서버에서 새 페이지 데이터 로드
     
     // 목록 상단으로 스크롤
     const listSection = document.querySelector('.guestbook-list-section');
@@ -505,7 +556,7 @@ function goToPage(pageNumber) {
     }
 }
 
-// ============= 방명록 작성 처리 =============
+// === 방명록 작성 처리 ===
 function handleSubmitGuestbook() {
     const nicknameSpan = document.getElementById('currentUserNickname');
     const messageInput = document.getElementById('guestMessage');
@@ -514,7 +565,12 @@ function handleSubmitGuestbook() {
     const nickname = nicknameSpan ? nicknameSpan.textContent : '게스트';
     const message = messageInput.value.trim();
     const isSecret = secretCheck.checked;
-    
+
+    // 디버깅 로그 추가
+    console.log('체크박스 요소:', secretCheck);
+    console.log('체크박스 checked 속성:', secretCheck ? secretCheck.checked : 'null');
+    console.log('비밀글 체크 상태:', isSecret);
+
     // 입력 검증
     if (!message) {
         alert('메시지를 입력해주세요.');
@@ -538,61 +594,42 @@ function handleSubmitGuestbook() {
         // 취소 시 입력창에 포커스 (이미 입력한 내용은 유지)
         messageInput.focus();
     }
+
 }
 
-// ============= 방명록 제출 =============
+// === 방명록 작성 함수 ===
 async function submitGuestbookEntry(nickname, message, isSecret) {
+    console.log('API 호출 직전 isSecret 값:', isSecret);
+
     try {
-        // TODO: 실제 API 연동 시 아래 주석 해제
-        // const currentNickname = getCurrentNickname();
-        // const response = await fetch(`/blog/api/@${encodeURIComponent(currentNickname)}/guestbook`, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify({
-        //         visitorNickname: nickname,
-        //         message: message,
-        //         isSecret: isSecret
-        //     })
-        // });
-        
-        // if (!response.ok) {
-        //     throw new Error('방명록 작성에 실패했습니다.');
-        // }
-        
-        // 임시: 더미 데이터에 추가
-        const newEntry = {
-            id: Date.now(),
-            nickname: nickname,
-            message: message,
-            isSecret: isSecret,
-            createdAt: new Date().toLocaleString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            }).replace(/\. /g, '.').replace(/\.$/, '')
-        };
-        
-        console.log('새 방명록 항목 생성:', newEntry);
-        
-        guestbookTotalEntries.unshift(newEntry);
-        guestbookTotalPages = Math.ceil(guestbookTotalEntries.length / guestbookItemsPerPage);
-        
-        // 첫 페이지로 이동하여 새 글 보이기
-        guestbookCurrentPage = 1;
-        renderGuestbookList();
-        renderPagination();
-        
+        // 서버 API 호출
+        const currentNickname = getCurrentNickname();
+        const response = await fetch(`/blog/api/@${encodeURIComponent(currentNickname)}/guestbook`, {
+            method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: message, 
+                isSecret: isSecret
+            })
+        });
+
+        console.log('전송한 데이터:', { message, isSecret });
+
+        if (!response.ok) {
+            throw new Error('방명록 작성에 실패했습니다!');
+        }
+        const result = await response.json();
+
+        // 성공 시 목록 새로고침
+        loadGuestbookData();
+
         // 입력창 초기화
         document.getElementById('guestMessage').value = '';
         document.getElementById('secretCheck').checked = false;
         
         alert('방명록이 작성되었습니다!');
-        
-        console.log('방명록 작성 완료. 총 방명록 수:', guestbookTotalEntries.length);
         
     } catch (error) {
         console.error('방명록 작성 실패:', error);
@@ -600,49 +637,214 @@ async function submitGuestbookEntry(nickname, message, isSecret) {
     }
 }
 
-// ============= 방명록 수정 =============
+// === 방명록 수정 ===
 function editGuestbookEntry(entryId) {
-    // TODO: 실제 수정 기능 구현
-    alert('수정 기능은 구현 예정입니다.');
     console.log('수정할 방명록 ID:', entryId);
+
+    // 현재 방명록 데이터 찾기
+    const entry = guestbookTotalEntries.find(e => e.guestbookId === entryId);
+    if (!entry) {
+        alert('방명록을 찾을 수 없습니다!');
+        return;
+    }
+
+    // 수정 form 표시
+    showEditForm(entry);
 }
 
-// ============= 방명록 삭제 =============
-function deleteGuestbookEntry(entryId) {
-    if (!confirm('정말 삭제하시겠습니까?')) {
+// 수정 form 표시 함수 (템플릿 동적 생성 포함)
+function showEditForm(entry) {
+    console.log('수정 form 표시 시작:', entry.guestbookId);
+
+    // 기존 방명록 항목 숨기기
+    const entryElement = document.querySelector(`[data-entry-id="${entry.guestbookId}"]`);
+    if (entryElement) {
+        entryElement.style.display = 'none';
+    }
+
+    // 템플릿이 없으면 동적으로 생성
+    let template = document.getElementById('guestbook-edit-template');
+    if (!template) {
+        console.log('템플릿이 없어서 동적으로 생성합니다.');
+        createEditTemplate();
+        template = document.getElementById('guestbook-edit-template');
+    }
+
+    if (!template) {
+        console.error('템플릿 생성에 실패했습니다!');
+        alert('수정 기능을 사용할 수 없습니다.');
+        // 항목 다시 표시
+        if (entryElement) {
+            entryElement.style.display = 'block';
+        }
+        return;
+    }
+
+    // 템플릿 복제
+    const editFormClone = template.content.cloneNode(true);
+
+    // 데이터 설정
+    const editContainer = editFormClone.querySelector('.edit-form-container');
+    editContainer.setAttribute('data-edit-id', entry.guestbookId);
+
+    const textarea = editFormClone.querySelector('.edit-textarea');
+    textarea.value = entry.content;
+
+    const secretInput = editFormClone.querySelector('.edit-secret-input');
+    secretInput.checked = entry.isSecret;
+
+    // 이벤트 설정
+    const saveBtn = editFormClone.querySelector('.edit-save-btn');
+    saveBtn.onclick = () => saveEditGuestbook(entry.guestbookId);
+
+    const cancelBtn = editFormClone.querySelector('.edit-cancel-btn');
+    cancelBtn.onclick = () => cancelEditGuestbook(entry.guestbookId);
+
+    // DOM에 삽입
+    if (entryElement) {
+        entryElement.parentNode.insertBefore(editFormClone, entryElement.nextSibling);
+        console.log('수정 폼 표시 완료');
+    }
+
+}
+
+// 템플릿 동적 생성 함수
+function createEditTemplate() {
+    // 이미 템플릿이 있는지 확인
+    if (document.getElementById('guestbook-edit-template')) {
+        console.log('템플릿이 이미 존재합니다.');
+        return;
+    }
+    
+    const template = document.createElement('template');
+    template.id = 'guestbook-edit-template';
+    template.innerHTML = `
+        <div class="edit-form-container">
+            <div class="edit-form">
+                <h4>방명록 수정</h4>
+                <textarea class="edit-textarea" maxlength="4000" placeholder="방명록 내용을 입력하세요~"></textarea>
+                <div class="edit-controls">
+                    <label class="edit-secret-checkbox">
+                        <input type="checkbox" class="edit-secret-input"> 비밀로 하기
+                    </label>
+                    <div class="edit-buttons">
+                        <button class="edit-save-btn">저장</button>
+                        <button class="edit-cancel-btn">취소</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // body에 추가 (head보다 안전)
+    document.body.appendChild(template);
+    console.log('수정 폼 템플릿 동적 생성 완료');
+}
+
+// 수정 저장 함수
+async function saveEditGuestbook(entryId) {
+    const messageTextarea = document.querySelector(`[data-edit-id="${entryId}"] .edit-textarea`);
+    const secretCheckbox = document.querySelector(`[data-edit-id="${entryId}"] .edit-secret-input`);
+
+    const newMessage = messageTextarea.value.trim();
+    const isSecret = secretCheckbox.checked;
+
+    // 입력 검증
+    if (!newMessage) {
+        alert('메시지를 입력해주세요~');
+        messageTextarea.focus();
+        return;
+    }
+
+    if (newMessage.length > 4000) {
+        alert('메시지는 4000자 이내로 입력해주세요!');
+        return;
+    }
+
+    try {
+        console.log('방명록 수정 시도:', { entryId, newMessage, isSecret });
+
+        // 서버 API 호출
+        const currentNickname = getCurrentNickname();
+        const response = await fetch(`/blog/api/@${encodeURIComponent(currentNickname)}/guestbook/${entryId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: newMessage,
+                isSecret: isSecret
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`수정 실패: ${response.status}`);
+        }
+
+        // 수정 form 제거 및 원래 항목 복원
+        cancelEditGuestbook(entryId);
+
+        // 목록 새로고침
+        loadGuestbookData();
+        
+        alert('방명록이 수정되었습니다.');
+
+    } catch (error) {
+        console.error('방명록 수정 실패:', error);
+        alert('방명록 수정에 실패했습니다! 다시 시도해주세요.');
+    }
+
+}
+
+// 수정 취소 함수
+function cancelEditGuestbook(entryId) {
+    // 수정 form 제거
+    const editForm = document.querySelector(`[data-edit-id="${entryId}"]`);
+    if (editForm) {
+        editForm.remove();
+    }
+
+    // 원래 방명록 항목 다시 표시
+    const entryElement = document.querySelector(`[data-entry-id="${entryId}"]`);
+    if (entryElement) {
+        entryElement.style.display = 'block';
+    }
+}
+
+// === 방명록 삭제 ===
+async function deleteGuestbookEntry(entryId) {
+    if (!confirm('방명록을 삭제하시겠습니까?')) {
         return;
     }
     
     try {
         console.log('방명록 삭제 시도. ID:', entryId);
         
-        // TODO: 실제 API 연동
-        // 임시: 더미 데이터에서 삭제
-        const beforeCount = guestbookTotalEntries.length;
-        guestbookTotalEntries = guestbookTotalEntries.filter(entry => entry.id !== entryId);
-        const afterCount = guestbookTotalEntries.length;
-        
-        console.log(`방명록 삭제 완료. ${beforeCount} → ${afterCount}`);
-        
-        guestbookTotalPages = Math.ceil(guestbookTotalEntries.length / guestbookItemsPerPage);
-        
-        // 현재 페이지에 글이 없으면 이전 페이지로
-        if (guestbookCurrentPage > guestbookTotalPages && guestbookTotalPages > 0) {
-            guestbookCurrentPage = guestbookTotalPages;
+        // 서버 API 호출
+        const currentNickname = getCurrentNickname();
+        const response = await fetch(`/blog/api/@${encodeURIComponent(currentNickname)}/guestbook/${entryId}`, {
+            method: 'DELETE', 
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`삭제 실패: ${response.status}`);
         }
-        
-        renderGuestbookList();
-        renderPagination();
-        
+
+        const result = await response.json();
+        console.log('삭제 서버 응답:', result);
+
+        // 성공 시 방명록 목록 새로고침
+        loadGuestbookData();
         alert('방명록이 삭제되었습니다.');
         
     } catch (error) {
         console.error('방명록 삭제 실패:', error);
-        alert('방명록 삭제에 실패했습니다. 다시 시도해주세요.');
+        alert('방명록 삭제에 실패했습니다! 다시 시도해주세요.');
     }
 }
 
-// ============= 메시지 표시 함수들 =============
+// === 메시지 표시 함수들 ===
 function showLoadingMessage() {
     const guestbookList = document.getElementById('guestbookList');
     if (guestbookList) {
@@ -668,7 +870,7 @@ function showErrorMessage() {
     }
 }
 
-// ============= 스킨 로드 함수 =============
+// === 스킨 로드 함수 ===
 async function loadBlogSkin() {
     const currentNickname = getCurrentNickname();
     if (!currentNickname) {

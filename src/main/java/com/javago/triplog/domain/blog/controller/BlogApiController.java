@@ -69,7 +69,8 @@ public class BlogApiController {
             try {
                 Member member = memberService.findByMemberId(authentication.getName());
                 Map<String, String> currentUser = new HashMap<>();
-                currentUser.put("nickname", member.getNickname());
+                currentUser.put("nickname", member.getNickname()); // 사용자 닉네임
+                currentUser.put("profileImage", member.getProfileImage()); // 프로필 이미지 경로
                 currentUser.put("memberId", member.getMemberId());
                 return ResponseEntity.ok(currentUser);
             } catch (Exception e) {

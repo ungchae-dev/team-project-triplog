@@ -57,7 +57,7 @@
                 <!-- 두 번째 줄: 메시지 입력 + 버튼들 -->
                 <div class="input-row">
                   <input type="text" id="guestMessage" class="input-field message-content"
-                    placeholder="~퍼뜨런 방명록 작성을 부탁해요~">
+                    placeholder="따뜻한 방명록 작성을 부탁해요~">
                   <button id="submitGuestbook" class="submit-button">확인</button>
                   <label class="secret-checkbox">
                     <input type="checkbox" id="secretCheck"> 비밀로 하기
@@ -76,6 +76,25 @@
 
     </div>
   </div>
+
+  <!-- 방명록 수정 폼 템플릿 -->
+  <template id="guestbook-edit-template">
+    <div class="edit-form-container">
+      <div class="edit-form">
+        <h4>방명록 수정</h4>
+        <textarea class="edit-textarea" maxlength="4000" placeholder="방명록 내용을 입력하세요~"></textarea>
+        <div class="edit-controls">
+          <label class="edit-secret-checkbox">
+            <input type="checkbox" class="edit-secret-input"> 비밀로 하기
+          </label>
+          <div class="edit-buttons">
+            <button class="edit-save-btn">저장</button>
+            <button class="edit-cancel-btn">취소</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
 
   <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-방명록) 홈에서 로드 -->
   <script src="/js/layout.js"></script>

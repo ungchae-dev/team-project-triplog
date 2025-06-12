@@ -11,6 +11,7 @@ import com.javago.constant.Gender;
 import com.javago.constant.Role;
 import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.comments.entity.Comments;
+import com.javago.triplog.domain.guestbook.entity.Guestbook;
 import com.javago.triplog.domain.member.dto.MemberFormDto;
 import com.javago.triplog.domain.member_item.entity.MemberItem;
 import com.javago.triplog.domain.post_like.entity.Post_Like;
@@ -104,6 +105,21 @@ public class Member {
     // Member -> Comments (1:다)
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Comments> comment = new ArrayList<>();
+
+    // Member -> Guestbook (1:다) - 내가 작성한 방명록들
+    @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Guestbook> writtenGuestbooks = new ArrayList<>();
+
+    // 양방향 관계 편의 메서드
+    public void addWrittenGuestbook(Guestbook guestbook) {
+        writtenGuestbooks.add(guestbook);
+        guestbook.setWriter(this);
+    }
+
+    public void removeWrittenGuestbook(Guestbook guestbook) {
+        writtenGuestbooks.remove(guestbook);
+        guestbook.setWriter(null);
+    }
 
     // 생성 직전 기본값 세팅 (joinDate, acorn)
     @PrePersist
