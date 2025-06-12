@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -128,10 +129,17 @@ public class PostApiController {
         return ResponseEntity.ok().body(comment);
     }
 
+    // 댓글 조회
+    @GetMapping("/api/{postId}/comments")
+    @ResponseBody
+    public List<CommentDto> getComments(@PathVariable Long postId) {
+        return postService.getCommentsByPostId(postId);
+    }    
+
     // 댓글 수정
     @PutMapping("/api/{commentId}/comment/update")
     public ResponseEntity<?> updateComment(@PathVariable("commentId") Long commentId, @RequestBody UpdateCommentRequest request) {
-        Comments comment = postService.updateComment(commentId, request);
+        CommentDto comment = postService.updateComment(commentId, request);
         return ResponseEntity.ok().body(comment);
     }
 

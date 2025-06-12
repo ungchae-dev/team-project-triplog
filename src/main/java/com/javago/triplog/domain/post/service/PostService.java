@@ -256,16 +256,16 @@ public class PostService {
 
     // 댓글 갯수 조회
     @Transactional
-    public  Long getCountByPostId(Long postId) {
+    public Long getCountByPostId(Long postId) {
         return commentsRepository.countByPostPostId(postId);
     }
 
     // 댓글 수정
     @Transactional
-    public Comments updateComment(Long commentId, UpdateCommentRequest request){
+    public CommentDto updateComment(Long commentId, UpdateCommentRequest request){
         Comments comment = commentsRepository.findByCommentId(commentId);
-        comment.update(request.getContent(), request.getIs_secret());
-        return comment;
+        comment.update(request.getContent(), request.getIsSecret().name());
+        return CommentDto.fromEntity(comment);
     }
 
     // 댓글 삭제
