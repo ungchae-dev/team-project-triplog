@@ -1,9 +1,9 @@
 package com.javago.triplog.domain.blog.controller;
 
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
+import com.javago.triplog.domain.blog.entity.Blog;
+import com.javago.triplog.domain.blog.service.BlogService;
+import com.javago.triplog.domain.member.entity.Member;
+import com.javago.triplog.domain.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -12,10 +12,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.javago.triplog.domain.blog.entity.Blog;
-import com.javago.triplog.domain.blog.service.BlogService;
-import com.javago.triplog.domain.member.entity.Member;
-import com.javago.triplog.domain.member.service.MemberService;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Controller
 @RequestMapping("/blog")
@@ -171,4 +170,7 @@ public class BlogController {
             return "redirect:/";
         }
     }
+
+
+
 }

@@ -67,13 +67,16 @@ document.addEventListener("DOMContentLoaded", function () {
             const hashtags = (post.hashtags || []).map(tag => `#${tag}`).join(' ');
             const peopleTags = (post.peopleTags || []).map(tag => `👥${tag}`).join(' ');
 
+            // ✅ 썸네일이 없으면 본문 이미지로 대체
+            const thumbnail = post.thumbnailUrl || post.inlineImage || '/images/page/default_IsThumbnail.png';
+
             const postCard = document.createElement("div");
             postCard.className = "posts-cards";
 
             postCard.innerHTML = `
             <!-- 썸네일 -->
             <a href="/blog/@${post.nickname}/post" class="post-thumbnail">
-                    <img src="${post.thumbnailUrl}"onerror="this.onerror=null;this.src='/images/page/default_IsThumbnail.png';" alt="대표 이미지"/>
+                    <img src="${thumbnail}"onerror="this.onerror=null;this.src='/images/page/default_IsThumbnail.png';" alt="대표 이미지"/>
             </a>
                 
             
@@ -96,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
 
                 <!-- 본문 요약 (2줄) -->
-                <p class="post-snippet">${post.content || '내용 없음'}</p>
+                <p class="post-snippet">${post.summary || '내용 없음'}</p>
 
                 <!-- 좋아요 / 댓글 -->
                 <div class="post-meta">
@@ -239,4 +242,6 @@ document.addEventListener("DOMContentLoaded", function () {
         currentPage = 1;
         fetchAndRenderPosts();
     }
+
+
 });

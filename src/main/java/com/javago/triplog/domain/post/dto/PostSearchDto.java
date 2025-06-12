@@ -19,9 +19,10 @@ public class PostSearchDto {
     private List<String> peopleTags;
 
     private String nickname;     // 추가
-    private String content;      // 추가
+    private String summary;      // 요약 텍스트
     private Integer comments;    // 추가
     private String date;         // LocalDateTime -> String 처리용 (옵션)
+    private String inlineImage;  // 본문에서 추출한 첫 이미지 경로
 
 
 }

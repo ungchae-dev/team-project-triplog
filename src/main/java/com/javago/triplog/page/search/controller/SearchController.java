@@ -14,19 +14,37 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class SearchController {
 
     @GetMapping("/search")
-    public String searchPage(@RequestParam(defaultValue = "서울") String region, Model model) {
-        // 현재 인증 정보 가져오기
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public String searchPage(@RequestParam(defaultValue = "서울") String region, Model model,Authentication authentication) {
+        // 로그인 상태 확인 및 모델에 추가
+        boolean isLoggedIn = (authentication != null && authentication.isAuthenticated() && !authentication.getName().equals("anonymousUser"));
 
-        // 로그인한 사용자인 경우에만 닉네임을 model에 추가
-        if (authentication != null && authentication.isAuthenticated()
-                && authentication.getPrincipal() instanceof CustomUserDetails customUserDetails) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        model.addAttribute("isLoggedIn", isLoggedIn);
+
+        if (auth != null && auth.isAuthenticated()
+                && auth.getPrincipal() instanceof CustomUserDetails customUserDetails ) {
 
             Member member = customUserDetails.getMember();
-            model.addAttribute("nickname", member.getNickname()); // 닉네임을 모델에 전달
+            model.addAttribute("nickname", member.getNickname());
+            model.addAttribute("role", member.getRole().name()); // USER 또는 ADMIN
         }
 
-        model.addAttribute("region", region);
+        if (isLoggedIn && authentication != null) {
+            // 로그인된 사용자 정보 추가
+            String memberId = authentication.getName();
+            model.addAttribute("username", memberId);
+
+            // 로그인된 사용자 로깅
+            System.out.println("로그인된 사용자: " + memberId);
+            System.out.println(" - 권한: " + authentication.getAuthorities());
+
+        } else {
+            // 비로그인 상태 로깅
+            System.out.println("비로그인 상태");
+        }
+
+        // 지역 정보 모델에 추가
+        model.addAttribute("selectRegion", region);
         return "page/searchpage";
     }
 }

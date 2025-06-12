@@ -29,7 +29,7 @@
 </style>
 
 
-<body id="page-top">
+<body id="page-top" th:attr="data-nickname=${nickname}">
 <!-- Navigation-->
 <nav class="navbar navbar-expand-lg navbar-light fixed-top shadow-sm" id="mainNav">
     <div class="container px-5 d-flex justify-content-between align-items-center">
@@ -115,12 +115,16 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <!-- 오른쪽 정렬된 버튼 & 정렬 select -->
         <div class="d-flex align-items-center gap-2 ms-auto">
-            <div class="text-center">
-                <a href="/search" onclick="openMyBlogwrite()" class="nav-link p-0">
+            <div class="text-center" >
+                <button class="nav-link p-0" onclick="openMyBlogwrite(event)">
                     <img src="/images/page/boardwrite.png" alt="글쓰기" width="60">
                     <div class="small">글쓰기</div>
-                </a>
+                </button>
             </div>
+
+
+
+
 
             <select id="sortSelect" class="form-select">
                 <option value="date" selected>최신 순</option>
@@ -250,6 +254,9 @@
 <
 
 <script src="/js/search_sorting.js"></script>
+<script>
+
+</script>
 
 </body>
 </html>
