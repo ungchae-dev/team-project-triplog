@@ -1,6 +1,7 @@
 package com.javago.triplog.domain.blog.entity;
 
 import com.javago.constant.SkinActive;
+import com.javago.triplog.domain.guestbook.entity.Guestbook;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.post.entity.Post;
 import jakarta.persistence.*;
@@ -54,6 +55,21 @@ public class Blog {
     // Blog -> Post (1:다)
     @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> post = new ArrayList<>();
+
+    // Blog -> Guestbook (1:다) - 내 블로그에 작성된 방명록들
+    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Guestbook> guestbooks = new ArrayList<>();
+
+    // 양방향 관계 편의 메서드
+    public void addGuestbook(Guestbook guestbook) {
+        guestbooks.add(guestbook);
+        guestbook.setBlog(this);
+    }
+
+    public void removeGuestbook(Guestbook guestbook) {
+        guestbooks.remove(guestbook);
+        guestbook.setBlog(null);
+    }
 
     // @PrePersist 메서드
     @PrePersist
