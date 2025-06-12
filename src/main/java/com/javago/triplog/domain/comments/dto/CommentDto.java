@@ -3,6 +3,7 @@ package com.javago.triplog.domain.comments.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,9 @@ public class CommentDto {
     private Long commentId;
     private String nickname;
     private String content;
+    private String isSecret;
+    private String createdAt;
+    private String updatedAt;
     private List<CommentDto> commentList;
 
     public static List<CommentDto> buildCommentTree(List<Comments> comments) {
@@ -46,6 +50,9 @@ public class CommentDto {
         dto.setCommentId(comment.getCommentId());
         dto.setNickname(comment.getMember().getNickname());
         dto.setContent(comment.getContent());
+        dto.setIsSecret(comment.getIsSecret().name());
+        dto.setCreatedAt(comment.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        dto.setUpdatedAt(comment.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         dto.setCommentList(new ArrayList<>());
         return dto;
     }

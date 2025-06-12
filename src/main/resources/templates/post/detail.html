@@ -5,12 +5,9 @@
     <title>글 조회</title>
   <!-- 블로그 페이지 css 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
   <link rel="stylesheet" href="/css/home.css" />
-  <link rel="stylesheet" href="/css/shop.css" />
-  <link rel="stylesheet" href="/css/profile.css" />
+
   <link rel="stylesheet" href="/css/post.css" />
-  <link rel="stylesheet" href="/css/jukebox.css" />
-  <link rel="stylesheet" href="/css/mylog.css" />
-  <link rel="stylesheet" href="/css/guestbook.css" />
+
   <style>
     #commentList {
       margin-top: 20px;
@@ -42,7 +39,7 @@
         <div class="main-content">
           <div id="board-detail">
 
-            <div id="blogInfo" th:attr="data-user-id=${userId}, data-nickname=${nickname}" hidden></div>
+            <div id="blogInfo" th:attr="data-user-id=${userId}, data-nickname=${nickname}, data-login-nickname=${loginNickname}" hidden></div>
             <div id="post_id" th:attr="data-post-id=${post.postId}" hidden></div>
             <div class="post-detail-container">
               <div class="post-header">
@@ -77,21 +74,17 @@
               </div>
               <label>댓글</label>
               <div class="comments-section">
-                <h3>💬 댓글 (<span id="detail-comments-count" th:text="${commentList.size()}">0</span>)</h3>
-                <span id="username" th:text="${loginNickname}" />
-                <input type="text" id="commentInput" placeholder="댓글을 입력하세요" />
+                <h3>💬 댓글 (<span id="detail-comments-count">0</span>)</h3>
+                <textarea placeholder="댓글을 입력하세요..." id="comment-input"></textarea>
                 <select id="is_secret">
                   <option value="Y">전체 공개</option>
                   <option value="N">비공개</option>
                 </select>
-                <button id="submitComment">등록</button>
-
+                <button id="submitComment" class="comment-btn">댓글 달기</button>
                 <!-- 댓글 리스트 -->
                 <ul class="comment-list" id="detail-comments">
                   <!-- 댓글들이 동적으로 추가됩니다 -->
                 </ul>
-                <textarea placeholder="댓글을 입력하세요..." id="comment-input"></textarea>
-                <button class="comment-btn">댓글 달기</button>
               </div>
             </div>
           </div>
@@ -106,11 +99,12 @@
     const id = document.getElementById('post_id').dataset.postId;
     const userId = document.getElementById('blogInfo').dataset.userId;
     const nickname = document.getElementById('blogInfo').dataset.nickname;
+    const loginNickname = document.getElementById('blogInfo').dataset.loginNickname;
 
-    // 좋아요 추가, 제거
     const addLikeBtn = document.getElementById('addPostLike');
     const delLikeBtn = document.getElementById('delPostLike');
-
+    
+    // 좋아요 추가
     if (addLikeBtn) {
       addLikeBtn.addEventListener('click', () => {
         fetch(`/api/${id}/like`, {
@@ -129,6 +123,7 @@
       });
     }
 
+    // 좋아요 제거
     if (delLikeBtn) {
       delLikeBtn.addEventListener('click', () => {
         fetch(`/api/${id}/like`, {
@@ -164,160 +159,20 @@
         });
       }
     });
-/*
-    // 댓글 등록 함수 (수정 버튼 이벤트 제거)
-    function addCommentToList(comment) {
-      const wrapper = document.createElement('div');
-      wrapper.classList.add('comment');
-      wrapper.dataset.commentId = comment.commentId;
 
-      wrapper.innerHTML = `
-        <strong>${comment.nickname}</strong>:
-        <span class="comment-content">${comment.content}</span>
-        <button class="edit-btn">수정</button>
-        <button class="delete-comment-btn">삭제</button>
-        <button class="reply-btn">답글</button>
-
-        <div class="reply-form" style="display:none;">
-          <input type="text" class="reply-content" placeholder="답글을 입력하세요" />
-          <select class="reply-is_secret">
-            <option value="Y">전체 공개</option>
-            <option value="N">비공개</option>
-          </select>
-          <button class="submit-reply">등록</button>
-        </div>
-      `;
-
-      document.getElementById('commentList').appendChild(wrapper);
-    }
-
-    // 댓글 리스트 컨테이너
-    const commentList = document.getElementById('commentList');
-
-    commentList.addEventListener('click', (event) => {
-      const target = event.target;
-      const commentDiv = target.closest('.comment');
-      if (!commentDiv) return; // 댓글 영역이 아니면 무시
-      const commentId = commentDiv.dataset.commentId;
-
-      // 수정 버튼 클릭
-      if (target.classList.contains('edit-btn')) {
-        const contentSpan = commentDiv.querySelector('.comment-content');
-        const currentContent = contentSpan.textContent;
-
-        contentSpan.innerHTML = `
-          <input type="text" class="edit-input" value="${currentContent}" />
-          <select class="edit-is_secret">
-            <option value="Y">전체 공개</option>
-            <option value="N">비공개</option>
-          </select>
-          <button class="save-btn">저장</button>
-          <button class="cancel-btn">취소</button>
-        `;
-
-        // 저장 버튼 클릭 이벤트 (한 번만 붙임)
-        contentSpan.querySelector('.save-btn').addEventListener('click', () => {
-          const newContent = contentSpan.querySelector('.edit-input').value.trim();
-          const is_secret = contentSpan.querySelector('.edit-is_secret').value;
-
-          if (!newContent) {
-            alert('댓글 내용을 입력해주세요.');
-            return;
-          }
-
-          fetch(`/api/${commentId}/comment/update`, {
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({content: newContent, is_secret: is_secret})
-          })
-          .then(res => {
-            if (!res.ok) throw new Error('댓글 수정 실패');
-            return res.json();
-          })
-          .then(updatedComment => {
-            contentSpan.textContent = updatedComment.content;
-          })
-          .catch(err => alert(err.message));
-        });
-
-        // 취소 버튼 클릭 이벤트
-        contentSpan.querySelector('.cancel-btn').addEventListener('click', () => {
-          contentSpan.textContent = currentContent;
-        });
-      }
-
-      // 삭제 버튼 클릭
-      if (target.classList.contains('delete-comment-btn')) {
-        if (!commentId) {
-          alert("댓글 ID를 찾을 수 없습니다.");
-          return;
-        }
-        const confirmDelete = confirm("이 댓글을 삭제하시겠습니까?");
-        if (!confirmDelete) return;
-
-        fetch(`/api/${commentId}/comment`, {
-          method: 'DELETE'
-        })
-        .then(res => {
-          if (!res.ok) throw new Error('댓글 삭제 실패');
-          return res.text();
-        })
-        .then(msg => {
-          alert(msg);
-          commentDiv.remove();
-
-          // 자식 댓글도 삭제
-          document.querySelectorAll(`.comment[data-parent-id='${commentId}']`).forEach(child => child.remove());
-        })
-        .catch(err => alert(err.message));
-      }
-
-      // 답글 버튼 클릭 (답글 폼 토글)
-      if (target.classList.contains('reply-btn')) {
-        const replyForm = commentDiv.querySelector('.reply-form');
-        replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
-      }
-
-      // 대댓글 등록 버튼 클릭
-      if (target.classList.contains('submit-reply')) {
-        const content = commentDiv.querySelector('.reply-content').value.trim();
-        const isSecret = commentDiv.querySelector('.reply-is_secret').value;
-
-        if (!content) {
-          alert('답글 내용을 입력해주세요.');
-          return;
-        }
-
-        fetch(`/api/${id}/comment`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            userId: userId,
-            content: content,
-            postId: id,
-            isSecret: isSecret,
-            parentComment: commentId
-          })
-        })
-        .then(res => {
-          if (!res.ok) throw new Error('대댓글 등록 실패');
-          return res.json();
-        })
-        .then(data => {
-          location.reload(); // 필요하면 동적 렌더링으로 바꾸세요
-        })
-        .catch(err => alert(err.message));
-      }
-    });
-
-    // 댓글 등록 버튼 (기존 코드 유지)
+    // 댓글 등록
     document.getElementById('submitComment').addEventListener('click', function () {
-      const content = document.getElementById('commentInput').value.trim();
+      const content = document.getElementById('comment-input').value.trim();
       const isSecret = document.getElementById('is_secret').value;
 
       if (!content) {
         alert('댓글을 입력해주세요.');
         return;
+      }
+
+      if(!isSecret) {
+          alert('공개 설정을 해주세요');
+          return;
       }
 
       fetch(`/api/${id}/comment`, {
@@ -335,70 +190,283 @@
         return res.json();
       })
       .then(data => {
-        addCommentToList(data);
-        document.getElementById('commentInput').value = '';
+        fetchComments(id);
+        document.getElementById('comment-input').value = '';
       })
       .catch(err => alert(err.message));
     });
-*/
 
-async function fetchComments(postId) {
-  try {
-    const response = await fetch(`/api/${postId}/comments`);
-    if (!response.ok) {
-      throw new Error('댓글을 가져오는 데 실패했습니다.');
-    }
-    const comments = await response.json();
-    renderComments(comments);
-  } catch (error) {
-    console.error(error);
-    alert('댓글을 가져오는 데 오류가 발생했습니다.');
-  }
-}
+    // 댓글 수정
+    function editComment(commentId) {
+      const li = document.querySelector(`[data-comment-id="${commentId}"]`);
+      if (!li) return;
 
-  // 댓글 렌더링
-function renderComments(comments) {
-    const commentsList = document.getElementById('detail-comments');
-    commentsList.innerHTML = '';
+      // 현재 댓글 텍스트 요소 선택
+      const contentSpan = li.querySelector('span');
+      if (!contentSpan) return;
 
-    comments.forEach(comment => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <span><strong>${comment.nickname}</strong>: ${comment.content}</span>
-            <button onclick="likeComment(this)" style="background:none;border:none;cursor:pointer;">❤️</button>
-            <button onclick="showReplyForm(this)" style="background:none;border:none;cursor:pointer;color:#b865a4;">답글</button>
-        `;
-        commentsList.appendChild(li);
+      const currentContent = contentSpan.textContent.trim();
+      const isSecretValue = li.dataset.isSecret;
 
-        // 답글이 있으면 렌더링
-        if (comment.replies) {
-            comment.replies.forEach(reply => {
-                const replyLi = document.createElement('li');
-                replyLi.className = 'reply';
-                replyLi.innerHTML = `<span><strong>${reply.author}</strong>: ${reply.content}</span>`;
-                commentsList.appendChild(replyLi);
-            });
+      // 편집 UI 만들기
+      li.innerHTML = `
+          <textarea class="edit-input" style="width: 70%;">${currentContent}</textarea>
+          <select class="is-secret">
+            <option value="Y" ${isSecretValue === 'Y' ? 'selected' : ''}>전체 공개</option>
+            <option value="N" ${isSecretValue === 'N' ? 'selected' : ''}>비공개</option>
+          </select>
+          <button class="save-btn" style="color:#b865a4;">저장</button>
+          <button class="cancel-btn" style="color:#b865a4;">취소</button>
+      `;
+
+      // 저장 버튼 이벤트
+      li.querySelector('.save-btn').addEventListener('click', () => {
+        const newContent = li.querySelector('.edit-input').value.trim();
+        const isSecret = li.querySelector('.is-secret').value;
+        if (!newContent) {
+          alert('댓글 내용을 입력해주세요.');
+          return;
         }
-    });
-}
+        if(!isSecret) {
+          alert('공개 설정을 해주세요');
+          return;
+        }
 
-// 댓글 좋아요
-function likeComment(button) {
-    // 간단한 좋아요 효과
-    button.style.color = '#ff6b6b';
-    setTimeout(() => {
-        button.style.color = '';
-    }, 1000);
-}
+        fetch(`/api/${commentId}/comment/update`, {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            content: newContent,
+            isSecret: isSecret
+          })
+        })
+        .then(res => {
+          if (!res.ok) throw new Error('댓글 수정 실패');
+          return res.json();
+        })
+        .then(() => {
+          fetchComments(id); // 댓글 다시 불러오기
+        })
+        .catch(err => alert(err.message));
+      });
 
-// 답글 폼 표시 (간단한 프롬프트로 구현)
-function showReplyForm(button) {
-    const reply = prompt('답글을 입력하세요:');
-    if (reply && reply.trim()) {
-        alert('답글이 등록되었습니다: ' + reply);
-        // 실제로는 여기서 서버에 답글을 저장하고 화면을 업데이트
+      // 취소 버튼 이벤트 (원래 내용 복원)
+      li.querySelector('.cancel-btn').addEventListener('click', () => {
+        fetchComments(id);
+      });
     }
-}
+
+    // 댓글 삭제
+    function deleteComment(commentId) {
+      if (!confirm("댓글을 삭제하시겠습니까?")) return;
+
+      fetch(`/api/${commentId}/comment`, {
+          method: 'DELETE'
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('댓글 삭제 실패');
+        document.querySelector(`[data-comment-id="${commentId}"]`).remove();
+      })
+      .catch(error => {
+          console.error(error);
+          alert("댓글 삭제 중 오류가 발생했습니다.");
+      });
+    }
+
+    // 댓글 조회
+    async function fetchComments(postId) {
+      try {
+        const response = await fetch(`/api/${postId}/comments`);
+        if (!response.ok) throw new Error('댓글 로딩 실패');
+        
+        const comments = await response.json();
+        const commentsList = document.getElementById('detail-comments');
+        commentsList.innerHTML = '';
+        renderComments(comments, commentsList);
+      } catch (error) {
+        console.error(error);
+        alert('댓글을 불러오는 데 실패했습니다.');
+      }
+    }
+
+    // 댓글 렌더링
+    function renderComments(comments, container = document.getElementById('detail-comments')) {
+      container.innerHTML = '';
+      comments.forEach(comment => {
+        const li = document.createElement('li');
+        li.dataset.commentId = comment.commentId;
+        li.dataset.isSecret = comment.isSecret;
+
+        // 로그인 유저와 댓글 작성자 비교
+        const isAuthor = (comment.nickname === loginNickname); // userId는 로그인한 유저 id
+        console.log(comment.nickname);
+        console.log(loginNickname);
+        li.innerHTML = `
+            <div class="comment-header">
+              <div class="comment-head">
+                <strong>${comment.nickname}</strong>
+                <div class="comment-date">
+                  ${comment.createdAt} 
+                  ${comment.createdAt !== comment.updatedAt ? ` ${comment.updatedAt}(수정)` : ''}
+                </div>
+              </div>
+              <div class="comment-button">
+                ${isAuthor ? `
+                    <button onclick="editComment('${comment.commentId}')" style="color:#b865a4;">수정</button>
+                    <button onclick="deleteComment('${comment.commentId}')" style="color:#b865a4;">삭제</button>
+                ` : ''}
+                <button onclick="likeComment(this)">❤️</button>
+                <button onclick="showReplyForm(this)" style="color:#b865a4;">답글</button>
+              </div>
+            </div>
+            
+            <div class="comment-content">
+              <span>${comment.content}</span>
+            </div>
+        `;
+        container.appendChild(li);
+
+        if (Array.isArray(comment.commentList) && comment.commentList.length > 0) {
+          const ul = document.createElement('ul');
+          ul.style.marginLeft = '20px';
+          li.after(ul);
+          renderComments(comment.commentList, ul);
+        }
+      });
+      // 댓글 총 갯수
+      const totalCount = countAllComments(comments);
+      document.getElementById('detail-comments-count').textContent = totalCount;
+    }
+
+    function countAllComments(comments) {
+      let count = 0;
+      for (const comment of comments) {
+        count += 1;
+        if (Array.isArray(comment.commentList)) {
+          count += countAllComments(comment.commentList);
+        }
+      }
+      return count;
+    }
+/*
+    // 댓글 좋아요
+    function likeComment(button) {
+        // 간단한 좋아요 효과
+        button.style.color = '#ff6b6b';
+        setTimeout(() => {
+            button.style.color = '';
+        }, 1000);
+    }
+
+    // 댓글 좋아요 추가
+    if (likeComment) {
+      addLikeBtn.addEventListener('click', () => {
+        fetch(`/api/${id}/commentlike`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: userId })
+        })
+        .then(res => res.json())
+        .then(data => {
+          console.log(data.message);
+          document.querySelector('#like-count-del').textContent = data.likeCount;
+          //location.reload(); // UI를 갱신하려면 reload 또는 동적 토글
+          addLikeBtn.style.display = 'none';
+          delLikeBtn.style.display = 'inline-block';
+        });
+      });
+    }
+
+    // 댓글 좋아요 제거
+    if (likeComment) {
+      delLikeBtn.addEventListener('click', () => {
+        fetch(`/api/${id}/commentlike`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: userId })
+        })
+        .then(res => res.json())
+        .then(data => {
+          console.log(data.message);
+          document.querySelector('#like-count-add').textContent = data.likeCount;
+          //location.reload();
+          addLikeBtn.style.display = 'inline-block';
+          delLikeBtn.style.display = 'none';
+        });
+      });
+    }
+*/
+    // 답글 버튼
+    function showReplyForm(button) {
+      const parentLi = button.closest('li');
+      const parentCommentId = parentLi.dataset.commentId;
+
+      // 중복 방지
+      if (parentLi.querySelector('.reply-form')) {
+        parentLi.querySelector('.reply-form').remove();
+        return;
+      }
+
+      const form = document.createElement('div');
+      form.className = 'reply-form';
+      form.innerHTML = `
+          <textarea class="reply-input" placeholder="답글을 입력하세요..."></textarea>
+          <select class="reply-secret">
+            <option value="Y">전체 공개</option>
+            <option value="N">비공개</option>
+          </select>
+          <button class="submit-reply">등록</button>
+          <button class="cancel-btn">취소</button>
+      `;
+
+      parentLi.after(form);
+
+      // 대댓글 등록
+      form.querySelector('.submit-reply').addEventListener('click', () => {
+        const content = form.querySelector('.reply-input').value.trim();
+        const isSecret = form.querySelector('.reply-secret').value;
+
+        if (!content) {
+          alert("내용을 입력하세요.");
+          return;
+        }
+
+        if(!isSecret) {
+          alert('공개 설정을 해주세요');
+          return;
+        }
+
+        fetch(`/api/${id}/comment`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            userId: userId,
+            postId: id,
+            content: content,
+            isSecret: isSecret,
+            parentComment: parentCommentId
+          })
+        })
+        .then(res => {
+          if (!res.ok) throw new Error('대댓글 등록 실패');
+          return res.json();
+        })
+        .then(data => {
+          form.remove(); // 폼 닫기
+          fetchComments(id); // 전체 댓글 새로고침
+        })
+        .catch(err => alert(err.message));
+      });
+
+      // 취소 버튼 이벤트 (원래 내용 복원)
+      form.querySelector('.cancel-btn').addEventListener('click', () => {
+        fetchComments(id);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      fetchComments(id); // 초기 댓글 로딩
+    });
   </script>
   <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
   <script src="/js/layout.js"></script>

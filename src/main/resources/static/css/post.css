@@ -376,6 +376,7 @@
     list-style: none;
     padding: 0;
     margin: 0 0 15px 0;
+    margin-top: 20px;
 }
 
 .comment-list li {
@@ -386,9 +387,40 @@
     background: #fff;
     border-radius: 8px;
     border-left: 3px solid #f7cac5;
-    display: flex;
+    /*display: flex;*/
+    list-style: none;
     justify-content: space-between;
     align-items: center;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.comment-head {
+    display: flex;
+}
+
+.comment-date {
+    margin-left: 20px;
+    font-size: 12px;
+    padding-top: 2px;
+}
+
+.comment-button {
+    display: flex;
+    justify-self: flex-end;
+}
+/*
+.comment-content {
+    display: block;
+}
+*/
+
+.comment-list ul {
+  margin-left: 20px;
+  padding-left: 0;
 }
 
 .comment-list .reply {
@@ -398,10 +430,11 @@
     background: #fff9f6;
     border-left-color: #e8c4b8;
 }
-
+/*
 .comment-list li span {
     flex: 1;
 }
+*/
 
 .comment-list li button {
     background: none;
