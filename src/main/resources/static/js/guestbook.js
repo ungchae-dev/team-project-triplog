@@ -226,7 +226,7 @@ function addEmoticonToMessage(emoticonText) {
 // 전역 함수로 노출 (팝업에서 호출할 수 있도록)
 window.addEmoticonToMessage = addEmoticonToMessage;
 
-// ============= 방명록 데이터 로드 =============
+// === 방명록 목록 로드 함수 ===
 async function loadGuestbookData() {
     console.log('방명록 데이터 로드 시작');
     
@@ -253,18 +253,13 @@ async function loadGuestbookData() {
     try {
         showLoadingMessage();
         
-        // TODO: 실제 API 연동 시 아래 주석 해제
-        // const currentNickname = getCurrentNickname();
-        // const response = await fetch(`/blog/api/@${encodeURIComponent(currentNickname)}/guestbook?page=${guestbookCurrentPage}&size=${guestbookItemsPerPage}`);
-        // const data = await response.json();
-        // guestbookTotalEntries = data.entries;
-        // guestbookTotalPages = data.totalPages;
-        
-        // 임시 더미 데이터 생성
-        generateDummyData();
-        
-        console.log('더미 데이터 생성 완료. 총 방명록 수:', guestbookTotalEntries.length);
-        
+        const currentNickname = getCurrentNickname();
+        const response = await fetch(`/blog/api/@${encodeURIComponent(currentNickname)}/guestbook?page=${guestbookCurrentPage}&size=${guestbookItemsPerPage}`);
+        const data = await response.json();
+
+        guestbookTotalEntries = data.entries;
+        guestbookTotalPages = data.totalPages;
+
         renderGuestbookList();
         renderPagination();
         
@@ -435,20 +430,20 @@ function renderPagination() {
     const groupEndPage = Math.min(currentGroup * pagesPerGroup, guestbookTotalPages); // 현재 그룹 끝 페이지
     
     console.log(`페이징 정보: 현재페이지=${guestbookCurrentPage}, 현재그룹=${currentGroup}/${totalGroups}, 그룹범위=${groupStartPage}-${groupEndPage}`);
-    
+     
+    // 처음 버튼 (마지막 그룹에서만 표시)
+    if (currentGroup === totalGroups && totalGroups > 1) {
+        const firstButton = createPaginationButton('처음', () => goToPage(1));
+        firstButton.className += ' nav-button';
+        pagination.appendChild(firstButton);
+    }
+
     // 이전 그룹 버튼 (2그룹부터 표시)
     if (currentGroup > 1) {
         const prevGroupPage = (currentGroup - 2) * pagesPerGroup + 1; // 이전 그룹의 첫 페이지
         const prevButton = createPaginationButton('이전', () => goToPage(prevGroupPage));
         prevButton.className += ' nav-button';
         pagination.appendChild(prevButton);
-    }
-    
-    // 처음 버튼 (마지막 그룹에서만 표시)
-    if (currentGroup === totalGroups && totalGroups > 1) {
-        const firstButton = createPaginationButton('처음', () => goToPage(1));
-        firstButton.className += ' nav-button';
-        pagination.appendChild(firstButton);
     }
     
     // 현재 그룹의 페이지 번호들
@@ -505,7 +500,7 @@ function goToPage(pageNumber) {
     }
 }
 
-// ============= 방명록 작성 처리 =============
+// === 방명록 작성 처리 ===
 function handleSubmitGuestbook() {
     const nicknameSpan = document.getElementById('currentUserNickname');
     const messageInput = document.getElementById('guestMessage');
@@ -514,7 +509,12 @@ function handleSubmitGuestbook() {
     const nickname = nicknameSpan ? nicknameSpan.textContent : '게스트';
     const message = messageInput.value.trim();
     const isSecret = secretCheck.checked;
-    
+
+    // 디버깅 로그 추가
+    console.log('체크박스 요소:', secretCheck);
+    console.log('체크박스 checked 속성:', secretCheck ? secretCheck.checked : 'null');
+    console.log('비밀글 체크 상태:', isSecret);
+
     // 입력 검증
     if (!message) {
         alert('메시지를 입력해주세요.');
@@ -538,61 +538,42 @@ function handleSubmitGuestbook() {
         // 취소 시 입력창에 포커스 (이미 입력한 내용은 유지)
         messageInput.focus();
     }
+
 }
 
-// ============= 방명록 제출 =============
+// === 방명록 작성 함수 ===
 async function submitGuestbookEntry(nickname, message, isSecret) {
+    console.log('API 호출 직전 isSecret 값:', isSecret);
+
     try {
-        // TODO: 실제 API 연동 시 아래 주석 해제
-        // const currentNickname = getCurrentNickname();
-        // const response = await fetch(`/blog/api/@${encodeURIComponent(currentNickname)}/guestbook`, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify({
-        //         visitorNickname: nickname,
-        //         message: message,
-        //         isSecret: isSecret
-        //     })
-        // });
-        
-        // if (!response.ok) {
-        //     throw new Error('방명록 작성에 실패했습니다.');
-        // }
-        
-        // 임시: 더미 데이터에 추가
-        const newEntry = {
-            id: Date.now(),
-            nickname: nickname,
-            message: message,
-            isSecret: isSecret,
-            createdAt: new Date().toLocaleString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            }).replace(/\. /g, '.').replace(/\.$/, '')
-        };
-        
-        console.log('새 방명록 항목 생성:', newEntry);
-        
-        guestbookTotalEntries.unshift(newEntry);
-        guestbookTotalPages = Math.ceil(guestbookTotalEntries.length / guestbookItemsPerPage);
-        
-        // 첫 페이지로 이동하여 새 글 보이기
-        guestbookCurrentPage = 1;
-        renderGuestbookList();
-        renderPagination();
-        
+        // 서버 API 호출
+        const currentNickname = getCurrentNickname();
+        const response = await fetch(`/blog/api/@${encodeURIComponent(currentNickname)}/guestbook`, {
+            method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: message, 
+                isSecret: isSecret
+            })
+        });
+
+        console.log('전송한 데이터:', { message, isSecret });
+
+        if (!response.ok) {
+            throw new Error('방명록 작성에 실패했습니다!');
+        }
+        const result = await response.json();
+
+        // 성공 시 목록 새로고침
+        loadGuestbookData();
+
         // 입력창 초기화
         document.getElementById('guestMessage').value = '';
         document.getElementById('secretCheck').checked = false;
         
         alert('방명록이 작성되었습니다!');
-        
-        console.log('방명록 작성 완료. 총 방명록 수:', guestbookTotalEntries.length);
         
     } catch (error) {
         console.error('방명록 작성 실패:', error);
