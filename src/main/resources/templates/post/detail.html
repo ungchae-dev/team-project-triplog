@@ -348,7 +348,7 @@
       }
       return count;
     }
-
+/*
     // 댓글 좋아요
     function likeComment(button) {
         // 간단한 좋아요 효과
@@ -378,7 +378,7 @@
     }
 
     // 댓글 좋아요 제거
-    if (delLikeBtn) {
+    if (likeComment) {
       delLikeBtn.addEventListener('click', () => {
         fetch(`/api/${id}/commentlike`, {
           method: 'DELETE',
@@ -395,7 +395,7 @@
         });
       });
     }
-
+*/
     // 답글 버튼
     function showReplyForm(button) {
       const parentLi = button.closest('li');
