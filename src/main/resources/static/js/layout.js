@@ -5,6 +5,8 @@ let cachedSkinInfo = null; // 스킨 정보 캐시
 let skinInfoloaded = false; // 스킨 정보 로드 완료 여부
 let cachedProfileImage = null; // 프로필 이미지 캐시
 let profileImageLoaded = false; // 프로필 이미지 로드 완료 여부
+let ownedMusic = []; // 소유한 음악 목록
+let currentIndex = 0; // 현재 재생 중인 음악 인덱스
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('=== Layout 초기화 시작 ===');
@@ -411,14 +413,7 @@ function updateAllProfileImages(profileImageUrl) {
         console.log('사이드바 프로필 이미지 업데이트');
     }
 
-    // 2. 방명록 현재 사용자 프로필 이미지 ⭐ 추가
-    const guestbookProfileImg = document.getElementById('currentUserProfile');
-    if (guestbookProfileImg) {
-        guestbookProfileImg.src = imageUrlWithCache;
-        console.log('방명록 현재 사용자 프로필 이미지 업데이트');
-    }
-
-    // 3. 프로필 페이지의 이미지들
+    // 2. 프로필 페이지의 이미지들
     const currentProfileImg = document.getElementById('current-profile-img');
     if (currentProfileImg) {
         currentProfileImg.src = imageUrlWithCache;
@@ -431,13 +426,12 @@ function updateAllProfileImages(profileImageUrl) {
         console.log('프로필 페이지 미리보기 이미지 업데이트');
     }
 
-    // 4. 기타 모든 프로필 이미지 (CSS 선택자로 찾기)
+    // 3. 기타 모든 프로필 이미지 (CSS 선택자로 찾기)
     const allProfileImages = document.querySelectorAll(`
         img[src*="/uploads/profiles/"], 
         img[src*="placeholder"], 
         .profile-image, 
         .user-profile-img,
-        .current-user-profile,
         img[alt*="프로필"],
         img[alt*="profile"]
     `);
@@ -446,14 +440,13 @@ function updateAllProfileImages(profileImageUrl) {
         // 이미 업데이트한 이미지는 제외
         if (img !== sideProfileImg && 
         img !== currentProfileImg && 
-        img !== editPreviewImg &&
-        img !== guestbookProfileImg) {
+        img !== editPreviewImg) {
             img.src = imageUrlWithCache;
             console.log(`추가 프로필 이미지 ${index + 1} 업데이트`);
         }
     });
 
-    console.log(`총 ${allProfileImages.length}개의 프로필 이미지 업데이트 완료.`);
+    console.log(`총 ${allProfileImages.length}개의 프로필 이미지 업데이트 완료.`);    
 }
 
 // 캐시된 프로필 이미지 적용 (페이지 로드시)
@@ -547,43 +540,115 @@ function navigateToPage(page) {
 }
 
 // 음악 위젯 이벤트 설정
-function setupMusicWidget() {
-    // 즉시 확인, 없으면 옵저버로 감시
-    const listBtn = document.getElementById('list-btn');
-    if (listBtn) {
-        setupListButtonEvent(listBtn);
-        return;
-    }
+// === 음악 재생 함수 ===
+function playTrack(index) {
+  const audio = document.getElementById('audio-player');
+  const trackTitle = document.getElementById('current-track-title');
+  const playPauseBtn = document.getElementById('play-pause-btn');
 
-    // 컴포넌트가 아직 로드되지 않은 경우 옵저버 사용
-    const observer = new MutationObserver(() => {
-        const listBtn = document.getElementById('list-btn');
-        if (listBtn) {
-            setupListButtonEvent(listBtn);
-            observer.disconnect();
-        }
-    });
+  const track = ownedMusic[index];
+  if (!track || !audio) return;
 
-    const topContainer = document.getElementById('top-container');
-    if (topContainer) {
-        observer.observe(topContainer, {
-            childList: true,
-            subtree: true
-        });
-    }
+  currentIndex = index;
+  audio.src = track.musicFile;
+  trackTitle.textContent = `🎵 ${track.title} - ${track.artist}`;
+  playPauseBtn.textContent = '⏸';
+
+  audio.play().catch(err => {
+    console.error('오디오 재생 실패:', err);
+    playPauseBtn.textContent = '▶︎';
+  });
 }
 
-// LIST 버튼 이벤트 설정
-function setupListButtonEvent(listBtn) {
-    listBtn.addEventListener('click', () => {
-        const currentNickname = getCurrentNickname();
-        if (currentNickname) {
-            navigateToPage('jukebox');
-        } else {
-            window.location.href = '/blog/jukebox';
-        }
+// === 음악 목록 새로 불러오기 ===
+async function loadOwnedMusic() {
+  const audio = document.getElementById('audio-player');
+  const musicList = document.getElementById('owned-musicplayer-list');
+  const trackTitle = document.getElementById('current-track-title');
+
+  if (!audio || !musicList) return;
+
+  try {
+    const res = await fetch('/api/music/owned');
+    ownedMusic = await res.json();
+    musicList.innerHTML = '';
+
+    ownedMusic.forEach((track, index) => {
+      const li = document.createElement('li');
+      li.textContent = `${track.title} - ${track.artist}`;
+      li.addEventListener('click', () => playTrack(index));
+      musicList.appendChild(li);
     });
-    console.log('LIST 버튼 이벤트 설정 완료');
+
+    // 현재 트랙 정보 유지
+    if (ownedMusic.length > 0 && currentIndex < ownedMusic.length) {
+      const track = ownedMusic[currentIndex];
+      trackTitle.textContent = `🎵 ${track.title} - ${track.artist}`;
+    }
+
+  } catch (err) {
+    console.error('소유 음악 다시 불러오기 실패:', err);
+  }
+}
+
+
+// === 음악 위젯 초기화 ===
+function setupMusicWidget() {
+  const listBtn = document.getElementById('list-btn');
+  const audio = document.getElementById('audio-player');
+  const playPauseBtn = document.getElementById('play-pause-btn');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const volumeBtn = document.getElementById('volume-btn');
+  const musicListPopup = document.getElementById('musicplayer-list-popup');
+  const musicList = document.getElementById('owned-musicplayer-list');
+
+  if (!listBtn || !audio) return;
+
+  // LIST 버튼 토글
+  listBtn.addEventListener('click', () => {
+    musicListPopup.classList.toggle('hidden');
+  });
+
+  // 음소거 버튼
+  volumeBtn.addEventListener('click', () => {
+    audio.muted = !audio.muted;
+    volumeBtn.textContent = audio.muted ? '🔇' : '🔊';
+  });
+
+  // 재생/일시정지
+  playPauseBtn.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play();
+      playPauseBtn.textContent = '⏸';
+    } else {
+      audio.pause();
+      playPauseBtn.textContent = '▶︎';
+    }
+  });
+
+  // 이전 곡
+  prevBtn.addEventListener('click', () => {
+    if (ownedMusic.length === 0) return;
+    currentIndex = (currentIndex - 1 + ownedMusic.length) % ownedMusic.length;
+    playTrack(currentIndex);
+  });
+
+  // 다음 곡
+  nextBtn.addEventListener('click', () => {
+    if (ownedMusic.length === 0) return;
+    currentIndex = (currentIndex + 1) % ownedMusic.length;
+    playTrack(currentIndex);
+  });
+  
+  // 🎵 음악 목록 불러오고 onended 설정
+  loadOwnedMusic().then(() => {
+    audio.onended = () => {
+      if (ownedMusic.length === 0) return;
+      currentIndex = (currentIndex + 1) % ownedMusic.length;
+      playTrack(currentIndex);
+    };
+  });
 }
 
 // 현재 페이지에 맞는 네비 버튼 활성화 (즉시 실행)
@@ -703,25 +768,12 @@ async function loadPageContent(page, nickname) {
 
 // 페이지별 초기화 함수 (즉시 실행)
 function initializePage(page) {
-    console.log(`${page} 페이지 초기화 시작`);
-    
     // 각 페이지별 초기화 함수가 있으면 즉시 호출
     const initFunctionName = `setup${page.charAt(0).toUpperCase() + page.slice(1)}Features`;
 
     if (typeof window[initFunctionName] === 'function') {
-        // 방명록 페이지는 특별히 더 확실하게 초기화
-        if (page === 'guestbook') {
-            console.log('방명록 페이지 특별 초기화 시작');
-            
-            // DOM이 완전히 준비될 때까지 기다린 후 초기화
-            setTimeout(() => {
-                window[initFunctionName]();
-                console.log(`${page} 페이지 초기화 완료 (지연 실행)`);
-            }, 150);
-        } else {
-            window[initFunctionName]();
-            console.log(`${page} 페이지 초기화 완료`);
-        }
+        window[initFunctionName]();
+        console.log(`${page} 페이지 초기화 완료`);
     } else {
         console.log(`${page} 페이지는 별도 초기화 함수가 없습니다.`);
     }
@@ -742,8 +794,6 @@ function initializePage(page) {
     if (!profileImageLoaded) {
         loadUserProfileImage();
     }
-    
-    console.log(`${page} 페이지 초기화 프로세스 완료`);
 }
 
 // 브라우저 뒤로가기 지원

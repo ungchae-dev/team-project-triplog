@@ -485,6 +485,45 @@ body, html {
   display: none !important;
 }
 
+/* 음악 리스트 전체 */
+#owned-musicplayer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fafafa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* 각 곡 항목 */
+#owned-musicplayer-list li {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 15px;
+  color: #333;
+}
+
+/* 마지막 항목 구분선 제거 */
+#owned-musicplayer-list li:last-child {
+  border-bottom: none;
+}
+
+/* 마우스 호버 시 효과 */
+#owned-musicplayer-list li:hover {
+  background-color: #f0f0f0;
+}
+
+/* 현재 재생 중인 항목 강조 (선택 시 클래스 추가용) */
+#owned-musicplayer-list li.active {
+  background-color: #e6f7ff;
+  font-weight: bold;
+  color: #1890ff;
+}
+
 /* 로딩 상태 처리 */
 #left-container:empty,
 #top-container:empty,

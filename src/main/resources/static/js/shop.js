@@ -328,8 +328,10 @@ async function renderMusicList(Page = 1, genreId = currentMusicGenreId) {
 
           const result = await response.json();
           alert(result.message + '\n남은 도토리: ' + result.remainingAcorn);
-          await fetchUserAcorn()
+          
+          await fetchUserAcorn() 
           renderMusicList(Page, genreId); // 현재 페이지 & 장르 유지
+          loadOwnedMusic(); // 구매 후 음악 목록 갱신
         } catch (err) {
           console.error('구매 요청 실패:', err);
           alert('서버 오류로 인해 구매에 실패했습니다.');

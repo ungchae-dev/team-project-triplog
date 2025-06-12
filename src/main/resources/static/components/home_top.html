@@ -8,17 +8,24 @@
 
   <div class="header-handle">
     <h2 id="page-title">홈</h2>
-    <div class="music-widget">
-      <div class="track">Sweetbox – Life Is Cool</div>
-      <div class="controls">
-        <button>⏮</button>
-        <button>⏸</button>
-        <button>⏭</button>
-        <button>🔊</button>
-        <button id="list-btn">LIST</button>
-      </div>
-    </div>
+    
+    <div class="music-widget" style="position: relative;">
+  <div class="track" id="current-track-title">🎵 재생할 곡을 선택하세요</div>
+  <div class="controls">
+    <button id="prev-btn">⏮</button>
+    <button id="play-pause-btn">▶︎</button>
+    <button id="next-btn">⏭</button>
+    <button id="volume-btn">🔊</button>
+    <button id="list-btn">LIST</button>
   </div>
-  
+
+  <!-- 팝업: 처음엔 숨겨지고, 오버레이 형태로 떠야 함 -->
+  <div id="musicplayer-list-popup" class="musicplayer-list hidden">
+    <ul id="owned-musicplayer-list"></ul>
+  </div>
+
+  <audio id="audio-player" hidden></audio>
+</div>
+
 </body>
 </html>
