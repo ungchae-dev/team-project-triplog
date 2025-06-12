@@ -4,6 +4,7 @@ import com.javago.constant.IsThumbnail;
 import com.javago.constant.TagType;
 import com.javago.constant.Visibility;
 import com.javago.triplog.domain.hashtag_people.entity.QHashtag_People;
+import com.javago.triplog.domain.post.dto.PostContentUtil;
 import com.javago.triplog.domain.post.dto.PostSearchDto;
 import com.javago.triplog.domain.post.entity.Post;
 import com.javago.triplog.domain.post.entity.QPost;
@@ -153,7 +154,8 @@ public class PostSearchRepositoryImpl implements PostSearchRepositoryCustom {
                     .fetch();
 
             String nickname = p.getBlog().getMember().getNickname();
-            String content = p.getContent();
+            String summary = PostContentUtil.extractTextSummary(p.getContent(), 100);
+            String inlineImage = PostContentUtil.extractFirstImageSrc(p.getContent());
             Integer comments = p.getCommentCount();
             String date = p.getCreatedAt() != null
                     ? p.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
@@ -168,9 +170,10 @@ public class PostSearchRepositoryImpl implements PostSearchRepositoryCustom {
                     hashtags,
                     peopleTags,
                     nickname,
-                    content,
+                    summary,
                     comments,
-                    date
+                    date,
+                    inlineImage
             );
         }).toList();
 

@@ -34,6 +34,8 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 public class Post {
 
+
+
     // 게시판 작성글 테이블
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_seq")

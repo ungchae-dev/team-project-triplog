@@ -51,10 +51,6 @@ public class MainController {
 
             // 지역 정보 모델에 추가
             model.addAttribute("selectRegion", region);
-            
-            // 주간 베스트 게시글 로드 (나중에 구현)
-            // List<PostDto> bestPosts = postService.findTop4ByLikes();
-            // model.addAttribute("bestPosts", bestPosts);
 
             return "page/mainpage"; //  templates/page/mainpage.html
     }
@@ -69,5 +65,5 @@ public class MainController {
         return "page/popup"; // popup.html
 
     }
-    //관리자 페이지로 매핑
+
 }
