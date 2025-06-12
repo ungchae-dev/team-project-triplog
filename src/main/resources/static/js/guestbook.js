@@ -56,40 +56,73 @@ function setupEventListeners() {
 // ============= 현재 로그인한 사용자 정보 로드 =============
 async function loadCurrentUserInfo() {
     try {
-        // TODO: 실제 API 연동시 현재 로그인한 사용자 정보 가져오기
-        // const response = await fetch('/api/current-user');
-        // const userData = await response.json();
-        
-        // 임시 더미 데이터
-        const userData = {
-            nickname: '닉네임7',
-            profileImage: '/images/default_profile.png'
-        };
+        // API 호출로 현재 로그인한 사용자 정보 가져오기
+        const response = await fetch(`/blog/api/current-user`);
+
+        if (!response.ok) {
+            throw new Error(`API 호출 실패: ${response.status}`);
+        }
+
+        const userData = await response.json();
+        console.log('서버에서 받은 사용자 데이터:', userData);
         
         // 프로필 이미지 및 닉네임 설정
         const profileImg = document.getElementById('currentUserProfile');
         const nicknameSpan = document.getElementById('currentUserNickname');
         
         if (profileImg) {
-            profileImg.src = userData.profileImage || '/images/default_profile.png';
+            // 프로필 이미지 분기 처리
+            let imageUrl;
+
+            if (userData.profileImage) {
+                imageUrl = userData.profileImage; // 업로드된 이미지 사용
+                console.log('업로드된 프로필 이미지 사용:', imageUrl);
+            } else {
+                imageUrl = '/images/default_profile.png'; // 기본 이미지 사용
+                console.log('기본 프로필 이미지 사용:', imageUrl);
+            }
+
+            profileImg.src = imageUrl;
             profileImg.alt = userData.nickname + '의 프로필';
+            console.log('프로필 이미지 최종 설정:', imageUrl);
         }
         
         if (nicknameSpan) {
-            nicknameSpan.textContent = userData.nickname || '닉네임';
+            // 닉네임 분기 처리
+            let displayNickname;
+
+            if (userData.nickname) {
+                displayNickname = userData.nickname; // 실제 닉네임 사용
+                console.log('실제 닉네임 사용:', displayNickname);
+            } else {
+                displayNickname = '닉네임'; // 기본값 사용
+                console.log('기본 닉네임 사용:', displayNickname);
+            }
+
+            nicknameSpan.textContent = displayNickname;
+            console.log('닉네임 최종 설정:', displayNickname);
         }
         
         console.log('현재 사용자 정보 로드 완료:', userData);
         
     } catch (error) {
         console.error('사용자 정보 로드 실패:', error);
-        
-        // 기본값 설정
+
+        // 로그인되지 않았거나 API 오류 시 기본값으로 설정    
         const profileImg = document.getElementById('currentUserProfile');
         const nicknameSpan = document.getElementById('currentUserNickname');
         
-        if (profileImg) profileImg.src = '/images/default_profile.png';
-        if (nicknameSpan) nicknameSpan.textContent = '게스트';
+        if (profileImg) {
+            profileImg.src = '/images/default_profile.png';
+            profileImg.alt = '기본 프로필';
+            console.log('에러로 인한 기본 프로필 이미지 설정');
+        }
+        if (nicknameSpan) {
+            nicknameSpan.textContent = '게스트';
+            console.log('에러로 인한 게스트 닉네임 설정');
+        }
+
+        console.log('기본값으로 설정됨 (로그인 필요 또는 API 오류)');
     }
 }
 
