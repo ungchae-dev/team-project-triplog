@@ -14,13 +14,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+
 
 @Controller
 @RequiredArgsConstructor
@@ -82,13 +80,14 @@ public class AdminController {
         return comment.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
-    @GetMapping("/admin/posts-comments")
+    //게시글과 댓글 전체 반환
+    @GetMapping("/admin/api/posts-comments")
     @ResponseBody
     public List<AdminContentDto> getPostsAndComments() {
         return adminService.getAllPostsAndComments();
     }
 
+    //게시글 삭제
     @DeleteMapping("/admin/delete/{type}/{id}")
     @ResponseBody
     public ResponseEntity<?> deletePostOrComment(@PathVariable String type, @PathVariable Long id) {
