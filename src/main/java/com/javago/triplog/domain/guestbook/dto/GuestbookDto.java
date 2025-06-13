@@ -94,6 +94,7 @@ public class GuestbookDto {
         @Size(max = 4000, message = "방명록은 4000자 이내로 입력해주세요.")
         private String message;
 
+        @JsonProperty("isSecret")
         private boolean isSecret; // 비밀글 여부 (Y/N: 비밀글/공개글)
 
         // Validation용 getter (message -> content 매핑)

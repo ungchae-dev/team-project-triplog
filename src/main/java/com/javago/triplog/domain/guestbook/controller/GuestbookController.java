@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
 
 
 
@@ -152,7 +153,81 @@ public class GuestbookController {
     }
     
     // 방명록 수정
+    @PutMapping("/@{nickname}/guestbook/{guestbookId}")
+    @Transactional
+    public ResponseEntity<Map<String, Object>> updateGuestbook(
+    @PathVariable String nickname, 
+    @PathVariable Long guestbookId, 
+    @Valid @RequestBody GuestbookDto.UpdateRequest request, 
+    Authentication authentication) {
 
+        try {
+            // 로그인 체크
+            if (authentication == null) {
+                return blogControllerUtils.unauthorizedResponse();
+            }
+
+            String decodedNickname = blogControllerUtils.decodeNickname(nickname);
+            Member blogOwner = memberService.findByNickname(decodedNickname);
+            Blog blog = blogService.findByMember(blogOwner);
+
+            // 방명록 존재 여부 확인
+            Guestbook guestbook = guestbookService.findGuestbookById(guestbookId);
+
+            // 해당 블로그의 방명록인지 확인
+            if (!guestbook.belongsTo(blog.getBlogId())) {
+                return blogControllerUtils.badRequestResponse("잘못된 방명록입니다!");
+            }
+
+            // 권한 체크: 작성자 본인만 수정 가능
+            String currentMemberId = authentication.getName();
+            if (!guestbook.isWrittenBy(currentMemberId)) {
+                return blogControllerUtils.unauthorizedResponse();
+            }
+
+            // 디버깅 로그 - 수정 전
+            System.out.println("=== 방명록 수정 요청 ===");
+            System.out.println("방명록 ID: " + guestbookId);
+            System.out.println("수정 전 내용: " + guestbook.getContent().substring(0, Math.min(30, guestbook.getContent().length())) + "...");
+            System.out.println("수정 전 비밀글 여부: " + guestbook.isSecret());
+            System.out.println("요청된 새 내용: " + request.getMessage().substring(0, Math.min(30, request.getMessage().length())) + "...");
+            System.out.println("요청된 비밀글 여부: " + request.isSecret());
+
+            // 방명록 수정
+            // 1. 내용 수정
+            guestbook.updateContent(request.getMessage());
+
+            // 2. 비밀글 상태 수정
+            guestbook.updateSecretStatus(request.isSecret());
+
+            // 3. 저장 (수정일자: updatedAt은 엔티티의 @UpdateTimestamp로 자동 처리)
+            Guestbook updatedGuestbook = guestbookService.saveGuestbook(guestbook);
+
+            // 디버깅 로그 - 수정 후
+            System.out.println("수정 후 내용: " + updatedGuestbook.getContent().substring(0, Math.min(30, updatedGuestbook.getContent().length())) + "...");
+            System.out.println("수정 후 비밀글 여부: " + updatedGuestbook.isSecret());
+            System.out.println("수정 일시: " + updatedGuestbook.getUpdatedAt());
+            System.out.println("========================");
+
+            // 응답 데이터
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "방명록이 수정되었습니다.");
+            response.put("guestbookId", updatedGuestbook.getGuestbookId());
+            response.put("updatedAt", updatedGuestbook.getUpdatedAt().toString());
+
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            System.err.println("방명록 수정 실패 - 존재하지 않는 방명록: " + e.getMessage());
+            return blogControllerUtils.notFoundResponse("존재하지 않는 방명록입니다!");
+        } catch (Exception e) {
+            System.err.println("방명록 수정 실패: " + e.getMessage());
+            e.printStackTrace();
+            return blogControllerUtils.serverErrorResponse("방명록 수정에 실패했습니다!");
+        }
+        
+    }
 
     // 방명록 삭제
     
