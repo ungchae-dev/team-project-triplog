@@ -72,7 +72,7 @@
                 <button type="button" th:if="${nickname == loginNickname}" th:onclick="|location.href='@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">✏️ 수정</button>
                 <button type="button" th:if="${nickname == loginNickname}" id="delete-btn">🗑 삭제</button>
               </div>
-              <label>댓글</label>
+
               <div class="comments-section">
                 <h3>💬 댓글 (<span id="detail-comments-count">0</span>)</h3>
                 <textarea placeholder="댓글을 입력하세요..." id="comment-input"></textarea>
@@ -143,22 +143,25 @@
     }
 
     // 글 삭제
-    document.getElementById("delete-btn").addEventListener('click', function(){
-      const del = confirm("이 글을 삭제하시겠습니까?");
-      if(del == true){
-        fetch(`/api/delete/${id}`, {
-          method: 'DELETE',
-        })
-        .then(res => {
-          if(!res.ok) throw new Error("삭제 실패");
-          alert("삭제되었습니다.");
-          location.replace(`/blog/@${nickname}/post`);
-        })
-        .catch(err => {
-          console.error(err.message);
-        });
-      }
-    });
+    const deleteBtn = document.getElementById("delete-btn");
+    if(deleteBtn){
+      deleteBtn.addEventListener('click', function(){
+        const del = confirm("이 글을 삭제하시겠습니까?");
+        if(del == true){
+          fetch(`/api/delete/${id}`, {
+            method: 'DELETE',
+          })
+          .then(res => {
+            if(!res.ok) throw new Error("삭제 실패");
+            alert("삭제되었습니다.");
+            location.replace(`/blog/@${nickname}/post`);
+          })
+          .catch(err => {
+            console.error(err.message);
+          });
+        }
+      });
+    }
 
     // 댓글 등록
     document.getElementById('submitComment').addEventListener('click', function () {
@@ -280,6 +283,7 @@
         if (!response.ok) throw new Error('댓글 로딩 실패');
         
         const comments = await response.json();
+        console.log(comments);
         const commentsList = document.getElementById('detail-comments');
         commentsList.innerHTML = '';
         renderComments(comments, commentsList);
@@ -299,8 +303,6 @@
 
         // 로그인 유저와 댓글 작성자 비교
         const isAuthor = (comment.nickname === loginNickname); // userId는 로그인한 유저 id
-        console.log(comment.nickname);
-        console.log(loginNickname);
         li.innerHTML = `
             <div class="comment-header">
               <div class="comment-head">
@@ -315,7 +317,10 @@
                     <button onclick="editComment('${comment.commentId}')" style="color:#b865a4;">수정</button>
                     <button onclick="deleteComment('${comment.commentId}')" style="color:#b865a4;">삭제</button>
                 ` : ''}
-                <button onclick="likeComment(this)">❤️</button>
+                ${comment.liked ? 
+                    `<button onclick="delLikeComment('${comment.commentId}')" style="color:#b865a4;">❤️ ${comment.commentLikeCount}</button>` :
+                    `<button onclick="addLikeComment('${comment.commentId}')" style="color:#b865a4;">🤍 ${comment.commentLikeCount}</button>`
+                }                
                 <button onclick="showReplyForm(this)" style="color:#b865a4;">답글</button>
               </div>
             </div>
@@ -357,45 +362,50 @@
             button.style.color = '';
         }, 1000);
     }
+*/
 
     // 댓글 좋아요 추가
-    if (likeComment) {
-      addLikeBtn.addEventListener('click', () => {
-        fetch(`/api/${id}/commentlike`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: userId })
+    function addLikeComment(commentId){
+      console.log("🧪 Like 요청 commentId:", commentId);
+      fetch(`/api/${commentId}/commentlike`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          memberId: userId,
+          commentId: commentId
         })
-        .then(res => res.json())
-        .then(data => {
-          console.log(data.message);
-          document.querySelector('#like-count-del').textContent = data.likeCount;
-          //location.reload(); // UI를 갱신하려면 reload 또는 동적 토글
-          addLikeBtn.style.display = 'none';
-          delLikeBtn.style.display = 'inline-block';
-        });
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('서버 응답 에러');
+        return response.text(); // 빈 바디일 수도 있으니 text() 사용
+      })
+      .then(data => {
+        console.log(data.message);
+        fetchComments(id);
       });
     }
 
     // 댓글 좋아요 제거
-    if (likeComment) {
-      delLikeBtn.addEventListener('click', () => {
-        fetch(`/api/${id}/commentlike`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: userId })
+    function delLikeComment(commentId){
+      console.log("🧪 Like 요청 commentId:", commentId);
+      fetch(`/api/${commentId}/commentlike`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          memberId: userId,
+          commentId: commentId
         })
-        .then(res => res.json())
-        .then(data => {
-          console.log(data.message);
-          document.querySelector('#like-count-add').textContent = data.likeCount;
-          //location.reload();
-          addLikeBtn.style.display = 'inline-block';
-          delLikeBtn.style.display = 'none';
-        });
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('서버 응답 에러');
+        return response.text(); // 빈 바디일 수도 있으니 text() 사용
+      })
+      .then(data => {
+        console.log(data.message);
+        fetchComments(id);
       });
     }
-*/
+
     // 답글 버튼
     function showReplyForm(button) {
       const parentLi = button.closest('li');
