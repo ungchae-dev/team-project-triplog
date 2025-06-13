@@ -165,6 +165,7 @@ function submitNotice() {
         title: title,
         content: content,
         authorNickname: currentUserNickname
+
     };
 
     const url = id ? `/admin/api/notice/${id}` : `/admin/api/notice`;
