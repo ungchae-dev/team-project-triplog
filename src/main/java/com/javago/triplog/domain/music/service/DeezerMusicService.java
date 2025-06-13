@@ -23,39 +23,59 @@ public class DeezerMusicService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final MusicRepository musicRepository; // ✅ DB 조회용
 
-    public List<MusicDto> getTracksByGenre(String genreId) {
-        String url = "https://api.deezer.com/chart/" + genreId + "/tracks?index=" + "&limit=100";
+   public List<MusicDto> getTracksByGenre(String genreId) {
+    String url = "https://api.deezer.com/chart/" + genreId + "/tracks?index=&limit=100";
 
-        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                url, HttpMethod.GET, null,
-                new ParameterizedTypeReference<>() {}
-        );
+    ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+        url, HttpMethod.GET, null,
+        new ParameterizedTypeReference<>() {}
+    );
 
-        Map<String, Object> responseBody = response.getBody();
-        if (responseBody == null || !responseBody.containsKey("data")) {
-            return Collections.emptyList();
-        }
+    Map<String, Object> responseBody = response.getBody();
+    if (responseBody == null || !responseBody.containsKey("data")) {
+        return Collections.emptyList();
+    }
 
-        List<Map<String, Object>> trackList = (List<Map<String, Object>>) responseBody.get("data");
+    List<Map<String, Object>> trackList = (List<Map<String, Object>>) responseBody.get("data");
 
-        return trackList.stream().map(track -> {
-            String title = (String) track.get("title");
-            String artist = ((Map<String, Object>) track.get("artist")).get("name").toString();
-            String album = ((Map<String, Object>) track.get("album")).get("cover_medium").toString();
-            String preview = (String) track.get("preview");
+    return trackList.stream()
+        .map(track -> {
+            try {
+                String title = (String) track.get("title");
+                String preview = (String) track.get("preview");
 
-            // ✅ DB에서 해당 음악 찾기
-            Optional<Music> optionalMusic = musicRepository.findByTitleAndArtistAndAlbum(title, artist, album);
+                Map<String, Object> artistMap = (Map<String, Object>) track.get("artist");
+                Map<String, Object> albumMap = (Map<String, Object>) track.get("album");
 
-            return MusicDto.builder()
-                    .musicId(optionalMusic.map(Music::getMusicId).orElse(null)) // 존재 시 주입
-                    .title(title)
-                    .artist(artist)
-                    .album(album)
-                    .musicFile(preview)
-                    .price(10)
-                    .build();
-        }).collect(Collectors.toList());
+                if (title == null || preview == null || artistMap == null || albumMap == null) {
+                    return null; // 불완전한 데이터는 제외
+                }
+
+                String artist = (String) artistMap.get("name");
+                String album = (String) albumMap.get("cover_medium");
+
+                if (artist == null || album == null) {
+                    return null;
+                }
+
+                Optional<Music> optionalMusic =
+                    musicRepository.findByTitleAndArtistAndAlbum(title, artist, album);
+
+                return MusicDto.builder()
+                        .musicId(optionalMusic.map(Music::getMusicId).orElse(null))
+                        .title(title)
+                        .artist(artist)
+                        .album(album)
+                        .musicFile(preview)
+                        .price(10)
+                        .build();
+            } catch (Exception e) {
+                System.err.println("🎵 트랙 처리 중 오류 발생: " + e.getMessage());
+                return null;
+            }
+        })
+        .filter(dto -> dto != null)
+        .collect(Collectors.toList());
     }
 
     // 플레이어 재생 시 실시간으로 Preview URL 초기화
