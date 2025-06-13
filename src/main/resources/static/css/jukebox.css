@@ -26,20 +26,70 @@
     margin-bottom: 12px;
 }
 
-#track-list-left, #track-list-right {
+#track-list-left{
     list-style: none;
     margin: 0;
     padding: 0;
 }
-#track-list-left li,
-#track-list-right li {
+#track-list-left li{
     font-size: 15px;
     padding: 7px 0 7px 8px;
     border-bottom: 1px solid #f8dada;
 }
-#track-list-left li:last-child,
-#track-list-right li:last-child {
+#track-list-left li:last-child {
     border-bottom: none;
+}
+
+.track-info-box {
+  padding: 20px;
+  font-size: 16px;
+  color: #444;
+  background-color: #fefefe;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+/* 현재 재생 중인 음악 영역 */
+.now-playing-highlight {
+  background-color: #fdf4f4;
+  font-weight: bold;
+  border: 1px solid #f3bebe;
+  border-radius: 5px;
+  padding: 5px 8px;
+  margin-bottom: 6px;
+}
+
+.now-playing-container {
+  text-align: center;
+}
+
+.now-playing-label {
+  font-weight: bold;
+  color: #b05a5a;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.now-playing-album {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  margin-bottom: 15px;
+}
+
+.now-playing-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.now-playing-artist {
+  font-size: 15px;
+  color: #444;
 }
 
 /* 하단 페이징 */

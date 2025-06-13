@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -78,4 +79,18 @@ public class MusicPurchaseController {
         return ResponseEntity.internalServerError().body("보유 음악 조회 실패: " + e.getMessage());
     }
   }
+
+   // nickname 기반으로 블로그 주인을 찾아 보유 음악 조회
+    @GetMapping("/owned/{nickname}")
+    public ResponseEntity<?> getOwnedMusicByNickname(@PathVariable String nickname) {
+        try {
+            List<MusicDto> ownedMusic = musicPurchaseService.getOwnedMusicByNickname(nickname);
+            return ResponseEntity.ok(ownedMusic);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("보유 음악 조회 실패: " + e.getMessage());
+        }
+    }
 }

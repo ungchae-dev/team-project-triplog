@@ -558,6 +558,13 @@ function playTrack(index) {
     console.error('오디오 재생 실패:', err);
     playPauseBtn.textContent = '▶︎';
   });
+
+  if (typeof window.renderTrackLists === 'function') {
+  window.renderTrackLists(); // 주크박스와 동기화
+    }
+
+  const event = new CustomEvent('music:trackChanged', { detail: track });
+  window.dispatchEvent(event);
 }
 
 // === 음악 목록 새로 불러오기 ===
@@ -591,6 +598,37 @@ async function loadOwnedMusic() {
   }
 }
 
+// === 닉네임으로 소유 음악 불러오기 ===
+async function loadOwnedMusicByNickname(nickname) {
+  const audio = document.getElementById('audio-player');
+  const musicList = document.getElementById('owned-musicplayer-list');
+  const trackTitle = document.getElementById('current-track-title');
+
+  if (!audio || !musicList) return;
+
+  try {
+    const res = await fetch(`/api/music/owned/${nickname}`);
+    if (!res.ok) throw new Error('음악 불러오기 실패');
+
+    ownedMusic = await res.json();
+    musicList.innerHTML = '';
+
+    ownedMusic.forEach((track, index) => {
+      const li = document.createElement('li');
+      li.textContent = `${track.title} - ${track.artist}`;
+      li.addEventListener('click', () => playTrack(index));
+      musicList.appendChild(li);
+    });
+
+    if (ownedMusic.length > 0) {
+      const track = ownedMusic[0];
+      trackTitle.textContent = `🎵 ${track.title} - ${track.artist}`;
+    }
+
+  } catch (err) {
+    console.error('닉네임 음악 불러오기 실패:', err);
+  }
+}
 
 // === 음악 위젯 초기화 ===
 function setupMusicWidget() {
@@ -641,14 +679,17 @@ function setupMusicWidget() {
     playTrack(currentIndex);
   });
   
-  // 🎵 음악 목록 불러오고 onended 설정
-  loadOwnedMusic().then(() => {
-    audio.onended = () => {
-      if (ownedMusic.length === 0) return;
-      currentIndex = (currentIndex + 1) % ownedMusic.length;
-      playTrack(currentIndex);
-    };
-  });
+   // 닉네임 추출해서 그 사람 음악 가져오기
+  const nickname = getCurrentNickname();
+  if (nickname) {
+    loadOwnedMusicByNickname(nickname).then(() => {
+      audio.onended = () => {
+        if (ownedMusic.length === 0) return;
+        currentIndex = (currentIndex + 1) % ownedMusic.length;
+        playTrack(currentIndex);
+      };
+    });
+  }
 }
 
 // 현재 페이지에 맞는 네비 버튼 활성화 (즉시 실행)
@@ -807,6 +848,11 @@ window.addEventListener('popstate', (event) => {
         }
     }
 });
+
+// 현재 재생 중인 트랙 정보 반환 (주크박스로)
+window.getCurrentlyPlayingTrack = function() {
+  return ownedMusic?.[currentIndex] || null;
+};
 
 console.log('layout.js 로드 완료 - 즉시 반응 모드');
 

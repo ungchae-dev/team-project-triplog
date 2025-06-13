@@ -117,4 +117,39 @@ public class MusicPurchaseService {
 
     return ownedMusic;
   }
+
+  // 닉네임 기반 보유 음악 조회 추가
+    public List<MusicDto> getOwnedMusicByNickname(String nickname) {
+    Member member = memberRepository.findByNickname(nickname);
+    
+    if (member == null) {
+        throw new IllegalArgumentException("해당 닉네임의 회원을 찾을 수 없습니다.");
+    }
+
+    List<MemberItem> items = memberItemRepository.findByMemberAndItemType(member, ItemType.MUSIC);
+
+    List<MusicDto> ownedMusic = new ArrayList<>();
+    for (MemberItem item : items) {
+        Music music = item.getMusic();
+        if (music != null) {
+            String previewUrl = deezerMusicService
+                .fetchPreviewUrlByTitleAndArtist(music.getTitle(), music.getArtist())
+                .orElse(music.getMusicFile());
+
+            MusicDto dto = MusicDto.builder()
+                .musicId(music.getMusicId())
+                .title(music.getTitle())
+                .artist(music.getArtist())
+                .album(music.getAlbum())
+                .musicFile(previewUrl)
+                .price(music.getPrice())
+                .purchased(true)
+                .build();
+
+            ownedMusic.add(dto);
+        }
+    }
+
+    return ownedMusic;
+    }
 }
