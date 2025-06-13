@@ -1,8 +1,13 @@
 package com.javago.triplog.page.admin.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
@@ -10,9 +15,18 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class Notice {
-    private String id;
-    private String noticetitle;
-    private String noticecontent;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long noticeid;
+
+    @JsonProperty("title")
+    private String title;
+
+    @JsonProperty("content")
+    private String content;
+
     private String authorNickname;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 }

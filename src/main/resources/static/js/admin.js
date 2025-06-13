@@ -1,248 +1,318 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // 게시글 + 댓글 리스트 렌더링
-    fetch("/admin/posts-comments")
+document.addEventListener("DOMContentLoaded", () => {
+    loadNoticeList();
+    initMenuNavigation();
+    initPostCommentSection();
+    initNoticeEvents();
+    drawAcornChartIfPresent();
+
+    // 기본으로 '게시글/댓글 관리' 섹션 보이기 & 데이터 로드
+    showSection("posts");
+    loadPostCommentList();
+
+});
+
+
+// 페이지가 처음 로드될 때 공지사항 목록 불러오기
+window.addEventListener('DOMContentLoaded', loadNoticeList);
+
+/** 메뉴 탭 클릭 시 섹션 전환 및 데이터 로드 */
+function initMenuNavigation() {
+    document.querySelectorAll(".menu-item").forEach(item => {
+        item.addEventListener("click", () => {
+            const section = item.dataset.section;
+            showSection(section);
+
+            if (section === "posts") {
+                loadPostCommentList();
+            } else if (section === "notice") {
+                loadNoticeList();
+            }
+        });
+    });
+}
+
+/** 섹션 표시 처리 */
+function showSection(section) {
+    document.querySelectorAll(".admin-content").forEach(sec => (sec.style.display = "none"));
+    const targetSection = document.getElementById(`section-${section}`);
+    if (targetSection) targetSection.style.display = "";
+
+    document.querySelectorAll(".menu-item").forEach(li => li.classList.remove("active"));
+    const activeMenu = document.querySelector(`.menu-item[data-section="${section}"]`);
+    if (activeMenu) activeMenu.classList.add("active");
+}
+
+/** 게시글/댓글 목록 tbody에 데이터 로드 */
+function loadPostCommentList() {
+    const tbody = document.querySelector("#noticeTable tbody");
+    if (!tbody) return;
+
+    // 예시 fetch - 실제 경로 및 데이터 구조에 맞게 수정 필요
+    fetch("/admin/api/posts-comments")
         .then(res => res.json())
         .then(data => {
-            const tbody = document.getElementById("adminPostCommentBody");
-            tbody.innerHTML = "";
-            data.forEach((item) => {
+            tbody.innerHTML = ""; // 기존 내용 삭제
+
+            data.forEach(item => {
                 const tr = document.createElement("tr");
-                tr.setAttribute("data-id", item.id);
-                tr.setAttribute("data-type", item.type);
+                tr.dataset.id = item.id;
+                tr.dataset.type = item.type; // '게시글' or '댓글'
 
                 tr.innerHTML = `
-                    <td>${item.id}</td>
-                    <td>${item.type}</td>
-                    <td>${item.writerId}</td>
-                    <td><span class="toggle-title">${item.titleOrContent}</span></td>
-                    <td>${item.createdAt.replace("T", " ").slice(0, 16)}</td>
-                    <td><button class="delete-btn">삭제</button></td>
-                `;
+          <td>${item.id}</td>
+          <td>${item.type}</td>
+          <td>${item.writerId}</td>
+          <td><span class="toggle-title" style="cursor:pointer; color:blue;">${item.titleOrContent || '(내용 없음)'}</span></td>
+          <td>${item.createdAt}</td>
+          <td><button class="delete-btn">삭제</button></td>
+        `;
 
                 const contentRow = document.createElement("tr");
-                contentRow.classList.add("content-row");
                 contentRow.style.display = "none";
-                contentRow.innerHTML = `<td colspan="6"><div class="content-placeholder">불러오는 중...</div></td>`;
+                contentRow.innerHTML = `<td colspan="6"><div class="content-placeholder">로딩 중...</div></td>`;
 
                 tbody.appendChild(tr);
                 tbody.appendChild(contentRow);
             });
+        })
+        .catch(err => {
+            tbody.innerHTML = `<tr><td colspan="6" style="color:red;">목록 로드 실패: ${err.message}</td></tr>`;
         });
+}
 
-    // 게시글/댓글 테이블 이벤트 위임
-    document.getElementById("adminPostCommentBody").addEventListener("click", function (e) {
+/** 게시글/댓글 tbody 클릭 이벤트 (삭제, 내용 토글) */
+function initPostCommentSection() {
+    const tbody = document.querySelector("#noticeTable tbody");
+    if (!tbody) return;
+
+    tbody.addEventListener("click", e => {
         const target = e.target;
 
+        // 삭제 버튼 클릭
         if (target.classList.contains("delete-btn")) {
-            const tr = target.closest("tr");
-            const id = tr.getAttribute("data-id");
-            const type = tr.getAttribute("data-type");
-
-            if (confirm("정말로 삭제하시겠습니까?")) {
-                fetch(`/admin/delete/${type}/${id}`, { method: "DELETE" })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.text().then(msg => { throw new Error(msg); });
-                        }
-                        tr.nextElementSibling.remove();
-                        tr.remove();
-                    })
-                    .catch(err => alert(err.message));
-            }
+            handleDeleteButtonClick(target);
+            return;
         }
 
+        // 제목 클릭 - 내용 토글
         if (target.classList.contains("toggle-title")) {
-            const tr = target.closest("tr");
-            const nextRow = tr.nextElementSibling;
-            nextRow.style.display = nextRow.style.display === "none" ? "" : "none";
-
-            if (nextRow.style.display === "") {
-                const id = tr.getAttribute("data-id");
-                const type = tr.getAttribute("data-type");
-                const placeholder = nextRow.querySelector(".content-placeholder");
-
-                fetch(`/admin/api/${type === "게시글" ? "post" : "comment"}/${id}`)
-                    .then(res => res.text())
-                    .then(content => {
-                        placeholder.innerHTML = content;
-                    });
-            }
+            handleToggleContentClick(target);
+            return;
         }
     });
+}
 
-    // 사이드 메뉴 클릭 시 섹션 전환
-    document.querySelectorAll(".menu-item").forEach((item) => {
-        item.addEventListener("click", () => {
-            const section = item.dataset.section;
-            document.querySelectorAll(".admin-content").forEach(sec => sec.style.display = "none");
-            document.getElementById(`section-${section}`).style.display = "";
-            document.querySelectorAll(".menu-item").forEach(li => li.classList.remove("active"));
-            item.classList.add("active");
+/** 삭제 처리 */
+function handleDeleteButtonClick(target) {
+    const tr = target.closest("tr");
+    if (!tr) return;
 
-            if (section === "notice") {
-                loadNoticeList();
-            }
-        });
-    });
+    const id = tr.dataset.id;
+    const type = tr.dataset.type;
 
-    // 공지 작성 버튼
-    document.querySelector(".notice-btn").addEventListener("click", () => openNoticeWriteModal(false));
+    if (confirm("정말 삭제하시겠습니까?")) {
+        fetch(`/admin/delete/${type}/${id}`, { method: "DELETE" })
+            .then(res => {
+                if (!res.ok) return res.text().then(t => { throw new Error(t); });
+                // 삭제 성공 시 해당 게시글 + 내용 행 제거
+                const nextTr = tr.nextElementSibling;
+                if (nextTr) nextTr.remove();
+                tr.remove();
+            })
+            .catch(err => alert("삭제 실패: " + err.message));
+    }
+}
 
-    // 공지사항 수정/삭제 버튼 위임
-    document.getElementById("noticeTable").addEventListener("click", function (e) {
-        const btn = e.target;
-        const row = btn.closest("tr");
+/** 내용 토글 및 AJAX 상세내용 로드 */
+function handleToggleContentClick(target) {
+    const tr = target.closest("tr");
+    if (!tr) return;
 
-        if (btn.classList.contains("edit-btn")) {
-            document.getElementById("noticeId").value = row.dataset.id;
-            document.getElementById("noticeTitle").value = row.cells[1].textContent;
-            document.getElementById("noticeContent").value = row.cells[2].textContent;
-            openNoticeWriteModal(true);
-        }
+    const nextRow = tr.nextElementSibling;
+    if (!nextRow) return;
 
-        if (btn.classList.contains("delete-btn")) {
-            const id = row.dataset.id;
-            if (confirm("정말로 삭제하시겠습니까?")) {
-                fetch(`/admin/api/notice/${id}`, { method: "DELETE" })
-                    .then(res => {
-                        if (res.ok) {
-                            row.remove();
-                            renumberNoticeRows();
-                        } else {
-                            alert("삭제 실패");
-                        }
-                    });
-            }
-        }
-    });
+    const contentDiv = nextRow.querySelector(".content-placeholder");
+    if (!contentDiv) return;
 
-    // 공지사항 등록/수정 폼 이벤트
-    document.querySelector(".modal-form").addEventListener("submit", function (e) {
+    const isVisible = nextRow.style.display !== "none";
+    nextRow.style.display = isVisible ? "none" : "";
+
+    if (!isVisible) {
+        const id = tr.dataset.id;
+        const type = tr.dataset.type.toLowerCase(); // post or comment 형태로 맞춤 필요
+
+        fetch(`/admin/api/${type}/${id}`)
+            .then(res => {
+                if (!res.ok) throw new Error("상세 내용 불러오기 실패");
+                return res.text();
+            })
+            .then(content => {
+                contentDiv.innerHTML = content;
+            })
+            .catch(err => {
+                contentDiv.innerHTML = `<span style="color:red;">내용 로드 실패: ${err.message}</span>`;
+            });
+    }
+}
+
+/** 공지사항 관련 초기화 */
+function initNoticeEvents() {
+    const noticeBtn = document.querySelector(".notice-btn");
+    const modal = document.getElementById("noticeWriteModal");
+    const modalForm = modal.querySelector(".modal-form");
+    const closeBtn = modal.querySelector(".close-btn");
+
+    if (!noticeBtn || !modal || !modalForm || !closeBtn) return;
+
+    noticeBtn.addEventListener("click", () => openNoticeWriteModal());
+
+    closeBtn.addEventListener("click", () => closeNoticeWriteModal());
+
+    modalForm.addEventListener("submit", e => {
         e.preventDefault();
-        submitNotice();
+        submitNotice(modalForm);
     });
+}
 
-    // 모달 닫기 버튼
-    document.querySelector(".close-btn").addEventListener("click", closeNoticeWriteModal);
+/** 공지사항 작성 모달 열기 */
+function openNoticeWriteModal() {
+    const modal = document.getElementById("noticeWriteModal");
+    if (!modal) return;
 
-    // 도토리 통계 차트
-    drawAcornChart();
-});
+    modal.style.display = "block";
+    // 초기화
+    modal.querySelector("#noticeId").value = "";
+    modal.querySelector("#noticeTitle").value = "";
+    modal.querySelector("#noticeContent").value = "";
+    modal.querySelector("#noticeModalHeader").textContent = "공지사항 작성";
+}
 
-// 공지사항 목록 로딩
+/** 공지사항 작성 모달 닫기 */
+function closeNoticeWriteModal() {
+    const modal = document.getElementById("noticeWriteModal");
+    if (!modal) return;
+    modal.style.display = "none";
+}
+
+
+/** 공지사항 목록 불러오기 */
 function loadNoticeList() {
-    fetch("/admin/api/notice")
+    const tbody = document.querySelector("#noticeTable2 tbody");
+    console.log("tbody:", tbody);
+    if (!tbody) return;
+
+    // 캐시 방지를 위한 timestamp 쿼리 추가
+    fetch("/admin/api/notices?ts=" + Date.now(), {
+        headers: {
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
+    })
         .then(res => res.json())
-        .then(notices => {
-            const tbody = document.querySelector("#noticeTable tbody");
-            tbody.innerHTML = "";
-            notices.forEach((notice, idx) => {
+        .then(data => {
+            console.log("공지사항 목록 데이터:", data); // 데이터 확인용 로그
+            tbody.innerHTML = ""; // 테이블 초기화
+            data.forEach(item => {
                 const tr = document.createElement("tr");
-                tr.dataset.id = notice.id;
                 tr.innerHTML = `
-                    <td>${idx + 1}</td>
-                    <td>${notice.noticetitle}</td>
-                    <td>${notice.noticecontent}</td>
-                    <td>${notice.authorNickname}</td>
-                    <td>${notice.createdAt.replace("T", " ").slice(0, 16)}</td>
-                    <td>
-                        <button class="edit-btn">수정</button>
-                        <button class="delete-btn">삭제</button>
-                    </td>
+                    <td>${item.noticeid}</td>
+                    <td>${item.title}</td>
+                    <td>${item.content}</td>
+                    <td>${item.authorNickname}</td>
+                    <td>${item.createdAt}</td>
+                    <td><button class="notice-delete-btn" data-id="${item.noticeid}">삭제</button></td>
                 `;
                 tbody.appendChild(tr);
             });
+            // 새로 생성된 삭제 버튼에 이벤트 다시 연결
+            attachDeleteEvents();
+        })
+        .catch(err => {
+            tbody.innerHTML = `<tr><td colspan="6" style="color:red;">공지사항 목록 불러오기 실패: ${err.message}</td></tr>`;
         });
 }
 
-// 공지사항 등록/수정
-function submitNotice() {
-    const id = document.getElementById('noticeId').value;
-    const title = document.getElementById('noticeTitle').value;
-    const content = document.getElementById('noticeContent').value;
-
-    const payload = {
-        title: title,
-        content: content,
-        authorNickname: currentUserNickname
-
-    };
-
-    const url = id ? `/admin/api/notice/${id}` : `/admin/api/notice`;
-    const method = id ? 'PUT' : 'POST';
-
-    fetch(url, {
-        method: method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-        .then(res => {
-            if (res.ok) {
-                alert(id ? '공지사항 수정 완료' : '공지사항 등록 완료');
-                closeNoticeWriteModal();
-                loadNoticeList();
-            } else {
-                alert('처리 실패');
+function attachDeleteEvents() {
+    document.querySelectorAll(".notice-delete-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const id = btn.dataset.id;
+            if (confirm("정말 삭제하시겠습니까?")) {
+                fetch(`/admin/api/notices/${id}`, {
+                    method: "DELETE"
+                })
+                    .then(res => {
+                        if (res.ok) {
+                            alert("삭제되었습니다");
+                            setTimeout(loadNoticeList, 300); // 삭제 후 다시 로드
+                        } else {
+                            alert("삭제에 실패했습니다");
+                        }
+                    })
+                    .catch(err => {
+                        alert("에러 발생: " + err.message);
+                    });
             }
         });
-}
-
-// 행 번호 다시 매기기
-function renumberNoticeRows() {
-    const rows = document.querySelector("#noticeTable tbody").rows;
-    Array.from(rows).forEach((row, idx) => {
-        row.cells[0].textContent = idx + 1;
     });
 }
 
-// --- 공지사항 모달 함수들 ---
-function openNoticeWriteModal(isEdit) {
-    document.getElementById('noticeModalHeader').textContent = isEdit ? '공지사항 수정' : '공지사항 작성';
-    if (!isEdit) {
-        document.getElementById('noticeId').value = '';
-        document.getElementById('noticeTitle').value = '';
-        document.getElementById('noticeContent').value = '';
+
+
+/** 공지사항 제출 처리 */
+function submitNotice(form) {
+    const id = form.querySelector("#noticeId").value;
+    const title = form.querySelector("#noticeTitle").value.trim();
+    const content = form.querySelector("#noticeContent").value.trim();
+
+
+    if (!title || !content) {
+        alert("제목과 내용을 모두 입력해주세요.");
+        return;
     }
-    document.getElementById('noticeWriteModal').style.display = 'flex';
+
+    // POST 또는 PUT 구분 예시 - 실제 API에 맞게 변경 필요
+    const method = id ? "PUT" : "POST";
+    const url = id ? `/admin/api/notices/${id}` : "/admin/api/notices";
+
+    fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            title: title,
+            content: content,
+            authorNickname: currentUserNickname}),
+    })
+        .then(res => {
+            if (!res.ok) return res.text().then(t => { throw new Error(t); });
+            alert("공지사항이 성공적으로 저장되었습니다.");
+            closeNoticeWriteModal();
+            loadNoticeList();
+        })
+        .catch(err => alert("공지사항 저장 실패: " + err.message));
 }
 
-function closeNoticeWriteModal() {
-    document.getElementById('noticeWriteModal').style.display = 'none';
-}
+/** 도토리 구매 통계 차트 그리기 */
+function drawAcornChartIfPresent() {
+    const canvas = document.getElementById("acornChart");
+    if (!canvas) return;
 
-// --- 도토리 차트 함수 ---
-function drawAcornChart() {
-    const ctx = document.getElementById("acornChart").getContext("2d");
-    const months = ['2025-02', '2025-03', '2025-04', '2025-05', '2025-06'];
-    const purchaseCounts = [150000, 210000, 580000, 250000, 730000];
-
-    new Chart(ctx, {
-        type: 'bar',
+    // 예시 데이터 및 차트 그리기 - 실제 데이터 API 호출 등 구현 필요
+    const ctx = canvas.getContext("2d");
+    const chart = new Chart(ctx, {
+        type: "bar",
         data: {
-            labels: months,
+            labels: ["1월", "2월", "3월", "4월", "5월", "6월"],
             datasets: [{
-                label: '도토리 구매량',
-                data: purchaseCounts,
-                backgroundColor: 'rgba(68, 82, 250, 0.7)',
-                borderRadius: 6,
-                barPercentage: 0.6,
+                label: "도토리 구매량",
+                data: [12, 19, 3, 5, 2, 3],
+                backgroundColor: "rgba(75, 192, 192, 0.6)"
             }]
         },
         options: {
-            plugins: { legend: { display: false } },
+            responsive: true,
             scales: {
-                y: {
-                    beginAtZero: true,
-                    min: 0,
-                    max: 800000,
-                    title: { display: true, text: '구매량' },
-                    ticks: {
-                        callback: value => value === 0 ? '0' : value === 800000 ? '80만' : (value / 10000) + '만'
-                    }
-                },
-                x: {
-                    title: { display: true, text: '월' }
-                }
+                y: { beginAtZero: true }
             }
         }
     });
