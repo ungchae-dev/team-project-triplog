@@ -28,6 +28,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -53,7 +54,7 @@ public class GuestbookController {
     @Autowired
     private BlogControllerUtils blogControllerUtils;
 
-    // 방명록 목록 조회 (페이징)
+    // 방명록 목록 조회 API (페이징)
     @GetMapping("/@{nickname}/guestbook")
     public ResponseEntity<Map<String, Object>> getGuestbookList(
     @PathVariable String nickname, 
@@ -97,7 +98,7 @@ public class GuestbookController {
         }
     }
 
-    // 방명록 작성
+    // 방명록 작성 API
     @PostMapping("/@{nickname}/guestbook")
     @Transactional
     public ResponseEntity<Map<String, Object>> createGuestbook(
@@ -152,7 +153,7 @@ public class GuestbookController {
         
     }
     
-    // 방명록 수정
+    // 방명록 수정 API
     @PutMapping("/@{nickname}/guestbook/{guestbookId}")
     @Transactional
     public ResponseEntity<Map<String, Object>> updateGuestbook(
@@ -229,12 +230,72 @@ public class GuestbookController {
         
     }
 
-    // 방명록 삭제
+    // 방명록 삭제 API
+    @DeleteMapping("/@{nickname}/guestbook/{guestbookId}")
+    @Transactional
+    public ResponseEntity<Map<String, Object>> deleteGuestbook(
+    @PathVariable String nickname, 
+    @PathVariable Long guestbookId, 
+    Authentication authentication) {
+
+        try {
+            // 로그인 체크
+            if (authentication == null) {
+                return blogControllerUtils.unauthorizedResponse();
+            }
+
+            String decodedNickname = blogControllerUtils.decodeNickname(nickname);
+            Member blogOwner = memberService.findByNickname(decodedNickname);
+            Blog blog = blogService.findByMember(blogOwner);
+
+            // 방명록 존재 여부 확인
+            Guestbook guestbook = guestbookService.findGuestbookById(guestbookId);
+
+            // 해당 블로그의 방명록인지 확인
+            if (!guestbook.belongsTo(blog.getBlogId())) {
+                return blogControllerUtils.badRequestResponse("잘못된 방명록입니다!");
+            }
+
+            // 권한 체크: 작성자 본인 or 블로그 주인만 삭제 가능
+            String currentMemberId = authentication.getName();
+            if (!guestbook.isWrittenBy(currentMemberId) && !blogOwner.getMemberId().equals(currentMemberId)) {
+                return blogControllerUtils.unauthorizedResponse();
+            }
+
+            // 디버깅 로그
+            System.out.println("=== 방명록 삭제 요청 ===");
+            System.out.println("방명록 ID: " + guestbookId);
+            System.out.println("삭제할 방명록 내용: " + guestbook.getContent().substring(0, Math.min(30, guestbook.getContent().length())) + "...");
+            System.out.println("삭제 요청자: " + currentMemberId);
+            System.out.println("작성자: " + guestbook.getWriter().getMemberId());
+            System.out.println("블로그 주인: " + blogOwner.getMemberId());
+
+            // 방명록 삭제
+            guestbookService.deleteGuestbook(guestbook);
+
+            System.out.println("방명록 삭제 완료");
+            System.out.println("========================");
+
+            // 응답 데이터
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "방명록이 삭제되었습니다.");
+            response.put("deletedGuestbookId", guestbookId);
+
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            System.err.println("방명록 삭제 실패 - 존재하지 않는 방명록: " + e.getMessage());
+            return blogControllerUtils.notFoundResponse("존재하지 않는 방명록입니다!");
+
+        } catch (Exception e) {
+            System.err.println("방명록 삭제 실패: " + e.getMessage());
+            e.printStackTrace();
+            return blogControllerUtils.serverErrorResponse("방명록 삭제에 실패했습니다!");
+        
+        }
+
+    }
     
-
-    // 방명록 단일 조회
-
-
-
 
 }
