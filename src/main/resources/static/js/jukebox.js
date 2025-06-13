@@ -3,49 +3,82 @@
 (function() {
     'use strict';
     
-    // === 곡 배열(96곡 예시) ===
-    const tracks = Array.from({length: 96}, (_, i) => ({
-        title: `노래 제목 ${i + 1}`,
-        artist: `아티스트 ${i + 1}`
-    }));
+    // === 곡 배열 ===
+    const tracks = [];
 
-    const tracksPerPage = 26; // 1~13, 14~26 (총 26곡이 한 페이지)
+    const tracksPerPage = 10; // 페이지당 곡 수
     let currentPage = 1;
 
     // === 트랙 리스트 렌더링 ===
-    function renderTrackLists() {
-        const leftList = document.getElementById('track-list-left');
-        const rightList = document.getElementById('track-list-right');
-        
-        if (!leftList || !rightList) {
-            console.error('주크박스 리스트 요소를 찾을 수 없습니다');
-            return;
-        }
+ function renderTrackLists() {
+    const leftList = document.getElementById('track-list-left');
+    const rightInfo = document.getElementById('track-info-right'); // 변경됨
 
-        // 각 페이지에 보여줄 곡 범위 계산
-        const pageStart = (currentPage - 1) * tracksPerPage;
-        const pageTracks = tracks.slice(pageStart, pageStart + tracksPerPage);
-
-        // 좌측(1~13)
-        leftList.innerHTML = '';
-        pageTracks.slice(0, 13).forEach((track, idx) => {
-            const li = document.createElement('li');
-            li.textContent = `${pageStart + idx + 1}. ${track.title} - ${track.artist}`;
-            leftList.appendChild(li);
-        });
-
-        // 우측(14~26)
-        rightList.innerHTML = '';
-        pageTracks.slice(13, 26).forEach((track, idx) => {
-            const li = document.createElement('li');
-            li.textContent = `${pageStart + idx + 14}. ${track.title} - ${track.artist}`;
-            rightList.appendChild(li);
-        });
-
-        // 스크롤 상단으로
-        if (leftList.parentElement) leftList.parentElement.scrollTop = 0;
-        if (rightList.parentElement) rightList.parentElement.scrollTop = 0;
+    if (!leftList || !rightInfo) {
+        console.error('주크박스 리스트 요소를 찾을 수 없습니다');
+        return;
     }
+
+    const pageStart = (currentPage - 1) * tracksPerPage;
+    const pageTracks = tracks.slice(pageStart, pageStart + tracksPerPage);
+
+    // 현재 재생 중인 곡
+    const currentTrack = window.getCurrentlyPlayingTrack?.();
+
+    // 좌측 리스트 초기화
+    leftList.innerHTML = '';
+
+    // 1. 현재 곡이 있으면 가장 위에 고정 + 스타일 강조
+    if (currentTrack) {
+        const li = document.createElement('li');
+        li.innerHTML = `🎵 ${currentTrack.title} - ${currentTrack.artist}`;
+        li.classList.add('now-playing-highlight');
+        li.addEventListener('click', () => {
+            renderNowPlaying(currentTrack);
+        });
+        leftList.appendChild(li);
+    }
+
+    // 2. 나머지 곡들 표시 (중복 제거: 현재곡 제외)
+    pageTracks.slice(0, 13).forEach((track, idx) => {
+        // 현재곡은 건너뜀
+        if (currentTrack && track.title === currentTrack.title && track.artist === currentTrack.artist) return;
+
+        const li = document.createElement('li');
+        li.textContent = `${pageStart + idx + 1}. ${track.title} - ${track.artist}`;
+        li.addEventListener('click', () => {
+            renderNowPlaying(track);
+        });
+        leftList.appendChild(li);
+    });
+
+    // 우측 정보: 현재 재생 곡 우선 표시
+    renderNowPlaying(currentTrack || pageTracks[0]);
+}
+
+function renderNowPlaying(track) {
+    const rightInfo = document.getElementById('track-info-right');
+    if (!track || !rightInfo) return;
+
+      rightInfo.innerHTML = `
+    <div class="now-playing-container">
+      <div class="now-playing-label">🎶 현재 재생 중인 음악</div>
+      <img src="${track.album}" alt="앨범 커버" class="now-playing-album">
+      <div class="now-playing-title">🎧 ${track.title}</div>
+      <div class="now-playing-artist">👤 ${track.artist}</div>
+    </div>
+  `;
+}
+
+async function loadOwnerMusic() {
+    const nickname = getCurrentNickname();
+    const res = await fetch(`/api/music/owned/${nickname}`);
+    const data = await res.json();
+    tracks.length = 0;
+    tracks.push(...data);
+    renderTrackLists();
+    renderPagination();
+}
 
     // === 페이지네이션 렌더링 ===
     function renderPagination() {
@@ -99,6 +132,7 @@
     function initJukeboxPage() {
         console.log('주크박스 페이지 초기화 시작');
         renderTrackLists();
+        loadOwnerMusic();
         renderPagination();
 
         // 공통 스킨 로드
@@ -165,6 +199,10 @@
 
     // === 전역 함수로 노출 ===
     window.setupJukeboxFeatures = initJukeboxPage;
+    window.addEventListener('music:trackChanged', (e) => {
+    console.log('🎧 현재 곡이 변경됨:', e.detail);
+    renderTrackLists();
+    });
     window.loadBlogSkin = loadBlogSkin;
 
     // === 스킨 로드 함수 끝 ===
