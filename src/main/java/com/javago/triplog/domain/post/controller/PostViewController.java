@@ -41,12 +41,23 @@ public class PostViewController {
     @GetMapping("/blog/@{nickname}/post")
     public String list(
             @PathVariable("nickname") String nickname,
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "5") int size,
-            @RequestParam(value = "sort", defaultValue = "updatedAt") String sortBy,
-            @RequestParam(value = "dir", defaultValue = "desc") String direction,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size,
+            @RequestParam(value = "sort", required = false) String sortBy,
+            @RequestParam(value = "dir", required = false) String direction,
             Authentication authentication, Model model) {
 
+        // 🔥 쿼리 파라미터가 전혀 없으면 리다이렉트로 기본값 부여
+        if (page == null && size == null && sortBy == null && direction == null) {
+            return "redirect:/blog/@" + nickname + "/post?page=1&size=5&sort=updatedAt&dir=desc";
+        }
+
+        // 파라미터 기본값 처리
+        page = (page == null) ? 1 : page;
+        size = (size == null) ? 5 : size;
+        sortBy = (sortBy == null) ? "updatedAt" : sortBy;
+        direction = (direction == null) ? "desc" : direction;
+        
         List<String> allowedSorts = List.of("updatedAt", "likeCount", "commentCount");
         if (!allowedSorts.contains(sortBy)) {
             sortBy = "updatedAt";
@@ -69,6 +80,7 @@ public class PostViewController {
                 loginNickname = customUserDetails.getMember().getNickname();
         }
         model.addAttribute("postList", postList);
+        model.addAttribute("currentPage", page);
         model.addAttribute("currentSize", size);
         model.addAttribute("currentSort", sortBy);
         model.addAttribute("currentDir", direction);
@@ -84,7 +96,7 @@ public class PostViewController {
         Post post = postService.findById(id);
         CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
         Boolean exist = postService.existPostLike(id, customUserDetails.getMember().getMemberId());
-        List<CommentDto> commentList = postService.getCommentsByPostId(id);
+        //List<CommentDto> commentList = postService.getCommentsByPostId(id);
         /*
         if (commentList == null) {
             commentList = new ArrayList<>();
@@ -96,7 +108,7 @@ public class PostViewController {
         model.addAttribute("userId", customUserDetails.getMember().getMemberId());
         model.addAttribute("loginNickname", customUserDetails.getMember().getNickname());
         model.addAttribute("exist", exist);
-        model.addAttribute("commentList", commentList);
+        //model.addAttribute("commentList", commentList);
         return "post/detail";
     }
 

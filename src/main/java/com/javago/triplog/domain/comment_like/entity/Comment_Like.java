@@ -17,10 +17,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "comment_like")
 @Getter
+@Setter
 @EntityListeners(AuditingEntityListener.class)
 public class Comment_Like {
     
@@ -31,7 +33,7 @@ public class Comment_Like {
     private Long commentLikeId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "comment_id", updatable = false, nullable = true)
+    @JoinColumn(name = "comment_id", updatable = false, nullable = false)
     private Comments comment;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

@@ -21,14 +21,16 @@ public class CommentDto {
     private String isSecret;
     private String createdAt;
     private String updatedAt;
+    private boolean liked;
+    private int commentLikeCount;
     private List<CommentDto> commentList;
 
-    public static List<CommentDto> buildCommentTree(List<Comments> comments) {
+    public static List<CommentDto> buildCommentTree(List<Comments> comments, String loginUserId) {
         Map<Long, CommentDto> map = new HashMap<>();
         List<CommentDto> roots = new ArrayList<>();
 
         for (Comments c : comments) {
-            CommentDto dto = CommentDto.fromEntity(c); // false = 자식은 아직 안 붙임
+            CommentDto dto = CommentDto.fromEntity(c, loginUserId); // false = 자식은 아직 안 붙임
             map.put(dto.getCommentId(), dto);
         }
 
@@ -45,7 +47,7 @@ public class CommentDto {
     }
 
     // 엔티티를 DTO로 변환
-    public static CommentDto fromEntity(Comments comment) {
+    public static CommentDto fromEntity(Comments comment, String loginUserId) {
         CommentDto dto = new CommentDto();
         dto.setCommentId(comment.getCommentId());
         dto.setNickname(comment.getMember().getNickname());
@@ -53,7 +55,16 @@ public class CommentDto {
         dto.setIsSecret(comment.getIsSecret().name());
         dto.setCreatedAt(comment.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         dto.setUpdatedAt(comment.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        dto.setCommentLikeCount(comment.getCommentLikeList().size());
         dto.setCommentList(new ArrayList<>());
+
+        boolean liked = false;
+        if (loginUserId != null) {
+            liked = comment.getCommentLikeList().stream()
+                    .anyMatch(like -> like.getMember().getMemberId().equals(loginUserId));
+        }
+        dto.setLiked(liked);
+
         return dto;
     }
 }

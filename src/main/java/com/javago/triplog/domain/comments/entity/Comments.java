@@ -3,6 +3,7 @@ package com.javago.triplog.domain.comments.entity;
 import com.javago.constant.IsSecret;
 import com.javago.constant.Visibility;
 import com.javago.triplog.domain.blog.entity.Blog;
+import com.javago.triplog.domain.comment_like.entity.Comment_Like;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.post.entity.Post;
 import jakarta.persistence.*;
@@ -64,6 +65,10 @@ public class Comments {
     // 대댓글 목록
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Comments> commentList = new ArrayList<>();
+
+    // 댓글 좋아요
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Comment_Like> commentLikeList = new ArrayList<>();
 
     @Builder
     public Comments(Post post, Member member, Comments comment, String content, IsSecret isSecret) {

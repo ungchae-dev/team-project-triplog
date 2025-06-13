@@ -2,6 +2,9 @@ package com.javago.triplog.domain.post.service;
 
 import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.blog.repository.BlogRepository;
+import com.javago.triplog.domain.comment_like.dto.CommentLikeDto;
+import com.javago.triplog.domain.comment_like.entity.Comment_Like;
+import com.javago.triplog.domain.comment_like.repository.CommentLikeRepository;
 import com.javago.triplog.domain.comments.dto.AddCommentRequest;
 import com.javago.triplog.domain.comments.dto.CommentDto;
 import com.javago.triplog.domain.comments.dto.UpdateCommentRequest;
@@ -49,6 +52,7 @@ public class PostService {
     private final HashtagPeopleRepository hashtagPeopleRepository;
     private final PostHashtagPeopleRepository postHashtagPeopleRepository;
     private final CommentsRepository commentsRepository;
+    private final CommentLikeRepository commentLikeRepository;
 
 
     // 게시판에 새 글 작성
@@ -244,14 +248,14 @@ public class PostService {
         Member member = memberRepository.findByMemberId(request.getUserId());
         Comments parentComment = commentsRepository.findByCommentId(request.getParentComment());
         Comments comment = request.toEntity(member, post, parentComment);
-        return CommentDto.fromEntity(commentsRepository.save(comment));
+        return CommentDto.fromEntity(commentsRepository.save(comment), request.getUserId());
     }
 
     // 댓글 조회
     @Transactional
-    public List<CommentDto> getCommentsByPostId(Long postId) {
+    public List<CommentDto> getCommentsByPostId(Long postId, String loginUserId) {
         List<Comments> comments = commentsRepository.findAllByPostPostId(postId); // 모든 댓글
-        return CommentDto.buildCommentTree(comments);
+        return CommentDto.buildCommentTree(comments, loginUserId);
     }
 
     // 댓글 갯수 조회
@@ -265,13 +269,36 @@ public class PostService {
     public CommentDto updateComment(Long commentId, UpdateCommentRequest request){
         Comments comment = commentsRepository.findByCommentId(commentId);
         comment.update(request.getContent(), request.getIsSecret().name());
-        return CommentDto.fromEntity(comment);
+        return CommentDto.fromEntity(comment, comment.getMember().getMemberId());
     }
 
     // 댓글 삭제
     @Transactional
     public void deleteComment(Long commentId){
         commentsRepository.deleteByCommentId(commentId);
+    }
+
+    // 댓글 좋아요 추가
+    @Transactional
+    public void addCommentLike(CommentLikeDto commentLike){
+        Member member = memberRepository.findByMemberId(commentLike.getMemberId());
+        Comments comment = commentsRepository.findByCommentId(commentLike.getCommentId());
+
+        Comment_Like like = new Comment_Like();
+        like.setMember(member);
+        like.setComment(comment);
+
+        commentLikeRepository.save(like);
+    }
+
+    // 댓글 좋아요 제거
+    @Transactional
+    public void delCommentLike(CommentLikeDto commentLike){
+        Member member = memberRepository.findByMemberId(commentLike.getMemberId());
+        Comments comment = commentsRepository.findByCommentId(commentLike.getCommentId());
+
+        Comment_Like like = commentLikeRepository.findByMemberAndComment(member, comment);
+        commentLikeRepository.delete(like);
     }
     
 }

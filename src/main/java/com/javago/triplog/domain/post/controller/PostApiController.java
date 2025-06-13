@@ -1,10 +1,13 @@
 package com.javago.triplog.domain.post.controller;
 
 import com.javago.constant.IsThumbnail;
+import com.javago.triplog.domain.comment_like.dto.CommentLikeDto;
+import com.javago.triplog.domain.comment_like.entity.Comment_Like;
 import com.javago.triplog.domain.comments.dto.AddCommentRequest;
 import com.javago.triplog.domain.comments.dto.CommentDto;
 import com.javago.triplog.domain.comments.dto.UpdateCommentRequest;
 import com.javago.triplog.domain.comments.entity.Comments;
+import com.javago.triplog.domain.member.entity.CustomUserDetails;
 import com.javago.triplog.domain.post.dto.AddPostRequest;
 import com.javago.triplog.domain.post.dto.PostListResponse;
 import com.javago.triplog.domain.post.dto.UpdatePostRequest;
@@ -26,6 +29,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -126,14 +131,19 @@ public class PostApiController {
     @PostMapping("/api/{id}/comment")
     public ResponseEntity<?> addComment(@PathVariable("id") Long postId, @RequestBody AddCommentRequest request){
         CommentDto comment = postService.saveComment(request);
-        return ResponseEntity.ok().body(comment);
+        return ResponseEntity.status(HttpStatus.CREATED).body(comment);
     }
 
     // 댓글 조회
     @GetMapping("/api/{postId}/comments")
     @ResponseBody
-    public List<CommentDto> getComments(@PathVariable Long postId) {
-        return postService.getCommentsByPostId(postId);
+    public List<CommentDto> getComments(@PathVariable Long postId, Authentication authentication) {
+        String loginUserId = null;
+        if (authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            loginUserId = userDetails.getMember().getMemberId().toString();
+        }
+        return postService.getCommentsByPostId(postId, loginUserId);
     }    
 
     // 댓글 수정
@@ -142,11 +152,25 @@ public class PostApiController {
         CommentDto comment = postService.updateComment(commentId, request);
         return ResponseEntity.ok().body(comment);
     }
-
+    
     // 댓글 삭제
     @DeleteMapping("/api/{commentId}/comment")
     public ResponseEntity<?> deleteComment(@PathVariable("commentId") Long commentId){
         postService.deleteComment(commentId);
+        return ResponseEntity.ok().build();
+    }
+    
+    // 댓글 좋아요 추가
+    @PostMapping("/api/{commentId}/commentlike")
+    public ResponseEntity<?> addCommentLike(@RequestBody CommentLikeDto commentLike) {
+        postService.addCommentLike(commentLike);
+        return ResponseEntity.ok().build();
+    }
+
+    // 댓글 좋아요 제거
+    @DeleteMapping("/api/{commentId}/commentlike")
+    public ResponseEntity<?> delCommentLike(@RequestBody CommentLikeDto commentLike) {
+        postService.delCommentLike(commentLike);
         return ResponseEntity.ok().build();
     }
 
