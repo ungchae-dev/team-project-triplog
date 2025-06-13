@@ -81,8 +81,15 @@
   <template id="guestbook-edit-template">
     <div class="edit-form-container">
       <div class="edit-form">
-        <h4>방명록 수정</h4>
+        
+        <!-- 헤더 div로 제목과 이모티콘 버튼 묶어 구성 -->
+        <div class="edit-header">
+          <h4>방명록 수정</h4>
+          <button class="edit-emoticon-button">내 이모티콘</button>
+        </div>
+
         <textarea class="edit-textarea" maxlength="4000" placeholder="방명록 내용을 입력하세요~"></textarea>
+        
         <div class="edit-controls">
           <label class="edit-secret-checkbox">
             <input type="checkbox" class="edit-secret-input"> 비밀로 하기
@@ -92,6 +99,7 @@
             <button class="edit-cancel-btn">취소</button>
           </div>
         </div>
+
       </div>
     </div>
   </template>

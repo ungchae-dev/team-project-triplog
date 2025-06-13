@@ -392,6 +392,45 @@
     margin: 0;
 }
 
+/* === 방명록 수정 폼 헤더 스타일 (이모티콘 버튼 포함) === */
+.edit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.edit-header h4 {
+    margin: 0;
+    color: #d32f2f;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* === 수정 폼의 이모티콘 버튼 === */
+.edit-emoticon-button {
+    background: linear-gradient(135deg, #ff8a65 0%, #ff7043 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.edit-emoticon-button:hover {
+    background: linear-gradient(135deg, #e57373 0%, #f44336 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(255, 138, 101, 0.3);
+}
+
+.edit-emoticon-button:active {
+    transform: translateY(0);
+}
+
 /* === 방명록 수정 form 스타일 === */
 .edit-form-container {
     margin: 10px 0;
@@ -405,13 +444,6 @@
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
-}
-
-.edit-form h4 {
-    margin: 0 0 10px 0;
-    color: #d32f2f;
-    font-size: 16px;
-    font-weight: bold;
 }
 
 .edit-textarea {
