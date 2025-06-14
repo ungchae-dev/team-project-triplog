@@ -102,7 +102,7 @@ function initPostCommentSection() {
     });
 }
 
-/** 삭제 처리 */
+/** 게시글 삭제 처리 */
 function handleDeleteButtonClick(target) {
     const tr = target.closest("tr");
     if (!tr) return;
