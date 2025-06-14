@@ -55,15 +55,13 @@ public class AdminService {
 
     public void delete(String type, Long id) {
         if ("게시글".equals(type)) {
-            if (!postRepository.existsById(id)) {
-                throw new EntityNotFoundException("게시글이 존재하지 않습니다.");
-            }
-            postRepository.deleteById(id);
+            Post post = postRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("게시글이 존재하지 않습니다."));
+            postRepository.delete(post); // 연관된 댓글 및 이미지 등도 cascade 설정되어 있으면 삭제됨
         } else if ("댓글".equals(type)) {
-            if (!commentRepository.existsById(id)) {
-                throw new EntityNotFoundException("댓글이 존재하지 않습니다.");
-            }
-            commentRepository.deleteById(id);
+            Comments comment = commentRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("댓글이 존재하지 않습니다."));
+            commentRepository.delete(comment); // 대댓글, 좋아요 등 자동 삭제됨
         } else {
             throw new IllegalArgumentException("유효하지 않은 타입입니다: " + type);
         }
