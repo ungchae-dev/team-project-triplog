@@ -27,6 +27,7 @@ import org.jsoup.select.Elements;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -57,7 +58,41 @@ import java.util.UUID;
 public class PostApiController {
 
     private final PostService postService;
-    private final PostImageRepository imageRepository; 
+    private final PostImageRepository imageRepository;
+
+    // === 게시글 조회 API 코드(2) 추가 ===
+    // 게시글 목록 조회 API
+    @GetMapping("/api/posts")
+    public ResponseEntity<Page<PostListResponse>> getPosts(
+        @RequestParam String nickname, 
+        @RequestParam(defaultValue = "1") int page, 
+        @RequestParam(defaultValue = "5") int size, 
+        @RequestParam(defaultValue = "updatedAt") String sort, 
+        @RequestParam(defaultValue = "desc") String dir) {
+        
+        try {
+            Sort.Direction direction = dir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+            Sort sortObj = Sort.by(direction, sort);
+            Pageable pageable = PageRequest.of(page - 1, size, sortObj);
+
+            Page<PostListResponse> postList = postService.findPostList(pageable, nickname);
+            return ResponseEntity.ok(postList);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // 게시글 상세 조회
+    @GetMapping("/api/posts/{id}")
+    public ResponseEntity<Post> getPost(@PathVariable Long id) {
+        try {
+            Post post = postService.findById(id);
+            return ResponseEntity.ok(post);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     // 게시판 글 작성
     @Transactional
