@@ -57,6 +57,16 @@ portone:
 stipop:
   api-key: "d7f7de93bb1baec62995773ba0665e07"
 
+# Hibernate SQL 로그 숨기기 (추가)
+logging:
+  level:
+    org.hibernate.SQL: OFF           # Hibernate SQL 쿼리 숨기기
+    org.hibernate.type: OFF          # 파라미터 바인딩 로그 숨기기
+    org.hibernate.type.descriptor.sql.BasicBinder: OFF
+    root: INFO                       # 기본 로그 레벨
+    com.javago.triplog: INFO         # 애플리케이션 로그만 INFO 레벨로 표시
+    org.springframework.security: WARN  # Spring Security 로그 줄이기
+
 # SQL문(DDL) 로그에 출력
 #logging:
 #  level:
