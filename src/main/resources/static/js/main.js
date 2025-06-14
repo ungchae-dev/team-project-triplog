@@ -49,6 +49,8 @@ function confirmLogout() {
 
 // 내 블로그 새 창에서 열기
 function openMyBlog() {
+    console.log('내 블로그 열기 시도');
+    
     // 새 창 크기 설정(메인보다 작은 사이즈로)
     const width = 1350; // 폭
     const height = 900; // 높이
@@ -68,10 +70,24 @@ function openMyBlog() {
         status=no
     `;
 
-    // 새 창에서 블로그 열기
-    window.open('/blog/home', 'myBlog', options);
+    try {
+        // 바로 새 창에서 블로그 열기 (세션 확인 생략)
+        const blogWindow = window.open('/blog/home', 'myBlog', options);
+        
+        if (blogWindow) {
+            console.log('새 창 열기 완료');
+            blogWindow.focus();
+        } else {
+            console.error('새 창 열기 실패 (팝업 차단?)');
+            alert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.');
+        }
+    } catch (error) {
+        console.error('새 창 열기 중 오류:', error);
+        alert('블로그를 열 수 없습니다. 잠시 후 다시 시도해주세요.');
+    }
 
 }
+
 let blogWindow = null;
 
 function openMyBlogwrite(event) {
