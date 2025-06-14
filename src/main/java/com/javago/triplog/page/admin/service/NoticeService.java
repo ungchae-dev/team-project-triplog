@@ -9,8 +9,13 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
@@ -103,13 +108,20 @@ public class NoticeService {
         if (!noticeFile.exists() || noticeFile.length() == 0) {
             return new ArrayList<>();
         }
-        return objectMapper.readValue(noticeFile, new TypeReference<List<Notice>>() {});
+        
+        // UTF-8 인코딩 명시
+        try (FileInputStream fis = new FileInputStream(noticeFile);
+            InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8)) {
+            return objectMapper.readValue(isr, new TypeReference<List<Notice>>() {});
+        }
+
     }
 
     // 파일에 쓰기 (예쁘게 출력)
     private void saveToFile(List<Notice> notices) throws IOException {
-        try (FileWriter writer = new FileWriter(noticeFile)) {
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(writer, notices);
+        try (FileOutputStream fos = new FileOutputStream(noticeFile); 
+            OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(osw, notices);
         }
     }
 

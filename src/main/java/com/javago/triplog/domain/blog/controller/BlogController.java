@@ -26,6 +26,9 @@ public class BlogController {
 
     @Autowired
     private BlogService blogService;
+
+    @Autowired
+    private BlogControllerUtils blogControllerUtils;
     
     // 내 블로그 + 닉네임으로 리다이렉트 (새 창에서 호출)
     @GetMapping("/home")
@@ -82,12 +85,65 @@ public class BlogController {
             System.err.println("블로그 로드 실패! " + e.getMessage());
             return "redirect:/"; // 메인 페이지로 리다이렉트
         }
+
     }
     
-    // 상점
+    // 상점 (권한 체크 추가)
     @GetMapping("/@{nickname}/shop")
-    public String shop(@PathVariable String nickname, Model model) {
+    public String shop(@PathVariable String nickname, Model model, Authentication authentication) {
         try {
+            // 로그인 체크
+            if (authentication == null) {
+                System.out.println("상점 접근 거부: 로그인 필요");
+                return "redirect:/member/login";
+            }
+
+            // URL 디코딩 처리
+            String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
+            Member blogOwner = memberService.findByNickname(decodedNickname);
+            
+            // 현재 로그인한 사용자 정보
+            String currentUserId = authentication.getName();
+            Member currentMember = memberService.findByMemberId(currentUserId);
+
+            // 본인 블로그인지 체크
+            if (!blogOwner.getMemberId().equals(currentUserId)) {
+                System.out.println("상점 접근 거부: 권한 없음 - " + decodedNickname + " (현재 사용자: " + currentMember.getNickname() + ")");
+                return "redirect:/blog/@" + nickname; // 블로그 홈으로 리다이렉트
+            }
+
+            Blog blog = blogService.findByMember(blogOwner);
+            model.addAttribute("blogOwner", blogOwner);
+            // 스킨 정보
+            model.addAttribute("skinActive", blog.getSkinActive().name());
+            model.addAttribute("skinImage", blog.getSkinImage() != null ? blog.getSkinImage() : "/images/skins/triplog_skin_default.png");
+            model.addAttribute("blogNickname", decodedNickname);
+
+            System.out.println("상점 접근 허용: " + decodedNickname);
+            return "blog/shop";
+        } catch (Exception e) {
+            System.out.println("상점 로드 실패:" + e.getMessage());
+            return "redirect:/";
+        }
+
+    }
+
+    // 프로필 (권한 체크 추가)
+    @GetMapping("/@{nickname}/profile")
+    public String profile(@PathVariable String nickname, Model model, Authentication authentication) {
+        try {
+            // 로그인 체크
+            if (authentication == null) {
+                System.out.println("프로필 접근 거부: 로그인 필요");
+                return "redirect:/member/login";
+            }
+
+            // 본인 블로그인지 권한 체크
+            if (!blogControllerUtils.isAuthorized(nickname, authentication)) {
+                System.out.println("프로필 접근 거부: 권한 없음 - " + nickname);
+                return "redirect:/blog/@" + nickname; // 블로그 홈으로 리다이렉트
+            }
+
             // URL 디코딩 처리
             String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
             Member blogOwner = memberService.findByNickname(decodedNickname);
@@ -98,41 +154,29 @@ public class BlogController {
             model.addAttribute("skinActive", blog.getSkinActive().name());
             model.addAttribute("skinImage", blog.getSkinImage() != null ? blog.getSkinImage() : "/images/skins/triplog_skin_default.png");
             model.addAttribute("blogNickname", decodedNickname); // JavaScript용 닉네임
-
-            return "blog/shop";
-        } catch (Exception e) {
-            System.out.println("상점 로드 실패:" + e.getMessage());
-            return "redirect:/";
-        }
-    }
-
-    // 프로필
-    @GetMapping("/@{nickname}/profile")
-    public String profile(@PathVariable String nickname, Model model) {
-        try {
-            String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
-            Member blogOwner = memberService.findByNickname(decodedNickname);
-            Blog blog = blogService.findByMember(blogOwner);
-
-            model.addAttribute("blogOwner", blogOwner);
-            // 스킨 정보
-            model.addAttribute("skinActive", blog.getSkinActive().name());
-            model.addAttribute("skinImage", blog.getSkinImage() != null ? blog.getSkinImage() : "/images/skins/triplog_skin_default.png");
-            model.addAttribute("blogNickname", decodedNickname); // JavaScript용 닉네임
             
+            System.out.println("프로필 접근 허용: " + decodedNickname);
             return "blog/profile";
         } catch (Exception e) {
             System.err.println("프로필 로드 실패: " + e.getMessage());
             return "redirect:/";
         }
+
     }
 
     // 게시판 => Post쪽 컨트롤러에서 관리
 
-    // 주크박스
+    // 주크박스 - 로그인 체크만 (모든 로그인 사용자 접근 가능)
     @GetMapping("/@{nickname}/jukebox")
-    public String jukebox(@PathVariable String nickname, Model model) {
+    public String jukebox(@PathVariable String nickname, Model model, Authentication authentication) {
         try {
+            // 로그인 체크
+            if (authentication == null) {
+                System.out.println("주크박스 접근 거부: 로그인 필요");
+                return "redirect:/member/login";
+            }
+
+            // URL 디코딩 처리
             String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
             Member blogOwner = memberService.findByNickname(decodedNickname);
             Blog blog = blogService.findByMember(blogOwner);
@@ -143,6 +187,7 @@ public class BlogController {
             model.addAttribute("skinImage", blog.getSkinImage() != null ? blog.getSkinImage() : "/images/skins/triplog_skin_default.png");
             model.addAttribute("blogNickname", decodedNickname); // JavaScript용 닉네임
             
+            System.out.println("주크박스 접근 허용: " + decodedNickname);
             return "blog/jukebox";
         } catch (Exception e) {
             System.err.println("주크박스 로드 실패: " + e.getMessage());
@@ -152,8 +197,14 @@ public class BlogController {
     
     // 방명록
     @GetMapping("/@{nickname}/guestbook")
-    public String guestbook(@PathVariable String nickname, Model model) {
+    public String guestbook(@PathVariable String nickname, Model model, Authentication authentication) {
         try {
+            // 로그인 체크
+            if (authentication == null) {
+                System.out.println("방명록 접근 거부: 로그인 필요");
+                return "redirect:/member/login";
+            }
+
             String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
             Member blogOwner = memberService.findByNickname(decodedNickname);
             Blog blog = blogService.findByMember(blogOwner);
@@ -164,13 +215,13 @@ public class BlogController {
             model.addAttribute("skinImage", blog.getSkinImage() != null ? blog.getSkinImage() : "/images/skins/triplog_skin_default.png");
             model.addAttribute("blogNickname", decodedNickname); // JavaScript용 닉네임
             
+            System.out.println("방명록 접근 허용: " + decodedNickname);
             return "blog/guestbook";
         } catch (Exception e) {
             System.err.println("방명록 로드 실패: " + e.getMessage());
             return "redirect:/";
         }
     }
-
 
 
 }

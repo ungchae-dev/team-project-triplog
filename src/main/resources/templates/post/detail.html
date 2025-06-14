@@ -1,17 +1,23 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>글 조회</title>
-  <!-- 블로그 페이지 css 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
-  <link rel="stylesheet" href="/css/home.css" />
 
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 조회</title>
+
+  <!-- 블로그 페이지 css 전체(6, 홈-상점-프로필-게시판-주크박스-방명록) 홈에서 로드 -->
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/shop.css" />
+  <link rel="stylesheet" href="/css/profile.css" />
   <link rel="stylesheet" href="/css/post.css" />
+  <link rel="stylesheet" href="/css/jukebox.css" />
+  <link rel="stylesheet" href="/css/guestbook.css" />
 
   <style>
     #commentList {
       margin-top: 20px;
     }
+
     .comment {
       margin-bottom: 10px;
       padding: 8px;
@@ -20,6 +26,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="frame">
 
@@ -39,14 +46,19 @@
         <div class="main-content">
           <div id="board-detail">
 
-            <div id="blogInfo" th:attr="data-user-id=${userId}, data-nickname=${nickname}, data-login-nickname=${loginNickname}" hidden></div>
+            <div id="blogInfo"
+              th:attr="data-user-id=${userId}, data-nickname=${nickname}, data-login-nickname=${loginNickname}" hidden>
+            </div>
             <div id="post_id" th:attr="data-post-id=${post.postId}" hidden></div>
             <div class="post-detail-container">
               <div class="post-header">
                 <h2 id="detail-title" th:text="${post.title}">게시글 제목</h2>
                 <div class="meta">
-                  <span id="detail-author" th:text="${nickname}">닉네임</span> | <span th:text="${post.viewCount}">조회수</span> | <span id="detail-date" th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">작성시간</span>
-                  <span th:if="${post.createdAt != post.updatedAt}" th:text="${#temporals.format(post.updatedAt, 'yyyy--MM--dd HH:mm')}">수정시간</span>
+                  <span id="detail-author" th:text="${nickname}">닉네임</span> | <span
+                    th:text="${post.viewCount}">조회수</span> | <span id="detail-date"
+                    th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">작성시간</span>
+                  <span th:if="${post.createdAt != post.updatedAt}"
+                    th:text="${#temporals.format(post.updatedAt, 'yyyy--MM--dd HH:mm')}">수정시간</span>
                 </div>
               </div>
 
@@ -58,18 +70,18 @@
                   </span>
                 </div>
               </div>
-            
+
               <div class="post-actions">
-                <button id="addPostLike" type="button" 
-                    th:style="${exist} ? 'display:none;' : 'display:inline-block;'">
+                <button id="addPostLike" type="button" th:style="${exist} ? 'display:none;' : 'display:inline-block;'">
                   좋아요 <span id="like-count-add" th:text="${post.postLike.size()}">0</span>
                 </button>
-                <button id="delPostLike" type="button" 
-                    th:style="${exist} ? 'display:inline-block;' : 'display:none;'">
+                <button id="delPostLike" type="button" th:style="${exist} ? 'display:inline-block;' : 'display:none;'">
                   ❤️ 좋아요 <span id="like-count-del" th:text="${post.postLike.size()}">0</span>
                 </button>
                 <button type="button" onclick="navigateToPage('post')">글 목록</button>
-                <button type="button" th:if="${nickname == loginNickname}" th:onclick="|location.href='@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">✏️ 수정</button>
+                <button type="button" th:if="${nickname == loginNickname}"
+                  th:onclick="|location.href='@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">✏️
+                  수정</button>
                 <button type="button" th:if="${nickname == loginNickname}" id="delete-btn">🗑 삭제</button>
               </div>
 
@@ -103,7 +115,7 @@
 
     const addLikeBtn = document.getElementById('addPostLike');
     const delLikeBtn = document.getElementById('delPostLike');
-    
+
     // 좋아요 추가
     if (addLikeBtn) {
       addLikeBtn.addEventListener('click', () => {
@@ -112,14 +124,14 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: userId })
         })
-        .then(res => res.json())
-        .then(data => {
-          console.log(data.message);
-          document.querySelector('#like-count-del').textContent = data.likeCount;
-          //location.reload(); // UI를 갱신하려면 reload 또는 동적 토글
-          addLikeBtn.style.display = 'none';
-          delLikeBtn.style.display = 'inline-block';
-        });
+          .then(res => res.json())
+          .then(data => {
+            console.log(data.message);
+            document.querySelector('#like-count-del').textContent = data.likeCount;
+            //location.reload(); // UI를 갱신하려면 reload 또는 동적 토글
+            addLikeBtn.style.display = 'none';
+            delLikeBtn.style.display = 'inline-block';
+          });
       });
     }
 
@@ -131,34 +143,34 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: userId })
         })
-        .then(res => res.json())
-        .then(data => {
-          console.log(data.message);
-          document.querySelector('#like-count-add').textContent = data.likeCount;
-          //location.reload();
-          addLikeBtn.style.display = 'inline-block';
-          delLikeBtn.style.display = 'none';
-        });
+          .then(res => res.json())
+          .then(data => {
+            console.log(data.message);
+            document.querySelector('#like-count-add').textContent = data.likeCount;
+            //location.reload();
+            addLikeBtn.style.display = 'inline-block';
+            delLikeBtn.style.display = 'none';
+          });
       });
     }
 
     // 글 삭제
     const deleteBtn = document.getElementById("delete-btn");
-    if(deleteBtn){
-      deleteBtn.addEventListener('click', function(){
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', function () {
         const del = confirm("이 글을 삭제하시겠습니까?");
-        if(del == true){
+        if (del == true) {
           fetch(`/api/delete/${id}`, {
             method: 'DELETE',
           })
-          .then(res => {
-            if(!res.ok) throw new Error("삭제 실패");
-            alert("삭제되었습니다.");
-            location.replace(`/blog/@${nickname}/post`);
-          })
-          .catch(err => {
-            console.error(err.message);
-          });
+            .then(res => {
+              if (!res.ok) throw new Error("삭제 실패");
+              alert("삭제되었습니다.");
+              location.replace(`/blog/@${nickname}/post`);
+            })
+            .catch(err => {
+              console.error(err.message);
+            });
         }
       });
     }
@@ -173,14 +185,14 @@
         return;
       }
 
-      if(!isSecret) {
-          alert('공개 설정을 해주세요');
-          return;
+      if (!isSecret) {
+        alert('공개 설정을 해주세요');
+        return;
       }
 
       fetch(`/api/${id}/comment`, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: userId,
           content: content,
@@ -188,15 +200,15 @@
           isSecret: isSecret
         })
       })
-      .then(res => {
-        if (!res.ok) throw new Error('댓글 등록 실패');
-        return res.json();
-      })
-      .then(data => {
-        fetchComments(id);
-        document.getElementById('comment-input').value = '';
-      })
-      .catch(err => alert(err.message));
+        .then(res => {
+          if (!res.ok) throw new Error('댓글 등록 실패');
+          return res.json();
+        })
+        .then(data => {
+          fetchComments(id);
+          document.getElementById('comment-input').value = '';
+        })
+        .catch(err => alert(err.message));
     });
 
     // 댓글 수정
@@ -230,27 +242,27 @@
           alert('댓글 내용을 입력해주세요.');
           return;
         }
-        if(!isSecret) {
+        if (!isSecret) {
           alert('공개 설정을 해주세요');
           return;
         }
 
         fetch(`/api/${commentId}/comment/update`, {
           method: 'PUT',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             content: newContent,
             isSecret: isSecret
           })
         })
-        .then(res => {
-          if (!res.ok) throw new Error('댓글 수정 실패');
-          return res.json();
-        })
-        .then(() => {
-          fetchComments(id); // 댓글 다시 불러오기
-        })
-        .catch(err => alert(err.message));
+          .then(res => {
+            if (!res.ok) throw new Error('댓글 수정 실패');
+            return res.json();
+          })
+          .then(() => {
+            fetchComments(id); // 댓글 다시 불러오기
+          })
+          .catch(err => alert(err.message));
       });
 
       // 취소 버튼 이벤트 (원래 내용 복원)
@@ -264,16 +276,16 @@
       if (!confirm("댓글을 삭제하시겠습니까?")) return;
 
       fetch(`/api/${commentId}/comment`, {
-          method: 'DELETE'
+        method: 'DELETE'
       })
-      .then(res => {
-        if (!res.ok) throw new Error('댓글 삭제 실패');
-        document.querySelector(`[data-comment-id="${commentId}"]`).remove();
-      })
-      .catch(error => {
+        .then(res => {
+          if (!res.ok) throw new Error('댓글 삭제 실패');
+          document.querySelector(`[data-comment-id="${commentId}"]`).remove();
+        })
+        .catch(error => {
           console.error(error);
           alert("댓글 삭제 중 오류가 발생했습니다.");
-      });
+        });
     }
 
     // 댓글 조회
@@ -281,7 +293,7 @@
       try {
         const response = await fetch(`/api/${postId}/comments`);
         if (!response.ok) throw new Error('댓글 로딩 실패');
-        
+
         const comments = await response.json();
         console.log(comments);
         const commentsList = document.getElementById('detail-comments');
@@ -317,10 +329,10 @@
                     <button onclick="editComment('${comment.commentId}')" style="color:#b865a4;">수정</button>
                     <button onclick="deleteComment('${comment.commentId}')" style="color:#b865a4;">삭제</button>
                 ` : ''}
-                ${comment.liked ? 
-                    `<button onclick="delLikeComment('${comment.commentId}')" style="color:#b865a4;">❤️ ${comment.commentLikeCount}</button>` :
-                    `<button onclick="addLikeComment('${comment.commentId}')" style="color:#b865a4;">🤍 ${comment.commentLikeCount}</button>`
-                }                
+                ${comment.liked ?
+            `<button onclick="delLikeComment('${comment.commentId}')" style="color:#b865a4;">❤️ ${comment.commentLikeCount}</button>` :
+            `<button onclick="addLikeComment('${comment.commentId}')" style="color:#b865a4;">🤍 ${comment.commentLikeCount}</button>`
+          }                
                 <button onclick="showReplyForm(this)" style="color:#b865a4;">답글</button>
               </div>
             </div>
@@ -353,19 +365,19 @@
       }
       return count;
     }
-/*
-    // 댓글 좋아요
-    function likeComment(button) {
-        // 간단한 좋아요 효과
-        button.style.color = '#ff6b6b';
-        setTimeout(() => {
-            button.style.color = '';
-        }, 1000);
-    }
-*/
+    /*
+        // 댓글 좋아요
+        function likeComment(button) {
+            // 간단한 좋아요 효과
+            button.style.color = '#ff6b6b';
+            setTimeout(() => {
+                button.style.color = '';
+            }, 1000);
+        }
+    */
 
     // 댓글 좋아요 추가
-    function addLikeComment(commentId){
+    function addLikeComment(commentId) {
       console.log("🧪 Like 요청 commentId:", commentId);
       fetch(`/api/${commentId}/commentlike`, {
         method: 'POST',
@@ -375,18 +387,18 @@
           commentId: commentId
         })
       })
-      .then(response => {
-        if (!response.ok) throw new Error('서버 응답 에러');
-        return response.text(); // 빈 바디일 수도 있으니 text() 사용
-      })
-      .then(data => {
-        console.log(data.message);
-        fetchComments(id);
-      });
+        .then(response => {
+          if (!response.ok) throw new Error('서버 응답 에러');
+          return response.text(); // 빈 바디일 수도 있으니 text() 사용
+        })
+        .then(data => {
+          console.log(data.message);
+          fetchComments(id);
+        });
     }
 
     // 댓글 좋아요 제거
-    function delLikeComment(commentId){
+    function delLikeComment(commentId) {
       console.log("🧪 Like 요청 commentId:", commentId);
       fetch(`/api/${commentId}/commentlike`, {
         method: 'DELETE',
@@ -396,14 +408,14 @@
           commentId: commentId
         })
       })
-      .then(response => {
-        if (!response.ok) throw new Error('서버 응답 에러');
-        return response.text(); // 빈 바디일 수도 있으니 text() 사용
-      })
-      .then(data => {
-        console.log(data.message);
-        fetchComments(id);
-      });
+        .then(response => {
+          if (!response.ok) throw new Error('서버 응답 에러');
+          return response.text(); // 빈 바디일 수도 있으니 text() 사용
+        })
+        .then(data => {
+          console.log(data.message);
+          fetchComments(id);
+        });
     }
 
     // 답글 버튼
@@ -441,14 +453,14 @@
           return;
         }
 
-        if(!isSecret) {
+        if (!isSecret) {
           alert('공개 설정을 해주세요');
           return;
         }
 
         fetch(`/api/${id}/comment`, {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: userId,
             postId: id,
@@ -457,15 +469,15 @@
             parentComment: parentCommentId
           })
         })
-        .then(res => {
-          if (!res.ok) throw new Error('대댓글 등록 실패');
-          return res.json();
-        })
-        .then(data => {
-          form.remove(); // 폼 닫기
-          fetchComments(id); // 전체 댓글 새로고침
-        })
-        .catch(err => alert(err.message));
+          .then(res => {
+            if (!res.ok) throw new Error('대댓글 등록 실패');
+            return res.json();
+          })
+          .then(data => {
+            form.remove(); // 폼 닫기
+            fetchComments(id); // 전체 댓글 새로고침
+          })
+          .catch(err => alert(err.message));
       });
 
       // 취소 버튼 이벤트 (원래 내용 복원)
@@ -478,8 +490,16 @@
       fetchComments(id); // 초기 댓글 로딩
     });
   </script>
-  <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
+
+  <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-방명록) 홈에서 로드 -->
   <script src="/js/layout.js"></script>
+  <script src="/js/home.js"></script>
+  <script src="/js/shop.js"></script>
+  <script src="/js/profile.js"></script>
+  <script src="/js/post.js"></script>
+  <script src="/js/jukebox.js"></script>
+  <script src="/js/guestbook.js"></script>
 
 </body>
+
 </html>

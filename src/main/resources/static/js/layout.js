@@ -8,20 +8,119 @@ let profileImageLoaded = false; // 프로필 이미지 로드 완료 여부
 let ownedMusic = []; // 소유한 음악 목록
 let currentIndex = 0; // 현재 재생 중인 음악 인덱스
 
+// === 사용자 인증 관련 전역 변수 (추가) ===
+let currentUserInfo = null; // 현재 로그인한 사용자 정보 캐시
+let userInfoLoaded = false; // 사용자 정보 로드 완료 여부
+
+// === 강제 사용자 정보 로드 함수 (재정의) ===
+async function forceLoadCurrentUserInfo() {
+    console.log('🔍 === forceLoadCurrentUserInfo 함수 시작 ===');
+    console.log('🔍 기존 userInfoLoaded:', userInfoLoaded);
+    console.log('🔍 기존 currentUserInfo:', currentUserInfo);
+
+    try {
+        console.log('🔍 === 강제 API 호출 시작 ===');
+        
+        const response = await fetch('/blog/api/current-user', {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache'
+            }
+        });
+
+        console.log('🔍 === API 응답 받음 ===');
+        console.log('🔍 응답 상태:', response.status);
+        console.log('🔍 응답 ok:', response.ok);
+
+        if (response.ok) {
+            const userData = await response.json();
+            console.log('✅ 받은 사용자 데이터:', userData);
+            
+            if (userData && userData.memberId) {
+                // 전역 변수에 직접 할당
+                window.currentUserInfo = {
+                    memberId: userData.memberId,
+                    nickname: userData.nickname,
+                    profileImage: userData.profileImage
+                };
+                
+                window.userInfoLoaded = true;
+                
+                // 지역 변수도 업데이트
+                currentUserInfo = window.currentUserInfo;
+                userInfoLoaded = window.userInfoLoaded;
+                
+                console.log('✅ === 강제 사용자 정보 설정 완료 ===');
+                console.log('✅ window.currentUserInfo:', window.currentUserInfo);
+                console.log('✅ window.userInfoLoaded:', window.userInfoLoaded);
+                console.log('✅ 지역 currentUserInfo:', currentUserInfo);
+                console.log('✅ 지역 userInfoLoaded:', userInfoLoaded);
+                
+                return currentUserInfo;
+            } else {
+                console.error('❌ 사용자 데이터가 유효하지 않음:', userData);
+                return null;
+            }
+            
+        } else if (response.status === 401) {
+            console.log('❌ 401: 로그인되지 않은 상태');
+            return null;
+            
+        } else {
+            console.error('❌ API 호출 실패:', response.status);
+            const errorText = await response.text();
+            console.error('❌ 에러 내용:', errorText);
+            return null;
+        }
+        
+    } catch (error) {
+        console.error('❌ === 강제 API 호출 중 예외 발생 ===');
+        console.error('❌ 에러:', error);
+        return null;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('=== Layout 초기화 시작 ===');
     
     await loadLayoutComponents(); // 1. 컴포넌트 로드
-    setupNavigation(); // 2. 네비게이션 즉시 설정 (컴포넌트 로드 완료 후)
+    console.log('레이아웃 컴포넌트 로드 완료');
+    setupNavigation(); // 2. 네비게이션 즉시 설정
+    console.log('네비게이션 설정 완료');
     setPageTitleByUrl(); // 3. 페이지별 제목 자동 설정
     setupMusicWidget(); // 4. 음악 위젯 이벤트
     setupEditButtonEvent(); // 5. 블로그 좌측 EDIT 버튼 이벤트
 
+    // 🔍 강제 사용자 정보 로드
+    console.log('🔍 === 강제 사용자 정보 로드 시작 ===');
+    try {
+        const userInfo = await forceLoadCurrentUserInfo();
+        console.log('🔍 강제 로드 결과:', userInfo);
+        
+        // 추가 검증
+        console.log('🔍 === 로드 후 상태 검증 ===');
+        console.log('🔍 window.currentUserInfo:', window.currentUserInfo);
+        console.log('🔍 window.userInfoLoaded:', window.userInfoLoaded);
+        console.log('🔍 지역 currentUserInfo:', currentUserInfo);
+        console.log('🔍 지역 userInfoLoaded:', userInfoLoaded);
+        
+    } catch (error) {
+        console.error('🔍 강제 사용자 정보 로드 중 오류:', error);
+    }
+    console.log('🔍 === 강제 사용자 정보 로드 완료 ===');
+
     // 스킨 정보 미리 캐싱 (최초 로드시)
-    await maintainDefaultSkinForInactiveUsers(); // 6. 즉시 스킨 유지 + 캐싱
-    await loadUserProfileImage(); // 7. 프로필 이미지 캐시 초기화
+    await maintainDefaultSkinForInactiveUsers(); // 7. 즉시 스킨 유지 + 캐싱
+    await loadUserProfileImage(); // 8. 프로필 이미지 캐시 초기화
     
     console.log('=== Layout 초기화 완료 ===');
+
+    // 디버깅 정보 출력 (개발 중에만)
+    if (window.debugUserInfo) {
+        window.debugUserInfo();
+    }
 });
 
 // 개별 컴포넌트 로드 함수
@@ -70,7 +169,7 @@ async function loadLayoutComponents() {
     }
 }
 
-// 네비게이션 버튼 이벤트 설정 (즉시 실행)
+// 네비게이션 버튼 이벤트 설정 (권한 체크 적용)
 function setupNavigation() {
     const navBtns = document.querySelectorAll('.nav-btn');
     console.log('네비게이션 버튼 찾음:', navBtns.length);
@@ -83,7 +182,8 @@ function setupNavigation() {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 console.log('버튼 클릭됨:', page);
-                navigateToPage(page);
+
+                navigateToPageWithAuth(page); // 권한 체크가 포함된 네비게이션 함수 사용
             });
         });
         console.log('모든 네비게이션 이벤트 설정 완료');
@@ -95,7 +195,7 @@ function setupNavigation() {
     setupNavigationObserver();
 }
 
-// 네비게이션 옵저버 설정 (즉시 반응)
+// 네비게이션 옵저버 설정 (권한 체크 적용)
 function setupNavigationObserver() {
     const observer = new MutationObserver((mutations) => {
         // DOM 변경이 있을 때마다 즉시 확인
@@ -112,7 +212,7 @@ function setupNavigationObserver() {
                     btn.addEventListener('click', (e) => {
                         e.preventDefault();
                         console.log('버튼 클릭됨:', page);
-                        navigateToPage(page);
+                        navigateToPageWithAuth(page); // 권한 체크가 포함된 네비게이션 함수 사용
                     });
 
                     // 이벤트 설정 완료 표시
@@ -145,7 +245,18 @@ function setupNavigationObserver() {
     }
 }
 
-// URL에서 현재 블로그 소유자 닉네임 추출
+// === 현재 로그인한 사용자 ID 가져오기 (추가) ===
+function getCurrentUserId() {
+    if (currentUserInfo) {
+        return currentUserInfo.memberId;
+    }
+    
+    // 캐시가 없으면 null 반환 (비동기 로드가 필요함)
+    console.warn('사용자 정보가 아직 로드되지 않았습니다.');
+    return null;
+}
+
+// 블로그 주인 (URL에서 추출)
 function getCurrentNickname() {
     const currentPath = window.location.pathname;
     const match = currentPath.match(/^\/blog\/@([^\/]+)/);
@@ -158,6 +269,160 @@ function getCurrentNickname() {
     }
     return null;
 }
+
+// 현재 로그인한 사용자 닉네임 가져오기
+function getCurrentUserNickname() {
+    if (currentUserInfo) {
+        return currentUserInfo.nickname;
+    }
+    return null;
+}
+
+// === 현재 로그인한 사용자 전체 정보 가져오기 ===
+function getCurrentUserInfo() {
+    return currentUserInfo;
+}
+
+// === 사용자 정보 로드 함수 (비동기) ===
+async function loadCurrentUserInfo() {
+    console.log('🔍 === loadCurrentUserInfo 함수 시작 ===');
+    console.log('🔍 userInfoLoaded:', userInfoLoaded);
+    console.log('🔍 currentUserInfo:', currentUserInfo);
+
+    // 이미 로드되었으면 스킵
+    if (userInfoLoaded && currentUserInfo) {
+        console.log('✅ 이미 로드된 사용자 정보 사용:', currentUserInfo);
+        return currentUserInfo;
+    }
+
+    try {
+        console.log('🔍 === API 호출 시작 ===');
+        console.log('🔍 요청 URL: /blog/api/current-user');
+        
+        // 현재 로그인한 사용자 정보 API
+        const response = await fetch('/blog/api/current-user', {
+            method: 'GET',
+            credentials: 'same-origin', // 세션 쿠키 포함 (중요!)
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache'
+            }
+        });
+
+        console.log('🔍 === API 응답 받음 ===');
+        console.log('🔍 응답 상태:', response.status);
+        console.log('🔍 응답 상태 텍스트:', response.statusText);
+        console.log('🔍 응답 ok:', response.ok);
+
+        if (response.ok) {
+            console.log('🔍 === JSON 파싱 시작 ===');
+            const userData = await response.json();
+            console.log('✅ 파싱된 사용자 데이터:', userData);
+            
+            if (userData && userData.memberId) {
+                // 사용자 정보 캐싱
+                currentUserInfo = {
+                    memberId: userData.memberId,
+                    nickname: userData.nickname,
+                    profileImage: userData.profileImage
+                };
+                
+                userInfoLoaded = true;
+                console.log('✅ === 사용자 정보 캐싱 완료 ===');
+                console.log('✅ currentUserInfo:', currentUserInfo);
+                console.log('✅ userInfoLoaded:', userInfoLoaded);
+                
+                return currentUserInfo;
+            } else {
+                console.error('❌ 사용자 데이터가 유효하지 않음:', userData);
+                userInfoLoaded = true;
+                currentUserInfo = null;
+                return null;
+            }
+            
+        } else if (response.status === 401) {
+            console.log('❌ 401: 로그인되지 않은 상태');
+            userInfoLoaded = true;
+            currentUserInfo = null;
+            return null;
+            
+        } else if (response.status === 403) {
+            console.log('❌ 403: 접근 권한 없음');
+            userInfoLoaded = true;
+            currentUserInfo = null;
+            return null;
+            
+        } else {
+            console.error('❌ API 호출 실패:', response.status, response.statusText);
+            const errorText = await response.text();
+            console.error('❌ 에러 내용:', errorText);
+            userInfoLoaded = true;
+            currentUserInfo = null;
+            return null;
+        }
+        
+    } catch (error) {
+        console.error('❌ === API 호출 중 예외 발생 ===');
+        console.error('❌ 에러 객체:', error);
+        console.error('❌ 에러 메시지:', error.message);
+        console.error('❌ 에러 스택:', error.stack);
+        userInfoLoaded = true;
+        currentUserInfo = null;
+        return null;
+    }
+}
+
+// === 사용자 인증 확인 함수 ===
+function isLoggedIn() {
+    // 전역 변수도 확인
+    const globalInfo = window.currentUserInfo;
+    const globalLoaded = window.userInfoLoaded;
+    
+    const result = (currentUserInfo !== null && userInfoLoaded) || 
+                   (globalInfo !== null && globalLoaded);
+    
+    console.log('🔍 isLoggedIn 체크:', {
+        '지역_currentUserInfo': currentUserInfo,
+        '지역_userInfoLoaded': userInfoLoaded,
+        '전역_currentUserInfo': globalInfo,
+        '전역_userInfoLoaded': globalLoaded,
+        'result': result
+    });
+    
+    // 지역 변수가 비어있지만 전역 변수에 값이 있으면 복사
+    if (!currentUserInfo && globalInfo) {
+        currentUserInfo = globalInfo;
+        userInfoLoaded = globalLoaded;
+        console.log('🔍 전역 변수를 지역 변수로 복사함');
+    }
+    
+    return result;
+}
+
+// === 본인 블로그인지 확인 함수 ===
+function isOwnBlog() {
+    const urlNickname = getCurrentNickname(); // URL의 닉네임
+    const loginNickname = getCurrentUserNickname(); // 로그인한 사용자 닉네임
+    
+    return urlNickname && loginNickname && urlNickname === loginNickname;
+}
+
+// === 사용자 정보 캐시 무효화 함수 ===
+function invalidateUserInfoCache() {
+    console.log('사용자 정보 캐시 무효화');
+    currentUserInfo = null;
+    userInfoLoaded = false;
+}
+
+// === 사용자 정보 강제 새로고침 함수 ===
+async function refreshUserInfo() {
+    console.log('사용자 정보 강제 새로고침');
+    invalidateUserInfoCache();
+    return await loadCurrentUserInfo();
+}
+
+
+
 
 // === 블로그 좌측 EDIT 기능 관련 함수 시작 ===
 //
@@ -539,6 +804,53 @@ function navigateToPage(page) {
     console.log(`페이지 이동 완료: ${page}`);
 }
 
+// === 페이지 네비게이션 시 사용자 정보 확인 (추가) ===
+function navigateToPageWithAuth(page) {
+
+    console.log('🔍 =========================');
+    console.log('🔍 navigateToPageWithAuth 시작:', page);
+    console.log('🔍 현재 사용자 정보:', currentUserInfo);
+    console.log('🔍 사용자 정보 로드 완료:', userInfoLoaded);
+    console.log('🔍 로그인 상태 체크 결과:', isLoggedIn());
+    console.log('🔍 URL 닉네임:', getCurrentNickname());
+    console.log('🔍 로그인 닉네임:', getCurrentUserNickname());
+    console.log('🔍 본인 블로그 여부:', isOwnBlog());
+    console.log('🔍 =========================');
+
+    // 로그인이 필요한 기능인지 확인 (모든 페이지 접근 시 로그인 필요)
+    if (!isLoggedIn()) {
+        console.log('로그인 체크 실패 - 로그인 페이지로 이동');
+        alert('로그인이 필요한 기능입니다!');
+        window.location.href = '/member/login';
+        return;
+    }
+
+    console.log('로그인 체크 통과');
+
+    // ※ 블로그 주인만 접근 가능한 페이지들 (상점, 프로필)
+    const ownerOnlyPages = ['shop', 'profile'];
+
+    if (ownerOnlyPages.includes(page)) {
+        if (!isOwnBlog()) {
+            alert('블로그 주인만 접근할 수 있는 페이지입니다.');
+            console.log(`접근 차단: ${page} 페이지는 블로그 주인(${getCurrentNickname()})만 접근 가능`);
+            return;
+        }
+        console.log(`접근 허용: ${page} 페이지 - 블로그 주인 확인됨`);
+    }
+
+    // 모든 로그인 사용자가 접근 가능한 페이지들 (홈, 게시판, 주크박스, 방명록)
+    const publicPages = ['home', 'post', 'jukebox', 'guestbook'];
+
+    if (publicPages.includes(page)) {
+        console.log(`접근 허용: ${page} 페이지 - 모든 로그인 사용자 접근 가능`);
+    }
+
+    // 기존 navigateToPage 로직 실행
+    console.log('navigateToPage 호출:', page);
+    navigateToPage(page);
+}
+
 // 음악 위젯 이벤트 설정
 // === 음악 재생 함수 ===
 function playTrack(index) {
@@ -854,11 +1166,32 @@ window.getCurrentlyPlayingTrack = function() {
   return ownedMusic?.[currentIndex] || null;
 };
 
-console.log('layout.js 로드 완료 - 즉시 반응 모드');
-
-// 전역 함수로 노출
+// === 전역 함수 ===
 window.setActiveNavButton = setActiveNavButton;
 window.setPageTitle = setPageTitle;
 window.navigateToPage = navigateToPage;
 window.maintainDefaultSkinForInactiveUsers = maintainDefaultSkinForInactiveUsers;
 window.navigateToProfileEdit = navigateToProfileEdit;
+window.getCurrentUserId = getCurrentUserId;
+window.getCurrentUserNickname = getCurrentUserNickname;
+window.getCurrentUserInfo = getCurrentUserInfo;
+window.loadCurrentUserInfo = loadCurrentUserInfo;
+window.isLoggedIn = isLoggedIn;
+window.isOwnBlog = isOwnBlog;
+window.invalidateUserInfoCache = invalidateUserInfoCache;
+window.refreshUserInfo = refreshUserInfo;
+window.navigateToPageWithAuth = navigateToPageWithAuth;
+
+// === 디버깅용 함수 (개발 중에만 사용) ===
+window.debugUserInfo = function() {
+    console.log('=== 사용자 정보 디버깅 ===');
+    console.log('currentUserInfo:', currentUserInfo);
+    console.log('userInfoLoaded:', userInfoLoaded);
+    console.log('URL 닉네임:', getCurrentNickname());
+    console.log('로그인 닉네임:', getCurrentUserNickname());
+    console.log('본인 블로그 여부:', isOwnBlog());
+    console.log('로그인 여부:', isLoggedIn());
+};
+
+console.log('layout.js 사용자 인증 기능 로드 완료');
+console.log('layout.js 로드 완료 - 즉시 반응 모드');

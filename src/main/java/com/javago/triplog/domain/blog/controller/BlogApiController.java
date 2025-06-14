@@ -17,6 +17,8 @@ import com.javago.triplog.domain.blog.service.BlogService;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.service.MemberService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 // BlogApiController.java - 블로그 조회/정보 관련 API 담당
 @RestController
 @RequestMapping("/blog/api")
@@ -64,19 +66,37 @@ public class BlogApiController {
     
     // 현재 로그인한 사용자 정보 API
     @GetMapping("/current-user")
-    public ResponseEntity<Map<String, String>> getCurrentUser(Authentication authentication) {
+    public ResponseEntity<Map<String, String>> getCurrentUser(Authentication authentication, HttpServletRequest request) {
+        System.out.println("🔍 === getCurrentUser API 호출됨 ===");
+        System.out.println("🔍 요청 URL: " + request.getRequestURL());
+        System.out.println("🔍 요청 메서드: " + request.getMethod());
+        System.out.println("🔍 세션 ID: " + request.getSession(false) != null ? request.getSession().getId() : "null");
+        System.out.println("🔍 Authentication 객체: " + authentication);
+        
         if (authentication != null) {
+            System.out.println("🔍 인증 이름: " + authentication.getName());
+            System.out.println("🔍 인증 상태: " + authentication.isAuthenticated());
+            System.out.println("🔍 권한: " + authentication.getAuthorities());
+            
             try {
                 Member member = memberService.findByMemberId(authentication.getName());
                 Map<String, String> currentUser = new HashMap<>();
-                currentUser.put("nickname", member.getNickname()); // 사용자 닉네임
-                currentUser.put("profileImage", member.getProfileImage()); // 프로필 이미지 경로
+
+                currentUser.put("nickname", member.getNickname());
+                currentUser.put("profileImage", member.getProfileImage());
                 currentUser.put("memberId", member.getMemberId());
+                
+                System.out.println("사용자 정보 반환: " + currentUser);
                 return ResponseEntity.ok(currentUser);
             } catch (Exception e) {
+                System.err.println("사용자 조회 실패: " + e.getMessage());
+                e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
+        } else {
+            System.out.println("Authentication이 null입니다.");
         }
+        
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
