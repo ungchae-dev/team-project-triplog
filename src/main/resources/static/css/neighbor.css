@@ -1,0 +1,233 @@
+/* neighbor.css - 블로그 이웃 기능 스타일 */
+
+/* === 이웃 파도타기 드롭다운 ===*/
+.neighbor-dropdown {
+    position: relative;
+    margin-top: 10px;
+}
+
+.neighbor-dropdown button {
+    width: 100%;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.neighbor-dropdown button:hover {
+    background: linear-gradient(135deg, #45a049, #3d8b40);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* === 이웃 목록 드롭다운 === */
+.neighbor-list-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #4CAF50;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+    animation: slideDown 0.2s ease-out;
+    min-width: 250px; /* 최소 너비 보장 */
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.neighbor-list-header {
+    background: #4CAF50;
+    color: white;
+    padding: 12px;
+    font-weight: bold;
+    text-align: center;
+    font-size: 14px;
+}
+
+.neighbor-empty {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    font-size: 14px;
+}
+
+.neighbor-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.neighbor-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s ease;
+    min-height: 48px; /* 최소 높이 보장 */
+}
+
+.neighbor-item:last-child {
+    border-bottom: none;
+}
+
+.neighbor-item:hover {
+    background-color: #f8f9fa;
+}
+
+.neighbor-name {
+    flex: 1;
+    cursor: pointer;
+    color: #333;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    text-align: left;
+    /* 텍스트 오버플로우 처리 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+}
+
+.neighbor-name:hover {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+}
+
+.neighbor-remove-btn {
+    background: #ff4757;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 12px !important;
+    padding: 4px 8px !important;
+    border-radius: 50% !important;
+    transition: all 0.2s ease;
+    font-weight: bold;
+    min-width: 24px !important;
+    width: 24px !important;
+    height: 24px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.neighbor-remove-btn:hover {
+    background-color: #ff3742;
+    transform: scale(1.05);
+}
+
+/* === 이웃 추가 버튼 === */
+.neighbor-add-btn {
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.neighbor-add-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #1976D2, #1565C0);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.neighbor-add-btn:disabled {
+    background: #28a745 !important;
+    cursor: not-allowed !important;
+    opacity: 1 !important;
+    color: white !important;
+    pointer-events: none; /* 클릭 이벤트 완전 차단 */
+}
+
+.neighbor-add-btn:disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* === 반응형 디자인 === */
+@media (max-width: 768px) {
+    .neighbor-list-dropdown {
+        max-height: 250px;
+    }
+    
+    .neighbor-item {
+        padding: 10px;
+    }
+    
+    .neighbor-name {
+        font-size: 14px;
+    }
+    
+    .neighbor-remove-btn {
+        font-size: 12px;
+    }
+}
+
+/* === 스크롤바 스타일링 === */
+.neighbor-list-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.neighbor-list-dropdown::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.neighbor-list-dropdown::-webkit-scrollbar-thumb {
+    background: #4CAF50;
+    border-radius: 3px;
+}
+
+.neighbor-list-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #45a049;
+}
+
+/* === 애니메이션 효과 === */
+.neighbor-item {
+    animation: fadeInUp 0.3s ease-out forwards;
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.neighbor-item:nth-child(1) { animation-delay: 0.1s; }
+.neighbor-item:nth-child(2) { animation-delay: 0.2s; }
+.neighbor-item:nth-child(3) { animation-delay: 0.3s; }
+.neighbor-item:nth-child(4) { animation-delay: 0.4s; }
+.neighbor-item:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -14,12 +14,12 @@ let userInfoLoaded = false; // 사용자 정보 로드 완료 여부
 
 // === 강제 사용자 정보 로드 함수 (재정의) ===
 async function forceLoadCurrentUserInfo() {
-    console.log('🔍 === forceLoadCurrentUserInfo 함수 시작 ===');
-    console.log('🔍 기존 userInfoLoaded:', userInfoLoaded);
-    console.log('🔍 기존 currentUserInfo:', currentUserInfo);
+    console.log('=== forceLoadCurrentUserInfo 함수 시작 ===');
+    console.log('기존 userInfoLoaded:', userInfoLoaded);
+    console.log('기존 currentUserInfo:', currentUserInfo);
 
     try {
-        console.log('🔍 === 강제 API 호출 시작 ===');
+        console.log('=== 강제 API 호출 시작 ===');
         
         const response = await fetch('/blog/api/current-user', {
             method: 'GET',
@@ -30,13 +30,13 @@ async function forceLoadCurrentUserInfo() {
             }
         });
 
-        console.log('🔍 === API 응답 받음 ===');
-        console.log('🔍 응답 상태:', response.status);
-        console.log('🔍 응답 ok:', response.ok);
+        console.log('=== API 응답 받음 ===');
+        console.log('응답 상태:', response.status);
+        console.log('응답 ok:', response.ok);
 
         if (response.ok) {
             const userData = await response.json();
-            console.log('✅ 받은 사용자 데이터:', userData);
+            console.log('받은 사용자 데이터:', userData);
             
             if (userData && userData.memberId) {
                 // 전역 변수에 직접 할당
@@ -52,32 +52,32 @@ async function forceLoadCurrentUserInfo() {
                 currentUserInfo = window.currentUserInfo;
                 userInfoLoaded = window.userInfoLoaded;
                 
-                console.log('✅ === 강제 사용자 정보 설정 완료 ===');
-                console.log('✅ window.currentUserInfo:', window.currentUserInfo);
-                console.log('✅ window.userInfoLoaded:', window.userInfoLoaded);
-                console.log('✅ 지역 currentUserInfo:', currentUserInfo);
-                console.log('✅ 지역 userInfoLoaded:', userInfoLoaded);
+                console.log('=== 강제 사용자 정보 설정 완료 ===');
+                console.log('window.currentUserInfo:', window.currentUserInfo);
+                console.log('window.userInfoLoaded:', window.userInfoLoaded);
+                console.log('지역 currentUserInfo:', currentUserInfo);
+                console.log('지역 userInfoLoaded:', userInfoLoaded);
                 
                 return currentUserInfo;
             } else {
-                console.error('❌ 사용자 데이터가 유효하지 않음:', userData);
+                console.error(' 사용자 데이터가 유효하지 않음:', userData);
                 return null;
             }
             
         } else if (response.status === 401) {
-            console.log('❌ 401: 로그인되지 않은 상태');
+            console.log('401: 로그인되지 않은 상태');
             return null;
             
         } else {
-            console.error('❌ API 호출 실패:', response.status);
+            console.error('API 호출 실패:', response.status);
             const errorText = await response.text();
-            console.error('❌ 에러 내용:', errorText);
+            console.error('에러 내용:', errorText);
             return null;
         }
         
     } catch (error) {
-        console.error('❌ === 강제 API 호출 중 예외 발생 ===');
-        console.error('❌ 에러:', error);
+        console.error('=== 강제 API 호출 중 예외 발생 ===');
+        console.error('에러:', error);
         return null;
     }
 }
@@ -87,40 +87,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     await loadLayoutComponents(); // 1. 컴포넌트 로드
     console.log('레이아웃 컴포넌트 로드 완료');
+
     setupNavigation(); // 2. 네비게이션 즉시 설정
     console.log('네비게이션 설정 완료');
+
     setPageTitleByUrl(); // 3. 페이지별 제목 자동 설정
     setupMusicWidget(); // 4. 음악 위젯 이벤트
     setupEditButtonEvent(); // 5. 블로그 좌측 EDIT 버튼 이벤트
 
-    // 🔍 강제 사용자 정보 로드
-    console.log('🔍 === 강제 사용자 정보 로드 시작 ===');
+    // === 강제 사용자 정보 로드 ===
+    console.log('=== 강제 사용자 정보 로드 시작 ===');
     try {
         const userInfo = await forceLoadCurrentUserInfo();
-        console.log('🔍 강제 로드 결과:', userInfo);
-        
-        // 추가 검증
-        console.log('🔍 === 로드 후 상태 검증 ===');
-        console.log('🔍 window.currentUserInfo:', window.currentUserInfo);
-        console.log('🔍 window.userInfoLoaded:', window.userInfoLoaded);
-        console.log('🔍 지역 currentUserInfo:', currentUserInfo);
-        console.log('🔍 지역 userInfoLoaded:', userInfoLoaded);
-        
+        console.log('강제 로드 결과:', userInfo);
     } catch (error) {
-        console.error('🔍 강제 사용자 정보 로드 중 오류:', error);
+        console.error('강제 사용자 정보 로드 중 오류:', error);
     }
-    console.log('🔍 === 강제 사용자 정보 로드 완료 ===');
+    console.log('=== 강제 사용자 정보 로드 완료 ===');
+
+    // 이웃 기능 초기화 (사용자 정보 로드 후)
+    setTimeout(() => {
+        if (typeof window.initNeighborFeatures === 'function') {
+            window.initNeighborFeatures();
+            console.log('이웃 기능 초기화 완료');
+        } else {
+            console.log('neighbor.js가 아직 로드되지 않음');
+            // neighbor.js 로드 대기
+            const neighborInterval = setInterval(() => {
+                if (typeof window.initNeighborFeatures === 'function') {
+                    window.initNeighborFeatures();
+                    console.log('이웃 기능 지연 초기화 완료');
+                    clearInterval(neighborInterval);
+                }
+            }, 100);
+
+            // 5초 후 타임아웃
+            setTimeout(() => clearInterval(neighborInterval), 5000);
+        }
+    }, 300);
 
     // 스킨 정보 미리 캐싱 (최초 로드시)
     await maintainDefaultSkinForInactiveUsers(); // 7. 즉시 스킨 유지 + 캐싱
     await loadUserProfileImage(); // 8. 프로필 이미지 캐시 초기화
     
     console.log('=== Layout 초기화 완료 ===');
-
-    // 디버깅 정보 출력 (개발 중에만)
-    if (window.debugUserInfo) {
-        window.debugUserInfo();
-    }
 });
 
 // 개별 컴포넌트 로드 함수
@@ -422,29 +432,29 @@ async function refreshUserInfo() {
 }
 
 
-
-
-// === 블로그 좌측 EDIT 기능 관련 함수 시작 ===
-//
+// === 블로그 좌측 사용자 정보 시작 ===
+// EDIT 버튼 이벤트
 async function setupEditButtonEvent() {
+    console.log('EDIT 버튼 이벤트 설정 시작');
+
     // EDIT 버튼이 로드될 때까지 기다리기
     const editBtn = document.querySelector('.edit');
 
     if (editBtn) {
-        setupEditButtonClick(editBtn);
+        await setupEditButtonBehavior(editBtn);
         return;
     }
 
     // 버튼이 없으면 옵저버로 감시
-    const observer = new MutationObserver(() => {
+    const observer = new MutationObserver(async () => {
         const editBtn = document.querySelector('.edit');
         if (editBtn) {
-            setupEditButtonClick(editBtn);
+            await setupEditButtonBehavior(editBtn);
             observer.disconnect(); // 작업 완료 후 옵저버 해제
         }
     });
 
-    // left-container 감시 (EDIT 버튼이 들어가는 곳)
+    // EDIT 버튼이 들어가는 left-container
     const leftContainer = document.getElementById('left-container');
     if (leftContainer) {
         observer.observe(leftContainer, {
@@ -454,25 +464,113 @@ async function setupEditButtonEvent() {
     }
 }
 
-// EDIT 버튼 클릭 이벤트 설정
-function setupEditButtonClick(editBtn) {
-    editBtn.addEventListener('click', (e) => {
+// EDIT 버튼 동작 설정 
+async function setupEditButtonBehavior(editBtn) {
+    console.log('EDIT 버튼 동작 설정 시작');
+
+    // 사용자 정보 확인
+    let userInfo = currentUserInfo;
+    if (!userInfo) {
+        console.log('사용자 정보가 없어서 강제 로드');
+        userInfo = await forceLoadCurrentUserInfo();
+    }
+
+    const currentNickname = getCurrentNickname();
+    const loginNickname = getCurrentNickname();
+
+    console.log('블로그 주인:', currentNickname);
+    console.log('로그인 사용자:', loginNickname);
+
+    // 본인 블로그인지 확인
+    const isOwn = currentNickname && loginNickname && currentNickname === loginNickname;
+
+    if (isOwn) {
+        // 본인 블로그 - 기존 EDIT 기능 유지
+        console.log('본인 블로그 - EDIT 버튼 유지');
+        editBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!currentNickname) {
+                alert('로그인이 필요합니다!');
+                window.location.href = '/member/login';
+                return;
+            }
+            console.log('EDIT 버튼 클릭 - 프로필 편집으로 이동');
+            navigateToProfileEdit();
+        });
+    } else {
+        // 다른 사람 블로그 - 이웃 기능으로 전환
+        console.log('다른 사람 블로그 - 이웃 기능으로 전환');
+
+        // neighbor.js의 이웃 버튼 초기화 함수 호출
+        if (typeof window.initNeighborButtonState === 'function') {
+            await window.initNeighborButtonState();
+        } else {
+            // neighbor.js 로드 대기
+            let attempts = 0;
+            const maxAttempts = 10;
+
+            const waitForNeighbor = setInterval(async () => {
+                attempts++;
+                if (typeof window.initNeighborButtonState === 'function') {
+                    await window.initNeighborButtonState();
+                    console.log('이웃 버튼 지연 초기화 완료');
+                    clearInterval(waitForNeighbor);
+                } else if (attempts >= maxAttempts) {
+                    console.log('neighbor.js 로드 실패 - 수동으로 이웃 버튼 설정');
+                    setupNeighborButtonManually(editBtn, currentNickname);
+                    clearInterval(waitForNeighbor);
+                }
+            }, 200);
+        }
+    }
+
+    console.log('EDIT 버튼 동작 설정 완료');
+}
+
+// === 수동 이웃 버튼 설정 (fallback) ===
+function setupNeighborButtonManually(editBtn, blogOwnerNickname) {
+    console.log('수동 이웃 버튼 설정 시작');
+
+    editBtn.textContent = '이웃 추가';
+    editBtn.className = 'neighbor-add-btn';
+
+    editBtn.addEventListener('click', async (e) => {
         e.preventDefault();
 
-        const currentNickname = getCurrentNickname();
-        if (!currentNickname) {
-            alert('로그인이 필요합니다.');
-            window.location.href = '/member/login';
+        if (!blogOwnerNickname) {
+            alert('블로그 정보를 가져올 수 없습니다!');
             return;
         }
 
-        console.log('EDIT 버튼 클릭 - 개인정보 조회/수정으로 이동');
+        if (confirm(`${blogOwnerNickname}님을 이웃으로 추가하시겠습니까?`)) {
+            try {
+                const encodedNickname = encodeURIComponent(blogOwnerNickname);
+                const response = await fetch(`/blog/api/@${encodedNickname}/neighbors`, {
+                    method: 'POST', 
+                    credentials: 'same-origin', 
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
 
-        // 프로필 페이지로 이동 후 개인정보 탭 활성화
-        navigateToProfileEdit();
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alert(result.message || `${blogOwnerNickname}님을 이웃으로 추가했습니다!`);
+                    editBtn.textContent = '이웃 등록됨 ✓';
+                    editBtn.style.backgroundColor = '#28a745';
+                    editBtn.style.color = 'white';
+                    editBtn.disabled = true;
+                } else {
+                    alert(`이웃 추가 실패: ${result.message}`)
+                }
+            } catch (error) {
+                console.error('이웃 추가 중 오류:', error);
+                alert('이웃 추가 중 오류가 발생했습니다!');
+            }
+        }
     });
-
-    console.log('EDIT 버튼 이벤트 설정 완료');
+    console.log('수동 이웃 버튼 설정 완료');
 }
 
 // 프로필 개인정보 수정으로 이동하는 함수
@@ -497,8 +595,7 @@ function navigateToProfileEdit() {
         }
     }, 100); // 페이지 로드 대기시간
 }
-//
-// === 블로그 좌측 EDIT 기능 관련 함수 끝 ===
+// === 블로그 좌측 사용자 정보 끝 ===
 
 // === 스킨 비활성화 회원만을 위한 기본 스킨 유지 함수 ===
 async function maintainDefaultSkinForInactiveUsers() {
@@ -1119,9 +1216,9 @@ async function loadPageContent(page, nickname) {
     }
 }
 
-// 페이지별 초기화 함수 (즉시 실행)
+// 페이지 초기화 함수 (즉시 실행)
 function initializePage(page) {
-    // 각 페이지별 초기화 함수가 있으면 즉시 호출
+    // 각 페이지별 초기화 함수가 있을 경우 즉시 호출
     const initFunctionName = `setup${page.charAt(0).toUpperCase() + page.slice(1)}Features`;
 
     if (typeof window[initFunctionName] === 'function') {
@@ -1131,7 +1228,7 @@ function initializePage(page) {
         console.log(`${page} 페이지는 별도 초기화 함수가 없습니다.`);
     }
 
-    // 공통 데이터 로드도 즉시 실행
+    // 공통 데이터 로드
     if (typeof window.loadUserData === 'function') {
         window.loadUserData();
     }
@@ -1140,13 +1237,22 @@ function initializePage(page) {
         window.loadBlogSkin();
     }
 
-    // 캐시된 프로필 이미지 적용 (모든 페이지에서)
+    // 프로필 이미지 캐시 적용 (모든 페이지에서)
     applyCachedProfileImage();
 
     // 프로필 이미지가 아직 로드되지 않았으면 로드
     if (!profileImageLoaded) {
         loadUserProfileImage();
     }
+
+    // 이웃 기능 페이지별 재초기화
+    setTimeout(() => {
+        if (typeof window.initNeighborFeatures === 'function') {
+            window.initNeighborFeatures();
+            console.log(`${page} 페이지 이웃 기능 재초기화 완료`);
+        }
+    }, 200)
+
 }
 
 // 브라우저 뒤로가기 지원
@@ -1181,6 +1287,8 @@ window.isOwnBlog = isOwnBlog;
 window.invalidateUserInfoCache = invalidateUserInfoCache;
 window.refreshUserInfo = refreshUserInfo;
 window.navigateToPageWithAuth = navigateToPageWithAuth;
+window.setupEditButtonBehavior = setupEditButtonBehavior;
+window.setupNeighborButtonManually = setupNeighborButtonManually;
 
 // === 디버깅용 함수 (개발 중에만 사용) ===
 window.debugUserInfo = function() {

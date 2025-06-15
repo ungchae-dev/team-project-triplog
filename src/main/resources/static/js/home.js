@@ -1,4 +1,4 @@
-// home.js : 블로그 - 홈 기능 (스킨 로딩 최적화 반영)
+// home.js : 블로그 - 홈 기능
 
 // 전역 변수
 window.currentBlogNickname = null;
@@ -373,8 +373,13 @@ function initHomePage() {
     setupHomeFeatures();
 }
 
-// 블로그 - 홈 특정 기능 함수들
+// === 블로그 홈 초기화 함수 ===
 function setupHomeFeatures() {
+    console.log('=== 홈 페이지 기능 초기화 시작 ===');
+
+    // 사용자 데이터 로드
+    loadUserData();
+
     console.log('setupHomeFeatures 호출됨');
 
     // 방명록 카드 클릭 이벤트
@@ -390,8 +395,86 @@ function setupHomeFeatures() {
         console.log('guestbook-card를 찾을 수 없습니다!');
     }
     
-    // 사진 카드 클릭 이벤트 => 나중에 동적 로드 시 추가
+    // 이웃 기능 초기화
+    initializeNeighborFeaturesForHome();
+
+    console.log('=== 홈 페이지 기능 초기화 완료 ===');
 }
+
+// === 이웃 관련 함수 시작 ===
+
+// 홈 페이지 전용 이웃 기능 초기화
+function initializeNeighborFeaturesForHome() {
+    console.log('홈 페이지 이웃 기능 초기화 시작');
+
+    // neighbor.js가 로드되었는지 확인
+    if (typeof window.initNeighborFeatures === 'function') {
+        window.initNeighborFeatures();
+        console.log('홈 페이지 이웃 기능 즉시 초기화');
+    } else {
+        // neighbor.js 로드 대기
+        setTimeout(() => {
+            if (typeof window.initNeighborFeatures === 'function') {
+                window.initNeighborFeatures();
+                console.log('홈 페이지 이웃 기능 지연 초기화');
+            } else {
+                console.log('neighbor.js 로드 실패 - 홈 페이지에서 수동 초기화');
+                initializeNeighborManually();
+            }
+        }, 500);
+    }
+}
+
+// 수동 이웃 기능 초기화 (fallback)
+function initializeNeighborManually() {
+    console.log('수동 이웃 기능 초기화 시작');
+    
+    // 1. 이웃 파도타기 버튼 찾기
+    const neighborDropdownBtn = document.querySelector('.neighbor-dropdown button');
+    if (neighborDropdownBtn) {
+        neighborDropdownBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('이웃 기능을 불러오는 중입니다... 잠시 후 다시 시도해주세요.');
+        });
+        console.log('이웃 파도타기 버튼 임시 이벤트 설정');
+    }
+
+    // 2. EDIT 버튼은 layout.js에서 처리
+    console.log('EDIT 버튼은 layout.js에서 처리 예정');
+}
+
+// === 홈 데이터 새로고침 (이웃 목록 포함) ===
+function refreshHomeDataWithNeighbors() {
+    console.log('홈 데이터 새로고침 시작 (이웃 포함)');
+    
+    // 기존 데이터 새로고침
+    if (typeof loadUserData === 'function') {
+        loadUserData();
+    }
+
+    if (typeof loadBlogSkin === 'function') {
+        loadBlogSkin();
+    }
+
+    // 이웃 목록 새로고침
+    if (typeof window.loadMyNeighborList === 'function') {
+        window.loadMyNeighborList();
+        console.log('이웃 목록 새로고침 완료');
+    }
+}
+
+// 블로그 이동 시 이웃 기능 유지
+function handleBlogNavigationWithNeighbors() {
+    // 다른 블로그로 이동할 때 이웃 기능이 정상 작동하도록 보장
+    setTimeout(() => {
+        if (typeof window.initNeighborFeatures === 'function') {
+            window.initNeighborFeatures();
+            console.log('블로그 이동 후 이웃 기능 재초기화');
+        }
+    }, 300);
+}
+
+// === 이웃 관련 함수 끝 ===
 
 // 방명록으로 이동
 function navigateToGuestbook() {
@@ -474,14 +557,8 @@ window.loadUserData = loadUserData;
 window.loadBlogSkin = loadBlogSkin;
 window.getBlogOwnerNickname = getBlogOwnerNickname;
 window.initBlogOwnerInfo = initBlogOwnerInfo;
+window.initializeNeighborFeaturesForHome = initializeNeighborFeaturesForHome;
+window.refreshHomeDataWithNeighbors = refreshHomeDataWithNeighbors;
+window.handleBlogNavigationWithNeighbors = handleBlogNavigationWithNeighbors;
 
-// 게시글 상세보기 (추가 예정)
-/*
-function viewPost(postId) {
-    if (window.currentBlogNickname && postId) {
-        window.location.href = `/blog/@${window.currentBlogNickname}/post/${postId}`;
-    }
-}
-*/
-
-// 기타 기능 관련 추가 코드 작성...
+console.log('home.js 로드 완료');
