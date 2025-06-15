@@ -1,19 +1,23 @@
 package com.javago.triplog.domain.neighbor.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.javago.triplog.domain.blog.controller.BlogControllerUtils;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.service.MemberService;
+import com.javago.triplog.domain.neighbor.dto.NeighborResponseDto;
 import com.javago.triplog.domain.neighbor.service.NeighborService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,9 +36,39 @@ public class NeighborApiController {
     @Autowired
     private BlogControllerUtils blogControllerUtils;
 
-    // === 이웃 등록/삭제 API ===
-    // 
-    // 이웃 등록 API
+    // === 내 이웃 목록 조회 API ===
+    @GetMapping("/@{nickname}/neighbors")
+    public ResponseEntity<List<NeighborResponseDto>> getMyNeighbors(
+        @PathVariable String nickname, 
+        Authentication authentication) {
+        
+        // 로그인 체크
+        if (authentication == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        try {
+            // 현재 로그인한 사용자 정보
+            Member currentUser = memberService.findByMemberId(authentication.getName());
+            String decodedNickname = blogControllerUtils.decodeNickname(nickname);
+
+            // 본인의 이웃 목록만 조회 가능 (권한 체크)
+            if (!currentUser.getNickname().equals(decodedNickname)) {
+                return ResponseEntity.status(403).build();
+            }
+
+            // 이웃 목록 조회
+            List<NeighborResponseDto> neighbors = neighborService.getMyNeighbors(decodedNickname);
+            return ResponseEntity.ok(neighbors);
+
+        } catch (Exception e) {
+            System.err.println("이웃 목록 조회 실패: " + e.getMessage());
+            return ResponseEntity.status(500).build();
+        }
+
+    }
+
+    // === 이웃 등록 API ===
     @PostMapping("/@{nickname}/neighbors")
     public ResponseEntity<Map<String, Object>> addNeighbor(
         @PathVariable String nickname, 
@@ -72,12 +106,13 @@ public class NeighborApiController {
         } catch (IllegalStateException e) {
             return blogControllerUtils.badRequestResponse(e.getMessage());
         } catch (Exception e) {
+            System.err.println("이웃 등록 오류: " + e.getMessage());
             return blogControllerUtils.serverErrorResponse("이웃 등록 중 오류가 발생했습니다!");
         }
 
     }
     
-    // 이웃 삭제 API
+    // === 이웃 삭제 API ===
     @DeleteMapping("/@{nickname}/neighbors")
     public ResponseEntity<Map<String, Object>> removeNeighbor(
         @PathVariable String nickname, 
@@ -109,55 +144,70 @@ public class NeighborApiController {
         } catch (IllegalStateException e) {
             return blogControllerUtils.badRequestResponse(e.getMessage());
         } catch (Exception e) {
+            System.err.println("이웃 삭제 오류: " + e.getMessage());
             return blogControllerUtils.serverErrorResponse("이웃 삭제 중 오류가 발생했습니다!");
         }
 
     }
 
-    // ...
-    // === 이웃 추천 및 검색 API (주석 처리) ===
-    /*
-    // 추천 이웃 목록 조회 API (현재 사용 안 함)
-    @GetMapping("/neighbors/recommendations")
-    public ResponseEntity<Map<String, Object>> getRecommendedNeighbors(
-            @RequestParam(defaultValue = "10") int limit,
-            Authentication authentication) {
+    // === 이웃 관계 상태 조회 API ===
+     @GetMapping("/@{nickname}/neighbors/status")
+    public ResponseEntity<Map<String, Object>> getNeighborStatus(
+        @PathVariable String nickname,
+        @RequestParam String target,
+        Authentication authentication) {
         
+        // 로그인 체크
         if (authentication == null) {
-            return ResponseEntity.status(401)
-                .body(Map.of("success", false, "message", "로그인이 필요합니다!"));
+            return ResponseEntity.status(401).build();
         }
-        
+
         try {
+            // 현재 로그인한 사용자 정보
             Member currentUser = memberService.findByMemberId(authentication.getName());
-            
-            List<Member> recommendations = neighborService.getRecommendedNeighbors(
-                currentUser.getNickname(), 
-                Math.min(limit, 20)
-            );
-            
-            List<Map<String, Object>> recommendationList = recommendations.stream()
-                .map(member -> {
-                    Map<String, Object> memberInfo = new HashMap<>();
-                    memberInfo.put("nickname", member.getNickname());
-                    memberInfo.put("profileImage", member.getProfileImage());
-                    memberInfo.put("memberId", member.getMemberId());
-                    memberInfo.put("joinDate", member.getJoinDate());
-                    return memberInfo;
-                })
-                .collect(Collectors.toList());
-            
-            return ResponseEntity.ok(Map.of(
-                "success", true,
-                "recommendations", recommendationList,
-                "count", recommendationList.size()
-            ));
-            
+            String currentNickname = blogControllerUtils.decodeNickname(nickname);
+            String targetNickname = blogControllerUtils.decodeNickname(target);
+
+            // 본인의 관계 상태만 조회 가능 (권한 체크)
+            if (!currentUser.getNickname().equals(currentNickname)) {
+                return ResponseEntity.status(403).build();
+            }
+
+            // 관계 상태 조회
+            Map<String, Object> relationshipStatus = neighborService.getRelationshipStatus(currentNickname, targetNickname);
+            return ResponseEntity.ok(relationshipStatus);
+
         } catch (Exception e) {
-            return blogControllerUtils.serverErrorResponse("추천 이웃 조회 중 오류가 발생했습니다!");
+            System.err.println("이웃 관계 상태 조회 실패: " + e.getMessage());
+            return ResponseEntity.status(500).build();
         }
+
     }
-    */
+
+    // === 이웃 통계 조회 API ===
+    @GetMapping("/@{nickname}/neighbors/stats")
+    public ResponseEntity<Map<String, Object>> getNeighborStats(
+        @PathVariable String nickname,
+        Authentication authentication) {
+
+        // 로그인 체크
+        if (authentication == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        try {
+            String decodedNickname = blogControllerUtils.decodeNickname(nickname);
+            
+            // 통계 조회
+            Map<String, Object> stats = neighborService.getNeighborStats(decodedNickname);
+            return ResponseEntity.ok(stats);
+
+        } catch (Exception e) {
+            System.err.println("이웃 통계 조회 실패: " + e.getMessage());
+            return ResponseEntity.status(500).build();
+        }
+
+    }
 
 
 }

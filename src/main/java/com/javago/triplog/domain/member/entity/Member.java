@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.javago.constant.Gender;
 import com.javago.constant.Role;
 import com.javago.triplog.domain.blog.entity.Blog;
@@ -85,7 +86,12 @@ public class Member {
     @Column(name = "role", length = 10, nullable = false)
     private Role role;
 
+    // === 모든 컬렉션 필드에 @JsonIgnore 추가 ===
+    // Member 객체를 JSON으로 변환할 때 모든 관련 엔티티들을 함께 직렬화하려고 시도
+    // => 무한 참조로 인해 1001 depth 에러 발생하므로 따라서 @JsonIgnore 어노테이션 추가
+
     // Member -> Blog (1:1)
+    @JsonIgnore
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Blog blog;
     // JPA는 양방향 관계에서 한쪽만 연관관계 주인이 되어야 함
@@ -97,31 +103,38 @@ public class Member {
     //  EAGER: 즉시 로딩, 항상 함께 조회 => 한 번에 조회하지만 불필요한 데이터까지 가져올 수 있음
 
     // Member -> MemberItem (1:다)
+    @JsonIgnore
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<MemberItem> memberItems = new ArrayList<>();
 
     // Member -> Post_Like (1:다)
+    @JsonIgnore
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Post_Like> postLike = new ArrayList<>();
 
     // Member -> Comment_Like (1:다)
+    @JsonIgnore
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Comment_Like> commentLike = new ArrayList<>();
 
     // Member -> Comments (1:다)
+    @JsonIgnore
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Comments> comment = new ArrayList<>();
 
     // Member -> Guestbook (1:다) - 내가 작성한 방명록들
+    @JsonIgnore
     @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Guestbook> writtenGuestbooks = new ArrayList<>();
 
     // Member -> Neighbor (1:다) - 내가 등록한 이웃들 (내가 팔로우한 사람들)
     // orphanRemoval = true: 부모 엔티티와의 관계가 끊어진 자식 엔티티(고아 객체)를 자동으로 삭제하는 기능
+    @JsonIgnore
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Neighbor> myNeighbors = new ArrayList<>();
 
     // Member -> Neighbor (1:다) - 나를 이웃으로 등록한 사람들 (나를 팔로우한 사람들)
+    @JsonIgnore
     @OneToMany(mappedBy = "neighborMember", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Neighbor> followersOfMe = new ArrayList<>();
 

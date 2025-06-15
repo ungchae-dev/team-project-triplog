@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.service.MemberService;
+import com.javago.triplog.domain.neighbor.dto.NeighborResponseDto;
 import com.javago.triplog.domain.neighbor.entity.Neighbor;
 import com.javago.triplog.domain.neighbor.repository.NeighborRepository;
 
@@ -86,39 +87,37 @@ public class NeighborService {
     //
     // === 이웃 관계 조회 ===
 
-    // 내가 등록한 이웃 목록 조회
+    // 내가 등록한 이웃 목록 조회 (DTO 반환)
     /*
         nickname: 조회할 사용자의 닉네임
         return: 이웃 Member 리스트
     */
     @Transactional(readOnly = true)
-    public List<Member> getMyNeighbors(String nickname) {
+    public List<NeighborResponseDto> getMyNeighbors(String nickname) {
         Member member = memberService.findByNickname(nickname);
         List<Neighbor> neighbors = neighborRepository.findByMemberOrderByNeighborIdDesc(member);
 
         return neighbors.stream()
-            .map(Neighbor::getNeighborMember)
+            .map(neighbor -> new NeighborResponseDto(neighbor.getNeighborMember()))
             .collect(Collectors.toList());
     }
 
-    // 나를 이웃으로 등록한 사람들 목록 조회
+    // 나를 이웃으로 등록한 사람들 목록 조회 (DTO 반환)
     /*
         nickname: 조회할 사용자의 닉네임
         return: 팔로워 Member 리스트
     */
     @Transactional(readOnly = true)
-    public List<Member> getMyFollowers(String nickname) {
+    public List<NeighborResponseDto> getMyFollowers(String nickname) {
         Member member = memberService.findByNickname(nickname);
         List<Neighbor> followers = neighborRepository.findByNeighborMemberOrderByNeighborIdDesc(member);
 
         return followers.stream()
-            .map(Neighbor::getMember)
-            .collect(Collectors.toList());       
-        //
-
+            .map(follower -> new NeighborResponseDto(follower.getMember()))
+            .collect(Collectors.toList());
     }
 
-    // 이웃 관계 통계 조회 (리스트 크기로 계산, COUNT 제거)
+    // 이웃 관계 통계 조회 (DTO 사용하여 계산)
     /*
         nickname: 조회할 사용자의 닉네임
         return: 이웃 수, 팔로워 수 등의 통계 정보
@@ -126,8 +125,8 @@ public class NeighborService {
     @Transactional(readOnly = true)
     public Map<String, Object> getNeighborStats(String nickname) {
         // 리스트 조회 후 size()로 계산 (COUNT 대신)
-        List<Member> myNeighbors = getMyNeighbors(nickname);
-        List<Member> myFollowers = getMyFollowers(nickname);
+        List<NeighborResponseDto> myNeighbors = getMyNeighbors(nickname);
+        List<NeighborResponseDto> myFollowers = getMyFollowers(nickname);
 
         return Map.of(
             "myNeighborCount", myNeighbors.size(), 
@@ -207,29 +206,6 @@ public class NeighborService {
             "canUnfollow", iAmFollowing // 언팔로우 가능한지
         );
     }
-
-    // ...
-    // === 추천 이웃 기능 (확장 가능) === => 안 쓸 것 같아 보류, 주석 처리
-    //
-    // 추천 이웃 목록 조회 (최근 가입자 기준, JOIN으로 최적화)
-    /*
-        nickname: 현재 사용자 닉네임
-        limit: 추천 개수 제한
-        return: 추천 이웃 Member 리스트
-    */
-    /*
-        @Transactional(readOnly = true)
-        public List<Member> getRecommendedNeighbors(String nickname, int limit) {
-            Member currentUser = memberService.findByNickname(nickname);
-            
-            // MemberRepository의 JOIN 쿼리로 이미 팔로우하지 않은 사용자들을 한 번에 조회
-            return memberService.findRecentMembersExcluding(
-                currentUser.getMemberId(), 
-                null,  // excludeIds 파라미터는 더 이상 사용하지 않음 (JOIN으로 처리)
-                limit
-            );
-        }
-    */
 
 
 }
