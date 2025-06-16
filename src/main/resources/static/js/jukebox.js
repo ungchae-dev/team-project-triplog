@@ -58,7 +58,19 @@
 
 function renderNowPlaying(track) {
     const rightInfo = document.getElementById('track-info-right');
-    if (!track || !rightInfo) return;
+    if (!rightInfo) return;
+
+     if (!track) {
+        rightInfo.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #999; word-break: keep-all;">
+                🎧 현재 보유한 음악이 없습니다.
+                <br><a href="/blog/@${getCurrentNickname()}/shop" style="color: #ff8888; text-decoration: underline;">
+                    상점에서 음악을 구매해보세요!
+                </a>
+            </div>
+        `;
+        return;
+    }
 
       rightInfo.innerHTML = `
     <div class="now-playing-container">
