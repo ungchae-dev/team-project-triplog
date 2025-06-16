@@ -970,53 +970,6 @@ function navigateToPageWithAuth(page) {
     navigateToPage(page);
 }
 
-// === 페이지 네비게이션 시 사용자 정보 확인 (추가) ===
-function navigateToPageWithAuth(page) {
-
-    console.log('🔍 =========================');
-    console.log('🔍 navigateToPageWithAuth 시작:', page);
-    console.log('🔍 현재 사용자 정보:', currentUserInfo);
-    console.log('🔍 사용자 정보 로드 완료:', userInfoLoaded);
-    console.log('🔍 로그인 상태 체크 결과:', isLoggedIn());
-    console.log('🔍 URL 닉네임:', getCurrentNickname());
-    console.log('🔍 로그인 닉네임:', getCurrentUserNickname());
-    console.log('🔍 본인 블로그 여부:', isOwnBlog());
-    console.log('🔍 =========================');
-
-    // 로그인이 필요한 기능인지 확인 (모든 페이지 접근 시 로그인 필요)
-    if (!isLoggedIn()) {
-        console.log('로그인 체크 실패 - 로그인 페이지로 이동');
-        alert('로그인이 필요한 기능입니다!');
-        window.location.href = '/member/login';
-        return;
-    }
-
-    console.log('로그인 체크 통과');
-
-    // ※ 블로그 주인만 접근 가능한 페이지들 (상점, 프로필)
-    const ownerOnlyPages = ['shop', 'profile'];
-
-    if (ownerOnlyPages.includes(page)) {
-        if (!isOwnBlog()) {
-            alert('블로그 주인만 접근할 수 있는 페이지입니다.');
-            console.log(`접근 차단: ${page} 페이지는 블로그 주인(${getCurrentNickname()})만 접근 가능`);
-            return;
-        }
-        console.log(`접근 허용: ${page} 페이지 - 블로그 주인 확인됨`);
-    }
-
-    // 모든 로그인 사용자가 접근 가능한 페이지들 (홈, 게시판, 주크박스, 방명록)
-    const publicPages = ['home', 'post', 'jukebox', 'guestbook'];
-
-    if (publicPages.includes(page)) {
-        console.log(`접근 허용: ${page} 페이지 - 모든 로그인 사용자 접근 가능`);
-    }
-
-    // 기존 navigateToPage 로직 실행
-    console.log('navigateToPage 호출:', page);
-    navigateToPage(page);
-}
-
 // 음악 위젯 이벤트 설정
 // === 음악 재생 함수 ===
 function playTrack(index) {
@@ -1350,29 +1303,39 @@ async function loadPageContent(page, nickname) {
 
         // ===== 수동 스크립트 파싱 및 실행 =====
         // tempDiv 내 모든 <script> 태그 찾아서 실행
+        // 스크립트 실행 후 initializePage() 호출 방식으로 변경
         const scripts = tempDiv.querySelectorAll('script');
+        const promises = [];
+
         scripts.forEach(oldScript => {
             const newScript = document.createElement('script');
 
             if (oldScript.src) {
                 newScript.src = oldScript.src;
-                newScript.async = false; // 순서 보장
+                newScript.async = false;
+
+                // 외부 스크립트 로딩 완료 대기
+                const promise = new Promise((resolve, reject) => {
+                    newScript.onload = resolve;
+                    newScript.onerror = reject;
+                });
+
+                promises.push(promise);
             } else {
                 newScript.textContent = oldScript.textContent;
             }
 
-            // body에 추가하여 실행
             document.body.appendChild(newScript);
-            // 추가 후 제거해도 무방:
-            // document.body.removeChild(newScript);
         });
-        // ===== 수동 스크립트 파싱 및 실행 끝 =====
 
+        // 모든 스크립트 로딩 후 초기화
+        await Promise.all(promises);
+        console.log(`${page} 페이지 콘텐츠 및 스크립트 삽입 완료`);
 
-        console.log(`${page} 페이지 콘텐츠 삽입 완료`);
-
+        // ✅ 이제 JS 함수들이 준비된 상태에서 초기화 실행
         initializePage(basePage, path);
-        console.log(`${basePage} 페이지 로드 성공`);
+        console.log(`${basePage} 페이지 초기화 완료`);
+
     } catch (error) {
         console.error('페이지 로드 오류:', error);
         mainContent.innerHTML = `
@@ -1388,15 +1351,24 @@ async function loadPageContent(page, nickname) {
 
 
 // 페이지 초기화 함수 (즉시 실행)
-function initializePage(page) {
+function initializePage(basePage, fullPath) {
+    console.log('initializePage 호출됨:', basePage, fullPath);
     // 각 페이지별 초기화 함수가 있을 경우 즉시 호출
-    const initFunctionName = `setup${page.charAt(0).toUpperCase() + page.slice(1)}Features`;
+    const initFunctionName = `setup${basePage.charAt(0).toUpperCase() + basePage.slice(1)}Features`;
 
     if (typeof window[initFunctionName] === 'function') {
         window[initFunctionName]();
-        console.log(`${page} 페이지 초기화 완료`);
+        console.log(`${basePage} 페이지 초기화 완료`);
     } else {
-        console.log(`${page} 페이지는 별도 초기화 함수가 없습니다.`);
+        console.log(`${basePage} 페이지는 별도 초기화 함수가 없습니다.`);
+    }
+
+    // ✨ post 상세 경로 처리
+    if (basePage === 'post' && /^post\/\d+/.test(fullPath)) {
+        if (typeof window.initPostDetail === 'function') {
+            window.initPostDetail();
+            console.log('initPostDetail() 실행됨');
+        }
     }
 
     // 공통 데이터 로드
@@ -1420,7 +1392,7 @@ function initializePage(page) {
     setTimeout(() => {
         if (typeof window.initNeighborFeatures === 'function') {
             window.initNeighborFeatures();
-            console.log(`${page} 페이지 이웃 기능 재초기화 완료`);
+            console.log(`${fullPath} 페이지 이웃 기능 재초기화 완료`);
         }
     }, 200)
 

@@ -1,5 +1,5 @@
 // post.js - 블로그 게시판 js
-
+/*
 async function fetchPosts(nickname, page = 0, size = 5, sort = 'latest') {
     try {
         const sortParam = 
@@ -630,7 +630,7 @@ async function submitComment() {
         console.error('댓글 등록 실패:', error);
         alert('댓글 등록 중 오류가 발생했습니다.');
     }
-}
+}*/
 /*
 // 글 작성
 document.addEventListener('DOMContentLoaded', () => {
@@ -795,7 +795,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 });
-*/
+*//*
 function showBoardList() {
 
     document.getElementById("board-list").style.display = "block";
@@ -924,7 +924,7 @@ function setupPageSizeDropdown() {
     });
 
 }
-
+*/
 // === 유틸리티 함수들 ===
 
 function getCurrentNickname() {
@@ -941,7 +941,7 @@ function getCurrentUserId() {
     console.error('getCurrentUserId 함수를 찾을 수 없습니다! layout.js가 로드되었는지 확인하세요.');
     return null;
 }
-
+/*
 // 댓글 좋아요 (임시 구현)
 function likeComment(commentId) {
     console.log('댓글 좋아요:', commentId);
@@ -953,7 +953,7 @@ function showReplyForm(commentId) {
     console.log('답글 폼 표시:', commentId);
     // 실제 구현 필요
 }
-
+*/
 // === 스킨 로드 함수 시작 ===
 async function loadBlogSkin() {
     const currentNickname = getCurrentNickname();
@@ -1000,8 +1000,8 @@ function removeSkin() {
 // === 스킨 로드 함수 끝 ===
 
 // === 이벤트 리스너 등록 ===
-window.addEventListener('DOMContentLoaded', activatePostUI);
-
+//window.addEventListener('DOMContentLoaded', activatePostUI);
+/*
 // === 전역 함수 노출 ===
 window.loadBlogSkin = loadBlogSkin;
 window.setupPostFeatures = activatePostUI;
@@ -1010,3 +1010,4 @@ window.showPostDetail = showPostDetail;
 window.hidePostDetail = hidePostDetail;
 window.showBoardList = showBoardList;
 window.showWriteForm = showWriteForm;
+*/
