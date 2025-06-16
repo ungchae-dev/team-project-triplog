@@ -130,8 +130,34 @@
         neighborDropdown.appendChild(dropdownDiv);
         setupNeighborListEvents(dropdownDiv);
 
+        // 스크롤 힌트 설정
+        setupScrollHint(dropdownDiv);
+
         console.log('이웃 드롭다운 UI 생성 완료');
     }
+
+    // 스크롤 힌트 설정
+    function setupScrollHint(dropdownDiv) {
+        // 스크롤이 필요한지 확인
+        setTimeout(() => {
+            const hasScroll = dropdownDiv.scrollHeight > dropdownDiv.clientHeight;
+
+            if (hasScroll) {
+                dropdownDiv.classList.add('has-scroll');
+                console.log('스크롤 힌트 활성화 - 더 많은 이웃이 있습니다');
+
+                // 스크롤 이벤트로 힌트 제거
+                dropdownDiv.addEventListener('scroll', () => {
+                    const isAtBottom = dropdownDiv.scrollTop + dropdownDiv.clientHeight >= dropdownDiv.scrollHeight - 5;
+                    
+                    if (isAtBottom) {
+                        dropdownDiv.classList.remove('has-scroll');
+                    }
+                });
+            }
+        }, 100);
+    }
+
 
     // === 이웃 목록 HTML 생성 ===
     function createNeighborListHTML() {

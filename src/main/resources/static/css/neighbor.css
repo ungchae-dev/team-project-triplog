@@ -4,6 +4,8 @@
 .neighbor-dropdown {
     position: relative;
     margin-top: 10px;
+    /* 오버플로우를 허용해서 여백 영역까지 보이게 */
+    overflow: visible !important;
 }
 
 .neighbor-dropdown button {
@@ -35,12 +37,35 @@
     border: 2px solid #4CAF50;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 1000;
-    max-height: 300px;
-    overflow-y: auto;
+    z-index: 9999; /* 최상위 레이어로 설정 */
+    max-height: 250px; /* 최대 높이 줄임 - 3개 정도만 보이게 */
+    overflow-y: auto; /* 수직 스크롤 활성화 */
+    overflow-x: hidden; /* 수평 스크롤 숨김 */
     animation: slideDown 0.2s ease-out;
     min-width: 250px; /* 최소 너비 보장 */
+    
+    scroll-behavior: smooth; /* 스크롤 부드럽게 */
+    scrollbar-width: thin; /* 스크롤바가 항상 보이도록 */
+    scrollbar-color: #4CAF50 #f1f1f1;
 }
+
+/* 부모 컨테이너들의 오버플로우 해제 */
+#left-container {
+    overflow: visible !important;
+}
+
+.page.left-page {
+    overflow: visible !important;
+}
+
+.blog-container {
+    overflow: visible !important;
+}
+
+.frame {
+    overflow: visible !important;
+}
+/**/
 
 @keyframes slideDown {
     from {
@@ -60,6 +85,9 @@
     font-weight: bold;
     text-align: center;
     font-size: 14px;
+    position: sticky; /* 헤더를 상단에 고정 */
+    top: 0;
+    z-index: 10;
 }
 
 .neighbor-empty {
@@ -74,16 +102,25 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    /* 스크롤 영역을 명확하게 정의 */
+    min-height: 0; /* flexbox 스크롤을 위해 필요 */
 }
 
 .neighbor-item {
+    /* === 레이아웃 스타일 === */
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
     border-bottom: 1px solid #eee;
     transition: background-color 0.2s ease;
-    min-height: 48px; /* 최소 높이 보장 */
+    min-height: 60px; /* 최소 높이 증가 - 터치하기 쉽게 */
+    flex-shrink: 0; /* 아이템이 줄어들지 않도록 */
+
+    /* === 애니메이션 스타일 === */
+    animation: fadeInUp 0.3s ease-out forwards;
+    opacity: 0;
+    transform: translateY(10px);
 }
 
 .neighbor-item:last-child {
@@ -92,6 +129,19 @@
 
 .neighbor-item:hover {
     background-color: #f8f9fa;
+}
+
+.neighbor-item:nth-child(1) { animation-delay: 0.1s; }
+.neighbor-item:nth-child(2) { animation-delay: 0.2s; }
+.neighbor-item:nth-child(3) { animation-delay: 0.3s; }
+.neighbor-item:nth-child(4) { animation-delay: 0.4s; }
+.neighbor-item:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .neighbor-name {
@@ -177,11 +227,12 @@
 /* === 반응형 디자인 === */
 @media (max-width: 768px) {
     .neighbor-list-dropdown {
-        max-height: 250px;
+        max-height: 200px; /* 모바일에서는 더 작게 */
     }
     
     .neighbor-item {
         padding: 10px;
+        min-height: 50px;
     }
     
     .neighbor-name {
@@ -193,41 +244,22 @@
     }
 }
 
-/* === 스크롤바 스타일링 === */
+/* === 스크롤바 스타일링 개선 === */
 .neighbor-list-dropdown::-webkit-scrollbar {
-    width: 6px;
+    width: 8px; /* 스크롤바 폭 증가 */
 }
 
 .neighbor-list-dropdown::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 3px;
+    border-radius: 4px;
+    margin: 2px; /* 위아래 여백 */
 }
 
 .neighbor-list-dropdown::-webkit-scrollbar-thumb {
     background: #4CAF50;
-    border-radius: 3px;
+    border-radius: 4px;
+    min-height: 20px; /* 최소 높이 */
 }
 
 .neighbor-list-dropdown::-webkit-scrollbar-thumb:hover {
     background: #45a049;
-}
-
-/* === 애니메이션 효과 === */
-.neighbor-item {
-    animation: fadeInUp 0.3s ease-out forwards;
-    opacity: 0;
-    transform: translateY(10px);
-}
-
-.neighbor-item:nth-child(1) { animation-delay: 0.1s; }
-.neighbor-item:nth-child(2) { animation-delay: 0.2s; }
-.neighbor-item:nth-child(3) { animation-delay: 0.3s; }
-.neighbor-item:nth-child(4) { animation-delay: 0.4s; }
-.neighbor-item:nth-child(5) { animation-delay: 0.5s; }
-
-@keyframes fadeInUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
