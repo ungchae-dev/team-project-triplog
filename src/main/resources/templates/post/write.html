@@ -260,57 +260,7 @@
       }
     });
 
-    // 작성 버튼 이벤트
-    document.getElementById('write-form').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const blogId = document.getElementById('blogInfo').dataset.blogId;
-      const nickname = document.getElementById('blogInfo').dataset.nickname;
-      const title = document.getElementById('title').innerText.trim();
-      const content = editor.innerHTML;
-      const text = editor.innerText.trim();
-      const visibilityInput = document.querySelector('input[name="visibility"]:checked');
-      const visibility = visibilityInput.value;
-      const checkedHashtags = Array.from(document.querySelectorAll('input[name="tag"]:checked')).map(el => el.value);
-      const newHashtag = document.getElementById('hashtagInput').value.trim();
 
-      if (!title) {
-        alert("제목을 입력해주세요");
-        return;
-      }
-
-
-    range.deleteContents();
-    range.insertNode(node);
-    range.setStartAfter(node);
-    range.setEndAfter(node);
-    selection.removeAllRanges();
-    selection.addRange(range);
-  }
-
-/*
-  // 이미지 삭제 버튼(x) 위치 고정
-  editor.addEventListener('click', function (e) {
-    if (e.target.tagName === 'IMG') {
-      currentImage = e.target;
-      const rect = e.target.getBoundingClientRect();
-      deleteBtn.style.top = `${rect.top + window.scrollY}px`;
-      deleteBtn.style.left = `${rect.left + rect.width - 10 + window.scrollX}px`;
-      deleteBtn.style.display = 'block';
-    } else {
-      deleteBtn.style.display = 'none';
-      currentImage = null;
-    }
-  });
-
-  // 이미지 삭제 버튼 이벤트
-  deleteBtn.addEventListener('click', function () {
-    if (currentImage) {
-      currentImage.remove();
-      deleteBtn.style.display = 'none';
-      currentImage = null;
-    }
-  });
-*/
   // 인원 태그 선택 시 화면에 출력
   function addHashtag(tag) {
     tag = tag.trim();
@@ -415,18 +365,8 @@
         } else {
           navigateToPage('post');
         }
-
-
-    if (res.ok) {
-      alert(isModify ? '글 수정 완료' : '글 작성 완료');
-      if(isModify){
-        navigateToPage(`post/${postId}`);
-      }else{
-        document.querySelector('.main-content').innerHTML = '';
-        navigateToPage('post');
-      }
        
-    } else {
+      } else {
       alert('작성 실패');
     }
   });

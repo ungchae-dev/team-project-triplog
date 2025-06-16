@@ -66,7 +66,7 @@ function openMyBlog() {
         // 바로 새 창에서 블로그 열기 (새 창임을 알리는 파라미터 추가)
         const blogWindow = window.open('/blog/home?fromNewWindow=true', 'myBlog', options);
 
-        
+    try{
         if (blogWindow) {
             console.log('새 창 열기 완료');
             blogWindow.focus();
