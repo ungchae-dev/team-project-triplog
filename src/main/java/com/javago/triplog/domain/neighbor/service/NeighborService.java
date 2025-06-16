@@ -84,14 +84,11 @@ public class NeighborService {
 
     }
 
-    //
     // === 이웃 관계 조회 ===
 
     // 내가 등록한 이웃 목록 조회 (DTO 반환)
-    /*
-        nickname: 조회할 사용자의 닉네임
-        return: 이웃 Member 리스트
-    */
+    // nickname: 조회할 사용자의 닉네임
+    // return: 이웃 Member 리스트
     @Transactional(readOnly = true)
     public List<NeighborResponseDto> getMyNeighbors(String nickname) {
         Member member = memberService.findByNickname(nickname);
@@ -103,10 +100,8 @@ public class NeighborService {
     }
 
     // 나를 이웃으로 등록한 사람들 목록 조회 (DTO 반환)
-    /*
-        nickname: 조회할 사용자의 닉네임
-        return: 팔로워 Member 리스트
-    */
+    // nickname: 조회할 사용자의 닉네임
+    // return: 팔로워 Member 리스트
     @Transactional(readOnly = true)
     public List<NeighborResponseDto> getMyFollowers(String nickname) {
         Member member = memberService.findByNickname(nickname);
@@ -118,10 +113,8 @@ public class NeighborService {
     }
 
     // 이웃 관계 통계 조회 (DTO 사용하여 계산)
-    /*
-        nickname: 조회할 사용자의 닉네임
-        return: 이웃 수, 팔로워 수 등의 통계 정보
-    */
+    // nickname: 조회할 사용자의 닉네임
+    // return: 이웃 수, 팔로워 수 등의 통계 정보
     @Transactional(readOnly = true)
     public Map<String, Object> getNeighborStats(String nickname) {
         // 리스트 조회 후 size()로 계산 (COUNT 대신)
@@ -136,13 +129,11 @@ public class NeighborService {
     }
 
     // === 이웃 관계 확인 ===
-    // 
+
     // 특정 사용자가 내 이웃인지 확인
-    /*
-        myNickname: 나의 닉네임
-        targetNickname: 확인할 대상의 닉네임
-        return: 이웃 여부
-    */
+    // myNickname: 나의 닉네임
+    // targetNickname: 확인할 대상의 닉네임
+    // return: 이웃 여부
     @Transactional(readOnly = true)
     public boolean isMyNeighbor(String myNickname, String targetNickname) {
         try {
@@ -156,11 +147,9 @@ public class NeighborService {
     }
 
     // 특정 사용자가 나를 이웃으로 등록했는지 확인
-    /*
-        myNickname: 나의 닉네임
-        targetNickname: 확인할 대상의 닉네임
-        return: 팔로워 여부
-    */
+    // myNickname: 나의 닉네임
+    // targetNickname: 확인할 대상의 닉네임
+    // return: 팔로워 여부
     @Transactional(readOnly = true)
     public boolean isMyFollower(String myNickname, String targetNickname) {
         try {
@@ -174,24 +163,19 @@ public class NeighborService {
     }
 
     // 서로 이웃인지 확인 (맞팔로우)
-    /*
-        nickname1: 첫 번째 사용자 닉네임
-        nickname2: 두 번째 사용자 닉네임
-        return: 맞팔로우 여부
-    */
+    // nickname1: 첫 번째 사용자 닉네임
+    // nickname2: 두 번째 사용자 닉네임
+    // return: 맞팔로우 여부
     @Transactional(readOnly = true)
     public boolean isMutualNeighbor(String nickname1, String nickname2) {
         return isMyNeighbor(nickname1, nickname2) && isMyNeighbor(nickname2, nickname1);
     }
 
     // === 이웃 관계 상태 조회 (API용) ===
-    // 
     // 두 사용자 간의 이웃 관계 상태 조회
-    /*
-        currentUserNickname: 현재 사용자 닉네임
-        targetUserNickname: 대상 사용자 닉네임
-        return: 관계 상태 정보
-    */
+    // currentUserNickname: 현재 사용자 닉네임
+    // targetUserNickname: 대상 사용자 닉네임
+    // return: 관계 상태 정보
     @Transactional(readOnly = true)
     public Map<String, Object> getRelationshipStatus(String currentUserNickname, String targetUserNickname) {
         boolean iAmFollowing = isMyNeighbor(currentUserNickname, targetUserNickname);

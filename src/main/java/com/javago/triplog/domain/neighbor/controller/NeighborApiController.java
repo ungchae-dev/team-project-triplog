@@ -49,18 +49,12 @@ public class NeighborApiController {
 
         try {
             // 현재 로그인한 사용자 정보
-            Member currentUser = memberService.findByMemberId(authentication.getName());
             String decodedNickname = blogControllerUtils.decodeNickname(nickname);
 
-            // 본인의 이웃 목록만 조회 가능 (권한 체크)
-            if (!currentUser.getNickname().equals(decodedNickname)) {
-                return ResponseEntity.status(403).build();
-            }
-
-            // 이웃 목록 조회
+            // 권한 체크 제거 - 모든 로그인 사용자가 다른 사람의 이웃 목록도 볼 수 있게 변경
             List<NeighborResponseDto> neighbors = neighborService.getMyNeighbors(decodedNickname);
             return ResponseEntity.ok(neighbors);
-
+            
         } catch (Exception e) {
             System.err.println("이웃 목록 조회 실패: " + e.getMessage());
             return ResponseEntity.status(500).build();
