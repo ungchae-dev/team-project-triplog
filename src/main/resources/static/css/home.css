@@ -1,5 +1,62 @@
 /* home.css : 블로그 - 홈 디자인 */
 
+/* 홈 페이지 방명록/이웃 최신글 공통 스타일 */
+.home-entry-item {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+.home-profile-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.home-profile-image {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1.5px solid #d7bfae;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #f9f9f9;
+}
+
+.home-content {
+    flex: 1;
+    min-width: 0; /* 텍스트 오버플로우 방지 */
+    word-wrap: break-word;
+}
+
+/* 프로필 이미지 로딩 실패 시 기본 스타일 */
+.home-profile-image:not([src]),
+.home-profile-image[src=""],
+.home-profile-image[src="/images/default_profile.png"] {
+    background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+}
+
+/* 프로필 이미지 호버 효과 */
+.home-profile-image:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+/* 반응형 디자인 - 작은 화면에서 */
+@media (max-width: 768px) {
+    .home-profile-image {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .home-profile-container {
+        gap: 6px;
+    }
+    
+    .guestbook-list, .neighbor-list {
+        font-size: 13px;
+    }
+}
+
 /* 기본 reset 및 body 스타일 */
 body, html {
     width: 100vw;
@@ -350,10 +407,12 @@ body, html {
     list-style: none;
     padding: 0;
     margin: 0;
-    font-size: 15px;
+    font-size: 14px;
     color: #222;
-    line-height: 2;
+    line-height: 1.8;
 }
+
+
 
 /* 방명록 카드 인터랙션 개선 */
 #guestbook-card {
