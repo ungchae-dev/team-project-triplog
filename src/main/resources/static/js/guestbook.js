@@ -523,46 +523,6 @@ async function handleSubmitGuestbook() {
 
 }
 
-// === 방명록 작성 함수 ===
-async function submitGuestbookEntry(nickname, message, isSecret) {
-    console.log('API 호출 직전 isSecret 값:', isSecret);
-
-    try {
-        // 서버 API 호출
-        const currentNickname = getCurrentNickname();
-        const response = await fetch(`/blog/api/@${encodeURIComponent(currentNickname)}/guestbook`, {
-            method: 'POST', 
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                message: message, 
-                isSecret: isSecret
-            })
-        });
-
-        console.log('전송한 데이터:', { message, isSecret });
-
-        if (!response.ok) {
-            throw new Error('방명록 작성에 실패했습니다!');
-        }
-        const result = await response.json();
-
-        // 성공 시 목록 새로고침
-        loadGuestbookData();
-
-        // 입력창 초기화
-        document.getElementById('guestMessage').value = '';
-        document.getElementById('secretCheck').checked = false;
-        
-        alert('방명록이 작성되었습니다!');
-        
-    } catch (error) {
-        console.error('방명록 작성 실패:', error);
-        alert('방명록 작성에 실패했습니다. 다시 시도해주세요.');
-    }
-}
-
 // === 방명록 수정 ===
 function editGuestbookEntry(entryId) {
     console.log('수정할 방명록 ID:', entryId);

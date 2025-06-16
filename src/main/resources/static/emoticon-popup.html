@@ -3,6 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <title>내 이모티콘</title>
+  <style>
+       body {
+          font-family: 'Malgun Gothic', sans-serif;
+          margin: 0;
+          padding: 20px;
+          background: linear-gradient(135deg, #fff9f7 0%, #ffeee9 100%);
+       }
+       .popup-header {
+          text-align: center;
+          color: #ff8a65;
+          font-size: 18px;
+          font-weight: bold;
+          margin-bottom: 20px;
+          padding-bottom: 10px;
+          border-bottom: 2px solid #f2dcdc;
+       }
+       .emoticon-placeholder {
+          text-align: center;
+          color: #666;
+          margin-top: 100px;
+          font-size: 16px;
+       }
+      .popup-emoji {
+          width: 72px;    
+          height: 72px;  
+          cursor: pointer;
+          transition: transform .1s;
+       }
+     .popup-emoji:hover {
+          transform: scale(1.1);
+       }
+    </style>
   <link rel="stylesheet" href="/css/guestbook.css" />
 </head>
 <body>

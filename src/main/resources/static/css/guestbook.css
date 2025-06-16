@@ -541,45 +541,9 @@
   margin-top: 10px;
 }
 
-/* 이모티콘 이미지 기본 크기 */
-.popup-emoji {
-  width: 56px;
-  height: 56px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
 
-.popup-emoji:hover {
-  transform: scale(1.1);
-}
 
-/* === 반응형 대응 === */
-@media (max-width: 768px) {
-  .popup-emoji {
-    width: 48px;
-    height: 48px;
-  }
 
-  .emoticon-grid {
-    gap: 8px;
-  }
-}
 
-@media (max-width: 480px) {
-  .popup-emoji {
-    width: 40px;
-    height: 40px;
-  }
 
-  .emoticon-grid {
-    gap: 6px;
-  }
-}
-
-/* contenteditable placeholder */
-[data-placeholder]:empty:before {
-  content: attr(data-placeholder);
-  color: #999;
-  pointer-events: none;
-}
 
