@@ -1,7 +1,9 @@
 package com.javago.triplog.domain.neighbor.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -201,6 +203,43 @@ public class NeighborApiController {
             return ResponseEntity.status(500).build();
         }
 
+    }
+
+    // === 내 이웃 목록 조회 API (블로그 홈 - 이웃 최신글) ===
+    @GetMapping("/neighbors/my-list")
+    public ResponseEntity<Map<String, Object>> getMyNeighborList(Authentication authentication) {
+        try {
+            // 로그인 체크
+            if (authentication == null) {
+                return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "로그인이 필요합니다."));
+            }
+
+            // 현재 로그인한 사용자 정보
+            Member currentUser = memberService.findByMemberId(authentication.getName());
+            String currentNickname = currentUser.getNickname();
+
+            // 내가 이웃으로 등록한 사람들의 목록 (서비스 메서드 재활용)
+            List<NeighborResponseDto> neighbors = neighborService.getMyNeighbors(currentNickname);
+
+            // 닉네임만 추출해서 간단한 형태로 반환 (블로그 홈 페이지용)
+            List<Map<String, String>> neighborList = neighbors.stream()
+                .map(neighbor -> Map.of("nickname", neighbor.getNickname()))
+                .collect(Collectors.toList());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("neighbors", neighborList);
+            response.put("count", neighborList.size());
+
+            System.out.println("내 이웃 목록 조회 성공: " + currentNickname + " - " + neighborList.size() + "명");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.err.println("내 이웃 목록 조회 실패: " + e.getMessage());
+            return ResponseEntity.status(500)
+                .body(Map.of("success", false, "message", "이웃 목록을 불러올 수 없습니다."));
+        }
     }
 
 
