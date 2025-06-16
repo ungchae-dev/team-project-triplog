@@ -3,11 +3,6 @@ package com.javago.triplog.config;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.service.CustomUserDetailsService;
 import com.javago.triplog.domain.member.service.MemberService;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +11,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
 
 
 // Spring Security 설정을 담고 있는 설정 클래스
@@ -42,7 +41,7 @@ public class SecurityConfig {
                 // 1. 완전히 공개적으로 접근 가능한 경로들 (로그인 불필요)
                 .requestMatchers(
                     "/", // 메인 페이지
-                    "/tour", // 행사·관광·맛집 페이지
+                    "/tour/**", // 행사·관광·맛집 페이지
                     "/tourpopup/**", // 행사·관광·맛집 상세 페이지 팝업 창
                     "/search/**", // 글 검색 페이지
                     "/search/posts**", // 글 검색 페이지에서 블로그 게시글 검색
