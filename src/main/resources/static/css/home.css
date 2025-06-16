@@ -370,6 +370,22 @@ body, html {
     transform: translateY(0);
 }
 
+/* 이웃 최신글 카드 호버 효과 추가 */
+.section-card:nth-child(2) {  /* 이웃 최신글 카드 */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.section-card:nth-child(2):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px #eedcd9bb;
+}
+
+.section-card:nth-child(2):active {
+    transform: translateY(0);
+}
+
+/* 최근 게시물 카드 호버 효과 추가 */
 .photo-section-card {
     background: rgba(255, 255, 255, 0.98);
     border: 2px solid #d7bfae;
@@ -379,6 +395,17 @@ body, html {
     margin-bottom: 10px;
     display: flex;
     flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.photo-section-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px #eedcd9bb;
+}
+
+.photo-section-card:active {
+    transform: translateY(0);
 }
 
 .photo-section-card .section-title {
