@@ -232,7 +232,7 @@
     selection.addRange(range);
   }
 
-
+/*
   // 이미지 삭제 버튼(x) 위치 고정
   editor.addEventListener('click', function (e) {
     if (e.target.tagName === 'IMG') {
@@ -255,7 +255,7 @@
       currentImage = null;
     }
   });
-
+*/
   // 인원 태그 선택 시 화면에 출력
   function addHashtag(tag) {
     tag = tag.trim();
@@ -317,7 +317,7 @@
     }
 
     if (checkedHashtags.length === 0) {
-      alert("해시태그를 하나 이상 선택해주세요");
+      alert("인원수 태그를 하나 이상 선택해주세요");
       return;
     }
 
@@ -348,8 +348,9 @@
     if (res.ok) {
       alert(isModify ? '글 수정 완료' : '글 작성 완료');
       if(isModify){
-        location.replace(`/blog/@${nickname}/post/${postId}`);
+        navigateToPage(`post/${postId}`);
       }else{
+        document.querySelector('.main-content').innerHTML = '';
         navigateToPage('post');
       }
        
@@ -363,9 +364,8 @@
 <script src="/js/home.js"></script>
 <script src="/js/shop.js"></script>
 <script src="/js/profile.js"></script>
-
+<script src="/js/post.js"></script>
 <script src="/js/jukebox.js"></script>
-<script src="/js/mylog.js"></script>
 <script src="/js/guestbook.js"></script>
 </body>
 </html>
