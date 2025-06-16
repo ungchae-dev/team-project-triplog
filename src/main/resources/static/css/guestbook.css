@@ -576,3 +576,10 @@
   }
 }
 
+/* contenteditable placeholder */
+[data-placeholder]:empty:before {
+  content: attr(data-placeholder);
+  color: #999;
+  pointer-events: none;
+}
+

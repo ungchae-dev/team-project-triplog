@@ -58,12 +58,19 @@
 
                 <!-- 두 번째 줄: 메시지 입력 + 버튼들 -->
                 <div class="input-row">
-                  <input type="text" id="guestMessage" class="input-field message-content"
-                    placeholder="따뜻한 방명록 작성을 부탁해요~">
+                  <!-- 실제 보이는 에디터 (contenteditable) -->
+                  <div
+                    id="guestMessageEditor" class="input-field message-content"
+                    contenteditable="true"
+                    data-placeholder="따뜻한 방명록 작성을 부탁해요~"
+                  ></div>
+                  <!-- 폼 전송용 숨은 textarea -->
+                  <textarea id="guestMessage" name="message" hidden></textarea>
+
                   <button id="submitGuestbook" class="submit-button">확인</button>
                   <label class="secret-checkbox">
                     <input type="checkbox" id="secretCheck"> 비밀로 하기
-                  </label>
+                 </label>
                 </div>
               </div>
             </div>
@@ -90,8 +97,13 @@
           <button class="edit-emoticon-button">내 이모티콘</button>
         </div>
 
-        <textarea class="edit-textarea" maxlength="4000" placeholder="방명록 내용을 입력하세요~"></textarea>
-        
+        <!-- 실제 보이는 에디터 -->
+            <div class="edit-editor"
+              contenteditable="true"
+              data-placeholder="방명록 내용을 입력하세요~"
+            ></div>
+            <!-- 전송용 숨은 textarea -->
+            <textarea class="edit-textarea" name="message" hidden></textarea>        
         <div class="edit-controls">
           <label class="edit-secret-checkbox">
             <input type="checkbox" class="edit-secret-input"> 비밀로 하기
@@ -116,6 +128,27 @@
   <script src="/js/jukebox.js"></script>
   <script src="/js/guestbook.js"></script>
   <script src="/js/neighbor.js"></script>
+
+   <!-- 에디터 → textarea 동기화 스크립트 -->
+  <script>
+    // 입력용 에디터 동기화
+    document.addEventListener('DOMContentLoaded', () => {
+      const editor = document.getElementById('guestMessageEditor');
+      const textarea = document.getElementById('guestMessage');
+      if (editor && textarea) {
+        // 초기 placeholder 처리
+        editor.addEventListener('focus', () => {
+          if (editor.innerHTML.trim() === '') {
+            editor.innerHTML = '';
+          }
+        });
+        // 입력 시마다 숨은 textarea에 동기화
+        editor.addEventListener('input', () => {
+          textarea.value = editor.innerHTML;
+        });
+      }
+    });
+  </script>
 
 </body>
 
