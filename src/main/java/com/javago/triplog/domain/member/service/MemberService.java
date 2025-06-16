@@ -1,5 +1,9 @@
 package com.javago.triplog.domain.member.service;
 
+import java.util.List;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -164,5 +168,42 @@ public class MemberService implements UserDetailsService {
             throw new IllegalArgumentException("블로그가 존재하지 않습니다: " + nickname);
         }
     }
+
+    // === 이웃 추천을 위한 메서드들 (성능 최적화) ===
+    
+    // 이미 팔로우하지 않은 최근 가입자 조회 (이웃 추천용, JOIN 사용)
+    /*
+        currentUserId: 현재 사용자 ID, limit: 조회할 최대 개수
+        return: 추천 대상 Member 리스트
+    */
+    @Transactional(readOnly = true)
+    public List<Member> findRecentMembersExcluding(String currentUserId, List<String> excludeIds, int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        return memberRepository.findRecentMembersExcluding(currentUserId, pageable);
+    }
+
+    // 닉네임으로 사용자(USER) 검색 (이웃 검색용)
+    /*
+        nickname: 검색할 닉네임, currentUserId: 현재 사용자 ID (검색 결과에서 제외)
+        limit: 조회할 최대 개수
+        return: 검색 결과 Member 리스트
+    */
+    @Transactional(readOnly = true)
+    public List<Member> searchMembersByNickname(String nickname, String currentUserId, int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        return memberRepository.findByNicknameContainingExcludingMe(nickname, currentUserId, pageable);
+    }
+
+    // 최근 가입한 일반 사용자들 조회 (단순 조회)
+    /*
+        limit: 조회할 최대 개수
+        return: 최근 가입자 Member 리스트
+    */
+    @Transactional(readOnly = true)
+    public List<Member> getRecentUsers(int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        return memberRepository.findRecentUsers(pageable);
+    }
+    
 
 }

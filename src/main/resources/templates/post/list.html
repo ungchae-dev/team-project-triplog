@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>게시글 목록</title>
-    <!-- 블로그 페이지 css 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
+    
+    <!-- 블로그 페이지 css 전체(6, 홈-상점-프로필-게시판-주크박스-방명록) 홈에서 로드 -->
     <link rel="stylesheet" href="/css/home.css" />
     <link rel="stylesheet" href="/css/shop.css" />
     <link rel="stylesheet" href="/css/profile.css" />
     <link rel="stylesheet" href="/css/post.css" />
     <link rel="stylesheet" href="/css/jukebox.css" />
-    <link rel="stylesheet" href="/css/mylog.css" />
     <link rel="stylesheet" href="/css/guestbook.css" />
 </head>
+
 <body th:attr="data-nickname=${nickname}">
     <div class="frame">
 
@@ -35,25 +37,36 @@
                         <div class="board-header">
                             <div class="board-left-controls">
                                 <button class="write-btn" th:if="${nickname == loginNickname}"
-                                        th:onclick="|location.href='@{/blog/@{nickname}/post/write(nickname=${nickname})}'|" type="button">글 작성</button>
+                                    th:onclick="|location.href='@{/blog/@{nickname}/post/write(nickname=${nickname})}'|"
+                                    type="button">글 작성</button>
                             </div>
                             <div class="board-right-controls">
-                                <a th:href="@{/blog/@{nickname}/post(page=1, size=${currentSize}, sort=updatedAt, dir=${currentDir}, nickname=${nickname})}">
-                                    <button class="board-btn" data-sort="latest" th:classappend="${currentSort == 'updatedAt'} ? ' active' : ''">최신순</button>
+                                <a
+                                    th:href="@{/blog/@{nickname}/post(page=1, size=${currentSize}, sort=updatedAt, dir=${currentDir}, nickname=${nickname})}">
+                                    <button class="board-btn" data-sort="latest"
+                                        th:classappend="${currentSort == 'updatedAt'} ? ' active' : ''">최신순</button>
                                 </a>
-                                <a th:href="@{/blog/@{nickname}/post(page=1, size=${currentSize}, sort=likeCount, dir=${currentDir}, nickname=${nickname})}">
-                                    <button class="board-btn" data-sort="likes" th:classappend="${currentSort == 'likeCount'} ? ' active' : ''">좋아요순</button>
+                                <a
+                                    th:href="@{/blog/@{nickname}/post(page=1, size=${currentSize}, sort=likeCount, dir=${currentDir}, nickname=${nickname})}">
+                                    <button class="board-btn" data-sort="likes"
+                                        th:classappend="${currentSort == 'likeCount'} ? ' active' : ''">좋아요순</button>
                                 </a>
-                                <a th:href="@{/blog/@{nickname}/post(page=1, size=${currentSize}, sort=commentCount, dir=${currentDir}, nickname=${nickname})}">
-                                    <button class="board-btn" data-sort="comments" th:classappend="${currentSort == 'commentCount'} ? ' active' : ''">댓글순</button>
+                                <a
+                                    th:href="@{/blog/@{nickname}/post(page=1, size=${currentSize}, sort=commentCount, dir=${currentDir}, nickname=${nickname})}">
+                                    <button class="board-btn" data-sort="comments"
+                                        th:classappend="${currentSort == 'commentCount'} ? ' active' : ''">댓글순</button>
                                 </a>
                                 <!-- 🔥 페이지 사이즈 드롭다운 -->
                                 <div class="page-size-dropdown">
-                                    <button class="board-btn dropdown-btn" th:text="${currentSize + '개씩 ▼'}">5개씩 ▼</button>
+                                    <button class="board-btn dropdown-btn" th:text="${currentSize + '개씩 ▼'}">5개씩
+                                        ▼</button>
                                     <div class="dropdown-menu" style="display: none;">
-                                        <div class="dropdown-item" data-size="3" th:classappend="${currentSize == 3} ? ' active' : ''">3개씩</div>
-                                        <div class="dropdown-item" data-size="5" th:classappend="${currentSize == 5} ? ' active' : ''">5개씩</div>
-                                        <div class="dropdown-item" data-size="10" th:classappend="${currentSize == 10} ? ' active' : ''">10개씩</div>
+                                        <div class="dropdown-item" data-size="3"
+                                            th:classappend="${currentSize == 3} ? ' active' : ''">3개씩</div>
+                                        <div class="dropdown-item" data-size="5"
+                                            th:classappend="${currentSize == 5} ? ' active' : ''">5개씩</div>
+                                        <div class="dropdown-item" data-size="10"
+                                            th:classappend="${currentSize == 10} ? ' active' : ''">10개씩</div>
                                     </div>
                                 </div>
                             </div>
@@ -61,9 +74,11 @@
                         <div>
                             <ul th:each="post : ${postList}" class="post-list">
                                 <li class="post-item" th:attr="data-post-id=${post.postId}">
-                                    <a th:href="@{/blog/@{nickname}/post/{id}(nickname=${nickname}, id=${post.postId})}">
-                                        <img th:if="${post.thumbnail != null}" th:src="${post.thumbnail}" alt="썸네일" class="thumbnail"/>
-                                        <h3 th:text="${post.title}"></h3>                
+                                    <a
+                                        th:href="@{/blog/@{nickname}/post/{id}(nickname=${nickname}, id=${post.postId})}">
+                                        <img th:if="${post.thumbnail != null}" th:src="${post.thumbnail}" alt="썸네일"
+                                            class="thumbnail" />
+                                        <h3 th:text="${post.title}"></h3>
                                         <div class="meta">
                                             <span th:text="'by ' + ${post.nickname}"></span>
                                             <span th:text="${post.createdAt}"></span>
@@ -81,16 +96,19 @@
                         </div>
                         <div class="pagination" th:if="${postList.totalPages > 0}">
                             <a th:if="${!postList.first && !((postList.totalPages - 1) / 10 == 0)}"
-                                    th:href="@{/blog/@{nickname}/post(page=${((((currentPage - 1) / 10) - 1) * 10 + 10) < 1 ? 1 : (((currentPage - 1) / 10) - 1) * 10 + 10}, size=${currentSize}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}"><button>이전</button></a>
+                                th:href="@{/blog/@{nickname}/post(page=${((((currentPage - 1) / 10) - 1) * 10 + 10) < 1 ? 1 : (((currentPage - 1) / 10) - 1) * 10 + 10}, size=${currentSize}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}"><button>이전</button></a>
 
-                            <span th:each="pageNum : ${#numbers.sequence(((currentPage - 1) / 10) * 10 + 1, (((currentPage - 1) / 10) * 10 + 10) > postList.totalPages ? postList.totalPages : ((currentPage - 1) / 10) + 10)}">
-                                <a th:href="@{/blog/@{nickname}/post(page=${pageNum}, size=${currentSize}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}">
-                                    <button th:text="${pageNum}" th:classappend="${postList.number + 1 == pageNum} ? 'active' : ''"></button>
+                            <span
+                                th:each="pageNum : ${#numbers.sequence(((currentPage - 1) / 10) * 10 + 1, (((currentPage - 1) / 10) * 10 + 10) > postList.totalPages ? postList.totalPages : ((currentPage - 1) / 10) + 10)}">
+                                <a
+                                    th:href="@{/blog/@{nickname}/post(page=${pageNum}, size=${currentSize}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}">
+                                    <button th:text="${pageNum}"
+                                        th:classappend="${postList.number + 1 == pageNum} ? 'active' : ''"></button>
                                 </a>
                             </span>
 
                             <a th:if="${!postList.last && !((postList.totalPages - 1) / 10 == 0)}"
-                                    th:href="@{/blog/@{nickname}/post(page=${((((currentPage - 1) / 10) + 1) * 10 + 1) > postList.totalPages ? postList.totalPages : (((currentPage - 1) / 10) + 1) * 10 + 1}, size=${currentSize}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}"><button>다음</button></a>
+                                th:href="@{/blog/@{nickname}/post(page=${((((currentPage - 1) / 10) + 1) * 10 + 1) > postList.totalPages ? postList.totalPages : (((currentPage - 1) / 10) + 1) * 10 + 1}, size=${currentSize}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}"><button>다음</button></a>
                         </div>
                     </div>
                 </div>
@@ -99,91 +117,101 @@
             <div id="right-container"></div>
         </div>
     </div>
-<script>
-window.addEventListener("DOMContentLoaded", function () {
-    const url = new URL(window.location.href);
-    const params = url.searchParams;
+    <script>
+        window.addEventListener("DOMContentLoaded", function () {
+            const url = new URL(window.location.href);
+            const params = url.searchParams;
 
-    // 현재 URL이 /post로 끝나고, 쿼리 파라미터가 없으면 리다이렉트
-    const pathname = url.pathname;
-    const isPostPage = pathname.endsWith('/post') || pathname.match(/\/post\/?$/);
-    const hasParams = params.has('page') || params.has('size') || params.has('sort') || params.has('dir');
+            // 현재 URL이 /post로 끝나고, 쿼리 파라미터가 없으면 리다이렉트
+            const pathname = url.pathname;
+            const isPostPage = pathname.endsWith('/post') || pathname.match(/\/post\/?$/);
+            const hasParams = params.has('page') || params.has('size') || params.has('sort') || params.has('dir');
 
-    if (isPostPage && !hasParams) {
-        const nickname = document.body.getAttribute('data-nickname');
-        const redirectUrl = new URL(`${window.location.origin}/blog/${nickname}/post`);
-        redirectUrl.searchParams.set('page', '1');
-        redirectUrl.searchParams.set('size', '5');
-        redirectUrl.searchParams.set('sort', 'updatedAt');
-        redirectUrl.searchParams.set('dir', 'desc');
-        window.location.replace(redirectUrl.toString());
-    }
-});
-</script>
-</body>
-<script>
-    // 페이지 로드 시 현재 sort 값에 맞춰 active 클래스 토글
-    window.addEventListener('DOMContentLoaded', () => {
-        const sortMap = {
-            latest: 'updatedAt',
-            likes: 'likeCount',
-            comments: 'commentCount'
-        };
-
-        // 현재 사이즈 표시
-        const pageSizeBtn = document.querySelector('.page-size-dropdown .dropdown-btn');
-        const currentSize = new URL(window.location.href).searchParams.get('size') || '5';
-        pageSizeBtn.textContent = `${currentSize}개씩 ▼`;
-
-        document.querySelectorAll('.page-size-dropdown .dropdown-item').forEach(item => {
-            item.classList.toggle('active', item.getAttribute('data-size') === currentSize);
+            if (isPostPage && !hasParams) {
+                const nickname = document.body.getAttribute('data-nickname');
+                const redirectUrl = new URL(`${window.location.origin}/blog/${nickname}/post`);
+                redirectUrl.searchParams.set('page', '1');
+                redirectUrl.searchParams.set('size', '5');
+                redirectUrl.searchParams.set('sort', 'updatedAt');
+                redirectUrl.searchParams.set('dir', 'desc');
+                window.location.replace(redirectUrl.toString());
+            }
         });
-    
+    </script>
 
-        // 🔥 페이지 사이즈 드롭다운 이벤트 추가
-        
+    <script>
+        // 페이지 로드 시 현재 sort 값에 맞춰 active 클래스 토글
+        window.addEventListener('DOMContentLoaded', () => {
+            const sortMap = {
+                latest: 'updatedAt',
+                likes: 'likeCount',
+                comments: 'commentCount'
+            };
+
+            // 현재 사이즈 표시
+            const pageSizeBtn = document.querySelector('.page-size-dropdown .dropdown-btn');
+            const currentSize = new URL(window.location.href).searchParams.get('size') || '5';
+            pageSizeBtn.textContent = `${currentSize}개씩 ▼`;
+
+            document.querySelectorAll('.page-size-dropdown .dropdown-item').forEach(item => {
+                item.classList.toggle('active', item.getAttribute('data-size') === currentSize);
+            });
+
+
+            // 🔥 페이지 사이즈 드롭다운 이벤트 추가
+
             const dropdownBtn = document.querySelector('.dropdown-btn');
             const dropdownMenu = document.querySelector('.dropdown-menu');
-        
+
             // 드롭다운 토글
-            dropdownBtn.addEventListener('click', function(e) {
+            dropdownBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
             });
-        
+
             // 드롭다운 메뉴 아이템 클릭 이벤트
             const menuItems = dropdownMenu.querySelectorAll('.dropdown-item');
             menuItems.forEach(item => {
-                item.addEventListener('click', function() {
+                item.addEventListener('click', function () {
                     const newSize = parseInt(this.getAttribute('data-size'));
                     changePageSize(newSize);
                     dropdownMenu.style.display = 'none';
-                
+
                     // active 상태 변경
                     menuItems.forEach(i => i.classList.remove('active'));
                     this.classList.add('active');
                 });
             });
-        
+
             // 외부 클릭 시 드롭다운 닫기
-            document.addEventListener('click', function() {
+            document.addEventListener('click', function () {
                 dropdownMenu.style.display = 'none';
             });
-        
-        
-        // 드롭다운 클릭 시 페이지 크기 변경
-        document.querySelectorAll('.page-size-dropdown .dropdown-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const size = item.getAttribute('data-size');
-                const currentUrl = new URL(window.location.href);
-                currentUrl.searchParams.set('size', size);
-                currentUrl.searchParams.set('page', 1);
-                window.location.href = currentUrl.toString();
-            });
-        });
 
-    });
-</script>
-<script src="/js/layout.js"></script>
+
+            // 드롭다운 클릭 시 페이지 크기 변경
+            document.querySelectorAll('.page-size-dropdown .dropdown-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const size = item.getAttribute('data-size');
+                    const currentUrl = new URL(window.location.href);
+                    currentUrl.searchParams.set('size', size);
+                    currentUrl.searchParams.set('page', 1);
+                    window.location.href = currentUrl.toString();
+                });
+            });
+
+        });
+    </script>
+
+    <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-방명록) 홈에서 로드 -->
+    <script src="/js/layout.js"></script>
+    <script src="/js/home.js"></script>
+    <script src="/js/shop.js"></script>
+    <script src="/js/profile.js"></script>
+    <script src="/js/post.js"></script>
+    <script src="/js/jukebox.js"></script>
+    <script src="/js/guestbook.js"></script>
+
+</body>
 
 </html>

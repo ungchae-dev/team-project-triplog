@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8" />
   <title>여행 블로그 - 게시판</title>
-  
-  <!-- 블로그 페이지 css 전체(6, 홈-상점-프로필-게시판-주크박스-방명록) 홈에서 로드 -->
+
+  <!-- 블로그 페이지 css 전체(홈-상점-프로필-게시판-주크박스-방명록) + 이웃(7): 
+  홈에서 로드 -->
   <link rel="stylesheet" href="/css/home.css" />
   <link rel="stylesheet" href="/css/shop.css" />
   <link rel="stylesheet" href="/css/profile.css" />
   <link rel="stylesheet" href="/css/post.css" />
   <link rel="stylesheet" href="/css/jukebox.css" />
   <link rel="stylesheet" href="/css/guestbook.css" />
+  <link rel="stylesheet" href="/css/neighbor.css" />
 </head>
+
 <body>
   <div class="frame">
 
@@ -52,12 +56,12 @@
                 <button class="board-btn">댓글순</button>
               </div>
             </div>
-            
+
             <!-- 🔥 게시글 목록 (JavaScript로 동적 렌더링) -->
             <ul class="post-list">
               <!-- 게시글들이 JavaScript로 동적으로 추가됩니다 -->
             </ul>
-            
+
             <!-- 🔥 페이지네이션 (JavaScript로 동적 렌더링) -->
             <div class="pagination">
               <!-- 페이지 버튼들이 JavaScript로 동적으로 추가됩니다 -->
@@ -97,7 +101,7 @@
                 </div>
               </div>
             </div>
-            
+
           </div>
 
           <!-- 게시글 작성 -->
@@ -123,7 +127,8 @@
 
               <!-- 해시태그 입력 -->
               <div class="hashtags" style="margin-bottom:5px; display:flex; align-items:center; gap:10px;">
-                <input type="text" id="hashtags-input" name="hashtags" placeholder="'#' + '해시태그'를 입력해주세요." style="flex-grow:1;" />
+                <input type="text" id="hashtags-input" name="hashtags" placeholder="'#' + '해시태그'를 입력해주세요."
+                  style="flex-grow:1;" />
                 <span id="ttag-result" style="color:#a86c44; font-size:14px; min-width:60px;">&nbsp;</span>
               </div>
 
@@ -161,7 +166,7 @@
               <button type="button" class="back-btn" onclick="showBoardList()">← 글 목록</button>
             </form>
           </div>
-          
+
         </div>
 
       </div>
@@ -173,13 +178,17 @@
 
   </div>
 
-  <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-방명록) 홈에서 로드 -->
+  <!-- 레이아웃 + 블로그 페이지 js 전체(홈-상점-프로필-게시판-주크박스-방명록) + 이웃(8): 
+  홈에서 로드 -->
   <script src="/js/layout.js"></script>
+  <script src="/js/home.js"></script>
+  <script src="/js/shop.js"></script>
+  <script src="/js/profile.js"></script>
   <script src="/js/post.js"></script>
-
   <script src="/js/jukebox.js"></script>
   <script src="/js/guestbook.js"></script>
-
+  <script src="/js/neighbor.js"></script>
 
 </body>
+
 </html>

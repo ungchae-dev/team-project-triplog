@@ -70,16 +70,16 @@ public class Post {
     private Long viewCount = 0L;
 
     // 게시글-이미지
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @BatchSize(size = 50)
     private List<Post_Image> postImage = new ArrayList<>();
 
     // 게시글-댓글
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Comments> comments = new ArrayList<>();
 
     // 게시글-해시태그 관계
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Post_Hashtag_people> postHashtagPeople = new ArrayList<>();
 
     // 게시글-마이로그
@@ -91,7 +91,7 @@ public class Post {
     //private List<Post_tour> postTour = new ArrayList<>();
 
     // 게시글-좋아요
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Post_Like> postLike = new ArrayList<>();
 
     // 좋아요수 필드 생성

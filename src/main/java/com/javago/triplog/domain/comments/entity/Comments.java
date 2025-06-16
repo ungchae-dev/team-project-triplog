@@ -1,8 +1,6 @@
 package com.javago.triplog.domain.comments.entity;
 
 import com.javago.constant.IsSecret;
-import com.javago.constant.Visibility;
-import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.comment_like.entity.Comment_Like;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.post.entity.Post;
@@ -10,7 +8,6 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -63,11 +60,11 @@ public class Comments {
     private Comments comment;
 
     // 대댓글 목록
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Comments> commentList = new ArrayList<>();
 
     // 댓글 좋아요
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Comment_Like> commentLikeList = new ArrayList<>();
 
     @Builder

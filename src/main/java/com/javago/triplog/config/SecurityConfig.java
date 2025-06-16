@@ -22,7 +22,6 @@ public class SecurityConfig {
     @Autowired
     CustomUserDetailsService customUserDetailsService;
 
-
     // SecurityFilterChain: Spring Security 보안 설정의 핵심 구성 요소
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -31,44 +30,62 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             // URL 별 접근 권한 설정
             .authorizeHttpRequests(auth -> auth
+                // 1. 완전히 공개적으로 접근 가능한 경로들 (로그인 불필요)
                 .requestMatchers(
-                "/", // 메인 페이지
-                "/tour", // 행사·관광·맛집 페이지
-                "/popup", // 팝업 창    ===> 글 검색 페이지 향후 추가
-                "/member/form", // 임시 회원가입 페이지
-                "/member/new",  // 임시 회원가입Add commentMore actions
-                "/member/login", // 로그인 페이지(MainController)
-                "/blog/**",
-                "/api/**",
-                "/uploads/**",
-                "/api/signup", 
-                "/api/login", 
-                "/api/check-duplicate", "/css/**", "/js/**", "/images/**",
-                //"/member/signup",  
-                "/member/new",  // 회원가입 처리
-                "/popup", // 팝업 창
-                "/search/**", // 글 검색 페이지
-                        "/search/posts**",
-                "/tourpopup/**", // 행사·관광·맛집 상세 페이지 팝업 창
-                "/member/login**", // 회원가입·로그인 페이지
-                "/member/logout", // 로그아웃
-                "/member/new",  // 회원가입 처리
-                "/member/login/error", // 로그인 실패 페이지
-                "/blog/@*/", // 블로그 홈
-                "/blog/@*/guestbook", // 블로그 방명록
-                "/blog/api/@*/skin", // 스킨 API (읽기)
-                "/api/charge/**", 
-                "/api/music/**",            
-                "/api/emoticon/**", // 선택한 이모티콘 패키지 조회 API
-                "/api/check-duplicate", // 중복 체크 API
-                "/css/**", // CSS 파일
-                "/js/**", // JavaScript 파일
-                "/images/**", // 이미지 파일
-                "/uploads/**", // 업로드된 파일 (스킨 이미지 등)
-                "/components/**", // 정적 리소스(/static) 하위 레이아웃 템플릿 파일(4)
-                        "/weekly-best"
+                    "/", // 메인 페이지
+                    "/tour", // 행사·관광·맛집 페이지
+                    "/tourpopup/**", // 행사·관광·맛집 상세 페이지 팝업 창
+                    "/search/**", // 글 검색 페이지
+                    "/search/posts**", // 글 검색 페이지에서 블로그 게시글 검색
+                    "/popup", // 팝업 창 ===> 글 검색 페이지 향후 추가
+                    "/member/form", // 임시 회원가입 페이지
+                    "/member/new",  // 임시 회원가입
+                    "/member/login", // 로그인 페이지(MainController)
+                    "/member/login**", // 회원가입·로그인 페이지
+                    "/member/logout", // 로그아웃
+                    "/member/login/error", // 로그인 실패 페이지
+                    "/api/signup", 
+                    "/api/login", 
+                    "/api/check-duplicate", 
+                    "/weekly-best",
+
+                    "/css/**", // CSS 파일
+                    "/js/**", // JavaScript 파일
+                    "/images/**", // 이미지 파일
+                    "/uploads/**", // 업로드된 파일 (스킨 이미지 등)
+                    "/components/**", // 정적 리소스(/static) 하위 레이아웃 템플릿 파일(4)
+                    
+                    // 블로그 홈만 공개 접근 허용 (다른 사람 블로그 구경 가능)
+                    "/blog/@*/" // 블로그 홈 (ex: /blog/@홍길동/)
+                    // ※ 현재 사용자 정보 확인 API (로그인 상태 확인용)
                 ).permitAll()
-                    .requestMatchers("/admin/**").hasRole("ADMIN") // 관리자 전용
+                
+                // 2. 로그인이 필요하지만 컨트롤러에서 세부 권한 체크하는 경로들
+                .requestMatchers(
+                    "/blog/@*/shop", // 상점 (컨트롤러에서 본인만 체크)
+                    "/blog/@*/profile", // 프로필 (컨트롤러에서 본인만 체크)
+                    "/blog/@*/post", // 게시판 (컨트롤러에서 로그인 체크)
+                    "/blog/@*/post/**", // 게시판 상세/작성/수정 (컨트롤러에서 세부 권한 체크)
+                    "/blog/@*/jukebox", // 주크박스 (컨트롤러에서 로그인 체크)
+                    "/blog/@*/guestbook", // 방명록 (컨트롤러에서 로그인 체크)
+                    "/blog/api/**", // 블로그 관련 API
+                    "/blog/api/current-user", // 로그인되지 않으면 401 반환
+
+                    "/api/posts/**", // 게시글 관련 API
+                    "/api/write/**", // 글 작성 관련 API
+                    "/api/upload-image", // 이미지 업로드 API
+                    "/api/delete/**", // 삭제 관련 API
+                    "/api/*/like", // 좋아요 관련 API
+                    "/api/*/comment**", // 댓글 관련 API
+                    "/api/*/commentlike", // 댓글 좋아요 관련 API
+                    "/api/charge/**", 
+                    "/api/music/**",            
+                    "/api/emoticon/**" // 선택한 이모티콘 패키지 조회 API
+                ).authenticated() // 로그인 필요, 세부 권한은 컨트롤러에서 체크
+
+                // 3. 관리자 전용
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+
                 // 그 외 모든 요청 로그인 필요
                 .anyRequest().authenticated()
             )
@@ -107,7 +124,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-
     // 비밀번호 암호화를 위한 BCryptPasswordEncoder 빈 등록
     // BCrypt: 단방향 해시 알고리즘으로 안전한 비밀번호 저장을 위해 사용
     // DB가 해킹당해도 원본 비밀번호 노출 방지
@@ -115,5 +131,6 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 
 }

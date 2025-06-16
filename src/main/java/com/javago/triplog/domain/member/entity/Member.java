@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.javago.constant.Gender;
 import com.javago.constant.Role;
 import com.javago.triplog.domain.blog.entity.Blog;
@@ -15,6 +16,7 @@ import com.javago.triplog.domain.comments.entity.Comments;
 import com.javago.triplog.domain.guestbook.entity.Guestbook;
 import com.javago.triplog.domain.member.dto.MemberFormDto;
 import com.javago.triplog.domain.member_item.entity.MemberItem;
+import com.javago.triplog.domain.neighbor.entity.Neighbor;
 import com.javago.triplog.domain.post_like.entity.Post_Like;
 
 import jakarta.persistence.CascadeType;
@@ -84,7 +86,12 @@ public class Member {
     @Column(name = "role", length = 10, nullable = false)
     private Role role;
 
+    // === 모든 컬렉션 필드에 @JsonIgnore 추가 ===
+    // Member 객체를 JSON으로 변환할 때 모든 관련 엔티티들을 함께 직렬화하려고 시도
+    // => 무한 참조로 인해 1001 depth 에러 발생하므로 따라서 @JsonIgnore 어노테이션 추가
+
     // Member -> Blog (1:1)
+    @JsonIgnore
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Blog blog;
     // JPA는 양방향 관계에서 한쪽만 연관관계 주인이 되어야 함
@@ -96,35 +103,40 @@ public class Member {
     //  EAGER: 즉시 로딩, 항상 함께 조회 => 한 번에 조회하지만 불필요한 데이터까지 가져올 수 있음
 
     // Member -> MemberItem (1:다)
+    @JsonIgnore
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<MemberItem> memberItems = new ArrayList<>();
 
     // Member -> Post_Like (1:다)
+    @JsonIgnore
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Post_Like> postLike = new ArrayList<>();
 
     // Member -> Comment_Like (1:다)
+    @JsonIgnore
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Comment_Like> commentLike = new ArrayList<>();
 
     // Member -> Comments (1:다)
+    @JsonIgnore
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Comments> comment = new ArrayList<>();
 
     // Member -> Guestbook (1:다) - 내가 작성한 방명록들
+    @JsonIgnore
     @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Guestbook> writtenGuestbooks = new ArrayList<>();
 
-    // 양방향 관계 편의 메서드
-    public void addWrittenGuestbook(Guestbook guestbook) {
-        writtenGuestbooks.add(guestbook);
-        guestbook.setWriter(this);
-    }
+    // Member -> Neighbor (1:다) - 내가 등록한 이웃들 (내가 팔로우한 사람들)
+    // orphanRemoval = true: 부모 엔티티와의 관계가 끊어진 자식 엔티티(고아 객체)를 자동으로 삭제하는 기능
+    @JsonIgnore
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Neighbor> myNeighbors = new ArrayList<>();
 
-    public void removeWrittenGuestbook(Guestbook guestbook) {
-        writtenGuestbooks.remove(guestbook);
-        guestbook.setWriter(null);
-    }
+    // Member -> Neighbor (1:다) - 나를 이웃으로 등록한 사람들 (나를 팔로우한 사람들)
+    @JsonIgnore
+    @OneToMany(mappedBy = "neighborMember", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Neighbor> followersOfMe = new ArrayList<>();
 
     // 생성 직전 기본값 세팅 (joinDate, acorn)
     @PrePersist
@@ -140,20 +152,7 @@ public class Member {
     // 기본 생성자 (JPA용)
     public Member() {}
 
-    // 양방향 관계 편의 메서드 추가
-    public void addMemberItem(MemberItem memberItem) {
-        memberItems.add(memberItem);
-        memberItem.setMember(this);
-    }
-
-    public void removeMemberItem(MemberItem memberItem) {
-        memberItems.remove(memberItem);
-        memberItem.setMember(null);
-    }
-
-    // Member 엔티티를 생성하는 메서드 creatMember
-    // Member 엔티티에 회원을 생성하는 메서드를 만들어 관리하면
-    // 코드가 변경되도 한 군데만 수정하면 되는 게 장점
+    // Member 엔티티를 생성하는 메서드 (회원 생성)
     public static Member createMember(MemberFormDto memberFormDto, PasswordEncoder passwordEncoder) {
         
         Member member = new Member();
@@ -185,4 +184,90 @@ public class Member {
         member.setRole(Role.ADMIN); // 관리자 권한 설정
         return member;
     }
+
+    // === 양방향 관계 편의 메서드들 ===
+
+    // === 회원 아이템 (음악, 이모티콘) ===
+    public void addMemberItem(MemberItem memberItem) {
+        memberItems.add(memberItem);
+        memberItem.setMember(this);
+    }
+
+    public void removeMemberItem(MemberItem memberItem) {
+        memberItems.remove(memberItem);
+        memberItem.setMember(null);
+    }
+
+    // === 방명록 ===
+    public void addWrittenGuestbook(Guestbook guestbook) {
+        writtenGuestbooks.add(guestbook);
+        guestbook.setWriter(this);
+    }
+
+    public void removeWrittenGuestbook(Guestbook guestbook) {
+        writtenGuestbooks.remove(guestbook);
+        guestbook.setWriter(null);
+    }
+    
+    // === 이웃 ===
+
+    // 이웃 추가
+    public void addNeighbor(Member neighborMember) {
+        Neighbor neighbor = Neighbor.builder()
+            .member(this)
+            .neighborMember(neighborMember)
+            .build();
+        myNeighbors.add(neighbor);
+    }
+
+    // 이웃 제거
+    public void removeNeighbor(Member neighborMember) {
+        myNeighbors.removeIf(neighbor -> 
+            neighbor.getNeighborMember().getMemberId().equals(neighborMember.getMemberId()));
+    }
+
+    // 특정 회원이 내 이웃인지 확인 (내가 팔로우했는지)
+    public boolean isMyNeighbor(String memberId) {
+        return myNeighbors.stream()
+            .anyMatch(neighbor -> neighbor.getNeighborMember().getMemberId().equals(memberId));
+    }
+
+    // 특정 회원이 나를 이웃으로 등록했는지 확인 (상대방이 나를 팔로우했는지)
+    public boolean isFollowerOfMe(String memberId) {
+        return followersOfMe.stream()
+            .anyMatch(follower -> follower.getMember().getMemberId().equals(memberId));
+    }
+
+    // 내 이웃 수 (내가 팔로우한 사람 수)
+    public int getMyNeighborCount() {
+        return myNeighbors.size();
+    }
+
+    // 나를 팔로우한 사람 수
+    public int getFollowerCount() {
+        return followersOfMe.size();
+    }
+
+    // 서로 이웃인지 확인 (맞팔로우)
+    public boolean isMutualNeighbor(String memberId) {
+        return isMyNeighbor(memberId) && isFollowerOfMe(memberId);
+    }
+
+    // 내가 등록한 이웃들의 닉네임 목록
+    public List<String> getMyNeighborNicknames() {
+        return myNeighbors.stream()
+            .map(neighbor -> neighbor.getNeighborMember().getNickname())
+            .sorted()
+            .toList();
+    }
+
+    // 나를 팔로우한 사람들의 닉네임 목록
+    public List<String> getFollowerNicknames() {
+        return followersOfMe.stream()
+            .map(follower -> follower.getMember().getNickname())
+            .sorted()
+            .toList();
+    }
+
+
 }
