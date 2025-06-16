@@ -85,7 +85,7 @@ public class PostApiController {
 
     // 게시글 상세 조회
     @GetMapping("/api/posts/{id}")
-    public ResponseEntity<Post> getPost(@PathVariable Long id) {
+    public ResponseEntity<?> getPost(@PathVariable Long id) {
         try {
             Post post = postService.findById(id);
             return ResponseEntity.ok(post);
