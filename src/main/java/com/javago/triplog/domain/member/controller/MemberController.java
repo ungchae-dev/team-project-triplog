@@ -1,5 +1,8 @@
 package com.javago.triplog.domain.member.controller;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +25,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RequestMapping("/member")
 @Controller
@@ -33,10 +38,20 @@ public class MemberController {
 
     // 회원가입·로그인 페이지로 이동
     @GetMapping("/login")
-    public String memberForm(@RequestParam(value = "type", defaultValue = "signin") String type , Model model) {
+    public String memberForm(@RequestParam(value = "type", defaultValue = "signin") String type, 
+        @RequestParam(value = "fromNewWindow", required = false) String fromNewWindow, 
+        Model model) {
+        
         model.addAttribute("memberFormDto", new MemberFormDto());
         model.addAttribute("type", type); // 회원가입/로그인 (signup/signin) 구분을 위한 type 전달
-        return "member/register_login"; // 기본값: templates/ 하위 => member/register_login.html
+        
+        // 새 창에서 온 요청인지 표시: JavaScript가 URL 파라미터로 직접 처리
+        // 로그용
+        if ("true".equals(fromNewWindow)) {
+            System.out.println("새 창에서 블로그 접근을 위한 로그인 페이지 요청");
+        }
+        
+        return "member/register_login"; // 기본값: src/main/resources/templates/ 하위
     }
 
     // 회원가입 처리 + 자동 로그인
@@ -45,11 +60,12 @@ public class MemberController {
         BindingResult bindingResult, 
         Model model, 
         HttpServletRequest request, 
-        HttpServletResponse response) {
+        HttpServletResponse response, 
+        @RequestParam(value = "fromNewWindow", required = false) String fromNewWindow) {
 
         // 검증 에러가 있으면 회원가입 페이지로 돌아가기
         if(bindingResult.hasErrors()) {
-            model.addAttribute("type", "signup"); // 에러 시 회원가입 폼 유지
+            // 에러 시에도 JavaScript가 URL 파라미터로 처리
             return "member/register_login";
         }
 
@@ -63,18 +79,23 @@ public class MemberController {
 
             System.out.println("회원가입 완료 및 자동 로그인: " + savedMember.getMemberId() + " (" + savedMember.getNickname() + ")");
 
-            // 3. 메인 페이지로 리다이렉트 (로그인된 상태)
+            // 3. 새 창에서 요청된 경우 블로그로 리다이렉트
+            if ("true".equals(fromNewWindow)) {
+                String encodedNickname = URLEncoder.encode(savedMember.getNickname(), StandardCharsets.UTF_8);
+                System.out.println("새 창 회원가입 후 블로그로 리다이렉트: " + savedMember.getNickname());
+                return "redirect:/blog/@" + encodedNickname;
+            }
+
+            // 일반 요청인 경우 메인 페이지로
             return "redirect:/";
 
         } catch (IllegalStateException e) {
-            // 회원가입 실패 시
-            model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("type", "signup"); // 에러 시 회원가입 폼 유지
+            // 에러 처리도 JavaScript가 담당
+            System.err.println("회원가입 실패: " + e.getMessage());
             return "member/register_login";
+
         } catch (Exception e) {
-            // 기타 예외 처리
-            model.addAttribute("errorMessage", "회원가입 중 오류가 발생했습니다!");
-            model.addAttribute("type", "signup");
+            System.err.println("회원가입 중 오류: " + e.getMessage());
             return "member/register_login";
         }
         
@@ -82,12 +103,41 @@ public class MemberController {
 
     // 로그인 실패 시 처리 메서드 (Spring Securiy에서 호출)
     @GetMapping("/login/error")
-    public String loginError(@RequestParam(value = "type", defaultValue = "signin") String type, Model model) {
-        model.addAttribute("loginErrorMsg", "아이디 또는 비밀번호를 확인해주세요!");
-        model.addAttribute("type", type);
-        model.addAttribute("showAlert", true); // 로그인 실패 창 띄우기
+    public String loginError(@RequestParam(value = "type", defaultValue = "signin") String type, 
+        @RequestParam(value = "fromNewWindow", required = false) String fromNewWindow, 
+        Model model) {
+        
+        // JavaScript가 URL 파라미터로 직접 처리 + 에러 메시지도 JavaScript alert로 처리
+        if("true".equals(fromNewWindow)) {
+            System.out.println("새 창에서 로그인 실패");
+        }
+        
         return "member/register_login";
     }
+
+    // 로그인 성공 후 처리 메서드 (추가)
+    @PostMapping("/login-success")
+    public String loginSuccess(Authentication authentication, 
+        @RequestParam(value = "fromNewWindow", required = false) String fromNewWindow) {
+        
+        if (authentication != null && "true".equals(fromNewWindow)) {
+            try {
+                String memberId = authentication.getName();
+                Member member = memberService.findByMemberId(memberId);
+                String encodedNickname = URLEncoder.encode(member.getNickname(), StandardCharsets.UTF_8);
+
+                System.out.println("새 창 로그인 성공 - 블로그로 리다이렉트: " + member.getNickname());
+                return "redirect:/blog/@" + encodedNickname;
+
+            } catch (Exception e) {
+                System.err.println("로그인 후 블로그 리다이렉트 실패: " + e.getMessage());
+            }
+        }
+        
+        // 일반 로그인인 경우 메인페이지로
+        return "redirect:/";
+    }
+    
 
     // 자동 로그인 처리 메서드
     private void autoLogin(String memberId, HttpServletRequest request) {
