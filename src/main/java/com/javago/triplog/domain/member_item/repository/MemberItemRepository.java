@@ -32,4 +32,11 @@ public interface MemberItemRepository extends JpaRepository<MemberItem, Long> {
 
     // 6. 특정 회원이 특정 이모티콘을 구매했는지 여부 확인
     boolean existsByMemberAndEmoticon_EmoticonId(Member member, Long emoticonId);
+
+    // 7. 한달 간 item_type 별로 구매량 총계를 반환
+    @Query(value = "SELECT SUBSTR(purchase_date, 1, 6) AS month, item_type, COUNT(*) " +
+            "FROM member_item " +
+            "GROUP BY SUBSTR(purchase_date, 1, 6), item_type " +
+            "ORDER BY month", nativeQuery = true)
+    List<Object[]> findMonthlyPurchaseStats();
 }

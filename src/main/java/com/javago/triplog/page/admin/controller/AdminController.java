@@ -3,6 +3,7 @@ package com.javago.triplog.page.admin.controller;
 import com.javago.triplog.domain.comments.repository.CommentsRepository;
 import com.javago.triplog.domain.member.entity.CustomUserDetails;
 import com.javago.triplog.domain.member.entity.Member;
+import com.javago.triplog.domain.member_item.repository.MemberItemRepository;
 import com.javago.triplog.domain.post.repository.PostRepository;
 import com.javago.triplog.page.admin.dto.AdminContentDto;
 import com.javago.triplog.page.admin.service.AdminService;
@@ -14,10 +15,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @Controller
@@ -27,6 +30,7 @@ public class AdminController {
     private final AdminService adminService;
     private final PostRepository postRepository;
     private final CommentsRepository commentsRepository;
+    private final MemberItemRepository memberItemRepository;
 
     @GetMapping("/admin")
     public String adminPage(Model model) {
@@ -100,4 +104,5 @@ public class AdminController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 }
