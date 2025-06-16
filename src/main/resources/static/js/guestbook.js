@@ -133,134 +133,43 @@ async function loadCurrentUserInfo() {
 
 // 이모티콘 팝업 창 열기
 function openEmoticonPopup() {
-    console.log('이모티콘 팝업 창 열기 시도');
-    
-    // 이미 열려있는 팝업이 있으면 닫기
-    if (emoticonPopupWindow && !emoticonPopupWindow.closed) {
-        emoticonPopupWindow.close();
-    }
-    
-    // 팝업 창 설정
     const popupWidth = 450;
     const popupHeight = 600;
-    
-    // 현재 브라우저 창 기준으로 중앙 위치 계산
-    const parentWidth = window.outerWidth;
-    const parentHeight = window.outerHeight;
-    const parentLeft = window.screenX;
-    const parentTop = window.screenY;
-    
-    const left = parentLeft + (parentWidth - popupWidth) / 2;
-    const top = parentTop + (parentHeight - popupHeight) / 2;
-    
-    // 팝업 창 옵션
-    const popupOptions = [
-        `width=${popupWidth}`,
-        `height=${popupHeight}`,
-        `left=${left}`,
-        `top=${top}`,
-        'scrollbars=yes',
-        'resizable=no',
-        'menubar=no',
-        'toolbar=no',
-        'location=no',
-        'status=no'
-    ].join(',');
-    
-    // 팝업 창 열기 (현재는 빈 페이지)
-    emoticonPopupWindow = window.open('about:blank', 'emoticonPopup', popupOptions);
-    
-    if (emoticonPopupWindow) {
-        // 팝업 창 내용 설정 (임시 - 나중에 팀원이 수정할 부분)
-        emoticonPopupWindow.document.write(`
-            <!DOCTYPE html>
-            <html lang="ko">
-            <head>
-                <meta charset="UTF-8">
-                <title>내 이모티콘</title>
-                <style>
-                    body {
-                        font-family: 'Malgun Gothic', sans-serif;
-                        margin: 0;
-                        padding: 20px;
-                        background: linear-gradient(135deg, #fff9f7 0%, #ffeee9 100%);
-                    }
-                    .popup-header {
-                        text-align: center;
-                        color: #ff8a65;
-                        font-size: 18px;
-                        font-weight: bold;
-                        margin-bottom: 20px;
-                        padding-bottom: 10px;
-                        border-bottom: 2px solid #f2dcdc;
-                    }
-                    .emoticon-placeholder {
-                        text-align: center;
-                        color: #666;
-                        margin-top: 100px;
-                        font-size: 16px;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="popup-header">내 이모티콘</div>
-                <div class="emoticon-placeholder">
-                    <p>🎭</p>
-                    <p>이모티콘 목록이 여기에 표시됩니다.</p>
-                    <p>팀원이 이 부분을 구현할 예정입니다.</p>
-                </div>
-                
-                <script>
-                    // 부모 창으로 이모티콘 전달하는 함수 (팀원이 사용할 함수)
-                    function selectEmoticon(emoticonText) {
-                        if (window.opener && !window.opener.closed) {
-                            window.opener.addEmoticonToMessage(emoticonText);
-                            window.close();
-                        }
-                    }
-                    
-                    // 팝업이 닫힐 때 부모 창의 참조 초기화
-                    window.addEventListener('beforeunload', function() {
-                        if (window.opener && !window.opener.closed) {
-                            window.opener.emoticonPopupWindow = null;
-                        }
-                    });
-                </script>
-            </body>
-            </html>
-        `);
-        
-        emoticonPopupWindow.document.close();
-        emoticonPopupWindow.focus();
-        
-        console.log('이모티콘 팝업 창 열기 완료');
-    } else {
-        console.error('팝업 차단됨 - 브라우저 설정을 확인하세요');
+    const left = (window.screen.width - popupWidth) / 2;
+    const top = (window.screen.height - popupHeight) / 2;
+
+    const options = `width=${popupWidth},height=${popupHeight},left=${left},top=${top},scrollbars=yes,resizable=no`;
+    emoticonPopupWindow = window.open('/emoticon-popup.html?mode=create', 'emoticonPopup', options);
+
+    if (!emoticonPopupWindow) {
         alert('팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.');
     }
+}         
+ 
+// ===== 추가: 에디터와 textarea 동기화 함수 =====
+function syncEditorToTextarea() {
+  const editor = document.getElementById('guestMessageEditor');
+  const textarea = document.getElementById('guestMessage');
+  if (editor && textarea) {
+    // innerHTML 그대로 보내면 <img> 태그가 포함된 상태로 전송됩니다
+    textarea.value = editor.innerHTML;
+  }
 }
 
-// 팝업에서 선택한 이모티콘을 메시지에 추가하는 함수
-function addEmoticonToMessage(emoticonText) {
-    const messageInput = document.getElementById('guestMessage');
-    if (messageInput) {
-        const currentText = messageInput.value;
-        const cursorPos = messageInput.selectionStart || currentText.length;
-        
-        const newText = currentText.slice(0, cursorPos) + emoticonText + currentText.slice(cursorPos);
-        messageInput.value = newText;
-        
-        // 커서 위치를 이모티콘 뒤로 이동
-        const newCursorPos = cursorPos + emoticonText.length;
-        messageInput.focus();
-        messageInput.setSelectionRange(newCursorPos, newCursorPos);
-        
-        console.log('이모티콘 추가됨:', emoticonText);
-    }
+function addEmoticonToMessage(emoticonHtml) {
+    // 1. contenteditable 박스에 삽입
+  const editor = document.getElementById('guestMessageEditor');
+  if (editor) {
+    // 커서 위치에 HTML 삽입
+    editor.focus();
+    document.execCommand('insertHTML', false, emoticonHtml);
+  }
+  // 2. 숨은 textarea 동기화
+  const textarea = document.getElementById('guestMessage');
+  if (textarea && editor) {
+    textarea.value = editor.innerHTML;
+  }
 }
-
-// 전역 함수로 노출 (팝업에서 호출할 수 있도록)
-window.addEmoticonToMessage = addEmoticonToMessage;
 
 // === 방명록 목록 로드 함수 ===
 async function loadGuestbookData() {
@@ -438,7 +347,7 @@ function createGuestbookEntryElement(entry) {
     messageDiv.className = 'entry-message';
 
     // ※ 핵심 수정: 백엔드에서 이미 권한 처리된 content를 그대로 사용
-    messageDiv.textContent = entry.content;
+    messageDiv.innerHTML  = entry.content;
     
     // 디버깅: 비밀글 처리 결과 확인
     if (isSecret) {
@@ -557,84 +466,61 @@ function goToPage(pageNumber) {
 }
 
 // === 방명록 작성 처리 ===
-function handleSubmitGuestbook() {
-    const nicknameSpan = document.getElementById('currentUserNickname');
-    const messageInput = document.getElementById('guestMessage');
-    const secretCheck = document.getElementById('secretCheck');
+async function handleSubmitGuestbook() {
     
-    const nickname = nicknameSpan ? nicknameSpan.textContent : '게스트';
-    const message = messageInput.value.trim();
-    const isSecret = secretCheck.checked;
+    // ① 에디터 → textarea 동기화
+  // editor → textarea 동기화
+    const editor = document.getElementById('guestMessageEditor');
+    if (editor) {
+    document.getElementById('guestMessage').value = editor.innerHTML;
+ }
 
-    // 디버깅 로그 추가
-    console.log('체크박스 요소:', secretCheck);
-    console.log('체크박스 checked 속성:', secretCheck ? secretCheck.checked : 'null');
-    console.log('비밀글 체크 상태:', isSecret);
+  const nicknameSpan = document.getElementById('currentUserNickname');
+  const messageTextarea = document.getElementById('guestMessage');
+  const secretCheck = document.getElementById('secretCheck');
 
-    // 입력 검증
-    if (!message) {
-        alert('메시지를 입력해주세요.');
-        messageInput.focus();
-        return;
-    }
-    
-    if (message.length > 1000) {
-        alert('메시지는 1000자 이내로 입력해주세요.');
-        return;
-    }
-    
-    // 작성 확인 창 띄우기
-    if (confirm('방명록을 작성하시겠습니까?')) {
-        console.log('방명록 작성 시도:', { nickname, message, isSecret });
-        
-        // 방명록 제출
-        submitGuestbookEntry(nickname, message, isSecret);
-    } else {
-        console.log('방명록 작성 취소됨');
-        // 취소 시 입력창에 포커스 (이미 입력한 내용은 유지)
-        messageInput.focus();
-    }
+  const nickname = nicknameSpan?.textContent || '게스트';
+  const message = messageTextarea.value.trim(); // HTML 포함
+  const isSecret = secretCheck.checked;
 
-}
+  if (!message) {
+    alert('메시지를 입력해주세요.');
+    document.getElementById('guestMessageEditor').focus();
+    return;
+  }
+  if (message.length > 1000) {
+    alert('메시지는 1000자 이내로 입력해주세요.');
+    return;
+  }
+  if (!confirm('방명록을 작성하시겠습니까?')) {
+    document.getElementById('guestMessageEditor').focus();
+    return;
+  }
 
-// === 방명록 작성 함수 ===
-async function submitGuestbookEntry(nickname, message, isSecret) {
-    console.log('API 호출 직전 isSecret 값:', isSecret);
+  try {
+    const currentNickname = getCurrentNickname();
+    const response = await fetch(
+      `/blog/api/@${encodeURIComponent(currentNickname)}/guestbook`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, isSecret })
+      }
+    );
+    if (!response.ok) throw new Error(response.statusText);
+    await response.json();
 
-    try {
-        // 서버 API 호출
-        const currentNickname = getCurrentNickname();
-        const response = await fetch(`/blog/api/@${encodeURIComponent(currentNickname)}/guestbook`, {
-            method: 'POST', 
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                message: message, 
-                isSecret: isSecret
-            })
-        });
+    // 작성 성공하면
+    loadGuestbookData();
+    document.getElementById('guestMessageEditor').innerHTML = '';
+    document.getElementById('guestMessage').value = '';
+    document.getElementById('secretCheck').checked = false;
+    alert('방명록이 작성되었습니다!');
+  } catch (err) {
+    console.error(err);
+    alert('작성에 실패했습니다. 다시 시도해주세요.');
+  }
 
-        console.log('전송한 데이터:', { message, isSecret });
-
-        if (!response.ok) {
-            throw new Error('방명록 작성에 실패했습니다!');
-        }
-        const result = await response.json();
-
-        // 성공 시 목록 새로고침
-        loadGuestbookData();
-
-        // 입력창 초기화
-        document.getElementById('guestMessage').value = '';
-        document.getElementById('secretCheck').checked = false;
-        
-        alert('방명록이 작성되었습니다!');
-        
-    } catch (error) {
-        console.error('방명록 작성 실패:', error);
-        alert('방명록 작성에 실패했습니다. 다시 시도해주세요.');
-    }
 }
 
 // === 방명록 수정 ===
@@ -738,179 +624,84 @@ function showEditForm(entry) {
 
 // === 수정 form용 이모티콘 팝업 함수 ===
 function openEditEmoticonPopup(entryId) {
-    console.log('수정 폼 이모티콘 팝업 창 열기 시도 - 방명록 ID:', entryId);
+   console.log('수정 폼 이모티콘 팝업 창 열기 시도 - 방명록 ID:', entryId);
 
-    // 기존 팝업이 있으면 닫기
     if (emoticonPopupWindow && !emoticonPopupWindow.closed) {
         emoticonPopupWindow.close();
     }
 
-    // 팝업 창 설정 (기존과 동일: 폭 x 높이 450 x 600)
     const popupWidth = 450;
     const popupHeight = 600;
-    
-    const parentWidth = window.outerWidth;
-    const parentHeight = window.outerHeight;
-    const parentLeft = window.screenX;
-    const parentTop = window.screenY;
-    
-    const left = parentLeft + (parentWidth - popupWidth) / 2;
-    const top = parentTop + (parentHeight - popupHeight) / 2;
+    const left = (window.screen.width - popupWidth) / 2;
+    const top = (window.screen.height - popupHeight) / 2;
 
-    const popupOptions = [
-        `width=${popupWidth}`,
-        `height=${popupHeight}`,
-        `left=${left}`,
-        `top=${top}`,
-        'scrollbars=yes',
-        'resizable=no',
-        'menubar=no',
-        'toolbar=no',
-        'location=no',
-        'status=no'
-    ].join(',');
+    const options = `width=${popupWidth},height=${popupHeight},left=${left},top=${top},scrollbars=yes,resizable=no`;
+    emoticonPopupWindow = window.open(`/emoticon-popup.html?mode=edit&entryId=${entryId}`, 'emoticonPopup', options);
 
-    // 팝업 창 열기
-    emoticonPopupWindow = window.open('about:blank', 'emoticonPopup', popupOptions);
-
-    if (emoticonPopupWindow) {
-        // 수정 form용 팝업 내용 (entryId 전달)
-        emoticonPopupWindow.document.write(`
-            <!DOCTYPE html>
-            <html lang="ko">
-            <head>
-                <meta charset="UTF-8">
-                <title>내 이모티콘</title>
-                <style>
-                    body {
-                        font-family: 'Malgun Gothic', sans-serif;
-                        margin: 0;
-                        padding: 20px;
-                        background: linear-gradient(135deg, #fff9f7 0%, #ffeee9 100%);
-                    }
-                    .popup-header {
-                        text-align: center;
-                        color: #ff8a65;
-                        font-size: 18px;
-                        font-weight: bold;
-                        margin-bottom: 20px;
-                        padding-bottom: 10px;
-                        border-bottom: 2px solid #f2dcdc;
-                    }
-                    .emoticon-placeholder {
-                        text-align: center;
-                        color: #666;
-                        margin-top: 100px;
-                        font-size: 16px;
-                    }
-                    .mode-info {
-                        background: #fff5f5;
-                        border: 1px solid #ffcccb;
-                        border-radius: 8px;
-                        padding: 10px;
-                        margin-bottom: 20px;
-                        text-align: center;
-                        color: #d32f2f;
-                        font-size: 14px;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="popup-header">내 이모티콘</div>
-                <div class="mode-info">
-                    📝 방명록 수정 모드
-                </div>
-                <div class="emoticon-placeholder">
-                    <p>🎭</p>
-                    <p>이모티콘 목록이 여기에 표시됩니다.</p>
-                    <p>팀원이 이 부분을 구현할 예정입니다.</p>
-                </div>
-                
-                <script>
-                    // ✅ 수정 폼용 이모티콘 전달 함수
-                    function selectEmoticon(emoticonText) {
-                        if (window.opener && !window.opener.closed) {
-                            // 수정 폼의 textarea에 이모티콘 추가
-                            window.opener.addEmoticonToEditForm('${entryId}', emoticonText);
-                            window.close();
-                        }
-                    }
-                    
-                    // 팝업 닫힐 때 참조 초기화
-                    window.addEventListener('beforeunload', function() {
-                        if (window.opener && !window.opener.closed) {
-                            window.opener.emoticonPopupWindow = null;
-                        }
-                    });
-                </script>
-            </body>
-            </html>
-        `);
-
-        emoticonPopupWindow.document.close();
-        emoticonPopupWindow.focus();
-
-        console.log('수정 form 이모티콘 팝업 창 열기 완료');
-    } else {
-        console.error('팝업 차단됨! - 브라우저 설정을 확인하세요.');
+    if (!emoticonPopupWindow) {
         alert('팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.');
     }
+}
 
+// 댓글 수정 에디터 → 숨은 textarea 동기화
+function syncEditEditorToTextarea(entryId) {
+  const container = document.querySelector(`[data-edit-id="${entryId}"]`);
+  if (!container) return;
+  const editor = container.querySelector('.edit-editor');
+  const textarea = container.querySelector('.edit-textarea');
+  textarea.value = editor.innerHTML;
 }
 
 // === 수정 폼의 textarea에 이모티콘 추가하는 함수 ===
-function addEmoticonToEditForm(entryId, emoticonText) {
+function addEmoticonToEditForm(entryId, emoticonHtml) {
 
-    const textarea = document.getElementById(`editTextarea-${entryId}`);
-    if (textarea) {
-        const currentText = textarea.value;
-        const cursorPos = textarea.selectionStart || currentText.length;
-
-        const newText = currentText.slice(0, cursorPos) + emoticonText + currentText.slice(cursorPos);
-        textarea.value = newText;
-
-        // 커서 위치를 이모티콘 뒤로 이동
-        const newCursorPos = cursorPos + emoticonText.length;
-        textarea.focus();
-        textarea.setSelectionRange(newCursorPos, newCursorPos); // ???
-
-        console.log('수정 form에 이모티콘 추가됨:', emoticonText);
-    } else {
-        console.error('수정 폼 textarea를 찾을 수 없습니다:', entryId);
-    }
-
+  // 1. 수정용 contenteditable
+  const editor = document.querySelector(`.edit-form-container[data-edit-id="${entryId}"] .edit-editor`);
+  if (editor) {
+    editor.focus();
+    document.execCommand('insertHTML', false, emoticonHtml);
+  }
+  // 2. 숨은 textarea 동기화
+  const textarea = document.querySelector(`.edit-form-container[data-edit-id="${entryId}"] .edit-textarea`);
+  if (textarea && editor) {
+    textarea.value = editor.innerHTML;
+  }
 }
+
 
 // 템플릿 동적 생성 함수
 function createEditTemplate() {
     // 이미 템플릿이 있는지 확인
-    if (document.getElementById('guestbook-edit-template')) {
-        console.log('템플릿이 이미 존재합니다.');
-        return;
-    }
-    
-    const template = document.createElement('template');
-    template.id = 'guestbook-edit-template';
-    template.innerHTML = `
-        <div class="edit-form-container">
-            <div class="edit-form">
-                <div class="edit-header">
-                    <h4>방명록 수정</h4>
-                    <button class="edit-emoticon-button">내 이모티콘</button>
-                </div>
-                <textarea class="edit-textarea" maxlength="4000" placeholder="방명록 내용을 입력하세요~"></textarea>
-                <div class="edit-controls">
-                    <label class="edit-secret-checkbox">
-                        <input type="checkbox" class="edit-secret-input"> 비밀로 하기
-                    </label>
-                    <div class="edit-buttons">
-                        <button class="edit-save-btn">저장</button>
-                        <button class="edit-cancel-btn">취소</button>
-                    </div>
-                </div>
-            </div>
+    if (document.getElementById('guestbook-edit-template')) return;
+  const template = document.createElement('template');
+  template.id = 'guestbook-edit-template';
+  template.innerHTML = `
+    <div class="edit-form-container">
+      <div class="edit-form">
+        <div class="edit-header">
+          <h4>방명록 수정</h4>
+          <button class="edit-emoticon-button">내 이모티콘</button>
         </div>
-    `;
+        <!-- 수정용 contenteditable 에디터 -->
+        <div
+          class="edit-editor"
+          contenteditable="true"
+          data-placeholder="방명록 내용을 입력하세요~"
+        ></div>
+        <!-- 전송용 숨은 textarea -->
+        <textarea class="edit-textarea" name="message" hidden></textarea>
+        <div class="edit-controls">
+          <label class="edit-secret-checkbox">
+            <input type="checkbox" class="edit-secret-input"> 비밀로 하기
+          </label>
+          <div class="edit-buttons">
+            <button class="edit-save-btn">저장</button>
+            <button class="edit-cancel-btn">취소</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
     
     // body에 추가 (head보다 안전)
     document.body.appendChild(template);
@@ -919,70 +710,48 @@ function createEditTemplate() {
 
 // 수정 저장 함수 (디버깅 로그 추가)
 async function saveEditGuestbook(entryId) {
-    const messageTextarea = document.querySelector(`[data-edit-id="${entryId}"] .edit-textarea`);
-    const secretCheckbox = document.querySelector(`[data-edit-id="${entryId}"] .edit-secret-input`);
-
-    const newMessage = messageTextarea.value.trim();
-    const isSecret = secretCheckbox.checked;
-
-    // 저장 전 상태 디버깅
-    console.log('방명록 수정 저장 시도:', {
-        entryId: entryId,
-        newMessage: newMessage.substring(0, 50) + '...',
-        isSecret: isSecret,
-        checkboxElement: secretCheckbox,
-        checkboxChecked: secretCheckbox ? secretCheckbox.checked : 'null'
-    });
-
-    // 입력 검증
-    if (!newMessage) {
-        alert('메시지를 입력해주세요~');
-        messageTextarea.focus();
-        return;
+    
+     // ① 에디터 → textarea
+    const container = document.querySelector(`[data-edit-id="${entryId}"]`);
+    const editor = container.querySelector('.edit-editor');
+    const textarea = container.querySelector('.edit-textarea');
+    if (editor && textarea) {
+    textarea.value = editor.innerHTML;
     }
+  
+  const isSecret = container.querySelector('.edit-secret-input').checked;
+  const newMessage = textarea.value.trim();
 
-    if (newMessage.length > 4000) {
-        alert('메시지는 4000자 이내로 입력해주세요!');
-        return;
-    }
+  if (!newMessage) {
+    alert('메시지를 입력해주세요~');
+    container.querySelector('.edit-editor').focus();
+    return;
+  }
+  if (!confirm('방명록을 수정하시겠습니까?')) {
+    container.querySelector('.edit-editor').focus();
+    return;
+  }
 
-    try {
-        console.log('서버로 전송할 데이터:', {
-            message: newMessage, 
-            isSecret: isSecret
-        });
+  try {
+    const currentNickname = getCurrentNickname();
+    const response = await fetch(
+      `/blog/api/@${encodeURIComponent(currentNickname)}/guestbook/${entryId}`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: newMessage, isSecret })
+      }
+    );
+    if (!response.ok) throw new Error(response.statusText);
+    await response.json();
 
-        // 서버 API 호출
-        const currentNickname = getCurrentNickname();
-        const response = await fetch(`/blog/api/@${encodeURIComponent(currentNickname)}/guestbook/${entryId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                message: newMessage,
-                isSecret: isSecret
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`수정 실패: ${response.status}`);
-        }
-
-        const result = await response.json();
-        console.log('서버 응답:', result);
-
-        // 수정 form 제거 및 원래 항목 복원
-        cancelEditGuestbook(entryId);
-
-        // 목록 새로고침
-        loadGuestbookData();
-        
-        alert('방명록이 수정되었습니다.');
-
-    } catch (error) {
-        console.error('방명록 수정 실패:', error);
-        alert('방명록 수정에 실패했습니다! 다시 시도해주세요.');
-    }
-
+    cancelEditGuestbook(entryId);
+    loadGuestbookData();
+    alert('방명록이 수정되었습니다.');
+  } catch (err) {
+    console.error(err);
+    alert('수정에 실패했습니다. 다시 시도해주세요.');
+  }
 }
 
 // 수정 취소 함수
@@ -1163,6 +932,7 @@ window.goToPage = goToPage;
 window.handleSubmitGuestbook = handleSubmitGuestbook;
 window.editGuestbookEntry = editGuestbookEntry;
 window.deleteGuestbookEntry = deleteGuestbookEntry;
+window.addEmoticonToMessage   = addEmoticonToMessage;
 window.addEmoticonToEditForm = addEmoticonToEditForm;
 
 // ============= 페이지 로드 시 초기화 =============

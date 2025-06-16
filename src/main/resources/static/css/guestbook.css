@@ -531,3 +531,28 @@
 .edit-save-btn:active, .edit-cancel-btn:active {
     transform: translateY(0);
 }
+
+/* === 이모티콘 팝업 레이아웃 스타일 === */
+.emoticon-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+#guestMessageEditor,
+.edit-editor {
+  background-color: #ffffff;
+  color: #333;              /* 글자색은 필요에 따라 조정하세요 */
+  border: 1px solid #ddd;   /* 테두리 색상도 깔끔하게 변경 */
+  border-radius: 4px;       /* 모서리 라운드 선택사항 */
+  padding: 8px;             /* 안쪽 여백 조정 */
+}
+
+
+
+
+
+
+
