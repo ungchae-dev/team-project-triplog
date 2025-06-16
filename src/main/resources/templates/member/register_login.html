@@ -1,78 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <!-- http://localhost:{port 번호}/{static 내부 경로} -->
   <link href="/css/register_login.css" rel="stylesheet">
   <title>회원가입·로그인</title>
 </head>
+
 <body>
 
-<div class="container" id="container">
-  <!-- 회원가입, Sign Up -->
-  <div class="container__form container--signup">
-    <form action="/member/new" method="post" class="form" id="form1">
-      <h2 class="form__title">회원가입</h2>
-      
-      <!-- 성별 -->
-      <select name="gender" class="input" required>
-        <option value="" disabled selected>성별 선택</option>
-        <option value="MALE">남성</option>
-        <option value="FEMALE">여성</option>
-      </select>
+  <div class="container" id="container">
+    <!-- 회원가입, Sign Up -->
+    <div class="container__form container--signup">
+      <form action="/member/new" method="post" class="form" id="form1">
+        <h2 class="form__title">회원가입</h2>
 
-      <input type="text" name="memberId" placeholder="아이디" class="input" required />
-      <input type="text" name="name" placeholder="이름" class="input" required />
-      <input type="text" name="nickname" placeholder="닉네임" class="input" required />
-      <input type="email" name="email" placeholder="이메일 (예: abcd@example.com)" class="input" required />
-      <input type="password" name="password" placeholder="비밀번호 (특수문자 1자리 이상, 영문, 숫자 포함)" class="input" required />
-      <input type="password" name="passwordCheck" placeholder="비밀번호 확인" class="input" required />
-      <input type="tel" name="phone" placeholder="휴대폰 번호( - 포함 최대 13자리)" class="input" maxlength="13" required />
+        <!-- 성별 -->
+        <select name="gender" class="input" required>
+          <option value="" disabled selected>성별 선택</option>
+          <option value="MALE">남성</option>
+          <option value="FEMALE">여성</option>
+        </select>
 
-      <!-- CSRF 토큰 (서버에서 동적으로 넣어야 함) -->
+        <input type="text" name="memberId" placeholder="아이디" class="input" required />
+        <input type="text" name="name" placeholder="이름" class="input" required />
+        <input type="text" name="nickname" placeholder="닉네임" class="input" required />
+        <input type="email" name="email" placeholder="이메일 (예: abcd@example.com)" class="input" required />
+        <input type="password" name="password" placeholder="비밀번호 (특수문자 1자리 이상, 영문, 숫자 포함)" class="input" required />
+        <input type="password" name="passwordCheck" placeholder="비밀번호 확인" class="input" required />
+        <input type="tel" name="phone" placeholder="휴대폰 번호( - 포함 최대 13자리)" class="input" maxlength="13" required />
 
-      <div style="display: flex; gap: 10px; margin-top: 1rem">
-        <button type="submit" class="btn">회원가입</button>
-        <button type="reset" class="btn" style="background-color: #999;">초기화</button>
-      </div>
+        <!-- CSRF 토큰 (서버에서 동적으로 넣어야 함) -->
+        <!-- JavaScript로 동적 추가될 hidden input 자리 -->
 
-    </form>
-  </div>
+        <div style="display: flex; gap: 10px; margin-top: 1rem">
+          <button type="submit" class="btn">회원가입</button>
+          <button type="reset" class="btn" style="background-color: #999;">초기화</button>
+        </div>
 
-  <!-- 로그인, Sign In -->
-  <div class="container__form container--signin">
-    <!-- action: /member/login (Spring Security가 처리) -->
-    <form action="/member/login-process" method="post" class="form" id="form2">
-      <h2 class="form__title">로그인</h2>
-      <!-- name="memberId" (SecurityConfig의 usernameParameter와 일치) -->
-      <input type="text" name="memberId" placeholder="아이디" class="input" />
-      <input type="password" name="password" placeholder="비밀번호" class="input" />
-      <a href="#" class="link">비밀번호를 잊으셨나요?</a>
+      </form>
+    </div>
 
-      <!-- CSRF 토큰 (서버에서 동적으로 넣어야 함) -->
-      
-      <div style="display: flex; gap: 10px; margin-top: 1rem">
-        <button type="submit" class="btn">로그인</button>
-        <button type="button" class="btn" onclick="event.preventDefault(); window.location.href='/'">메인으로</button>
-      </div>
-    </form>
-  </div>
+    <!-- 로그인, Sign In -->
+    <div class="container__form container--signin">
+      <!-- action: /member/login (Spring Security가 처리) -->
+      <form action="/member/login-process" method="post" class="form" id="form2">
+        <h2 class="form__title">로그인</h2>
+        <!-- name="memberId" (SecurityConfig의 usernameParameter와 일치) -->
+        <input type="text" name="memberId" placeholder="아이디" class="input" />
+        <input type="password" name="password" placeholder="비밀번호" class="input" />
+        <a href="#" class="link">비밀번호를 잊으셨나요?</a>
 
-  <!-- Overlay: 데이터나 인스트럭션 블록을 다른 블록으로 교체 -->
-  <div class="container__overlay">
-    <div class="overlay">
-      <div class="overlay__panel overlay--left">
-        <button class="btn" id="signIn">로그인</button>
-      </div>
-      <div class="overlay__panel overlay--right">
-        <button class="btn" id="signUp">회원가입</button>
+        <!-- CSRF 토큰 (서버에서 동적으로 넣어야 함) -->
+        <!-- JavaScript로 동적 추가될 hidden input 자리 -->
+
+        <div style="display: flex; gap: 10px; margin-top: 1rem">
+          <button type="submit" class="btn">로그인</button>
+          <button type="button" class="btn" onclick="event.preventDefault(); window.location.href='/'">메인으로</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Overlay: 데이터나 인스트럭션 블록을 다른 블록으로 교체 -->
+    <div class="container__overlay">
+      <div class="overlay">
+        <div class="overlay__panel overlay--left">
+          <button class="btn" id="signIn">로그인</button>
+        </div>
+        <div class="overlay__panel overlay--right">
+          <button class="btn" id="signUp">회원가입</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- http://localhost:{port 번호}/{static 내부 경로} -->
-<script src="/js/register_login.js"></script>
+  <!-- http://localhost:{port 번호}/{static 내부 경로} -->
+  <script src="/js/register_login.js"></script>
 
 </body>
+
 </html>
