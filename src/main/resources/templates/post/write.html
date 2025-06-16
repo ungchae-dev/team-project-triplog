@@ -190,10 +190,12 @@
 
         const result = await res.json(); // 예: { imageUrl: "/uploads/image123.jpg" }
 
+
         const img = document.createElement('img');
         img.src = result.imageUrl;
         img.style.maxWidth = '600px';
         img.style.height = 'auto';
+
 
         const br = document.createElement('br');
         insertAtCursor(br);
@@ -276,20 +278,116 @@
         return;
       }
 
+
+    range.deleteContents();
+    range.insertNode(node);
+    range.setStartAfter(node);
+    range.setEndAfter(node);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+
+/*
+  // 이미지 삭제 버튼(x) 위치 고정
+  editor.addEventListener('click', function (e) {
+    if (e.target.tagName === 'IMG') {
+      currentImage = e.target;
+      const rect = e.target.getBoundingClientRect();
+      deleteBtn.style.top = `${rect.top + window.scrollY}px`;
+      deleteBtn.style.left = `${rect.left + rect.width - 10 + window.scrollX}px`;
+      deleteBtn.style.display = 'block';
+    } else {
+      deleteBtn.style.display = 'none';
+      currentImage = null;
+    }
+  });
+
+  // 이미지 삭제 버튼 이벤트
+  deleteBtn.addEventListener('click', function () {
+    if (currentImage) {
+      currentImage.remove();
+      deleteBtn.style.display = 'none';
+      currentImage = null;
+    }
+  });
+*/
+  // 인원 태그 선택 시 화면에 출력
+  function addHashtag(tag) {
+    tag = tag.trim();
+    if (!tag) return;
+    if (!tag.startsWith('#')) tag = '#' + tag;
+
+    // 중복 체크
+    const existingTags = Array.from(addedHashtagsDiv.children).map(el => el.textContent);
+    if (existingTags.includes(tag)) {
+      alert('이미 추가된 해시태그입니다.');
+      return;
+    }
+
+    const tagElem = document.createElement('span');
+    tagElem.textContent = tag;
+    tagElem.classList.add('user-hashtag');  // 여기서 클래스 추가
+
+    tagElem.style.backgroundColor = '#a86c44';
+    tagElem.style.color = 'white';
+    tagElem.style.padding = '2px 8px';
+    tagElem.style.borderRadius = '12px';
+    tagElem.style.fontSize = '13px';
+    tagElem.style.cursor = 'default';
+
+    // 삭제 기능
+    tagElem.addEventListener('click', () => {
+      if (confirm(`해시태그 "${tag}"를 삭제하시겠습니까?`)) {
+        addedHashtagsDiv.removeChild(tagElem);
+      }
+    });
+
+    addedHashtagsDiv.appendChild(tagElem);
+    hashtagInput.value = '';
+  }
+
+  // 작성 버튼 이벤트
+  document.getElementById('write-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const blogId = document.getElementById('blogInfo').dataset.blogId;
+    const nickname = document.getElementById('blogInfo').dataset.nickname;
+    const title = document.getElementById('title').innerText.trim();
+    const content = editor.innerHTML;
+    const text = editor.innerText.trim();
+    const visibilityInput = document.querySelector('input[name="visibility"]:checked');
+    const visibility = visibilityInput.value;
+    const checkedHashtags = Array.from(document.querySelectorAll('input[name="tag"]:checked')).map(el => el.value);
+    //const newHashtag = document.getElementById('hashtagInput').value.trim();
+    const hashtags = document.querySelectorAll('.user-hashtag');
+    const newHashtag = Array.from(hashtags).map(el => el.textContent);
+
+    if (!title){
+      alert("제목을 입력해주세요");
+      return;
+    }
+
       if (!text) {
         alert("내용을 입력해주세요");
         return;
       }
+
 
       if (checkedHashtags.length === 0) {
         alert("해시태그를 하나 이상 선택해주세요");
         return;
       }
 
+
+    if (checkedHashtags.length === 0) {
+      alert("인원수 태그를 하나 이상 선택해주세요");
+      return;
+    }
+
       if (visibilityInput == null) {
         alert("공개 여부를 설정해주세요");
         return;
       }
+
 
       const data = {
         title,
@@ -318,20 +416,29 @@
           navigateToPage('post');
         }
 
-      } else {
-        alert('작성 실패');
-      }
-    });
-  </script>
 
-  <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-방명록) 홈에서 로드 -->
-  <script src="/js/layout.js"></script>
-  <script src="/js/home.js"></script>
-  <script src="/js/shop.js"></script>
-  <script src="/js/profile.js"></script>
-  <script src="/js/post.js"></script>
-  <script src="/js/jukebox.js"></script>
-  <script src="/js/guestbook.js"></script>
+    if (res.ok) {
+      alert(isModify ? '글 수정 완료' : '글 작성 완료');
+      if(isModify){
+        navigateToPage(`post/${postId}`);
+      }else{
+        document.querySelector('.main-content').innerHTML = '';
+        navigateToPage('post');
+      }
+       
+    } else {
+      alert('작성 실패');
+    }
+  });
+</script>
+<!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
+<script src="/js/layout.js"></script>
+<script src="/js/home.js"></script>
+<script src="/js/shop.js"></script>
+<script src="/js/profile.js"></script>
+<script src="/js/post.js"></script>
+<script src="/js/jukebox.js"></script>
+<script src="/js/guestbook.js"></script>
 
 </body>
 

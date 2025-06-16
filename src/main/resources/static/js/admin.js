@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
     initNoticeEvents();
 
 
+
+
     // 기본으로 '게시글/댓글 관리' 섹션 보이기 & 데이터 로드
     showSection("posts");
     loadPostCommentList();
@@ -26,9 +28,11 @@ function initMenuNavigation() {
                 loadPostCommentList();
             } else if (section === "notice") {
                 loadNoticeList();
+
             } else if (section === "purchase"){
                 console.log("메뉴 클릭됨:", section);
                 drawPurchaseCharts();
+
             }
         });
     });
@@ -83,10 +87,12 @@ function loadPostCommentList() {
         });
 }
 
+
 /** 게시글/댓글 tbody 클릭 이벤트 (삭제, 내용 토글) */
 function initPostCommentSection() {
     const tbody = document.querySelector("#noticeTable tbody");
     if (!tbody) return;
+
 
     tbody.addEventListener("click", e => {
         const target = e.target;
@@ -140,6 +146,7 @@ function handleToggleContentClick(target) {
     const isVisible = nextRow.style.display !== "none";
     nextRow.style.display = isVisible ? "none" : "";
 
+
     if (!isVisible) {
         const id = tr.dataset.id;
         const type = tr.dataset.type.toLowerCase(); // post or comment 형태로 맞춤 필요
@@ -157,6 +164,7 @@ function handleToggleContentClick(target) {
             });
     }
 }
+
 
 /** 공지사항 관련 초기화 */
 function initNoticeEvents() {
@@ -233,6 +241,7 @@ function loadNoticeList() {
         })
         .catch(err => {
             tbody.innerHTML = `<tr><td colspan="6" style="color:red;">공지사항 목록 불러오기 실패: ${err.message}</td></tr>`;
+
         });
 }
 
@@ -256,9 +265,11 @@ function attachDeleteEvents() {
                         alert("에러 발생: " + err.message);
                     });
             }
+
         });
     });
 }
+
 
 
 
@@ -398,4 +409,5 @@ function drawPurchaseCharts() {
             });
         });
 }
+
 

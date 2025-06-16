@@ -54,11 +54,13 @@ public class AdminService {
     }
 
     public void delete(String type, Long id) {
+
         if ("post".equals(type)) {
             Post post = postRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("게시글이 존재하지 않습니다."));
             postRepository.delete(post); // 연관된 댓글 및 이미지 등도 cascade 설정되어 있으면 삭제됨
         } else if ("comment".equals(type)) {
+
             Comments comment = commentRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("댓글이 존재하지 않습니다."));
             commentRepository.delete(comment); // 대댓글, 좋아요 등 자동 삭제됨

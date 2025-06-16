@@ -868,37 +868,106 @@ async function loadUserProfileImage() {
 // 페이지 네비게이션 함수 (즉시 반응)
 function navigateToPage(page) {
     const currentNickname = getCurrentNickname();
-    if(!currentNickname) {
+    if (!currentNickname) {
         alert('로그인이 필요합니다.');
         window.location.href = '/member/login';
         return;
     }
-    console.log(`즉시 페이지 이동 시작: ${page}`);
 
-    // 즉시 UI 업데이트 (지연 없음)
-    setActiveNavButton(page);
-    setPageTitleImmediately(page);
+    console.log(`페이지 이동 시작: ${page}`);
 
-    // 캐시 상태 체크 후 스킨 적용
+    const basePage = page.split('/')[0]; // post/123 → post
+    setActiveNavButton(basePage); // base만 버튼 활성화
+    setPageTitleImmediately(basePage);
+
+    // 스킨 적용
     requestAnimationFrame(() => {
         if (cachedSkinInfo) {
-            console.log('캐시된 스킨 정보 사용:', cachedSkinInfo);
-            applyCachedSkin(); // 캐시된 정보로 즉시 적용
+            applyCachedSkin();
         } else {
-            console.log('캐시가 없어서 스킨 정보 로드');
-            maintainDefaultSkinForInactiveUsers(); // 최초 로드시만 API 호출
+            maintainDefaultSkinForInactiveUsers();
         }
     });
 
     // 페이지 내용 로드
     loadPageContent(page, currentNickname);
 
-    // URL 변경
     const encodedNickname = encodeURIComponent(currentNickname);
     const newUrl = `/blog/@${encodedNickname}${page === 'home' ? '' : '/' + page}`;
-    history.pushState({page}, '', newUrl);
+    history.pushState({ page }, '', newUrl);
+}
 
-    console.log(`페이지 이동 완료: ${page}`);
+// 내부 링크 클릭 시 새로고침 없이 동작 (선택)
+document.addEventListener('click', function (e) {
+    const anchor = e.target.closest('a');
+    if (!anchor) return;
+
+    const href = anchor.getAttribute('href');
+    if (!href || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('#')) return;
+
+    const currentNickname = getCurrentNickname();
+    if (!currentNickname) return;
+
+    // 내부 블로그 링크 정규식: /blog/@nickname/...
+    const blogLinkPrefix = `/blog/@${currentNickname}`;
+    if (href.startsWith(blogLinkPrefix)) {
+        e.preventDefault();
+
+        // 내부 경로 추출: /blog/@nickname/post/123 → post/123
+        let relativePath = href.slice(blogLinkPrefix.length);
+        relativePath = relativePath.replace(/^\/+/, ''); // 앞쪽 슬래시 제거
+        const pagePath = relativePath || 'home';
+
+        // 페이지 이동 (SPA 방식)
+        navigateToPageWithAuth(pagePath);
+    }
+});
+
+// === 페이지 네비게이션 시 사용자 정보 확인 (추가) ===
+function navigateToPageWithAuth(page) {
+
+    console.log('🔍 =========================');
+    console.log('🔍 navigateToPageWithAuth 시작:', page);
+    console.log('🔍 현재 사용자 정보:', currentUserInfo);
+    console.log('🔍 사용자 정보 로드 완료:', userInfoLoaded);
+    console.log('🔍 로그인 상태 체크 결과:', isLoggedIn());
+    console.log('🔍 URL 닉네임:', getCurrentNickname());
+    console.log('🔍 로그인 닉네임:', getCurrentUserNickname());
+    console.log('🔍 본인 블로그 여부:', isOwnBlog());
+    console.log('🔍 =========================');
+
+    // 로그인이 필요한 기능인지 확인 (모든 페이지 접근 시 로그인 필요)
+    if (!isLoggedIn()) {
+        console.log('로그인 체크 실패 - 로그인 페이지로 이동');
+        alert('로그인이 필요한 기능입니다!');
+        window.location.href = '/member/login';
+        return;
+    }
+
+    console.log('로그인 체크 통과');
+
+    // ※ 블로그 주인만 접근 가능한 페이지들 (상점, 프로필)
+    const ownerOnlyPages = ['shop', 'profile'];
+
+    if (ownerOnlyPages.includes(page)) {
+        if (!isOwnBlog()) {
+            alert('블로그 주인만 접근할 수 있는 페이지입니다.');
+            console.log(`접근 차단: ${page} 페이지는 블로그 주인(${getCurrentNickname()})만 접근 가능`);
+            return;
+        }
+        console.log(`접근 허용: ${page} 페이지 - 블로그 주인 확인됨`);
+    }
+
+    // 모든 로그인 사용자가 접근 가능한 페이지들 (홈, 게시판, 주크박스, 방명록)
+    const publicPages = ['home', 'post', 'jukebox', 'guestbook'];
+
+    if (publicPages.includes(page)) {
+        console.log(`접근 허용: ${page} 페이지 - 모든 로그인 사용자 접근 가능`);
+    }
+
+    // 기존 navigateToPage 로직 실행
+    console.log('navigateToPage 호출:', page);
+    navigateToPage(page);
 }
 
 // === 페이지 네비게이션 시 사용자 정보 확인 (추가) ===
@@ -1160,61 +1229,163 @@ function setPageTitleByUrl() {
     // 즉시 설정
     setPageTitle(pageTitle);
 }
-
+/*
 // 페이지 컨텐츠 동적 로드
 async function loadPageContent(page, nickname) {
     const mainContent = document.querySelector('.main-content');
     if (!mainContent) return;
 
     try {
-        // 즉시 로딩 표시
         mainContent.innerHTML = '<div style="text-align: center; padding: 50px; color: #666;">로딩 중...</div>';
 
         const encodedNickname = encodeURIComponent(nickname);
-        const pageUrls = {
-            'home': `/blog/@${encodedNickname}`, 
-            'shop': `/blog/@${encodedNickname}/shop`, 
-            'profile': `/blog/@${encodedNickname}/profile`, 
-            'post': `/blog/@${encodedNickname}/post`, 
-            'jukebox': `/blog/@${encodedNickname}/jukebox`, 
-            'guestbook': `/blog/@${encodedNickname}/guestbook`
+        const [path, queryString] = page.split('?');
+
+        // ex) 'post/123/edit' → ['post', '123', 'edit']
+        const pathParts = path.split('/');
+        const basePage = pathParts[0]; // 첫 segment만 추출
+
+        const baseUrlMap = {
+            home: `/blog/@${encodedNickname}`,
+            shop: `/blog/@${encodedNickname}/shop`,
+            profile: `/blog/@${encodedNickname}/profile`,
+            post: `/blog/@${encodedNickname}/post`,
+            jukebox: `/blog/@${encodedNickname}/jukebox`,
+            guestbook: `/blog/@${encodedNickname}/guestbook`,
+            write: `/blog/@${encodedNickname}/post/write`
         };
 
-        console.log(`페이지 로드 시도: ${pageUrls[page]}`);
+        const baseUrl = baseUrlMap[basePage];
+        if (!baseUrl) throw new Error(`알 수 없는 페이지 유형: ${basePage}`);
 
-        const response = await fetch(pageUrls[page]);
+        const suffix = pathParts.slice(1).join('/'); // '123/edit' 또는 ''
+        const fullUrl = `${baseUrl}${suffix ? '/' + suffix : ''}${queryString ? `?${queryString}` : ''}`;
 
-        if (response.ok) {
-            const html = await response.text();
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = html;
-            const pageContent = tempDiv.querySelector('.main-content')?.innerHTML;
+        console.log(`페이지 로드 시도: ${fullUrl}`);
 
-            if (pageContent) {
-                mainContent.innerHTML = pageContent;
-                console.log(`${page} 페이지 콘텐츠 삽입 완료`);
-                
-                // 즉시 페이지 초기화
-                initializePage(page);
-                console.log(`${page} 페이지 로드 성공`);
-            } else {
-                throw new Error('main-content를 찾을 수 없습니다.');
+        const response = await fetch(fullUrl);
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error(`"${page}" 페이지를 찾을 수 없습니다.`);
             }
-        } else {
             throw new Error(`페이지 로드 실패: ${response.status}`);
         }
 
+        const html = await response.text();
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        const pageContent = tempDiv.querySelector('.main-content')?.innerHTML;
+
+        if (!pageContent) throw new Error('main-content를 찾을 수 없습니다.');
+
+        mainContent.innerHTML = pageContent;
+        console.log(`${page} 페이지 콘텐츠 삽입 완료`);
+
+        initializePage(basePage, path); // 경로 전체 전달
+        console.log(`${basePage} 페이지 로드 성공`);
     } catch (error) {
         console.error('페이지 로드 오류:', error);
         mainContent.innerHTML = `
             <div style="text-align: center; padding: 50px;">
-                <h3>※ 페이지 준비 중</h3>
-                <p>${page} 페이지가 아직 개발 중입니다.</p>
+                <h3>※ 페이지 준비 중 또는 오류 발생</h3>
+                <p>${error.message}</p>
                 <button onclick="navigateToPage('home')" style="padding: 10px 20px; margin-top: 20px; cursor: pointer;">홈으로 돌아가기</button>
             </div>
         `;
     }
 }
+*/
+// 페이지 컨텐츠 동적 로드 (수정됨)
+async function loadPageContent(page, nickname) {
+    const mainContent = document.querySelector('.main-content');
+    if (!mainContent) return;
+
+    try {
+        mainContent.innerHTML = '<div style="text-align: center; padding: 50px; color: #666;">로딩 중...</div>';
+
+        const encodedNickname = encodeURIComponent(nickname);
+        const [path, queryString] = page.split('?');
+
+        const pathParts = path.split('/');
+        const basePage = pathParts[0];
+
+        const baseUrlMap = {
+            home: `/blog/@${encodedNickname}`,
+            shop: `/blog/@${encodedNickname}/shop`,
+            profile: `/blog/@${encodedNickname}/profile`,
+            post: `/blog/@${encodedNickname}/post`,
+            jukebox: `/blog/@${encodedNickname}/jukebox`,
+            guestbook: `/blog/@${encodedNickname}/guestbook`,
+            write: `/blog/@${encodedNickname}/post/write`
+        };
+
+        const baseUrl = baseUrlMap[basePage];
+        if (!baseUrl) throw new Error(`알 수 없는 페이지 유형: ${basePage}`);
+
+        const suffix = pathParts.slice(1).join('/');
+        const fullUrl = `${baseUrl}${suffix ? '/' + suffix : ''}${queryString ? `?${queryString}` : ''}`;
+
+        console.log(`페이지 로드 시도: ${fullUrl}`);
+
+        const response = await fetch(fullUrl);
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error(`"${page}" 페이지를 찾을 수 없습니다.`);
+            }
+            throw new Error(`페이지 로드 실패: ${response.status}`);
+        }
+
+        const html = await response.text();
+
+        // 임시 div 생성 후 HTML 넣기
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+
+        // main-content 부분만 추출
+        const pageContent = tempDiv.querySelector('.main-content')?.innerHTML;
+        if (!pageContent) throw new Error('main-content를 찾을 수 없습니다.');
+
+        // main-content에 콘텐츠 넣기
+        mainContent.innerHTML = pageContent;
+
+        // ===== 수동 스크립트 파싱 및 실행 =====
+        // tempDiv 내 모든 <script> 태그 찾아서 실행
+        const scripts = tempDiv.querySelectorAll('script');
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+
+            if (oldScript.src) {
+                newScript.src = oldScript.src;
+                newScript.async = false; // 순서 보장
+            } else {
+                newScript.textContent = oldScript.textContent;
+            }
+
+            // body에 추가하여 실행
+            document.body.appendChild(newScript);
+            // 추가 후 제거해도 무방:
+            // document.body.removeChild(newScript);
+        });
+        // ===== 수동 스크립트 파싱 및 실행 끝 =====
+
+
+        console.log(`${page} 페이지 콘텐츠 삽입 완료`);
+
+        initializePage(basePage, path);
+        console.log(`${basePage} 페이지 로드 성공`);
+    } catch (error) {
+        console.error('페이지 로드 오류:', error);
+        mainContent.innerHTML = `
+            <div style="text-align: center; padding: 50px;">
+                <h3>※ 페이지 준비 중 또는 오류 발생</h3>
+                <p>${error.message}</p>
+                <button onclick="navigateToPage('home')" style="padding: 10px 20px; margin-top: 20px; cursor: pointer;">홈으로 돌아가기</button>
+            </div>
+        `;
+    }
+}
+
+
 
 // 페이지 초기화 함수 (즉시 실행)
 function initializePage(page) {
@@ -1261,7 +1432,9 @@ window.addEventListener('popstate', (event) => {
         const currentNickname = getCurrentNickname();
         if (currentNickname) {
             loadPageContent(event.state.page, currentNickname);
-            setActiveNavButton(event.state.page);
+            const basePage = event.state.page.split('/')[0];
+            setActiveNavButton(basePage);
+            setPageTitleImmediately(basePage);
             setPageTitleByUrl();
         }
     }

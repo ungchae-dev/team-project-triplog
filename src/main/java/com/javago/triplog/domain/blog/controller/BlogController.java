@@ -114,7 +114,10 @@ public class BlogController {
             // 로그인 체크
             if (authentication == null) {
                 System.out.println("상점 접근 거부: 로그인 필요");
+
+
                 return "redirect:/member/login?type=signin";
+
             }
 
             // URL 디코딩 처리
@@ -154,7 +157,10 @@ public class BlogController {
             // 로그인 체크
             if (authentication == null) {
                 System.out.println("프로필 접근 거부: 로그인 필요");
+
+
                 return "redirect:/member/login?type=signin";
+
             }
 
             // 본인 블로그인지 권한 체크
@@ -192,7 +198,10 @@ public class BlogController {
             // 로그인 체크
             if (authentication == null) {
                 System.out.println("주크박스 접근 거부: 로그인 필요");
+
+
                 return "redirect:/member/login?type=signin";
+
             }
 
             // URL 디코딩 처리
@@ -221,7 +230,10 @@ public class BlogController {
             // 로그인 체크
             if (authentication == null) {
                 System.out.println("방명록 접근 거부: 로그인 필요");
+
+
                 return "redirect:/member/login?type=signin";
+
             }
 
             String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);

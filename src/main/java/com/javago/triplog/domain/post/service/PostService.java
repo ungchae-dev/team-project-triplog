@@ -83,11 +83,11 @@ public class PostService {
     }
 
     @Transactional
-    public void saveHashtags(String hashtags, Long postId){
-        String[] hashtag = hashtags.split("#");
-        log.info("hashtags: {}", hashtag.length);
-        log.info("hashtag: {}", hashtag.length);
-        for (String tag : hashtag) {
+    public void saveHashtags(List<String> hashtags, Long postId){
+        //String[] hashtag = hashtags.split("#");
+        log.info("hashtags: {}", hashtags.size());
+        //log.info("hashtag: {}", hashtags.length);
+        for (String tag : hashtags) {
             tag = tag.trim();
             if (!tag.isEmpty()) {
                 log.info("Saving tag: {}", tag);

@@ -20,7 +20,7 @@ public class AddPostRequest {
     private String visibility;
     private Long blogId;
     private List<Long> tagIdList;
-    private String newHashtag;
+    private List<String> newHashtag;
 
     public Post toEntity(Blog blog, String visibility){
         Visibility v = Visibility.valueOf(visibility);

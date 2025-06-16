@@ -80,8 +80,10 @@
                 </button>
                 <button type="button" onclick="navigateToPage('post')">글 목록</button>
                 <button type="button" th:if="${nickname == loginNickname}"
+
                   th:onclick="|location.href='@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">✏️
                   수정</button>
+
                 <button type="button" th:if="${nickname == loginNickname}" id="delete-btn">🗑 삭제</button>
               </div>
 
@@ -89,8 +91,8 @@
                 <h3>💬 댓글 (<span id="detail-comments-count">0</span>)</h3>
                 <textarea placeholder="댓글을 입력하세요..." id="comment-input"></textarea>
                 <select id="is_secret">
-                  <option value="Y">전체 공개</option>
-                  <option value="N">비공개</option>
+                  <option value="N">전체 공개</option>
+                  <option value="Y">비공개</option>
                 </select>
                 <button id="submitComment" class="comment-btn">댓글 달기</button>
                 <!-- 댓글 리스트 -->
@@ -227,8 +229,8 @@
       li.innerHTML = `
           <textarea class="edit-input" style="width: 70%;">${currentContent}</textarea>
           <select class="is-secret">
-            <option value="Y" ${isSecretValue === 'Y' ? 'selected' : ''}>전체 공개</option>
-            <option value="N" ${isSecretValue === 'N' ? 'selected' : ''}>비공개</option>
+            <option value="Y" ${isSecretValue === 'N' ? 'selected' : ''}>전체 공개</option>
+            <option value="N" ${isSecretValue === 'Y' ? 'selected' : ''}>비공개</option>
           </select>
           <button class="save-btn" style="color:#b865a4;">저장</button>
           <button class="cancel-btn" style="color:#b865a4;">취소</button>
@@ -365,6 +367,7 @@
       }
       return count;
     }
+
     /*
         // 댓글 좋아요
         function likeComment(button) {
@@ -375,6 +378,7 @@
             }, 1000);
         }
     */
+
 
     // 댓글 좋아요 추가
     function addLikeComment(commentId) {
@@ -434,8 +438,8 @@
       form.innerHTML = `
           <textarea class="reply-input" placeholder="답글을 입력하세요..."></textarea>
           <select class="reply-secret">
-            <option value="Y">전체 공개</option>
-            <option value="N">비공개</option>
+            <option value="N">전체 공개</option>
+            <option value="Y">비공개</option>
           </select>
           <button class="submit-reply">등록</button>
           <button class="cancel-btn">취소</button>

@@ -97,13 +97,13 @@ public class PostApiController {
     // 게시판 글 작성
     @Transactional
     @PostMapping("/api/write")
-    public ResponseEntity<Post> addPost(@RequestBody AddPostRequest request) {
+    public ResponseEntity<?> addPost(@RequestBody AddPostRequest request) {
         Post addPost = postService.save(request);
         List<String> imgurl = parseImageUrl(request.getContent());
         saveimage(imgurl, addPost);
         postService.addHashtags(request.getTagIdList(), addPost.getPostId());
         postService.saveHashtags(request.getNewHashtag(), addPost.getPostId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(addPost);
+        return ResponseEntity.ok().build();
     }
 
     // 게시글 이미지 서버에 업로드
@@ -130,13 +130,13 @@ public class PostApiController {
     // 게시판 글 수정
     @Transactional
     @PutMapping("/api/write/{id}")
-    public ResponseEntity<Post> updatePost(@PathVariable("id") Long id, @RequestBody UpdatePostRequest request) {
+    public ResponseEntity<?> updatePost(@PathVariable("id") Long id, @RequestBody UpdatePostRequest request) {
         Post updatePost = postService.updatePost(id, request);
         imageRepository.deleteByPost(updatePost);
         List<String> imgurl = parseImageUrl(request.getContent());
         saveimage(imgurl, updatePost);
         postService.addHashtags(request.getTagIdList(), id);
-        return ResponseEntity.ok().body(updatePost);
+        return ResponseEntity.ok().build();
     }
 
     // 게시글 삭제

@@ -65,8 +65,10 @@ public class SecurityConfig {
                     "/components/**", // 정적 리소스(/static) 하위 레이아웃 템플릿 파일(4)
                     
                     // 블로그 홈만 공개 접근 허용 (다른 사람 블로그 구경 가능)
+
                     "/blog/@*/", // 블로그 홈 (ex: /blog/@홍길동/)
                     "/blog/home" // 블로그 홈 요청 (로그인 체크 후 리다이렉트)
+
                     // ※ 현재 사용자 정보 확인 API (로그인 상태 확인용)
                 ).permitAll()
                 
