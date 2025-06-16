@@ -229,8 +229,8 @@
       li.innerHTML = `
           <textarea class="edit-input" style="width: 70%;">${currentContent}</textarea>
           <select class="is-secret">
-            <option value="Y" ${isSecretValue === 'N' ? 'selected' : ''}>전체 공개</option>
-            <option value="N" ${isSecretValue === 'Y' ? 'selected' : ''}>비공개</option>
+            <option value="N" ${isSecretValue === 'N' ? 'selected' : ''}>전체 공개</option>
+            <option value="Y" ${isSecretValue === 'Y' ? 'selected' : ''}>비공개</option>
           </select>
           <button class="save-btn" style="color:#b865a4;">저장</button>
           <button class="cancel-btn" style="color:#b865a4;">취소</button>
@@ -490,9 +490,10 @@
       });
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-      fetchComments(id); // 초기 댓글 로딩
-    });
+    function initPostDetail() {
+      fetchComments(id);
+      // 좋아요 초기화 등 필요한 것들 이곳에 추가
+    }
   </script>
 
   <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-방명록) 홈에서 로드 -->
