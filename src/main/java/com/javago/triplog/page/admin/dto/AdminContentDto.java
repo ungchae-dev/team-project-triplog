@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Getter
 public class AdminContentDto {
     private Long id;
-    private String type; // "게시글" 또는 "댓글"
+    private String type; //post 또는 comment
     private String writerId; // member.memberId
     private String titleOrContent;
     private LocalDateTime createdAt;
