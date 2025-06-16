@@ -133,134 +133,35 @@ async function loadCurrentUserInfo() {
 
 // 이모티콘 팝업 창 열기
 function openEmoticonPopup() {
-    console.log('이모티콘 팝업 창 열기 시도');
-    
-    // 이미 열려있는 팝업이 있으면 닫기
-    if (emoticonPopupWindow && !emoticonPopupWindow.closed) {
-        emoticonPopupWindow.close();
-    }
-    
-    // 팝업 창 설정
     const popupWidth = 450;
     const popupHeight = 600;
-    
-    // 현재 브라우저 창 기준으로 중앙 위치 계산
-    const parentWidth = window.outerWidth;
-    const parentHeight = window.outerHeight;
-    const parentLeft = window.screenX;
-    const parentTop = window.screenY;
-    
-    const left = parentLeft + (parentWidth - popupWidth) / 2;
-    const top = parentTop + (parentHeight - popupHeight) / 2;
-    
-    // 팝업 창 옵션
-    const popupOptions = [
-        `width=${popupWidth}`,
-        `height=${popupHeight}`,
-        `left=${left}`,
-        `top=${top}`,
-        'scrollbars=yes',
-        'resizable=no',
-        'menubar=no',
-        'toolbar=no',
-        'location=no',
-        'status=no'
-    ].join(',');
-    
-    // 팝업 창 열기 (현재는 빈 페이지)
-    emoticonPopupWindow = window.open('about:blank', 'emoticonPopup', popupOptions);
-    
-    if (emoticonPopupWindow) {
-        // 팝업 창 내용 설정 (임시 - 나중에 팀원이 수정할 부분)
-        emoticonPopupWindow.document.write(`
-            <!DOCTYPE html>
-            <html lang="ko">
-            <head>
-                <meta charset="UTF-8">
-                <title>내 이모티콘</title>
-                <style>
-                    body {
-                        font-family: 'Malgun Gothic', sans-serif;
-                        margin: 0;
-                        padding: 20px;
-                        background: linear-gradient(135deg, #fff9f7 0%, #ffeee9 100%);
-                    }
-                    .popup-header {
-                        text-align: center;
-                        color: #ff8a65;
-                        font-size: 18px;
-                        font-weight: bold;
-                        margin-bottom: 20px;
-                        padding-bottom: 10px;
-                        border-bottom: 2px solid #f2dcdc;
-                    }
-                    .emoticon-placeholder {
-                        text-align: center;
-                        color: #666;
-                        margin-top: 100px;
-                        font-size: 16px;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="popup-header">내 이모티콘</div>
-                <div class="emoticon-placeholder">
-                    <p>🎭</p>
-                    <p>이모티콘 목록이 여기에 표시됩니다.</p>
-                    <p>팀원이 이 부분을 구현할 예정입니다.</p>
-                </div>
-                
-                <script>
-                    // 부모 창으로 이모티콘 전달하는 함수 (팀원이 사용할 함수)
-                    function selectEmoticon(emoticonText) {
-                        if (window.opener && !window.opener.closed) {
-                            window.opener.addEmoticonToMessage(emoticonText);
-                            window.close();
-                        }
-                    }
-                    
-                    // 팝업이 닫힐 때 부모 창의 참조 초기화
-                    window.addEventListener('beforeunload', function() {
-                        if (window.opener && !window.opener.closed) {
-                            window.opener.emoticonPopupWindow = null;
-                        }
-                    });
-                </script>
-            </body>
-            </html>
-        `);
-        
-        emoticonPopupWindow.document.close();
-        emoticonPopupWindow.focus();
-        
-        console.log('이모티콘 팝업 창 열기 완료');
-    } else {
-        console.error('팝업 차단됨 - 브라우저 설정을 확인하세요');
+    const left = (window.screen.width - popupWidth) / 2;
+    const top = (window.screen.height - popupHeight) / 2;
+
+    const options = `width=${popupWidth},height=${popupHeight},left=${left},top=${top},scrollbars=yes,resizable=no`;
+    emoticonPopupWindow = window.open('/emoticon-popup.html?mode=create', 'emoticonPopup', options);
+
+    if (!emoticonPopupWindow) {
         alert('팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.');
     }
-}
-
-// 팝업에서 선택한 이모티콘을 메시지에 추가하는 함수
+}         
+      
 function addEmoticonToMessage(emoticonText) {
-    const messageInput = document.getElementById('guestMessage');
-    if (messageInput) {
-        const currentText = messageInput.value;
-        const cursorPos = messageInput.selectionStart || currentText.length;
-        
+    const textarea = document.getElementById('guestMessage');
+    if (textarea) {
+        const currentText = textarea.value;
+        const cursorPos = textarea.selectionStart || currentText.length;
+
         const newText = currentText.slice(0, cursorPos) + emoticonText + currentText.slice(cursorPos);
-        messageInput.value = newText;
-        
-        // 커서 위치를 이모티콘 뒤로 이동
+        textarea.value = newText;
+
         const newCursorPos = cursorPos + emoticonText.length;
-        messageInput.focus();
-        messageInput.setSelectionRange(newCursorPos, newCursorPos);
-        
+        textarea.focus();
+        textarea.setSelectionRange(newCursorPos, newCursorPos);
+
         console.log('이모티콘 추가됨:', emoticonText);
     }
 }
-
-// 전역 함수로 노출 (팝업에서 호출할 수 있도록)
-window.addEmoticonToMessage = addEmoticonToMessage;
 
 // === 방명록 목록 로드 함수 ===
 async function loadGuestbookData() {
@@ -438,7 +339,7 @@ function createGuestbookEntryElement(entry) {
     messageDiv.className = 'entry-message';
 
     // ※ 핵심 수정: 백엔드에서 이미 권한 처리된 content를 그대로 사용
-    messageDiv.textContent = entry.content;
+    messageDiv.innerHTML  = entry.content;
     
     // 디버깅: 비밀글 처리 결과 확인
     if (isSecret) {
@@ -738,130 +639,29 @@ function showEditForm(entry) {
 
 // === 수정 form용 이모티콘 팝업 함수 ===
 function openEditEmoticonPopup(entryId) {
-    console.log('수정 폼 이모티콘 팝업 창 열기 시도 - 방명록 ID:', entryId);
+   console.log('수정 폼 이모티콘 팝업 창 열기 시도 - 방명록 ID:', entryId);
 
-    // 기존 팝업이 있으면 닫기
     if (emoticonPopupWindow && !emoticonPopupWindow.closed) {
         emoticonPopupWindow.close();
     }
 
-    // 팝업 창 설정 (기존과 동일: 폭 x 높이 450 x 600)
     const popupWidth = 450;
     const popupHeight = 600;
-    
-    const parentWidth = window.outerWidth;
-    const parentHeight = window.outerHeight;
-    const parentLeft = window.screenX;
-    const parentTop = window.screenY;
-    
-    const left = parentLeft + (parentWidth - popupWidth) / 2;
-    const top = parentTop + (parentHeight - popupHeight) / 2;
+    const left = (window.screen.width - popupWidth) / 2;
+    const top = (window.screen.height - popupHeight) / 2;
 
-    const popupOptions = [
-        `width=${popupWidth}`,
-        `height=${popupHeight}`,
-        `left=${left}`,
-        `top=${top}`,
-        'scrollbars=yes',
-        'resizable=no',
-        'menubar=no',
-        'toolbar=no',
-        'location=no',
-        'status=no'
-    ].join(',');
+    const options = `width=${popupWidth},height=${popupHeight},left=${left},top=${top},scrollbars=yes,resizable=no`;
+    emoticonPopupWindow = window.open(`/emoticon-popup.html?mode=edit&entryId=${entryId}`, 'emoticonPopup', options);
 
-    // 팝업 창 열기
-    emoticonPopupWindow = window.open('about:blank', 'emoticonPopup', popupOptions);
-
-    if (emoticonPopupWindow) {
-        // 수정 form용 팝업 내용 (entryId 전달)
-        emoticonPopupWindow.document.write(`
-            <!DOCTYPE html>
-            <html lang="ko">
-            <head>
-                <meta charset="UTF-8">
-                <title>내 이모티콘</title>
-                <style>
-                    body {
-                        font-family: 'Malgun Gothic', sans-serif;
-                        margin: 0;
-                        padding: 20px;
-                        background: linear-gradient(135deg, #fff9f7 0%, #ffeee9 100%);
-                    }
-                    .popup-header {
-                        text-align: center;
-                        color: #ff8a65;
-                        font-size: 18px;
-                        font-weight: bold;
-                        margin-bottom: 20px;
-                        padding-bottom: 10px;
-                        border-bottom: 2px solid #f2dcdc;
-                    }
-                    .emoticon-placeholder {
-                        text-align: center;
-                        color: #666;
-                        margin-top: 100px;
-                        font-size: 16px;
-                    }
-                    .mode-info {
-                        background: #fff5f5;
-                        border: 1px solid #ffcccb;
-                        border-radius: 8px;
-                        padding: 10px;
-                        margin-bottom: 20px;
-                        text-align: center;
-                        color: #d32f2f;
-                        font-size: 14px;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="popup-header">내 이모티콘</div>
-                <div class="mode-info">
-                    📝 방명록 수정 모드
-                </div>
-                <div class="emoticon-placeholder">
-                    <p>🎭</p>
-                    <p>이모티콘 목록이 여기에 표시됩니다.</p>
-                    <p>팀원이 이 부분을 구현할 예정입니다.</p>
-                </div>
-                
-                <script>
-                    // ✅ 수정 폼용 이모티콘 전달 함수
-                    function selectEmoticon(emoticonText) {
-                        if (window.opener && !window.opener.closed) {
-                            // 수정 폼의 textarea에 이모티콘 추가
-                            window.opener.addEmoticonToEditForm('${entryId}', emoticonText);
-                            window.close();
-                        }
-                    }
-                    
-                    // 팝업 닫힐 때 참조 초기화
-                    window.addEventListener('beforeunload', function() {
-                        if (window.opener && !window.opener.closed) {
-                            window.opener.emoticonPopupWindow = null;
-                        }
-                    });
-                </script>
-            </body>
-            </html>
-        `);
-
-        emoticonPopupWindow.document.close();
-        emoticonPopupWindow.focus();
-
-        console.log('수정 form 이모티콘 팝업 창 열기 완료');
-    } else {
-        console.error('팝업 차단됨! - 브라우저 설정을 확인하세요.');
+    if (!emoticonPopupWindow) {
         alert('팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.');
     }
-
 }
 
 // === 수정 폼의 textarea에 이모티콘 추가하는 함수 ===
 function addEmoticonToEditForm(entryId, emoticonText) {
 
-    const textarea = document.getElementById(`editTextarea-${entryId}`);
+     const textarea = document.getElementById(`editTextarea-${entryId}`);
     if (textarea) {
         const currentText = textarea.value;
         const cursorPos = textarea.selectionStart || currentText.length;
@@ -869,17 +669,16 @@ function addEmoticonToEditForm(entryId, emoticonText) {
         const newText = currentText.slice(0, cursorPos) + emoticonText + currentText.slice(cursorPos);
         textarea.value = newText;
 
-        // 커서 위치를 이모티콘 뒤로 이동
         const newCursorPos = cursorPos + emoticonText.length;
         textarea.focus();
-        textarea.setSelectionRange(newCursorPos, newCursorPos); // ???
+        textarea.setSelectionRange(newCursorPos, newCursorPos);
 
         console.log('수정 form에 이모티콘 추가됨:', emoticonText);
     } else {
         console.error('수정 폼 textarea를 찾을 수 없습니다:', entryId);
     }
-
 }
+
 
 // 템플릿 동적 생성 함수
 function createEditTemplate() {
@@ -1163,6 +962,7 @@ window.goToPage = goToPage;
 window.handleSubmitGuestbook = handleSubmitGuestbook;
 window.editGuestbookEntry = editGuestbookEntry;
 window.deleteGuestbookEntry = deleteGuestbookEntry;
+window.addEmoticonToMessage   = addEmoticonToMessage;
 window.addEmoticonToEditForm = addEmoticonToEditForm;
 
 // ============= 페이지 로드 시 초기화 =============
