@@ -112,6 +112,8 @@
             <span id="ttag-result" style="color:#a86c44; font-size:14px; min-width:60px;">&nbsp;</span>
           </div>
 
+          <div id="added-hashtags" style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;"></div>
+
           <!-- 지역-T-TAG 선택 -->
           <small style="display:block;margin:7px 0 4px 2px;color:#b39967;font-size:13px;">
             행사·관광·맛집 관련 <b>지역-타이틀태그(T-TAG)</b> 선택
@@ -254,6 +256,41 @@
     }
   });
 
+  // 인원 태그 선택 시 화면에 출력
+  function addHashtag(tag) {
+    tag = tag.trim();
+    if (!tag) return;
+    if (!tag.startsWith('#')) tag = '#' + tag;
+
+    // 중복 체크
+    const existingTags = Array.from(addedHashtagsDiv.children).map(el => el.textContent);
+    if (existingTags.includes(tag)) {
+      alert('이미 추가된 해시태그입니다.');
+      return;
+    }
+
+    const tagElem = document.createElement('span');
+    tagElem.textContent = tag;
+    tagElem.classList.add('user-hashtag');  // 여기서 클래스 추가
+
+    tagElem.style.backgroundColor = '#a86c44';
+    tagElem.style.color = 'white';
+    tagElem.style.padding = '2px 8px';
+    tagElem.style.borderRadius = '12px';
+    tagElem.style.fontSize = '13px';
+    tagElem.style.cursor = 'default';
+
+    // 삭제 기능
+    tagElem.addEventListener('click', () => {
+      if (confirm(`해시태그 "${tag}"를 삭제하시겠습니까?`)) {
+        addedHashtagsDiv.removeChild(tagElem);
+      }
+    });
+
+    addedHashtagsDiv.appendChild(tagElem);
+    hashtagInput.value = '';
+  }
+
   // 작성 버튼 이벤트
   document.getElementById('write-form').addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -265,7 +302,9 @@
     const visibilityInput = document.querySelector('input[name="visibility"]:checked');
     const visibility = visibilityInput.value;
     const checkedHashtags = Array.from(document.querySelectorAll('input[name="tag"]:checked')).map(el => el.value);
-    const newHashtag = document.getElementById('hashtagInput').value.trim();
+    //const newHashtag = document.getElementById('hashtagInput').value.trim();
+    const hashtags = document.querySelectorAll('.user-hashtag');
+    const newHashtag = Array.from(hashtags).map(el => el.textContent);
 
     if (!title){
       alert("제목을 입력해주세요");
