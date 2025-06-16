@@ -970,6 +970,53 @@ function navigateToPageWithAuth(page) {
     navigateToPage(page);
 }
 
+// === 페이지 네비게이션 시 사용자 정보 확인 (추가) ===
+function navigateToPageWithAuth(page) {
+
+    console.log('🔍 =========================');
+    console.log('🔍 navigateToPageWithAuth 시작:', page);
+    console.log('🔍 현재 사용자 정보:', currentUserInfo);
+    console.log('🔍 사용자 정보 로드 완료:', userInfoLoaded);
+    console.log('🔍 로그인 상태 체크 결과:', isLoggedIn());
+    console.log('🔍 URL 닉네임:', getCurrentNickname());
+    console.log('🔍 로그인 닉네임:', getCurrentUserNickname());
+    console.log('🔍 본인 블로그 여부:', isOwnBlog());
+    console.log('🔍 =========================');
+
+    // 로그인이 필요한 기능인지 확인 (모든 페이지 접근 시 로그인 필요)
+    if (!isLoggedIn()) {
+        console.log('로그인 체크 실패 - 로그인 페이지로 이동');
+        alert('로그인이 필요한 기능입니다!');
+        window.location.href = '/member/login';
+        return;
+    }
+
+    console.log('로그인 체크 통과');
+
+    // ※ 블로그 주인만 접근 가능한 페이지들 (상점, 프로필)
+    const ownerOnlyPages = ['shop', 'profile'];
+
+    if (ownerOnlyPages.includes(page)) {
+        if (!isOwnBlog()) {
+            alert('블로그 주인만 접근할 수 있는 페이지입니다.');
+            console.log(`접근 차단: ${page} 페이지는 블로그 주인(${getCurrentNickname()})만 접근 가능`);
+            return;
+        }
+        console.log(`접근 허용: ${page} 페이지 - 블로그 주인 확인됨`);
+    }
+
+    // 모든 로그인 사용자가 접근 가능한 페이지들 (홈, 게시판, 주크박스, 방명록)
+    const publicPages = ['home', 'post', 'jukebox', 'guestbook'];
+
+    if (publicPages.includes(page)) {
+        console.log(`접근 허용: ${page} 페이지 - 모든 로그인 사용자 접근 가능`);
+    }
+
+    // 기존 navigateToPage 로직 실행
+    console.log('navigateToPage 호출:', page);
+    navigateToPage(page);
+}
+
 // 음악 위젯 이벤트 설정
 // === 음악 재생 함수 ===
 function playTrack(index) {
@@ -1321,6 +1368,7 @@ async function loadPageContent(page, nickname) {
         });
         // ===== 수동 스크립트 파싱 및 실행 끝 =====
 
+
         console.log(`${page} 페이지 콘텐츠 삽입 완료`);
 
         initializePage(basePage, path);
@@ -1336,6 +1384,7 @@ async function loadPageContent(page, nickname) {
         `;
     }
 }
+
 
 
 // 페이지 초기화 함수 (즉시 실행)

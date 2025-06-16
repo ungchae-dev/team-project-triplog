@@ -80,7 +80,10 @@
                 </button>
                 <button type="button" onclick="navigateToPage('post')">글 목록</button>
                 <button type="button" th:if="${nickname == loginNickname}"
-                  th:onclick="'navigateToPage(\'post/' + ${post.postId} + '/edit\')'">✏️ 수정</button>
+
+                  th:onclick="|location.href='@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">✏️
+                  수정</button>
+
                 <button type="button" th:if="${nickname == loginNickname}" id="delete-btn">🗑 삭제</button>
               </div>
 
@@ -364,6 +367,18 @@
       }
       return count;
     }
+
+    /*
+        // 댓글 좋아요
+        function likeComment(button) {
+            // 간단한 좋아요 효과
+            button.style.color = '#ff6b6b';
+            setTimeout(() => {
+                button.style.color = '';
+            }, 1000);
+        }
+    */
+
 
     // 댓글 좋아요 추가
     function addLikeComment(commentId) {

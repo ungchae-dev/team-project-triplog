@@ -12,7 +12,7 @@
     <h2>관리자 메뉴</h2>
     <ul>
       <li class="menu-item active" data-section="posts">게시글/댓글 관리</li>
-      <li class="menu-item" data-section="acorn">도토리 구매 통계</li>
+      <li class="menu-item" data-section="purchase">음악,이모티콘 구매 통계</li>
       <li class="menu-item" data-section="notice">공지사항</li>
     </ul>
   </aside>
@@ -47,11 +47,19 @@
 
 
 
-    <!-- 도토리 구매 통계 -->
-    <section class="admin-content" id="section-acorn" style="display: none;">
-      <h2>월별 도토리 구매 통계</h2>
-      <div style="max-width: 600px; margin: 30px auto;">
-        <canvas id="acornChart"></canvas>
+    <!-- 월별 아이템 구매 통계 -->
+    <section class="admin-content" id="section-purchase" style="display: none;">
+      <h2>월별 & 분기별 도토리 구매 통계</h2>
+
+      <!-- 월별 구매량 차트 -->
+      <div style="max-width: 700px; margin: 30px auto;">
+        <canvas id="monthlyChart"></canvas>
+      </div>
+
+      <!-- 분기별 구매량 차트 -->
+      <div style="max-width: 700px; margin: 30px auto;">
+        <canvas id="quarterlyChart"></canvas>
+
       </div>
     </section>
 

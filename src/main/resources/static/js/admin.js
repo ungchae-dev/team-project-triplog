@@ -3,7 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
     initMenuNavigation();
     initPostCommentSection();
     initNoticeEvents();
-    drawAcornChartIfPresent();
+
+
+
 
     // 기본으로 '게시글/댓글 관리' 섹션 보이기 & 데이터 로드
     showSection("posts");
@@ -26,6 +28,11 @@ function initMenuNavigation() {
                 loadPostCommentList();
             } else if (section === "notice") {
                 loadNoticeList();
+
+            } else if (section === "purchase"){
+                console.log("메뉴 클릭됨:", section);
+                drawPurchaseCharts();
+
             }
         });
     });
@@ -80,10 +87,12 @@ function loadPostCommentList() {
         });
 }
 
+
 /** 게시글/댓글 tbody 클릭 이벤트 (삭제, 내용 토글) */
 function initPostCommentSection() {
     const tbody = document.querySelector("#noticeTable tbody");
     if (!tbody) return;
+
 
     tbody.addEventListener("click", e => {
         const target = e.target;
@@ -137,6 +146,7 @@ function handleToggleContentClick(target) {
     const isVisible = nextRow.style.display !== "none";
     nextRow.style.display = isVisible ? "none" : "";
 
+
     if (!isVisible) {
         const id = tr.dataset.id;
         const type = tr.dataset.type.toLowerCase(); // post or comment 형태로 맞춤 필요
@@ -154,6 +164,7 @@ function handleToggleContentClick(target) {
             });
     }
 }
+
 
 /** 공지사항 관련 초기화 */
 function initNoticeEvents() {
@@ -230,6 +241,7 @@ function loadNoticeList() {
         })
         .catch(err => {
             tbody.innerHTML = `<tr><td colspan="6" style="color:red;">공지사항 목록 불러오기 실패: ${err.message}</td></tr>`;
+
         });
 }
 
@@ -253,9 +265,11 @@ function attachDeleteEvents() {
                         alert("에러 발생: " + err.message);
                     });
             }
+
         });
     });
 }
+
 
 
 
@@ -292,28 +306,108 @@ function submitNotice(form) {
         .catch(err => alert("공지사항 저장 실패: " + err.message));
 }
 
-/** 도토리 구매 통계 차트 그리기 */
-function drawAcornChartIfPresent() {
-    const canvas = document.getElementById("acornChart");
-    if (!canvas) return;
+/** 구매량 그래프 처리 */
+function drawPurchaseCharts() {
+    const ctx1 = document.getElementById("monthlyChart").getContext("2d");
+    const ctx2 = document.getElementById("quarterlyChart").getContext("2d");
 
-    // 예시 데이터 및 차트 그리기 - 실제 데이터 API 호출 등 구현 필요
-    const ctx = canvas.getContext("2d");
-    const chart = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: ["1월", "2월", "3월", "4월", "5월", "6월"],
-            datasets: [{
-                label: "도토리 구매량",
-                data: [12, 19, 3, 5, 2, 3],
-                backgroundColor: "rgba(75, 192, 192, 0.6)"
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
-    });
+    /** 1. 월별 통계: 6개월 * 2개 타입 = 12개 막대 */
+    fetch("/admin/api/stat/purchase/monthly")
+        .then(res => res.json())
+        .then(data => {
+            const months = [...new Set(data.map(d => d.month))].sort().reverse();
+            const musicData = months.map(month => {
+                const entry = data.find(d => d.month === month && d.type === 'MUSIC');
+                return entry ? entry.count : 0;
+            });
+            const emoticonData = months.map(month => {
+                const entry = data.find(d => d.month === month && d.type === 'EMOTICON');
+                return entry ? entry.count : 0;
+            });
+
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: months.map(m => `${m.slice(0, 4)}-${m.slice(4)}`),
+                    datasets: [
+                        {
+                            label: '음악 구매량',
+                            data: musicData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.8)'
+                        },
+                        {
+                            label: '이모티콘 구매량',
+                            data: emoticonData,
+                            backgroundColor: 'rgba(255, 159, 64, 0.8)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '최근 6개월간 이모티콘 & 음악 구매량'
+                        }
+                    },
+                    scales: {
+                        x: { stacked: false },
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        });
+
+    /** 2. 분기별 통계: 3분기 * 2개 타입 = 6개 막대 */
+    fetch("/admin/api/stat/purchase/quarterly")
+        .then(res => res.json())
+        .then(data => {
+            const quarters = [...new Set(data.map(d => d.label))].sort().reverse(); // label → "2025-Q1" 등
+            const musicData = quarters.map(q => {
+                const entry = data.find(d => d.label === q && d.type === 'MUSIC');
+                return entry ? entry.count : 0;
+            });
+            const emoticonData = quarters.map(q => {
+                const entry = data.find(d => d.label === q && d.type === 'EMOTICON');
+                return entry ? entry.count : 0;
+            });
+
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: quarters,
+                    datasets: [
+                        {
+                            label: "음악 구매량",
+                            data: musicData,
+                            backgroundColor: "rgba(54, 162, 235, 0.8)"
+                        },
+                        {
+                            label: "이모티콘 구매량",
+                            data: emoticonData,
+                            backgroundColor: "rgba(255, 206, 86, 0.8)"
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "최근 3개 분기별 이모티콘 & 음악 구매량"
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: false
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
 }
+
+

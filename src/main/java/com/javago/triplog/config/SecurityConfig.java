@@ -1,7 +1,13 @@
 package com.javago.triplog.config;
 
+import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.service.CustomUserDetailsService;
 import com.javago.triplog.domain.member.service.MemberService;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +31,9 @@ public class SecurityConfig {
     // SecurityFilterChain: Spring Security 보안 설정의 핵심 구성 요소
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        System.out.println("=== SecurityConfig 초기화 ===");
+
         http
             // CSRF 보호 비활성화 (개발/테스트 단계에서 편의를 위해)
             .csrf(csrf -> csrf.disable())
@@ -56,7 +65,10 @@ public class SecurityConfig {
                     "/components/**", // 정적 리소스(/static) 하위 레이아웃 템플릿 파일(4)
                     
                     // 블로그 홈만 공개 접근 허용 (다른 사람 블로그 구경 가능)
-                    "/blog/@*/" // 블로그 홈 (ex: /blog/@홍길동/)
+
+                    "/blog/@*/", // 블로그 홈 (ex: /blog/@홍길동/)
+                    "/blog/home" // 블로그 홈 요청 (로그인 체크 후 리다이렉트)
+
                     // ※ 현재 사용자 정보 확인 API (로그인 상태 확인용)
                 ).permitAll()
                 
@@ -95,7 +107,49 @@ public class SecurityConfig {
                 .loginProcessingUrl("/member/login-process") // 로그인 폼 제출 URL
                 .usernameParameter("memberId") // 아이디 필드명
                 .passwordParameter("password") // 비밀번호 필드명
-                .defaultSuccessUrl("/", true) // 로그인 성공 시 이동 (메인페이지)
+                .successHandler((request, response, authentication) -> {
+                    // 커스텀 성공 핸들러 -> 람다로 직접 구현
+                    System.out.println("=== 로그인 성공 핸들러 호출됨 (람다 방식) ===");
+                    System.out.println("요청 URL: " + request.getRequestURL());
+                    System.out.println("로그인 사용자: " + authentication.getName());
+                    
+                    // 모든 파라미터 출력
+                    System.out.println("=== 모든 요청 파라미터 ===");
+                    Enumeration<String> paramNames = request.getParameterNames();
+                    while (paramNames.hasMoreElements()) {
+                        String paramName = paramNames.nextElement();
+                        String paramValue = request.getParameter(paramName);
+                        System.out.println(paramName + " = " + paramValue);
+                    }
+                    
+                    String fromNewWindow = request.getParameter("fromNewWindow");
+                    System.out.println("fromNewWindow 파라미터: " + fromNewWindow);
+                    
+                    if ("true".equals(fromNewWindow)) {
+                        try {
+                            System.out.println("새 창 로그인 감지 - 블로그 리다이렉트 시작");
+                            
+                            String memberId = authentication.getName();
+                            Member member = memberService.findByMemberId(memberId);
+                            String encodedNickname = URLEncoder.encode(member.getNickname(), StandardCharsets.UTF_8);
+                            
+                            String redirectUrl = "/blog/@" + encodedNickname;
+                            System.out.println("블로그로 리다이렉트: " + redirectUrl);
+                            System.out.println("사용자 닉네임: " + member.getNickname());
+                            
+                            response.sendRedirect(redirectUrl);
+                            return;
+                            
+                        } catch (Exception e) {
+                            System.err.println("블로그 리다이렉트 실패: " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
+                    
+                    // 일반 로그인
+                    System.out.println("일반 로그인 - 메인페이지로 리다이렉트");
+                    response.sendRedirect("/");
+                })
                 .failureUrl("/member/login/error?type=signin") // 로그인 실패 시 이동
                 .permitAll()
             )
@@ -116,11 +170,11 @@ public class SecurityConfig {
                 .maxSessionsPreventsLogin(false) // 새 로그인 시 기존 세션 만료
                 .expiredUrl("/member/login?type=signin&expired=true") // 세션 만료 시 이동할 페이지
             )
-
             // HTTP Basic 인증 비활성화
             .httpBasic(httpBasic -> httpBasic.disable())
             .userDetailsService(customUserDetailsService); // CustomUserDetailsService 사용
 
+        System.out.println("=== SecurityConfig 설정 완료 ===");
         return http.build();
     }
 

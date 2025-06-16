@@ -1,11 +1,4 @@
-/*!
-* Start Bootstrap - New Age v6.0.7 (https://startbootstrap.com/theme/new-age)
-* Copyright 2013-2023 Start Bootstrap
-* Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-new-age/blob/master/LICENSE)
-*/
-//
-// Scripts
-//
+// main.js - 메인페이지 기능
 
 window.addEventListener('DOMContentLoaded', event => {
 
@@ -30,8 +23,6 @@ window.addEventListener('DOMContentLoaded', event => {
             }
         });
     });
-
-
 
 });
 
@@ -70,9 +61,11 @@ function openMyBlog() {
         status=no
     `;
 
-    try {
-        // 바로 새 창에서 블로그 열기 (세션 확인 생략)
-        const blogWindow = window.open('/blog/home', 'myBlog', options);
+
+
+        // 바로 새 창에서 블로그 열기 (새 창임을 알리는 파라미터 추가)
+        const blogWindow = window.open('/blog/home?fromNewWindow=true', 'myBlog', options);
+
         
         if (blogWindow) {
             console.log('새 창 열기 완료');

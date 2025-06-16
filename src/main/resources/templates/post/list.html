@@ -36,10 +36,12 @@
                     <div id="board-list">
                         <div class="board-header">
                             <div class="board-left-controls">
+
                                 <a th:href="@{/blog/@{nickname}/post/write(nickname=${nickname})}"><button class="write-btn" th:if="${nickname == loginNickname}"
                                     
                                     type="button">글 작성</button>
                                 </a>
+
                             </div>
                             <div class="board-right-controls">
                                 <a
@@ -96,7 +98,9 @@
                             </ul>
                         </div>
                         <div class="pagination" th:if="${postList.totalPages > 0}">
+
                             <a th:if="${!postList.first}"
+
                                 th:href="@{/blog/@{nickname}/post(page=${((((currentPage - 1) / 10) - 1) * 10 + 10) < 1 ? 1 : (((currentPage - 1) / 10) - 1) * 10 + 10}, size=${currentSize}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}"><button>이전</button></a>
 
                             <span
@@ -108,7 +112,9 @@
                                 </a>
                             </span>
 
+
                             <a th:if="${!postList.last}"
+
                                 th:href="@{/blog/@{nickname}/post(page=${((((currentPage - 1) / 10) + 1) * 10 + 1) > postList.totalPages ? postList.totalPages : (((currentPage - 1) / 10) + 1) * 10 + 1}, size=${currentSize}, sort=${currentSort}, dir=${currentDir}, nickname=${nickname})}"><button>다음</button></a>
                         </div>
                     </div>
@@ -204,6 +210,7 @@
         });
     </script>
 
+
     <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-방명록) 홈에서 로드 -->
     <script src="/js/layout.js"></script>
     <script src="/js/home.js"></script>
@@ -212,6 +219,7 @@
     <script src="/js/jukebox.js"></script>
     <script src="/js/guestbook.js"></script>
     <script src="/js/post.js"></script>
+
 
 </body>
 

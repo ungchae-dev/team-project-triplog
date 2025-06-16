@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8">
-  <title>커뮤니티 글 작성</title>
-  <!-- 블로그 페이지 css 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
+  <title>게시글 작성</title>
+
+  <!-- 블로그 페이지 css 전체(6, 홈-상점-프로필-게시판-주크박스-방명록) 홈에서 로드 -->
   <link rel="stylesheet" href="/css/home.css" />
   <link rel="stylesheet" href="/css/shop.css" />
   <link rel="stylesheet" href="/css/profile.css" />
   <link rel="stylesheet" href="/css/post.css" />
   <link rel="stylesheet" href="/css/jukebox.css" />
-  <link rel="stylesheet" href="/css/mylog.css" />
   <link rel="stylesheet" href="/css/guestbook.css" />
+  
   <style>
     /*
     #title {
@@ -70,159 +72,212 @@
     }
   </style>
 </head>
+
 <body>
-<div class="frame">
+  <div class="frame">
 
-  <!-- 여백 안쪽의 실제 블로그 컨텐츠 컨테이너 -->
-  <div class="blog-container">
+    <!-- 여백 안쪽의 실제 블로그 컨텐츠 컨테이너 -->
+    <div class="blog-container">
 
-    <!-- 왼쪽 프로필 사이드 (컴포넌트로 로드) -->
-    <div id="left-container"></div>
+      <!-- 왼쪽 프로필 사이드 (컴포넌트로 로드) -->
+      <div id="left-container"></div>
 
-    <!-- 중앙 메인 영역 -->
-    <div class="main-area">
+      <!-- 중앙 메인 영역 -->
+      <div class="main-area">
 
-      <!-- 상단 헤더 (컴포넌트로 로드) -->
-      <div id="top-container"></div>
+        <!-- 상단 헤더 (컴포넌트로 로드) -->
+        <div id="top-container"></div>
 
-      <!-- 게시판 컨텐츠 -->
-      <div class="main-content">
-        <div id="board-write">
-        <h2>글 작성</h2>
-        <form id="write-form" th:attr="data-id=${post.postId}">
-          <div id="blogInfo" th:attr="data-blog-id=${blogId}, data-nickname=${nickname}" hidden></div>
-          <label>제목</label><br>
-          <div id="title" name="title" contenteditable="true" th:utext="${post.title}"></div><br>
+        <!-- 게시판 컨텐츠 -->
+        <div class="main-content">
+          <div id="board-write">
+            <h2>글 작성</h2>
+            <form id="write-form" th:attr="data-id=${post.postId}">
+              <div id="blogInfo" th:attr="data-blog-id=${blogId}, data-nickname=${nickname}" hidden></div>
+              <label>제목</label><br>
+              <div id="title" name="title" contenteditable="true" th:utext="${post.title}"></div><br>
 
-          <label>내용</label><br>
-          <div id="editor" name="content" contenteditable="true" th:utext="${post.content}"></div><br>
-          <button id="deleteBtn" class="delete-btn" type="button">×</button>
+              <label>내용</label><br>
+              <div id="editor" name="content" contenteditable="true" th:utext="${post.content}"></div><br>
+              <button id="deleteBtn" class="delete-btn" type="button">×</button>
 
-          <input type="file" id="imageInput" accept="image/*"><br><br>
+              <input type="file" id="imageInput" accept="image/*"><br><br>
 
-          <div class="tags" style="margin-bottom:10px;">
-            <span th:each="hashtag : ${hashtagList}" id="hashtagList">
-              <input type="checkbox" name="tag" th:value="${hashtag.tagId}"/>
-              <span th:text="${hashtag.tagName}"></span>
-            </span>
+              <div class="tags" style="margin-bottom:10px;">
+                <span th:each="hashtag : ${hashtagList}" id="hashtagList">
+                  <input type="checkbox" name="tag" th:value="${hashtag.tagId}" />
+                  <span th:text="${hashtag.tagName}"></span>
+                </span>
+              </div>
+              <!-- 해시태그 입력 -->
+              <div class="hashtags" style="margin-bottom:5px; display:flex; align-items:center; gap:10px;">
+                <input type="text" id="hashtagInput" name="hashtags" placeholder="'#' + '해시태그'를 입력해주세요."
+                  style="flex-grow:1;" />
+                <span id="ttag-result" style="color:#a86c44; font-size:14px; min-width:60px;">&nbsp;</span>
+              </div>
+
+              <!-- 지역-T-TAG 선택 -->
+              <small style="display:block;margin:7px 0 4px 2px;color:#b39967;font-size:13px;">
+                행사·관광·맛집 관련 <b>지역-타이틀태그(T-TAG)</b> 선택
+              </small>
+              <div class="ttag-select-row" style="display:flex;gap:14px;align-items:center;margin-bottom:10px;">
+                <select id="region-select">
+                  <option value="">지역 선택</option>
+                  <option value="seoul">서울</option>
+                  <option value="busan">부산</option>
+                  <option value="jeju">제주</option>
+                </select>
+
+                <select id="ttag-select" disabled>
+                  <option value="">T-TAG 선택</option>
+                </select>
+
+                <!-- 선택된 T-TAG 해시태그 표시 영역 -->
+                <div id="ttag-tags" style="margin-left:12px; display:flex; gap:8px; flex-wrap: wrap;"></div>
+              </div>
+              <input type="text" id="location-input" name="location" placeholder="장소 입력 (예: 제주 한림)" />
+
+              <div class="options" style="margin-bottom:13px;">
+                <label>공개 설정:
+                  <input type="radio" name="visibility" value="PUBLIC"
+                    th:attr="checked=${post.visibility == null or post.visibility.name == 'PUBLIC'}">전체 공개
+                  <input type="radio" name="visibility" value="PRIVATE"
+                    th:attr="checked=${post.visibility != null and post.visibility.name == 'PRIVATE'}">비공개
+                </label>
+              </div>
+
+              <button type="submit" class="submit-btn">작성</button>
+              <button type="button" class="back-btn" onclick="navigateToPage('post')">글 목록</button>
+            </form>
           </div>
-          <!-- 해시태그 입력 -->
-          <div class="hashtags" style="margin-bottom:5px; display:flex; align-items:center; gap:10px;">
-            <input type="text" id="hashtagInput" name="hashtags" placeholder="'#' + '해시태그'를 입력해주세요." style="flex-grow:1;" />
-            <span id="ttag-result" style="color:#a86c44; font-size:14px; min-width:60px;">&nbsp;</span>
-          </div>
-
-          <div id="added-hashtags" style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;"></div>
-
-          <!-- 지역-T-TAG 선택 -->
-          <small style="display:block;margin:7px 0 4px 2px;color:#b39967;font-size:13px;">
-            행사·관광·맛집 관련 <b>지역-타이틀태그(T-TAG)</b> 선택
-          </small>
-          <div class="ttag-select-row" style="display:flex;gap:14px;align-items:center;margin-bottom:10px;">
-            <select id="region-select">
-              <option value="">지역 선택</option>
-              <option value="seoul">서울</option>
-              <option value="busan">부산</option>
-              <option value="jeju">제주</option>
-            </select>
-
-            <select id="ttag-select" disabled>
-              <option value="">T-TAG 선택</option>
-            </select>
-
-            <!-- 선택된 T-TAG 해시태그 표시 영역 -->
-            <div id="ttag-tags" style="margin-left:12px; display:flex; gap:8px; flex-wrap: wrap;"></div>
-          </div>
-          <input type="text" id="location-input" name="location" placeholder="장소 입력 (예: 제주 한림)" />
-
-          <div class="options" style="margin-bottom:13px;">
-            <label>공개 설정:
-              <input type="radio" name="visibility" value="PUBLIC"
-                  th:attr="checked=${post.visibility == null or post.visibility.name == 'PUBLIC'}">전체 공개
-              <input type="radio" name="visibility" value="PRIVATE"
-                  th:attr="checked=${post.visibility != null and post.visibility.name == 'PRIVATE'}">비공개
-            </label>
-          </div>
-
-          <button type="submit" class="submit-btn">작성</button>
-          <button type="button" class="back-btn" onclick="navigateToPage('post')">글 목록</button>
-        </form>
         </div>
       </div>
+      <!-- 오른쪽 네비게이션 (컴포넌트로 로드) -->
+      <div id="right-container"></div>
     </div>
-    <!-- 오른쪽 네비게이션 (컴포넌트로 로드) -->
-    <div id="right-container"></div>
   </div>
-</div>
 
-<script>
-  const editor = document.getElementById('editor');
-  const imageInput = document.getElementById('imageInput');
-  const deleteBtn = document.getElementById('deleteBtn');
-  let currentImage = null;
+  <script>
+    const editor = document.getElementById('editor');
+    const imageInput = document.getElementById('imageInput');
+    const deleteBtn = document.getElementById('deleteBtn');
+    let currentImage = null;
 
-  imageInput.addEventListener('change', async () => {
-    const file = imageInput.files[0];
-    if (!file) return;
+    imageInput.addEventListener('change', async () => {
+      const file = imageInput.files[0];
+      if (!file) return;
 
-    // 이미지 사이즈 제한 (예: 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      alert('이미지 크기는 최대 2MB까지 가능합니다.');
-      imageInput.value = '';
-      return;
-    }
-
-    // 서버로 업로드
-    const formData = new FormData();
-    formData.append('image', file);
-
-    try {
-      const res = await fetch('/api/upload-image', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!res.ok) {
-        throw new Error('이미지 업로드 실패');
+      // 이미지 사이즈 제한 (예: 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        alert('이미지 크기는 최대 2MB까지 가능합니다.');
+        imageInput.value = '';
+        return;
       }
 
-      const result = await res.json(); // 예: { imageUrl: "/uploads/image123.jpg" }
+      // 서버로 업로드
+      const formData = new FormData();
+      formData.append('image', file);
 
-      const img = document.createElement('img');
-      img.src = result.imageUrl;
-      img.style.maxWidth = '600px';
-      img.style.height = 'auto';
+      try {
+        const res = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: formData
+        });
 
-      const br = document.createElement('br');
-      insertAtCursor(br);
-      insertAtCursor(img);
-      insertAtCursor(document.createElement('br'));
+        if (!res.ok) {
+          throw new Error('이미지 업로드 실패');
+        }
 
-      imageInput.value = '';
-    } catch (error) {
-      console.error(error);
-      alert('이미지 업로드 중 오류가 발생했습니다.');
+        const result = await res.json(); // 예: { imageUrl: "/uploads/image123.jpg" }
+
+
+        const img = document.createElement('img');
+        img.src = result.imageUrl;
+        img.style.maxWidth = '600px';
+        img.style.height = 'auto';
+
+
+        const br = document.createElement('br');
+        insertAtCursor(br);
+        insertAtCursor(img);
+        insertAtCursor(document.createElement('br'));
+
+        imageInput.value = '';
+      } catch (error) {
+        console.error(error);
+        alert('이미지 업로드 중 오류가 발생했습니다.');
+      }
+    });
+
+    // 커서 위치에 이미지 생성
+    function insertAtCursor(node) {
+      const editor = document.getElementById('editor');
+      const selection = window.getSelection();
+
+      if (!selection.rangeCount) {
+        editor.appendChild(node);
+        return;
+      }
+
+      const range = selection.getRangeAt(0);
+      const container = range.commonAncestorContainer;
+
+      // 커서가 editor 내부가 아니면 맨 끝에 삽입
+      if (!editor.contains(container)) {
+        editor.appendChild(node);
+        return;
+      }
+
+      range.deleteContents();
+      range.insertNode(node);
+      range.setStartAfter(node);
+      range.setEndAfter(node);
+      selection.removeAllRanges();
+      selection.addRange(range);
     }
-  });
 
-  // 커서 위치에 이미지 생성
-  function insertAtCursor(node) {
-    const editor = document.getElementById('editor');
-    const selection = window.getSelection();
 
-    if (!selection.rangeCount) {
-      editor.appendChild(node);
-      return;
-    }
+    // 이미지 삭제 버튼(x) 위치 고정
+    editor.addEventListener('click', function (e) {
+      if (e.target.tagName === 'IMG') {
+        currentImage = e.target;
+        const rect = e.target.getBoundingClientRect();
+        deleteBtn.style.top = `${rect.top + window.scrollY}px`;
+        deleteBtn.style.left = `${rect.left + rect.width - 10 + window.scrollX}px`;
+        deleteBtn.style.display = 'block';
+      } else {
+        deleteBtn.style.display = 'none';
+        currentImage = null;
+      }
+    });
 
-    const range = selection.getRangeAt(0);
-    const container = range.commonAncestorContainer;
+    // 이미지 삭제 버튼 이벤트
+    deleteBtn.addEventListener('click', function () {
+      if (currentImage) {
+        currentImage.remove();
+        deleteBtn.style.display = 'none';
+        currentImage = null;
+      }
+    });
 
-    // 커서가 editor 내부가 아니면 맨 끝에 삽입
-    if (!editor.contains(container)) {
-      editor.appendChild(node);
-      return;
-    }
+    // 작성 버튼 이벤트
+    document.getElementById('write-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const blogId = document.getElementById('blogInfo').dataset.blogId;
+      const nickname = document.getElementById('blogInfo').dataset.nickname;
+      const title = document.getElementById('title').innerText.trim();
+      const content = editor.innerHTML;
+      const text = editor.innerText.trim();
+      const visibilityInput = document.querySelector('input[name="visibility"]:checked');
+      const visibility = visibilityInput.value;
+      const checkedHashtags = Array.from(document.querySelectorAll('input[name="tag"]:checked')).map(el => el.value);
+      const newHashtag = document.getElementById('hashtagInput').value.trim();
+
+      if (!title) {
+        alert("제목을 입력해주세요");
+        return;
+      }
+
 
     range.deleteContents();
     range.insertNode(node);
@@ -311,39 +366,56 @@
       return;
     }
 
-    if (!text){
-      alert("내용을 입력해주세요");
-      return;
-    }
+      if (!text) {
+        alert("내용을 입력해주세요");
+        return;
+      }
+
+
+      if (checkedHashtags.length === 0) {
+        alert("해시태그를 하나 이상 선택해주세요");
+        return;
+      }
+
 
     if (checkedHashtags.length === 0) {
       alert("인원수 태그를 하나 이상 선택해주세요");
       return;
     }
 
-    if(visibilityInput == null){
-      alert("공개 여부를 설정해주세요");
-      return;
-    }
+      if (visibilityInput == null) {
+        alert("공개 여부를 설정해주세요");
+        return;
+      }
 
-    const data = {
-      title,
-      content,
-      visibility,
-      tagIdList: checkedHashtags,
-      newHashtag,
-      blogId: blogId
-    };
 
-    const postForm = document.getElementById("write-form");
-    const postId = postForm.dataset.id;
-    const isModify = !!postId;
+      const data = {
+        title,
+        content,
+        visibility,
+        tagIdList: checkedHashtags,
+        newHashtag,
+        blogId: blogId
+      };
 
-    const res = await fetch(isModify ? `/api/write/${postId}` : `/api/write`, {
-      method: isModify ? 'PUT' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
+      const postForm = document.getElementById("write-form");
+      const postId = postForm.dataset.id;
+      const isModify = !!postId;
+
+      const res = await fetch(isModify ? `/api/write/${postId}` : `/api/write`, {
+        method: isModify ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (res.ok) {
+        alert(isModify ? '글 수정 완료' : '글 작성 완료');
+        if (isModify) {
+          location.replace(`/blog/@${nickname}/post/${postId}`);
+        } else {
+          navigateToPage('post');
+        }
+
 
     if (res.ok) {
       alert(isModify ? '글 수정 완료' : '글 작성 완료');
@@ -367,5 +439,7 @@
 <script src="/js/post.js"></script>
 <script src="/js/jukebox.js"></script>
 <script src="/js/guestbook.js"></script>
+
 </body>
+
 </html>
