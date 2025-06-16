@@ -631,7 +631,7 @@ async function submitComment() {
         alert('댓글 등록 중 오류가 발생했습니다.');
     }
 }
-
+/*
 // 글 작성
 document.addEventListener('DOMContentLoaded', () => {
     const editor = document.getElementById('editor');
@@ -795,7 +795,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 });
-
+*/
 function showBoardList() {
 
     document.getElementById("board-list").style.display = "block";
