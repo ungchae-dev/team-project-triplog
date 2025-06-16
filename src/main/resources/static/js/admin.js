@@ -304,7 +304,7 @@ function drawPurchaseCharts() {
     fetch("/admin/api/stat/purchase/monthly")
         .then(res => res.json())
         .then(data => {
-            const months = [...new Set(data.map(d => d.month))].sort().reverse();
+            const months = [...new Set(data.map(d => d.month))].sort();
             const musicData = months.map(month => {
                 const entry = data.find(d => d.month === month && d.type === 'MUSIC');
                 return entry ? entry.count : 0;
@@ -351,7 +351,7 @@ function drawPurchaseCharts() {
     fetch("/admin/api/stat/purchase/quarterly")
         .then(res => res.json())
         .then(data => {
-            const quarters = [...new Set(data.map(d => d.label))].sort().reverse(); // label → "2025-Q1" 등
+            const quarters = [...new Set(data.map(d => d.label))].sort(); // label → "2025-Q1" 등
             const musicData = quarters.map(q => {
                 const entry = data.find(d => d.label === q && d.type === 'MUSIC');
                 return entry ? entry.count : 0;
