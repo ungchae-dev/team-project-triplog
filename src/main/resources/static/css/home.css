@@ -26,7 +26,12 @@
     flex: 1;
     min-width: 0; /* 텍스트 오버플로우 방지 */
     word-wrap: break-word;
+    max-width: 50ch;   /* 최대 50 글자 너비 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
+
 
 /* 프로필 이미지 로딩 실패 시 기본 스타일 */
 .home-profile-image:not([src]),

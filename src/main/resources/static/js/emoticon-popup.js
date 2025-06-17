@@ -25,7 +25,7 @@
         img.alt = 'emoticon';
         img.className = 'popup-emoji';
         img.onclick = () => {
-          const html = `<img src="${imgUrl}" style="height:34px;" />`;
+          const html = `<img src="${imgUrl}" style="height:24px;" />`;
           selectEmoticon(html);
         };
         container.appendChild(img);

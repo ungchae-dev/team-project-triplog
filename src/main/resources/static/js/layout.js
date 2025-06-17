@@ -90,6 +90,33 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     setupNavigation(); // 2. 네비게이션 즉시 설정
     console.log('네비게이션 설정 완료');
+    // === 주크박스 데이터 미리 로드 (마우스 오버 시) ===
+    (function() {
+      const jukeboxNavBtn = document.querySelector('.nav-btn[data-page="jukebox"]');
+      let jukeboxPrefetched = false;
+
+      if (jukeboxNavBtn) {
+        jukeboxNavBtn.addEventListener('mouseenter', () => {
+          if (jukeboxPrefetched) return;
+          jukeboxPrefetched = true;
+
+          const nickname = window.currentBlogNickname ||
+                           (window.getCurrentNickname && window.getCurrentNickname()) ||
+                           '';
+          if (!nickname) return;
+
+          fetch(`/api/music/owned/${encodeURIComponent(nickname)}`)
+            .then(res => res.ok ? res.json() : Promise.reject(res.status))
+            .then(data => {
+              window._jukeboxPrefetch = data;
+              console.log('🎧 주크박스 데이터 미리 로드 완료:', data);
+            })
+            .catch(err => {
+              console.warn('🎧 주크박스 미리 로드 실패:', err);
+            });
+        });
+      }
+    })();
 
     setPageTitleByUrl(); // 3. 페이지별 제목 자동 설정
     setupMusicWidget(); // 4. 음악 위젯 이벤트
@@ -1188,72 +1215,7 @@ function setPageTitleByUrl() {
     // 즉시 설정
     setPageTitle(pageTitle);
 }
-/*
-// 페이지 컨텐츠 동적 로드
-async function loadPageContent(page, nickname) {
-    const mainContent = document.querySelector('.main-content');
-    if (!mainContent) return;
 
-    try {
-        mainContent.innerHTML = '<div style="text-align: center; padding: 50px; color: #666;">로딩 중...</div>';
-
-        const encodedNickname = encodeURIComponent(nickname);
-        const [path, queryString] = page.split('?');
-
-        // ex) 'post/123/edit' → ['post', '123', 'edit']
-        const pathParts = path.split('/');
-        const basePage = pathParts[0]; // 첫 segment만 추출
-
-        const baseUrlMap = {
-            home: `/blog/@${encodedNickname}`,
-            shop: `/blog/@${encodedNickname}/shop`,
-            profile: `/blog/@${encodedNickname}/profile`,
-            post: `/blog/@${encodedNickname}/post`,
-            jukebox: `/blog/@${encodedNickname}/jukebox`,
-            guestbook: `/blog/@${encodedNickname}/guestbook`,
-            write: `/blog/@${encodedNickname}/post/write`
-        };
-
-        const baseUrl = baseUrlMap[basePage];
-        if (!baseUrl) throw new Error(`알 수 없는 페이지 유형: ${basePage}`);
-
-        const suffix = pathParts.slice(1).join('/'); // '123/edit' 또는 ''
-        const fullUrl = `${baseUrl}${suffix ? '/' + suffix : ''}${queryString ? `?${queryString}` : ''}`;
-
-        console.log(`페이지 로드 시도: ${fullUrl}`);
-
-        const response = await fetch(fullUrl);
-        if (!response.ok) {
-            if (response.status === 404) {
-                throw new Error(`"${page}" 페이지를 찾을 수 없습니다.`);
-            }
-            throw new Error(`페이지 로드 실패: ${response.status}`);
-        }
-
-        const html = await response.text();
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = html;
-        const pageContent = tempDiv.querySelector('.main-content')?.innerHTML;
-
-        if (!pageContent) throw new Error('main-content를 찾을 수 없습니다.');
-
-        mainContent.innerHTML = pageContent;
-        console.log(`${page} 페이지 콘텐츠 삽입 완료`);
-
-        initializePage(basePage, path); // 경로 전체 전달
-        console.log(`${basePage} 페이지 로드 성공`);
-    } catch (error) {
-        console.error('페이지 로드 오류:', error);
-        mainContent.innerHTML = `
-            <div style="text-align: center; padding: 50px;">
-                <h3>※ 페이지 준비 중 또는 오류 발생</h3>
-                <p>${error.message}</p>
-                <button onclick="navigateToPage('home')" style="padding: 10px 20px; margin-top: 20px; cursor: pointer;">홈으로 돌아가기</button>
-            </div>
-        `;
-    }
-}
-*/
 // 페이지 컨텐츠 동적 로드 (수정됨)
 async function loadPageContent(page, nickname) {
     const mainContent = document.querySelector('.main-content');

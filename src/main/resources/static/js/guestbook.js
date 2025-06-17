@@ -582,7 +582,12 @@ function showEditForm(entry) {
     // 데이터 설정
     const editContainer = editFormClone.querySelector('.edit-form-container');
     editContainer.setAttribute('data-edit-id', entry.guestbookId);
+    
+    // 1) contenteditable 에디터에 기존 내용 채우기
+    const editorDiv = editFormClone.querySelector('.edit-editor');
+    editorDiv.innerHTML = entry.content;
 
+    // 2) 숨은 textarea에도 기존 내용 채우기
     const textarea = editFormClone.querySelector('.edit-textarea');
     textarea.value = entry.content;
     textarea.id = `editTextarea-${entry.guestbookId}`; // ID 설정 (이모티콘용)
