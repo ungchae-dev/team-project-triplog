@@ -1227,7 +1227,8 @@ async function loadPageContent(page, nickname) {
         const encodedNickname = encodeURIComponent(nickname);
         const [path, queryString] = page.split('?');
 
-        const pathParts = path.split('/');
+        const cleanPath = path.split('?')[0]; // 쿼리스트링 제거
+        const pathParts = cleanPath.split('/');
         const basePage = pathParts[0];
 
         const baseUrlMap = {
@@ -1278,11 +1279,7 @@ async function loadPageContent(page, nickname) {
 
         scripts.forEach(oldScript => {
             const newScript = document.createElement('script');
-
-            // if (oldScript.src) {
-            //     newScript.src = oldScript.src;
-            //     newScript.async = false;
-
+/*
             if (oldScript.src) {
                 // ✅ 중복 스크립트 검사
                 const existingScript = document.querySelector(`script[src="${oldScript.src}"]`);
@@ -1317,7 +1314,44 @@ async function loadPageContent(page, nickname) {
                 }
             }
 
-            document.body.appendChild(newScript);
+            document.body.appendChild(newScript);*/
+
+            if (oldScript.src) {
+                document.querySelectorAll(`script[src="${oldScript.src}"]`).forEach(script => script.remove());
+
+                newScript.src = oldScript.src;
+                newScript.async = false;
+
+                const promise = new Promise((resolve, reject) => {
+                    newScript.onload = resolve;
+                    newScript.onerror = reject;
+                });
+
+                promises.push(promise);
+            } else {
+                const scriptContent = oldScript.textContent?.trim();
+                if (scriptContent) {
+                    document.querySelectorAll('script').forEach(script => {
+                        if (script.textContent?.trim() === scriptContent) {
+                            script.remove();
+                        }
+                    });
+                    try {
+                        newScript.textContent = scriptContent;
+                    } catch (e) {
+                        console.error("스크립트 삽입 중 오류 발생:", e);
+                        console.warn("문제가 되는 스크립트 내용:\n", scriptContent);
+                        return; // ⛔ appendChild 하지 않도록 중단
+                    }
+                }
+            }
+
+            try {
+                document.body.appendChild(newScript);
+            } catch (e) {
+                console.error("appendChild 실패:", e);
+            }
+
         });
 
         // 모든 스크립트 로딩 후 초기화
@@ -1346,20 +1380,37 @@ async function loadPageContent(page, nickname) {
 function initializePage(basePage, fullPath) {
     console.log('initializePage 호출됨:', basePage, fullPath);
     // 각 페이지별 초기화 함수가 있을 경우 즉시 호출
-    const initFunctionName = `setup${basePage.charAt(0).toUpperCase() + basePage.slice(1)}Features`;
+    if (basePage === 'post') {
+        // 상세 페이지 패턴
+        const isDetailPage = /^post\/\d+$/.test(fullPath);
+        // 글쓰기/수정 페이지 패턴
+        const isWriteOrEditPage = fullPath.startsWith('post/write') || /^post\/\d+\/edit$/.test(fullPath);
 
-    if (typeof window[initFunctionName] === 'function') {
-        window[initFunctionName]();
-        console.log(`${basePage} 페이지 초기화 완료`);
+        if (!isDetailPage && !isWriteOrEditPage) {
+            // post 목록 페이지: setupPostFeatures 실행
+            if (typeof window.setupPostFeatures === 'function') {
+                window.setupPostFeatures();
+                console.log('post 목록 페이지 초기화 완료');
+            }
+        } else if (isDetailPage) {
+            if (typeof window.initPostDetail === 'function') {
+                window.initPostDetail();
+                console.log('post 상세 페이지 초기화 완료');
+            }
+        } else if (isWriteOrEditPage) {
+            if (typeof window.initPostWritePage === 'function') {
+                window.initPostWritePage();
+                console.log('post 작성/수정 페이지 초기화 완료');
+            }
+        }
     } else {
-        console.log(`${basePage} 페이지는 별도 초기화 함수가 없습니다.`);
-    }
-
-    // ✨ post 상세 경로 처리
-    if (basePage === 'post' && /^post\/\d+/.test(fullPath)) {
-        if (typeof window.initPostDetail === 'function') {
-            window.initPostDetail();
-            console.log('initPostDetail() 실행됨');
+        // post가 아닌 다른 페이지들 초기화는 기존대로
+        const initFunctionName = `setup${basePage.charAt(0).toUpperCase() + basePage.slice(1)}Features`;
+        if (typeof window[initFunctionName] === 'function') {
+            window[initFunctionName]();
+            console.log(`${basePage} 페이지 초기화 완료`);
+        } else {
+            console.log(`${basePage} 페이지는 별도 초기화 함수가 없습니다.`);
         }
     }
 

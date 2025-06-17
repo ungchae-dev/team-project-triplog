@@ -73,7 +73,7 @@
 
               <div class="post-actions">
                 <button id="addPostLike" type="button" onclick="addPostLike()" th:style="${exist} ? 'display:none;' : 'display:inline-block;'">
-                  좋아요 <span id="like-count-add" th:text="${post.postLike.size()}">0</span>
+                  🤍 좋아요 <span id="like-count-add" th:text="${post.postLike.size()}">0</span>
                 </button>
                 <button id="delPostLike" type="button" onclick="delPostLike()" th:style="${exist} ? 'display:inline-block;' : 'display:none;'">
                   ❤️ 좋아요 <span id="like-count-del" th:text="${post.postLike.size()}">0</span>
@@ -175,7 +175,7 @@
         .then(res => {
         if (!res.ok) throw new Error("삭제 실패");
         alert("삭제되었습니다.");
-        location.replace(`/blog/@${nickname}/post`);
+        window.navigateToPageWithAuth(`post/`)
         })
         .catch(err => {
           console.error(err.message);
@@ -290,7 +290,7 @@
       })
         .then(res => {
           if (!res.ok) throw new Error('댓글 삭제 실패');
-          document.querySelector(`[data-comment-id="${commentId}"]`).remove();
+          fetchComments(id);
         })
         .catch(error => {
           console.error(error);
@@ -530,6 +530,7 @@
       // 좋아요 초기화 등 필요한 것들 이곳에 추가
     }
     
+    window.initPostDetail = initPostDetail;
 
   </script>
 
