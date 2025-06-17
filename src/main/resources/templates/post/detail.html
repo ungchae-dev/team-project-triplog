@@ -73,17 +73,15 @@
 
               <div class="post-actions">
                 <button id="addPostLike" type="button" onclick="addPostLike()" th:style="${exist} ? 'display:none;' : 'display:inline-block;'">
-                  좋아요 <span id="like-count-add" th:text="${post.postLike.size()}">0</span>
+                  🤍 좋아요 <span id="like-count-add" th:text="${post.postLike.size()}">0</span>
                 </button>
                 <button id="delPostLike" type="button" onclick="delPostLike()" th:style="${exist} ? 'display:inline-block;' : 'display:none;'">
                   ❤️ 좋아요 <span id="like-count-del" th:text="${post.postLike.size()}">0</span>
                 </button>
                 <button type="button" onclick="navigateToPage('post')">글 목록</button>
-                <button type="button" th:if="${nickname == loginNickname}"
-
-                  th:onclick="|location.href='@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">✏️
-                  수정</button>
-
+                <a th:href="@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}">
+                  <button type="button" th:if="${nickname == loginNickname}">✏️수정</button>
+                </a>
                 <button type="button" onclick="delPost()" th:if="${nickname == loginNickname}" id="delete-btn">🗑 삭제</button>
               </div>
 
@@ -94,7 +92,7 @@
                   <option value="N">전체 공개</option>
                   <option value="Y">비공개</option>
                 </select>
-                <button id="submitComment" class="comment-btn">댓글 달기</button>
+                <button id="submitComment" class="comment-btn" onclick="addComment()">댓글 달기</button>
                 <!-- 댓글 리스트 -->
                 <ul class="comment-list" id="detail-comments">
                   <!-- 댓글들이 동적으로 추가됩니다 -->
@@ -177,7 +175,7 @@
         .then(res => {
         if (!res.ok) throw new Error("삭제 실패");
         alert("삭제되었습니다.");
-        location.replace(`/blog/@${nickname}/post`);
+        window.navigateToPageWithAuth(`post/`)
         })
         .catch(err => {
           console.error(err.message);
@@ -187,7 +185,8 @@
     
 
     // 댓글 등록
-    document.getElementById('submitComment').addEventListener('click', function () {
+    let submitComment = document.getElementById('submitComment');
+    function addComment() {
       const content = document.getElementById('comment-input').value.trim();
       const isSecret = document.getElementById('is_secret').value;
 
@@ -211,16 +210,16 @@
           isSecret: isSecret
         })
       })
-        .then(res => {
-          if (!res.ok) throw new Error('댓글 등록 실패');
-          return res.json();
-        })
-        .then(data => {
-          fetchComments(id);
-          document.getElementById('comment-input').value = '';
-        })
-        .catch(err => alert(err.message));
-    });
+      .then(res => {
+        if (!res.ok) throw new Error('댓글 등록 실패');
+        return res.json();
+      })
+      .then(data => {
+        fetchComments(id);
+        document.getElementById('comment-input').value = '';
+      })
+      .catch(err => alert(err.message));
+    }
 
     // 댓글 수정
     function editComment(commentId) {
@@ -291,7 +290,7 @@
       })
         .then(res => {
           if (!res.ok) throw new Error('댓글 삭제 실패');
-          document.querySelector(`[data-comment-id="${commentId}"]`).remove();
+          fetchComments(id);
         })
         .catch(error => {
           console.error(error);
@@ -518,6 +517,7 @@
       addLikeBtn = document.getElementById('addPostLike');
       delLikeBtn = document.getElementById('delPostLike');
       deleteBtn = document.getElementById("delete-btn");
+      submitComment = document.getElementById('submitComment');
 
       // 댓글 리스트 초기화
       const commentList = document.getElementById('detail-comments');
@@ -529,6 +529,8 @@
       fetchComments(id);
       // 좋아요 초기화 등 필요한 것들 이곳에 추가
     }
+    
+    window.initPostDetail = initPostDetail;
 
   </script>
 
