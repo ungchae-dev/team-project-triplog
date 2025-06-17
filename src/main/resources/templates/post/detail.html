@@ -79,11 +79,9 @@
                   ❤️ 좋아요 <span id="like-count-del" th:text="${post.postLike.size()}">0</span>
                 </button>
                 <button type="button" onclick="navigateToPage('post')">글 목록</button>
-                <button type="button" th:if="${nickname == loginNickname}"
-
-                  th:onclick="|location.href='@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">✏️
-                  수정</button>
-
+                <a th:href="@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}">
+                  <button type="button" th:if="${nickname == loginNickname}">✏️수정</button>
+                </a>
                 <button type="button" onclick="delPost()" th:if="${nickname == loginNickname}" id="delete-btn">🗑 삭제</button>
               </div>
 
