@@ -1,19 +1,19 @@
 [ {
-  "noticeid" : 15,
+  "noticeid" : 18,
   "authorNickname" : "바른남자",
-  "createdAt" : "2025-06-14 09:48:27",
-  "title" : "123123",
-  "content" : "123123"
+  "createdAt" : "2025-06-17 16:32:20",
+  "title" : "공지사항 입니다3",
+  "content" : "공지사항 입니다3"
 }, {
-  "noticeid" : 14,
+  "noticeid" : 17,
   "authorNickname" : "바른남자",
-  "createdAt" : "2025-06-13 18:31:26",
-  "title" : "집에좀가자",
-  "content" : "집에좀가자"
+  "createdAt" : "2025-06-17 16:32:10",
+  "title" : "공지사항 입니다2",
+  "content" : "공지사항 입니다2"
 }, {
-  "noticeid" : 6,
+  "noticeid" : 16,
   "authorNickname" : "바른남자",
-  "createdAt" : "2025-06-13 17:04:16",
-  "title" : "111",
-  "content" : "111"
+  "createdAt" : "2025-06-17 16:31:50",
+  "title" : "공지사항 입니다1",
+  "content" : "공지사항 입니다1"
 } ]
