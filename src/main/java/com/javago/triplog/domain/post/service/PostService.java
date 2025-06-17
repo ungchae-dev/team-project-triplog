@@ -1,5 +1,6 @@
 package com.javago.triplog.domain.post.service;
 
+import com.javago.constant.Visibility;
 import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.blog.repository.BlogRepository;
 import com.javago.triplog.domain.comment_like.dto.CommentLikeDto;
@@ -30,9 +31,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -370,6 +374,31 @@ public class PostService {
 
         Comment_Like like = commentLikeRepository.findByMemberAndComment(member, comment);
         commentLikeRepository.delete(like);
+    }
+
+    // 블로그 홈 - 최근 게시물 관련 메서드 추가
+    // 특정 블로그의 최신 게시물 조회 (PUBLIC만)
+    // blog : 블로그 엔티티
+    // limit: 조회할 게시물 개수
+    // return: 최신순 게시물 리스트
+    public List<Post> findRecentPostsByBlog(Blog blog, int limit) {
+        try {
+            // PUBLIC 게시물만 조회 (PRIVATE 제외)
+            Pageable pageable = PageRequest.of(0, limit, Sort.Direction.DESC, "updatedAt");
+
+            List<Post> posts = postRepository.findByBlogAndVisibilityOrderByUpdatedAtDesc(
+                blog, 
+                Visibility.PUBLIC, 
+                pageable
+            );
+
+            log.info("블로그 '{}'의 최신 게시물 {}개 조회 완료", blog.getMember().getNickname(), posts.size());
+            return posts;
+            
+        } catch (Exception e) {
+            log.error("최근 게시물 조회 중 오류: {}", e.getMessage());
+            return new ArrayList<>();
+        }
     }
     
 }

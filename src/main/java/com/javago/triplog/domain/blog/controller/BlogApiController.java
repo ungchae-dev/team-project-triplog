@@ -1,6 +1,8 @@
 package com.javago.triplog.domain.blog.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +18,13 @@ import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.blog.service.BlogService;
 import com.javago.triplog.domain.member.entity.Member;
 import com.javago.triplog.domain.member.service.MemberService;
+import com.javago.triplog.domain.post.entity.Post;
+import com.javago.triplog.domain.post.service.PostService;
+import com.javago.triplog.domain.post_image.entity.Post_Image;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 // BlogApiController.java - 블로그 조회/정보 관련 API 담당
 @RestController
@@ -32,6 +39,9 @@ public class BlogApiController {
 
     @Autowired
     private BlogControllerUtils blogControllerUtils;
+
+    @Autowired
+    private PostService postService;
     
     // 블로그 소유자 정보 조회 API (JSON 응답)
     @GetMapping("/@{nickname}/user-info")
@@ -118,5 +128,68 @@ public class BlogApiController {
         }
     }
 
+    // 블로그 홈 - 최근 게시물 관련 메서드 추가
+    // 블로그 주인의 최근 게시물 6개 조회 API
+    @GetMapping("/@{nickname}/recent-posts")
+    public ResponseEntity<Map<String, Object>> getRecentPosts(@PathVariable String nickname) {
+        try {
+            String decodedNickname = blogControllerUtils.decodeNickname(nickname);
+            Member member = memberService.findByNickname(decodedNickname);
+            Blog blog = blogService.findByMember(member);
+
+            // 최신순으로 게시물 6개 조회
+            List<Post> recentPosts = postService.findRecentPostsByBlog(blog, 6);
+
+            List<Map<String, Object>> postList = new ArrayList<>();
+
+            for (Post post : recentPosts) {
+                Map<String, Object> postInfo = new HashMap<>();
+                postInfo.put("postId", post.getPostId());
+                postInfo.put("title", post.getTitle());
+                postInfo.put("createdAt", post.getCreatedAt());
+                postInfo.put("updatedAt", post.getUpdatedAt());
+
+                // 썸네일 이미지 찾기
+                Post_Image thumbnailImage = post.getThumbnailImage();
+
+                System.out.println("=== 썸네일 디버깅 ===");
+                System.out.println("게시물 ID: " + post.getPostId());
+                System.out.println("게시물 제목: " + post.getTitle());
+                System.out.println("전체 이미지 개수: " + (post.getPostImage() != null ? post.getPostImage().size() : 0));
+
+                if (post.getPostImage() != null) {
+                    for (Post_Image img : post.getPostImage()) {
+                        System.out.println("이미지 경로: " + img.getImagePath() + ", 썸네일 여부: " + img.getIsThumbnail());
+                    }
+                }
+
+                if (thumbnailImage != null && thumbnailImage.getImagePath() != null) {
+                    String thumbnailPath = thumbnailImage.getImagePath();
+                    System.out.println("찾은 썸네일 경로: " + thumbnailPath);
+
+                    postInfo.put("thumbnailUrl", thumbnailPath);
+                    postInfo.put("hasThumbnail", true);
+                    System.out.println("썸네일 설정 완료: " + thumbnailPath);
+                } else {
+                    System.out.println("썸네일 없음 - 기본 이미지 사용");
+                    postInfo.put("thumbnailUrl", "/images/default_post.png");
+                    postInfo.put("hasThumbnail", false);
+                }
+
+                postList.add(postInfo);
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("posts", postList);
+            response.put("totalCount", postList.size());
+            response.put("blogOwner", decodedNickname);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("최근 게시물 조회 실패: " + e.getMessage());
+            return blogControllerUtils.notFoundResponse("최근 게시물을 조회할 수 없습니다!");
+        }
+    }
+    
 
 }

@@ -318,6 +318,209 @@ async function loadNeighborPosts() {
     }
 }
 
+// === 최근 게시물 데이터 로드 ===
+async function loadRecentPosts() {
+    console.log('최근 게시물 로드 시작');
+
+    const currentNickname = getBlogOwnerNickname();
+    if (!currentNickname) {
+        console.log('네임이 없어서 최근 게시물 로드 건너뜀');
+        return;
+    }
+
+    try {
+        const encodedNickname = encodeURIComponent(currentNickname);
+        const response = await fetch(`/blog/api/@${encodedNickname}/recent-posts`);
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('최근 게시물 데이터:', data);
+
+            // 최근 게시물 카드 업데이트
+            updateRecentPostsCard(data.posts || []);
+        } else {
+            console.log('최근 게시물 데이터 로드 실패:', response.status);
+            showEmptyRecentPostsCard();
+        }
+    } catch (error) {
+        console.error('최근 게시물 로드 중 오류:', error);
+        showEmptyRecentPostsCard();
+    }
+}
+
+// === 최근 게시물 카드 업데이트 ===
+function updateRecentPostsCard(posts) {
+    const photosContainer = document.querySelector('.photos');
+
+    if (!photosContainer) {
+        console.error('최근 게시물 컨테이너를 찾을 수 없음!');
+        return;
+    }
+
+    // 기존 내용 제거
+    photosContainer.innerHTML = '';
+
+    // 게시물이 없는 경우
+    if (posts.length === 0) {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'empty-posts-message';
+        emptyMessage.innerHTML = `
+            <div style="
+                grid-column: 1 / -1; 
+                text-align: center; 
+                color: #999; 
+                font-style: italic; 
+                padding: 40px 20px;
+                line-height: 1.6;
+            ">
+                작성된 게시물이 없습니다.<br>
+                게시판에서 여행 기록을 작성해보세요~
+            </div>
+        `;
+        photosContainer.appendChild(emptyMessage);
+        console.log('빈 최근 게시물 카드 표시');
+        return;
+    }
+
+    // 최대 6개까지만 표시
+    const displayPosts = posts.slice(0, 6);
+
+    displayPosts.forEach((post, index) => {
+        const photoCard = document.createElement('div');
+        photoCard.className = 'photo-card';
+
+        // 제목이 너무 길면 자르기 (최근 게시물 카드용)
+        let displayTitle = post.title;
+        if (displayTitle.length > 15) {
+            displayTitle = displayTitle.substring(0, 15) + '...'
+        }
+
+        // === 썸네일 이미지 처리 (디버깅 로그) ===
+        console.log(`=== 게시물 ${index + 1} 썸네일 처리 ===`);
+        console.log('게시물 ID:', post.postId);
+        console.log('게시물 제목:', post.title);
+        console.log('hasThumbnail:', post.hasThumbnail);
+        console.log('thumbnailUrl:', post.thumbnailUrl);
+        
+        let thumbnailUrl;
+        if (post.hasThumbnail && post.thumbnailUrl && post.thumbnailUrl !== '/images/default_post.png') {
+            thumbnailUrl = post.thumbnailUrl;
+            console.log('실제 썸네일 사용:', thumbnailUrl);
+        } else {
+            thumbnailUrl = '/images/default_post.png';
+            console.log('기본 이미지 사용:', thumbnailUrl);
+        }
+
+        // HTML 생성
+        photoCard.innerHTML = `
+            <div class="photo">
+                <img src="${thumbnailUrl}" 
+                     alt="${post.title}" 
+                     loading="lazy"
+                     onerror="this.src='/images/default_post.png'; 
+                     console.error('이미지 로드 실패:', '${thumbnailUrl}');"
+                     onload="console.log('이미지 로드 성공:', '${thumbnailUrl}');" />
+            </div>
+            <div class="caption">${displayTitle}</div>
+        `;
+
+        // 클릭 이벤트 추가 (게시글 상세보기로 이동)
+        photoCard.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('최근 게시물 카드 클릭됨:', post.postId, post.title);
+            navigateToPost(post.postId);
+        });
+
+        // 호버 효과를 위한 스타일 추가
+        photoCard.style.cursor = 'pointer';
+        photoCard.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
+        photoCard.style.userSelect = 'none'; // 텍스트 선택 방지
+
+        photoCard.addEventListener('mouseenter', () => {
+            photoCard.style.transform = 'translateY(-2px)';
+            photoCard.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        });
+
+        photoCard.addEventListener('mouseleave', () => {
+            photoCard.style.transform = 'translateY(0)';
+            photoCard.style.boxShadow = '';
+        });
+
+        photosContainer.appendChild(photoCard);
+    });
+
+    console.log(`최근 게시물 카드 업데이트 완료: ${displayPosts.length}개 항목`);
+}
+
+// === 게시글 상세보기로 이동 ===
+function navigateToPost(postId) {
+    console.log('게시글 상세보기로 이동:', postId);
+
+    const currentNickname = getBlogOwnerNickname();
+    if (!currentNickname) {
+        console.error('블로그 주인 닉네임을 가져올 수 없음');
+        alert('블로그 정보를 가져올 수 없습니다.');
+        return;
+    }
+    console.log('현재 블로그 주인:', currentNickname);
+
+    try {
+        // SPA 네비게이션 사용 (layout.js의 navigateToPage 함수 활용)
+        if (typeof navigateToPage === 'function') {
+            console.log('SPA 네비게이션 사용:', `post/${postId}`);
+            window.navigateToPage(`post/${postId}`);
+
+        } else if (typeof navigateToPage === 'function') {
+            console.log('로컬 SPA 네비게이션 사용:', `post/${postId}`);
+            navigateToPage(`post/${postId}`);
+
+        } else {
+            // fallback: 전체 페이지 이동
+            console.log('전체 페이지 이동 사용');
+            const encodedNickname = encodeURIComponent(currentNickname);
+            const targetUrl = `/blog/@${encodedNickname}/post/${postId}`;
+            console.log('이동할 URL:', targetUrl);
+            window.location.href = targetUrl;
+        }
+    } catch (error) {
+        console.error('게시글 이동 중 오류:', error);
+
+        // 에러 발생 시 직접 URL 이동
+        try {
+            const encodedNickname = encodeURIComponent(currentNickname);
+            const targetUrl = `/blog/@${encodedNickname}/post/${postId}`;
+            console.log('에러 복구 - 직접 URL 이동:', targetUrl);
+            window.location.href = targetUrl;
+        } catch (urlError) {
+            console.error('URL 이동도 실패:', urlError);
+            alert('게시글로 이동할 수 없습니다.');
+        }
+
+        alert('게시글로 이동할 수 없습니다!');
+    }
+}
+
+// === 빈 최근 게시물 카드 표시 ===
+function showEmptyRecentPostsCard() {
+    const photosContainer = document.querySelector('.photos');
+
+    if (photosContainer) {
+        photosContainer.innerHTML = `
+            <div style="
+                grid-column: 1 / -1; 
+                text-align: center; 
+                color: #999; 
+                font-style: italic; 
+                padding: 40px 20px;
+                line-height: 1.6;
+            ">
+                최근 게시물을 불러올 수 없습니다!<br>
+                잠시 후 다시 시도해주세요.
+            </div>
+        `;
+    }
+}
+
 // === neighbor.js의 기존 API를 활용하여 내 이웃 목록 가져오기 ===
 async function fetchMyNeighborListUsingExistingAPI() {
     try {
@@ -921,19 +1124,20 @@ function setupHomeFeatures() {
     console.log('사용자 데이터 로드 시작...');
     loadUserData();
 
-    // 순차적이 아닌 병렬로 로드하되, 프로필 이미지는 각 함수 내에서 처리
+    // 순차적이 아닌 병렬로 로드 => 프로필 이미지는 각 함수 내에서 처리
     setTimeout(async () => {
-        console.log('방명록 및 이웃 최신글 동시 로드 시작');
+        console.log('방명록, 이웃 최신글, 최근 게시물 동시 로드 시작');
 
         // 병렬로 실행하되 각각 독립적으로 처리
         const promises = [
             loadGuestbookPreview(), // 방명록 미리보기 로드
-            loadNeighborPosts() // 이웃 최신글 로드 (neighbor.js 활용)
+            loadNeighborPosts(), // 이웃 최신글 로드 (neighbor.js 활용)
+            loadRecentPosts() // 최근 게시물 로드
         ];
 
         try {
             await Promise.all(promises);
-            console.log('방명록 및 이웃 최신글 로드 완료');
+            console.log('방명록, 이웃 최신글, 최근 게시물 로드 완료');
         } catch (error) {
             console.error('블로그 홈 페이지 데이터 로드 중 오류:', error);
         }
@@ -1182,7 +1386,7 @@ window.refreshSkin = async function() {
     await loadBlogSkinImmediately(); // 즉시 로드 함수 사용
 }
 
-// 전역으로 노출하는 함수들 (다른 페이지에서 사용 가능)
+// 전역 함수들 (다른 페이지에서 사용 가능)
 window.loadUserData = loadUserData;
 window.loadBlogSkin = loadBlogSkin;
 window.getBlogOwnerNickname = getBlogOwnerNickname;
@@ -1199,5 +1403,10 @@ window.updateGuestbookCard = updateGuestbookCard;
 window.loadNeighborPosts = loadNeighborPosts;
 window.navigateToNeighborPost = navigateToNeighborPost;
 window.updateNeighborPostsCard = updateNeighborPostsCard;
+
+// === 최근 게시물 ===
+window.loadRecentPosts = loadRecentPosts;
+window.updateRecentPostsCard = updateRecentPostsCard;
+window.navigateToPost = navigateToPost;
 
 console.log('home.js 로드 완료');
