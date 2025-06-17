@@ -483,6 +483,7 @@ body, html {
     align-items: center;
 }
 
+/* 최근 게시물 카드 호버 효과 개선 */
 .photo-card {
     background: rgba(247, 244, 239, 0.98);
     border: 1.5px solid #c2b7a8;
@@ -494,6 +495,25 @@ body, html {
     align-items: center;
     box-shadow: 0 2px 10px #e8d0b899;
     overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    user-select: none; /* 텍스트 선택 방지 */
+}
+
+.photo-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 클릭 가능함을 명확히 표시 */
+.photo-card:hover .caption {
+    color: #b865a4;
+    font-weight: bold;
+}
+
+.photo-card:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .photo-card .photo {
@@ -519,12 +539,19 @@ body, html {
 }
 
 .photo-card img {
-    max-width: 100%;
-    max-height: 100%;
+    /* 이미지 로드 실패 처리 개선 */
+    transition: opacity 0.2s ease, filter 0.2s ease, transform 0.2s ease;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+    /*
+    max-width: 100%;
+    max-height: 100%;
+    */
 }
 
+/*
 .photo-card img[src*="via.placeholder.com"]:before {
     content: "📷";
     display: flex;
@@ -535,10 +562,44 @@ body, html {
     width: 100%;
     height: 100%;
 }
+*/
+
+/* 기본 게시물 이미지 스타일 */
+.photo-card img[src="/images/default_post.png"] {
+    opacity: 0.8;
+    filter: grayscale(20%);
+}
+
+.photo-card:hover img[src="/images/default_post.png"] {
+    opacity: 1;
+    filter: grayscale(0%);
+}
+
 
 .photo-card img:not([src]),
-.photo-card img[src=""] {
-    display: none;
+.photo-card img[src=""],
+.photo-card img[src="undefined"] {
+    content: url('/images/default_post.png');
+    opacity: 0.8;
+    /* display: none; */
+}
+
+/* 빈 최근 게시물 메시지 스타일 */
+.empty-posts-message {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    background: rgba(247, 244, 239, 0.5);
+    border: 2px dashed #d7bfae;
+    border-radius: 12px;
+    color: #999;
+    font-style: italic;
+    text-align: center;
+    line-height: 1.6;
+    font-size: 15px;
+    padding: 20px;
 }
 
 .photo-card .caption {
