@@ -866,7 +866,13 @@ async function loadUserProfileImage() {
 // === 프로필 이미지 캐시 관리 함수들 종료 ===
 
 // 페이지 네비게이션 함수 (즉시 반응)
+let currentPagePath = '';
 function navigateToPage(page) {
+    if (page === currentPagePath) {
+        console.log(`이미 ${page} 페이지에 있습니다.`);
+        return;
+    }
+    currentPagePath = page;
     const currentNickname = getCurrentNickname();
     if (!currentNickname) {
         alert('로그인이 필요합니다.');
@@ -1304,15 +1310,28 @@ async function loadPageContent(page, nickname) {
         // ===== 수동 스크립트 파싱 및 실행 =====
         // tempDiv 내 모든 <script> 태그 찾아서 실행
         // 스크립트 실행 후 initializePage() 호출 방식으로 변경
+        
         const scripts = tempDiv.querySelectorAll('script');
         const promises = [];
 
         scripts.forEach(oldScript => {
             const newScript = document.createElement('script');
 
+            // if (oldScript.src) {
+            //     newScript.src = oldScript.src;
+            //     newScript.async = false;
+
             if (oldScript.src) {
+                // ✅ 중복 스크립트 검사
+                const existingScript = document.querySelector(`script[src="${oldScript.src}"]`);
+                if (existingScript) {
+                    console.log(`기존 외부 스크립트 제거: ${oldScript.src}`);
+                    existingScript.remove();
+                }
+
                 newScript.src = oldScript.src;
                 newScript.async = false;
+
 
                 // 외부 스크립트 로딩 완료 대기
                 const promise = new Promise((resolve, reject) => {
@@ -1322,7 +1341,18 @@ async function loadPageContent(page, nickname) {
 
                 promises.push(promise);
             } else {
-                newScript.textContent = oldScript.textContent;
+                // 인라인 스크립트의 경우도 중복 제거하고 삽입
+                const scriptContent = oldScript.textContent?.trim();
+                if (scriptContent) {
+                    // 같은 내용의 인라인 스크립트가 있으면 제거
+                    document.querySelectorAll('script').forEach(existing => {
+                        if (existing.textContent?.trim() === scriptContent) {
+                            existing.remove();
+                        }
+                    });
+
+                newScript.textContent = scriptContent;
+                }
             }
 
             document.body.appendChild(newScript);
@@ -1448,3 +1478,4 @@ window.debugUserInfo = function() {
 
 console.log('layout.js 사용자 인증 기능 로드 완료');
 console.log('layout.js 로드 완료 - 즉시 반응 모드');
+

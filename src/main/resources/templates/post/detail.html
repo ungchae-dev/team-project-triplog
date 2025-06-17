@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="/css/post.css" />
   <link rel="stylesheet" href="/css/jukebox.css" />
   <link rel="stylesheet" href="/css/guestbook.css" />
-
+  <link rel="stylesheet" href="/css/neighbor.css" />
   <style>
     #commentList {
       margin-top: 20px;
@@ -27,7 +27,7 @@
   </style>
 </head>
 
-<body>
+<body onload="initPostDetail()">
   <div class="frame">
 
     <!-- 여백 안쪽의 실제 블로그 컨텐츠 컨테이너 -->
@@ -58,7 +58,7 @@
                     th:text="${post.viewCount}">조회수</span> | <span id="detail-date"
                     th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">작성시간</span>
                   <span th:if="${post.createdAt != post.updatedAt}"
-                    th:text="${#temporals.format(post.updatedAt, 'yyyy--MM--dd HH:mm')}">수정시간</span>
+                    th:text="${#temporals.format(post.updatedAt, 'yyyy-MM-dd HH:mm')}">수정시간</span>
                 </div>
               </div>
 
@@ -72,10 +72,10 @@
               </div>
 
               <div class="post-actions">
-                <button id="addPostLike" type="button" th:style="${exist} ? 'display:none;' : 'display:inline-block;'">
+                <button id="addPostLike" type="button" onclick="addPostLike()" th:style="${exist} ? 'display:none;' : 'display:inline-block;'">
                   좋아요 <span id="like-count-add" th:text="${post.postLike.size()}">0</span>
                 </button>
-                <button id="delPostLike" type="button" th:style="${exist} ? 'display:inline-block;' : 'display:none;'">
+                <button id="delPostLike" type="button" onclick="delPostLike()" th:style="${exist} ? 'display:inline-block;' : 'display:none;'">
                   ❤️ 좋아요 <span id="like-count-del" th:text="${post.postLike.size()}">0</span>
                 </button>
                 <button type="button" onclick="navigateToPage('post')">글 목록</button>
@@ -84,7 +84,7 @@
                   th:onclick="|location.href='@{/blog/@{nickname}/post/{id}/edit(nickname=${nickname}, id=${post.postId})}'|">✏️
                   수정</button>
 
-                <button type="button" th:if="${nickname == loginNickname}" id="delete-btn">🗑 삭제</button>
+                <button type="button" onclick="delPost()" th:if="${nickname == loginNickname}" id="delete-btn">🗑 삭제</button>
               </div>
 
               <div class="comments-section">
@@ -110,72 +110,81 @@
   </div>
 
   <script>
-    const id = document.getElementById('post_id').dataset.postId;
-    const userId = document.getElementById('blogInfo').dataset.userId;
-    const nickname = document.getElementById('blogInfo').dataset.nickname;
-    const loginNickname = document.getElementById('blogInfo').dataset.loginNickname;
+    let id = document.getElementById('post_id').dataset.postId;
+    let userId = document.getElementById('blogInfo').dataset.userId;
+    let nickname = document.getElementById('blogInfo').dataset.nickname;
+    let loginNickname = document.getElementById('blogInfo').dataset.loginNickname;
 
-    const addLikeBtn = document.getElementById('addPostLike');
-    const delLikeBtn = document.getElementById('delPostLike');
+    let addLikeBtn = document.getElementById('addPostLike');
+    let delLikeBtn = document.getElementById('delPostLike');
 
     // 좋아요 추가
-    if (addLikeBtn) {
-      addLikeBtn.addEventListener('click', () => {
-        fetch(`/api/${id}/like`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: userId })
-        })
-          .then(res => res.json())
-          .then(data => {
-            console.log(data.message);
-            document.querySelector('#like-count-del').textContent = data.likeCount;
-            //location.reload(); // UI를 갱신하려면 reload 또는 동적 토글
-            addLikeBtn.style.display = 'none';
-            delLikeBtn.style.display = 'inline-block';
-          });
+    function addPostLike(){
+      fetch(`/api/${id}/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: userId })
+      })
+      .then(res => {
+        if(!res.ok) return;
+        return res.json()
+      })
+      .then(data => {
+        if (!data) return;
+        console.log(data.message);
+        document.querySelector('#like-count-add').textContent = data.likeCount;
+        document.querySelector('#like-count-del').textContent = data.likeCount;
+        addLikeBtn.style.display = 'none';
+        delLikeBtn.style.display = 'inline-block';
+      })
+      .catch(err => {
+        console.error('좋아요 추가 실패:', err);
       });
     }
 
     // 좋아요 제거
-    if (delLikeBtn) {
-      delLikeBtn.addEventListener('click', () => {
-        fetch(`/api/${id}/like`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: userId })
-        })
-          .then(res => res.json())
-          .then(data => {
-            console.log(data.message);
-            document.querySelector('#like-count-add').textContent = data.likeCount;
-            //location.reload();
-            addLikeBtn.style.display = 'inline-block';
-            delLikeBtn.style.display = 'none';
-          });
+    function delPostLike() {
+      fetch(`/api/${id}/like`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: userId })
+      })
+      .then(res => {
+        if(!res.ok) return;
+        return res.json();
+      })
+      .then(data => {
+        if (!data) return;
+        console.log(data.message);
+        document.querySelector('#like-count-add').textContent = data.likeCount;
+        document.querySelector('#like-count-del').textContent = data.likeCount;
+          addLikeBtn.style.display = 'inline-block';
+          delLikeBtn.style.display = 'none';
+      })
+      .catch(err => {
+        console.error('좋아요 제거 실패:', err);
       });
     }
 
     // 글 삭제
-    const deleteBtn = document.getElementById("delete-btn");
-    if (deleteBtn) {
-      deleteBtn.addEventListener('click', function () {
-        const del = confirm("이 글을 삭제하시겠습니까?");
-        if (del == true) {
-          fetch(`/api/delete/${id}`, {
-            method: 'DELETE',
-          })
-            .then(res => {
-              if (!res.ok) throw new Error("삭제 실패");
-              alert("삭제되었습니다.");
-              location.replace(`/blog/@${nickname}/post`);
-            })
-            .catch(err => {
-              console.error(err.message);
-            });
-        }
-      });
+    let deleteBtn = document.getElementById("delete-btn");
+    function delPost() {
+      const del = confirm("이 글을 삭제하시겠습니까?");
+      if (del == true) {
+        fetch(`/api/delete/${id}`, {
+          method: 'DELETE',
+        })
+        .then(res => {
+        if (!res.ok) throw new Error("삭제 실패");
+        alert("삭제되었습니다.");
+        location.replace(`/blog/@${nickname}/post`);
+        })
+        .catch(err => {
+          console.error(err.message);
+        });
+      }
     }
+    
 
     // 댓글 등록
     document.getElementById('submitComment').addEventListener('click', function () {
@@ -293,6 +302,7 @@
     // 댓글 조회
     async function fetchComments(postId) {
       try {
+        console.log('fetch URL:', `/api/comments?postId=${postId}`);
         const response = await fetch(`/api/${postId}/comments`);
         if (!response.ok) throw new Error('댓글 로딩 실패');
 
@@ -314,9 +324,16 @@
         const li = document.createElement('li');
         li.dataset.commentId = comment.commentId;
         li.dataset.isSecret = comment.isSecret;
-
+        let contentToShow = '';
+        
         // 로그인 유저와 댓글 작성자 비교
+        const isPostAuthor = (loginNickname === nickname);
         const isAuthor = (comment.nickname === loginNickname); // userId는 로그인한 유저 id
+        if (comment.isSecret === 'N') {
+          contentToShow = comment.content;
+        } else {
+          contentToShow = (isAuthor || isPostAuthor) ? comment.content : '비밀 댓글 입니다';
+        }
         li.innerHTML = `
             <div class="comment-header">
               <div class="comment-head">
@@ -340,7 +357,7 @@
             </div>
             
             <div class="comment-content">
-              <span>${comment.content}</span>
+              <span>${contentToShow}</span>
             </div>
         `;
         container.appendChild(li);
@@ -491,9 +508,28 @@
     }
 
     function initPostDetail() {
+      // DOM에서 최신 데이터 다시 가져오기
+      id = document.getElementById('post_id').dataset.postId;
+      userId = document.getElementById('blogInfo').dataset.userId;
+      nickname = document.getElementById('blogInfo').dataset.nickname;
+      loginNickname = document.getElementById('blogInfo').dataset.loginNickname;
+      console.log('initPostDetail - id:', id, 'userId:', userId, 'nickname:', nickname, 'loginNickname:', loginNickname);
+
+      addLikeBtn = document.getElementById('addPostLike');
+      delLikeBtn = document.getElementById('delPostLike');
+      deleteBtn = document.getElementById("delete-btn");
+
+      // 댓글 리스트 초기화
+      const commentList = document.getElementById('detail-comments');
+      if (commentList) commentList.innerHTML = '';
+
+      // 댓글 수 초기화
+      const commentCount = document.getElementById('detail-comments-count');
+      if (commentCount) commentCount.textContent = '0';
       fetchComments(id);
       // 좋아요 초기화 등 필요한 것들 이곳에 추가
     }
+
   </script>
 
   <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-방명록) 홈에서 로드 -->
@@ -504,6 +540,7 @@
   <script src="/js/post.js"></script>
   <script src="/js/jukebox.js"></script>
   <script src="/js/guestbook.js"></script>
+  <script src="/js/neighbor.js"></script>
 
 </body>
 

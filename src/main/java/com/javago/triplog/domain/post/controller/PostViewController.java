@@ -81,11 +81,17 @@ public class PostViewController {
             Pageable pageable = PageRequest.of(page - 1, size, sort);
 
             // 디코딩된 닉네임으로 게시글 조회
-            Page<PostListResponse> postList = postService.findPostList(pageable, decodedNickname);
+            Page<PostListResponse> postList = null;
 
             String loginNickname = null;
             CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
             loginNickname = customUserDetails.getMember().getNickname();
+            
+            if (loginNickname.equals(nickname)) {
+                postList = postService.findPostList(pageable, decodedNickname);
+            }else{
+                postList = postService.findPublicPostList(pageable, decodedNickname);
+            }
 
             model.addAttribute("postList", postList);
             model.addAttribute("currentPage", page);

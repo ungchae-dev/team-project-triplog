@@ -174,6 +174,77 @@ public class PostService {
         return new PageImpl<PostListResponse>(dtoList, pageable, postCount);
     }
 
+    // 게시판 공개글 리스트 불러오기
+    public Page<PostListResponse> findPublicPostList(Pageable pageable, String nickname) {
+        Long blogId = memberRepository.findByNickname(nickname).getBlog().getBlogId();
+        List<Post> posts = postRepository.findPublicPostsWithThumbnail(pageable, blogId);
+        long postCount = postRepository.countPublicPostsWithThumbnail(blogId);
+
+        log.info("조회된 게시글 수: {}", posts.size());
+        for (Post post : posts) {
+            log.info("Post ID: {}, 제목: {}", post.getPostId(), post.getTitle());
+        }
+        
+        List<Long> postIds = posts.stream()
+            .map(Post::getPostId)
+            .collect(Collectors.toList());
+        log.info("조회된 id : {}", postIds.size());
+
+        List<Post_Hashtag_people> allHashtags = postHashtagPeopleRepository.findByPostIds(postIds);
+
+        log.info("전체 해시태그 수: {}", allHashtags.size());
+        for (Post_Hashtag_people h : allHashtags) {
+            String tag = h.getHashtagPeople() != null ? h.getHashtagPeople().getTagName() : "null";
+            log.info("Post ID: {}, 해시태그: {}", h.getPost().getPostId(), tag);
+        }
+
+        Map<Long, List<Post_Hashtag_people>> hashtagMap = allHashtags.stream()
+            .collect(Collectors.groupingBy(h -> h.getPost().getPostId()));
+
+        // 댓글 갯수 조회
+        List<Object[]> commentCounts = commentsRepository.countCommentsByPostIds(postIds);
+        Map<Long, Long> commentCountMap = new HashMap<>();
+        for (Object[] row : commentCounts) {
+            Long postId = (Long) row[0];
+            Long count = (Long) row[1];
+            commentCountMap.put(postId, count);
+        }
+
+        // 좋아요 갯수 조회
+        List<Object[]> likeCounts = postLikeRepository.countCommentsByPostIds(postIds);
+        Map<Long, Long> likeCountMap = new HashMap<>();
+        for(Object[] row : likeCounts) {
+            Long postId = (Long) row[0];
+            Long count = (Long) row[1];
+            likeCountMap.put(postId, count);
+        }
+
+        List<PostListResponse> dtoList = posts.stream()
+            .map(post -> {
+                String thumbnail = post.getPostImage().stream()
+                    .filter(img -> "Y".equals(img.getIsThumbnail().name()))
+                    .map(Post_Image::getImagePath)
+                    .findFirst()
+                    .orElse(null);
+
+                List<String> hashtags = hashtagMap.getOrDefault(post.getPostId(), Collections.emptyList())
+                    .stream()
+                    .map(h -> h.getHashtagPeople() != null ? h.getHashtagPeople().getTagName() : null)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+                log.info("Post ID: {}, 해시태그 개수: {}", post.getPostId(), hashtags.size());
+
+                // 댓글 수와 좋아요 수를 함께 전달
+                Long commentCount = commentCountMap.getOrDefault(post.getPostId(), 0L);
+                Long likeCount = likeCountMap.getOrDefault(post.getPostId(), 0L);
+
+                return new PostListResponse(post, hashtags, thumbnail, commentCount, likeCount);
+            })
+            .collect(Collectors.toList());
+        return new PageImpl<PostListResponse>(dtoList, pageable, postCount);
+    }
+
 
     // 게시판 글 조회
     @Transactional
