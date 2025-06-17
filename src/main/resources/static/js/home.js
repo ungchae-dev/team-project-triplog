@@ -57,6 +57,45 @@ function getBlogOwnerNickname() {
     return null;
 }
 
+// === 프로필 이미지 캐시 시스템 추가 ===
+const profileImageCache = new Map();
+
+// 프로필 이미지 캐시에서 가져오기 또는 API 호출
+async function getCachedProfileImage(nickname) {
+    // 캐시에 있으면 바로 반환
+    if (profileImageCache.has(nickname)) {
+        console.log(`캐시된 프로필 이미지 사용: ${nickname}`);
+        return profileImageCache.get(nickname);
+    }
+
+    try {
+        const encodedNickname = encodeURIComponent(nickname);
+        const response = await fetch(`/blog/api/@${encodedNickname}/user-info`);
+
+        if (response.ok) {
+            const userInfo = await response.json();
+            const profileImage = userInfo.profileImage || '/images/default_profile.png';
+
+            // 캐시에 저장
+            profileImageCache.set(nickname, profileImage);
+            console.log(`프로필 이미지 로드 및 캐시: ${nickname} -> ${profileImage}`);
+            return profileImage;
+
+        } else {
+            console.log(`${nickname}의 프로필 이미지 로드 실패:`, response.status);
+            const defaultImage = '/images/default_profile.png';
+            profileImageCache.set(nickname, defaultImage);
+            return defaultImage;
+        }
+    } catch (error) {
+        console.error(`${nickname}의 프로필 이미지 로드 중 오류:`, error);
+        const defaultImage = '/images/default_profile.png';
+        profileImageCache.set(nickname, defaultImage);
+        return defaultImage;
+    }
+
+}
+
 // === 즉시 스킨 로드 (페이지 로드보다 빠르게) ===
 // HTML 파싱과 동시에 실행
 (function() {
@@ -279,6 +318,209 @@ async function loadNeighborPosts() {
     }
 }
 
+// === 최근 게시물 데이터 로드 ===
+async function loadRecentPosts() {
+    console.log('최근 게시물 로드 시작');
+
+    const currentNickname = getBlogOwnerNickname();
+    if (!currentNickname) {
+        console.log('네임이 없어서 최근 게시물 로드 건너뜀');
+        return;
+    }
+
+    try {
+        const encodedNickname = encodeURIComponent(currentNickname);
+        const response = await fetch(`/blog/api/@${encodedNickname}/recent-posts`);
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('최근 게시물 데이터:', data);
+
+            // 최근 게시물 카드 업데이트
+            updateRecentPostsCard(data.posts || []);
+        } else {
+            console.log('최근 게시물 데이터 로드 실패:', response.status);
+            showEmptyRecentPostsCard();
+        }
+    } catch (error) {
+        console.error('최근 게시물 로드 중 오류:', error);
+        showEmptyRecentPostsCard();
+    }
+}
+
+// === 최근 게시물 카드 업데이트 ===
+function updateRecentPostsCard(posts) {
+    const photosContainer = document.querySelector('.photos');
+
+    if (!photosContainer) {
+        console.error('최근 게시물 컨테이너를 찾을 수 없음!');
+        return;
+    }
+
+    // 기존 내용 제거
+    photosContainer.innerHTML = '';
+
+    // 게시물이 없는 경우
+    if (posts.length === 0) {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'empty-posts-message';
+        emptyMessage.innerHTML = `
+            <div style="
+                grid-column: 1 / -1; 
+                text-align: center; 
+                color: #999; 
+                font-style: italic; 
+                padding: 40px 20px;
+                line-height: 1.6;
+            ">
+                작성된 게시물이 없습니다.<br>
+                게시판에서 여행 기록을 작성해보세요~
+            </div>
+        `;
+        photosContainer.appendChild(emptyMessage);
+        console.log('빈 최근 게시물 카드 표시');
+        return;
+    }
+
+    // 최대 6개까지만 표시
+    const displayPosts = posts.slice(0, 6);
+
+    displayPosts.forEach((post, index) => {
+        const photoCard = document.createElement('div');
+        photoCard.className = 'photo-card';
+
+        // 제목이 너무 길면 자르기 (최근 게시물 카드용)
+        let displayTitle = post.title;
+        if (displayTitle.length > 15) {
+            displayTitle = displayTitle.substring(0, 15) + '...'
+        }
+
+        // === 썸네일 이미지 처리 (디버깅 로그) ===
+        console.log(`=== 게시물 ${index + 1} 썸네일 처리 ===`);
+        console.log('게시물 ID:', post.postId);
+        console.log('게시물 제목:', post.title);
+        console.log('hasThumbnail:', post.hasThumbnail);
+        console.log('thumbnailUrl:', post.thumbnailUrl);
+        
+        let thumbnailUrl;
+        if (post.hasThumbnail && post.thumbnailUrl && post.thumbnailUrl !== '/images/default_post.png') {
+            thumbnailUrl = post.thumbnailUrl;
+            console.log('실제 썸네일 사용:', thumbnailUrl);
+        } else {
+            thumbnailUrl = '/images/default_post.png';
+            console.log('기본 이미지 사용:', thumbnailUrl);
+        }
+
+        // HTML 생성
+        photoCard.innerHTML = `
+            <div class="photo">
+                <img src="${thumbnailUrl}" 
+                     alt="${post.title}" 
+                     loading="lazy"
+                     onerror="this.src='/images/default_post.png'; 
+                     console.error('이미지 로드 실패:', '${thumbnailUrl}');"
+                     onload="console.log('이미지 로드 성공:', '${thumbnailUrl}');" />
+            </div>
+            <div class="caption">${displayTitle}</div>
+        `;
+
+        // 클릭 이벤트 추가 (게시글 상세보기로 이동)
+        photoCard.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('최근 게시물 카드 클릭됨:', post.postId, post.title);
+            navigateToPost(post.postId);
+        });
+
+        // 호버 효과를 위한 스타일 추가
+        photoCard.style.cursor = 'pointer';
+        photoCard.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
+        photoCard.style.userSelect = 'none'; // 텍스트 선택 방지
+
+        photoCard.addEventListener('mouseenter', () => {
+            photoCard.style.transform = 'translateY(-2px)';
+            photoCard.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        });
+
+        photoCard.addEventListener('mouseleave', () => {
+            photoCard.style.transform = 'translateY(0)';
+            photoCard.style.boxShadow = '';
+        });
+
+        photosContainer.appendChild(photoCard);
+    });
+
+    console.log(`최근 게시물 카드 업데이트 완료: ${displayPosts.length}개 항목`);
+}
+
+// === 게시글 상세보기로 이동 ===
+function navigateToPost(postId) {
+    console.log('게시글 상세보기로 이동:', postId);
+
+    const currentNickname = getBlogOwnerNickname();
+    if (!currentNickname) {
+        console.error('블로그 주인 닉네임을 가져올 수 없음');
+        alert('블로그 정보를 가져올 수 없습니다.');
+        return;
+    }
+    console.log('현재 블로그 주인:', currentNickname);
+
+    try {
+        // SPA 네비게이션 사용 (layout.js의 navigateToPage 함수 활용)
+        if (typeof navigateToPage === 'function') {
+            console.log('SPA 네비게이션 사용:', `post/${postId}`);
+            window.navigateToPage(`post/${postId}`);
+
+        } else if (typeof navigateToPage === 'function') {
+            console.log('로컬 SPA 네비게이션 사용:', `post/${postId}`);
+            navigateToPage(`post/${postId}`);
+
+        } else {
+            // fallback: 전체 페이지 이동
+            console.log('전체 페이지 이동 사용');
+            const encodedNickname = encodeURIComponent(currentNickname);
+            const targetUrl = `/blog/@${encodedNickname}/post/${postId}`;
+            console.log('이동할 URL:', targetUrl);
+            window.location.href = targetUrl;
+        }
+    } catch (error) {
+        console.error('게시글 이동 중 오류:', error);
+
+        // 에러 발생 시 직접 URL 이동
+        try {
+            const encodedNickname = encodeURIComponent(currentNickname);
+            const targetUrl = `/blog/@${encodedNickname}/post/${postId}`;
+            console.log('에러 복구 - 직접 URL 이동:', targetUrl);
+            window.location.href = targetUrl;
+        } catch (urlError) {
+            console.error('URL 이동도 실패:', urlError);
+            alert('게시글로 이동할 수 없습니다.');
+        }
+
+        alert('게시글로 이동할 수 없습니다!');
+    }
+}
+
+// === 빈 최근 게시물 카드 표시 ===
+function showEmptyRecentPostsCard() {
+    const photosContainer = document.querySelector('.photos');
+
+    if (photosContainer) {
+        photosContainer.innerHTML = `
+            <div style="
+                grid-column: 1 / -1; 
+                text-align: center; 
+                color: #999; 
+                font-style: italic; 
+                padding: 40px 20px;
+                line-height: 1.6;
+            ">
+                최근 게시물을 불러올 수 없습니다!<br>
+                잠시 후 다시 시도해주세요.
+            </div>
+        `;
+    }
+}
+
 // === neighbor.js의 기존 API를 활용하여 내 이웃 목록 가져오기 ===
 async function fetchMyNeighborListUsingExistingAPI() {
     try {
@@ -316,10 +558,10 @@ async function fetchMyNeighborListUsingExistingAPI() {
     }
 }
 
-// === 이웃들의 최신 게시글 가져오기 (기존 코드 유지) ===
+// === 이웃들의 최신 게시글 가져오기 ===
 async function fetchNeighborLatestPosts(neighbors) {
-    const allPosts = [];
-    
+    console.log('이웃들의 최신 게시글 가져오기 시작:', neighbors);
+
     // 각 이웃의 최신 게시글 1개씩 가져오기 (병렬 처리)
     const promises = neighbors.map(async (neighbor) => {
         try {
@@ -330,12 +572,17 @@ async function fetchNeighborLatestPosts(neighbors) {
                 const data = await response.json();
                 if (data.content && data.content.length > 0) {
                     const post = data.content[0];
+
+                    // 프로필 이미지 가져오기
+                    const profileImage = await getNeighborProfileImage(neighbor.nickname);
+
                     return {
                         nickname: neighbor.nickname,
                         postId: post.postId,
                         title: post.title,
                         createdAt: post.createdAt,
-                        updatedAt: post.updatedAt
+                        updatedAt: post.updatedAt, 
+                        // profileImage는 updateNeighborPostsCard에서 처리
                     };
                 }
             }
@@ -347,17 +594,15 @@ async function fetchNeighborLatestPosts(neighbors) {
     });
 
     const results = await Promise.all(promises);
-    
-    // null 제거 후 최신순 정렬
-    const validPosts = results.filter(post => post !== null);
+    const validPosts = results.filter(post => post !== null); // null 제거 후 최신순 정렬
     validPosts.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     
-    // 최신 3개만 반환
-    return validPosts.slice(0, 3);
+    console.log('이웃 최신 게시글 조회 완료:', validPosts.length, '개');
+    return validPosts.slice(0, 3); // 최신 3개만 반환
 }
 
 // === 이웃 최신글 카드 업데이트 ===
-function updateNeighborPostsCard(neighborPosts) {
+async function updateNeighborPostsCard(neighborPosts) {
     const neighborList = document.querySelector('.section-card:nth-child(2) .neighbor-list');
     
     if (!neighborList) {
@@ -368,17 +613,26 @@ function updateNeighborPostsCard(neighborPosts) {
     // 기존 내용 제거
     neighborList.innerHTML = '';
 
+    // 이웃 게시글이 없는 경우
     if (neighborPosts.length === 0) {
-        // 이웃 게시글이 없는 경우
         const emptyItem = document.createElement('li');
         emptyItem.innerHTML = '<span style="color: #999; font-style: italic;">이웃의 최신글이 없습니다.</span>';
         neighborList.appendChild(emptyItem);
         console.log('빈 이웃 최신글 카드 표시');
         return;
     }
+    console.log('이웃 최신글 프로필 이미지 로딩 시작...');
 
-    // 이웃 최신글 표시
-    neighborPosts.forEach(post => {
+    // 모든 프로필 이미지를 먼저 로드 (병렬 처리)
+    const profilePromises = neighborPosts.map(post => 
+        getCachedProfileImage(post.nickname)
+    );
+
+    const profileImages = await Promise.all(profilePromises);
+    console.log('모든 이웃 프로필 이미지 로드 완료:', profileImages);
+
+    // 이웃 최신글 표시 => 프로필 이미지가 준비된 후 DOM 업데이트
+    neighborPosts.forEach((post, index) => {
         const listItem = document.createElement('li');
         
         // 제목이 너무 길면 자르기 (홈 카드용)
@@ -386,21 +640,50 @@ function updateNeighborPostsCard(neighborPosts) {
         if (displayTitle.length > 25) {
             displayTitle = displayTitle.substring(0, 25) + '...';
         }
+
+        const profileImageUrl = profileImages[index]; // 이미 로드된 이미지 사용
         
-        // 클릭 가능한 링크로 생성
+        // HTML 생성 (프로필 이미지 + 닉네임 + 게시글 제목)
         listItem.innerHTML = `
-            <b>${post.nickname}</b> 
-            <a href="javascript:void(0)" 
-               onclick="navigateToNeighborPost('${post.nickname}', ${post.postId})" 
-               style="color: #b865a4; text-decoration: none; cursor: pointer;">
-                ${displayTitle}
-            </a>
+            <div class="home-profile-container">
+                <img class="home-profile-image" 
+                     src="${profileImageUrl}" 
+                     alt="${post.nickname}의 프로필" 
+                     loading="lazy" />
+                <div class="home-content">
+                    <b>${post.nickname}</b> 
+                    <a href="javascript:void(0)" 
+                       onclick="navigateToNeighborPost('${post.nickname}', ${post.postId})" 
+                       style="color: #b865a4; text-decoration: none; cursor: pointer;">
+                        ${displayTitle}
+                    </a>
+                </div>
+            </div>
         `;
         
         neighborList.appendChild(listItem);
     });
 
-    console.log(`이웃 최신글 카드 업데이트 완료: ${neighborPosts.length}개 항목`);
+    console.log(`이웃 최신글 카드 업데이트 완료: ${neighborPosts.length}개 항목 (프로필 이미지 포함)`);
+}
+
+// === 이웃 프로필 이미지 가져오기 ===
+async function getNeighborProfileImage(nickname) {
+    try {
+        const encodedNickname = encodeURIComponent(nickname);
+        const response = await fetch(`/blog/api/@${encodedNickname}/user-info`);
+        
+        if (response.ok) {
+            const userInfo = await response.json();
+            return userInfo.profileImage || '/images/default_profile.png';
+        } else {
+            console.log(`${nickname}의 프로필 이미지 로드 실패:`, response.status);
+            return '/images/default_profile.png';
+        }
+    } catch (error) {
+        console.error(`${nickname}의 프로필 이미지 로드 중 오류:`, error);
+        return '/images/default_profile.png';
+    }
 }
 
 // === 이웃 게시글로 이동 ===
@@ -447,10 +730,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('페이지 타이틀 설정:', document.title);
     }
 
-    // DOM 요소 존재 확인
-    setTimeout(() => {
-        checkDOMElements();
-    }, 100);
+    // 컴포넌트 로딩 완료까지 대기
+    console.log('컴포넌트 로딩 대기 중...');
+    await waitForComponents();
+    console.log('컴포넌트 로딩 완료, 홈 페이지 초기화 시작');
 
     // 블로그 홈 초기화
     initHomePage();
@@ -461,6 +744,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 사용자 데이터 로드 (스킨은 이미 즉시 로드됨)
     await loadUserData();
 
+    // 사용자 데이터는 setupHomeFeatures에서 로드됨
+    // 따라서 여기서는 중복 호출하지 않음
+
     // 스킨이 아직 로드되지 않았다면 강제 새로고침
     const frame = document.querySelector('.frame');
     if (frame && !frame.classList.contains('skin-loaded')) {
@@ -468,6 +754,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await loadBlogSkinImmediately();
     }
 
+    console.log('=== DOMContentLoaded 완료 ===');
 });
 
 // === DOM 요소 존재 확인 함수 ===
@@ -509,21 +796,6 @@ function checkDOMElements() {
     }
 
 }
-
-// === 디버깅용 전역 함수 추가 ===
-window.debugHomeLoading = function() {
-    console.log('=== 수동 디버깅 시작 ===');
-    
-    console.log('현재 URL:', window.location.href);
-    console.log('window.currentBlogNickname:', window.currentBlogNickname);
-    console.log('getBlogOwnerNickname():', getBlogOwnerNickname());
-    console.log('extractNicknameFromUrl():', extractNicknameFromUrl());
-    
-    checkDOMElements();
-    
-    console.log('사용자 데이터 강제 로드...');
-    loadUserData();
-};
 
 // 블로그 주인 정보 초기화
 async function initBlogOwnerInfo() {
@@ -710,6 +982,9 @@ async function loadGuestbookPreview() {
         if (response.ok) {
             const data = await response.json();
             console.log('홈 페이지 방명록 데이터:', data);
+
+            // 각 방명록 항목에 프로필 이미지 정보가 이미 포함되어 있음
+            // (백엔드에서 제공하는 profileImage 필드 사용)
             
             // 방명록 카드 업데이트
             updateGuestbookCard(data.entries || []);
@@ -724,19 +999,19 @@ async function loadGuestbookPreview() {
 }
 
 // === 방명록 카드 업데이트 ===
-function updateGuestbookCard(guestbookEntries) {
+async function updateGuestbookCard(guestbookEntries) {
     const guestbookList = document.querySelector('#guestbook-card .guestbook-list');
     
     if (!guestbookList) {
-        console.error('방명록 카드를 찾을 수 없음');
+        console.error('방명록 카드를 찾을 수 없음!');
         return;
     }
 
     // 기존 내용 제거
     guestbookList.innerHTML = '';
 
+    // 방명록이 없는 경우
     if (guestbookEntries.length === 0) {
-        // 방명록이 없는 경우
         const emptyItem = document.createElement('li');
         emptyItem.innerHTML = '<span style="color: #999; font-style: italic;">아직 작성된 방명록이 없습니다.</span>';
         guestbookList.appendChild(emptyItem);
@@ -744,33 +1019,57 @@ function updateGuestbookCard(guestbookEntries) {
         return;
     }
 
-    // 최신 3개 방명록 표시 (이미 최신순으로 정렬됨)
-    guestbookEntries.slice(0, 3).forEach(entry => {
+    console.log('방명록 프로필 이미지 로딩 시작...');
+
+    // 방명록 작성자들의 프로필 이미지를 먼저 로드
+    const entries = guestbookEntries.slice(0, 3);
+    const profilePromises = entries.map(entry => {
+        // 백엔드에서 이미 profileImage를 제공하는 경우
+        if (entry.profileImage && entry.profileImage !== '/images/default_profile.png') {
+            return Promise.resolve(entry.profileImage);
+        }
+        // 그렇지 않으면 API로 가져오기
+        return getCachedProfileImage(entry.nickname);
+    });
+
+    const profileImages = await Promise.all(profilePromises);
+    console.log('모든 방명록 프로필 이미지 로드 완료:', profileImages);
+
+    // 프로필 이미지가 준비된 후 DOM 업데이트
+    entries.forEach((entry, index) => {
         const listItem = document.createElement('li');
+        listItem.className = 'home-entry-item'; // 스타일링용 클래스 추가
         
-        // 비밀글 처리
-        const isSecret = entry.isSecret || entry.secret || false;
-        let displayContent = entry.content;
-        
-        // 비밀글인데 내용이 숨겨진 경우
-        if (isSecret && displayContent === '(비밀글입니다)') {
-            displayContent = '🔒 비밀글입니다';
+        // 방명록 내용 처리
+        let htmlContent  = entry.content;
+       
+        if (entry.isSecret || entry.secret) {
+        // 비밀글일 때
+        htmlContent = (htmlContent === '(비밀글입니다)') 
+            ? '🔒 비밀글입니다'
+            : htmlContent;
         }
+
+        // 프로필 이미지 URL 처리
+        const profileImageUrl = profileImages[index]; // 이미 로드된 이미지 사용
         
-        // 내용이 너무 길면 자르기 (홈 카드용)
-        if (displayContent.length > 30) {
-            displayContent = displayContent.substring(0, 30) + '...';
-        }
-        
-        // HTML 생성
+        // HTML 생성 (프로필 이미지 + 닉네임 + 내용)
         listItem.innerHTML = `
-            <b>${entry.nickname}</b>: ${displayContent}
+            <div class="home-profile-container">
+                <img class="home-profile-image" 
+                     src="${profileImageUrl}" 
+                     alt="${entry.nickname}의 프로필" 
+                     loading="lazy" />
+                <div class="home-content">
+                    <b>${entry.nickname}</b>: ${htmlContent}
+                </div>
+            </div>
         `;
         
         guestbookList.appendChild(listItem);
     });
 
-    console.log(`방명록 카드 업데이트 완료: ${guestbookEntries.length}개 항목`);
+    console.log(`방명록 카드 업데이트 완료: ${entries.length}개 항목 (프로필 이미지 포함)`);
 }
 
 // === 빈 방명록 카드 표시 ===
@@ -781,6 +1080,28 @@ function showEmptyGuestbookCard() {
         guestbookList.innerHTML = `
             <li><span style="color: #999; font-style: italic;">방명록을 불러올 수 없습니다!</span></li>
         `;
+    }
+}
+
+// === 방명록 카드 클릭 이벤트 설정 함수 (새로 추가) ===
+function setupGuestbookCardClick() {
+    const guestbookCard = document.getElementById('guestbook-card');
+
+    if (guestbookCard) {
+        // 기존 이벤트 리스너가 있으면 제거 (중복 방지)
+        guestbookCard.removeEventListener('click', navigateToGuestbook);
+        
+        // 새 이벤트 리스너 추가
+        guestbookCard.addEventListener('click', navigateToGuestbook);
+        guestbookCard.style.cursor = 'pointer';
+        console.log('방명록 카드 클릭 이벤트 설정 완료');
+    } else {
+        console.log('guestbook-card를 찾을 수 없습니다! DOM 로딩 대기 중...');
+        
+        // DOM이 아직 로드되지 않았을 수 있으므로 재시도
+        setTimeout(() => {
+            setupGuestbookCardClick();
+        }, 500);
     }
 }
 
@@ -797,35 +1118,90 @@ function initHomePage() {
 
 // === 블로그 홈 초기화 함수 ===
 function setupHomeFeatures() {
-    console.log('=== 홈 페이지 기능 초기화 시작 ===');
+    console.log('=== 블로그 홈 페이지 기능 초기화 시작 ===');
 
-    // 사용자 데이터 로드
+    // 사용자 데이터를 먼저 로드
+    console.log('사용자 데이터 로드 시작...');
     loadUserData();
 
-    // 방명록 미리보기 로드
-    loadGuestbookPreview();
+    // 순차적이 아닌 병렬로 로드 => 프로필 이미지는 각 함수 내에서 처리
+    setTimeout(async () => {
+        console.log('방명록, 이웃 최신글, 최근 게시물 동시 로드 시작');
 
-    // 이웃 최신글 로드 추가 (neighbor.js 활용)
-    loadNeighborPosts();
+        // 병렬로 실행하되 각각 독립적으로 처리
+        const promises = [
+            loadGuestbookPreview(), // 방명록 미리보기 로드
+            loadNeighborPosts(), // 이웃 최신글 로드 (neighbor.js 활용)
+            loadRecentPosts() // 최근 게시물 로드
+        ];
 
-    console.log('setupHomeFeatures 호출됨');
+        try {
+            await Promise.all(promises);
+            console.log('방명록, 이웃 최신글, 최근 게시물 로드 완료');
+        } catch (error) {
+            console.error('블로그 홈 페이지 데이터 로드 중 오류:', error);
+        }
+    }, 200);
 
-    // 방명록 카드 클릭 이벤트
-    const guestbookCard = document.getElementById('guestbook-card');
+    // 방명록 카드 클릭 이벤트 설정
+    setTimeout(() => {
+        setupGuestbookCardClick();
+    }, 300);
 
-    if (guestbookCard) {
-        guestbookCard.addEventListener('click', navigateToGuestbook);
-        guestbookCard.style.cursor = 'pointer'; // 커서 변경
-        console.log('방명록 카드 클릭 이벤트 설정 완료');
-    } else {
-        console.log('guestbook-card를 찾을 수 없습니다!');
-    }
-    
-    // 이웃 기능 초기화 (neighbor.js 함수 활용)
-    initializeNeighborFeaturesForHome();
+    // 이웃 기능 초기화
+    setTimeout(() => {
+        initializeNeighborFeaturesForHome();
+    }, 500);
 
     console.log('=== 홈 페이지 기능 초기화 완료 ===');
 }
+
+// === 컴포넌트 로딩 대기 함수 (추가) ===
+async function waitForComponents() {
+    console.log('컴포넌트 로딩 대기 시작');
+    
+    const maxWaitTime = 5000; // 최대 5초 대기
+    const checkInterval = 100; // 100ms마다 체크
+    let elapsed = 0;
+
+    return new Promise((resolve) => {
+        const checkComponents = () => {
+            // 필요한 컴포넌트들이 로드되었는지 확인
+            const leftContainer = document.getElementById('left-container');
+            const topContainer = document.getElementById('top-container');
+            const rightContainer = document.getElementById('right-container');
+            
+            // 컨테이너들이 존재하고 내용이 있는지 확인
+            const leftLoaded = leftContainer && leftContainer.innerHTML.length > 50;
+            const topLoaded = topContainer && topContainer.innerHTML.length > 50;
+            const rightLoaded = rightContainer && rightContainer.innerHTML.length > 50;
+
+            console.log('컴포넌트 로딩 상태:', {
+                left: leftLoaded,
+                top: topLoaded,
+                right: rightLoaded
+            });
+
+            if (leftLoaded && topLoaded && rightLoaded) {
+                console.log('모든 컴포넌트 로딩 완료');
+                resolve();
+                return;
+            }
+
+            elapsed += checkInterval;
+            if (elapsed >= maxWaitTime) {
+                console.log('컴포넌트 로딩 타임아웃 - 진행');
+                resolve();
+                return;
+            }
+
+            setTimeout(checkComponents, checkInterval);
+        };
+
+        checkComponents();
+    });
+}
+
 
 // === 이웃 관련 함수 시작 ===
 
@@ -978,13 +1354,39 @@ function removeSkin() {
     }
 }
 
+// === 디버깅용 전역 함수 ===
+window.debugHomeLoading = function() {
+    console.log('=== 수동 디버깅 시작 ===');
+    
+    console.log('현재 URL:', window.location.href);
+    console.log('window.currentBlogNickname:', window.currentBlogNickname);
+    console.log('getBlogOwnerNickname():', getBlogOwnerNickname());
+    console.log('extractNicknameFromUrl():', extractNicknameFromUrl());
+    
+    checkDOMElements();
+    
+    console.log('사용자 데이터 강제 로드...');
+    loadUserData();
+};
+
+// === 프로필 이미지 캐시 관련 디버깅 함수들 ===
+window.clearProfileImageCache = function() {
+    profileImageCache.clear();
+    console.log('프로필 이미지 캐시 초기화');
+};
+
+window.checkProfileImageCache = function() {
+    console.log('현재 프로필 이미지 캐시:', Array.from(profileImageCache.entries()));
+    console.log('캐시 크기:', profileImageCache.size);
+};
+
 // 스킨 새로고침 함수 (프로필에서 스킨 변경 후 호출용)
 window.refreshSkin = async function() {
     console.log('스킨 새로고침 요청됨');
     await loadBlogSkinImmediately(); // 즉시 로드 함수 사용
 }
 
-// 전역으로 노출하는 함수들 (다른 페이지에서 사용 가능)
+// 전역 함수들 (다른 페이지에서 사용 가능)
 window.loadUserData = loadUserData;
 window.loadBlogSkin = loadBlogSkin;
 window.getBlogOwnerNickname = getBlogOwnerNickname;
@@ -1001,5 +1403,10 @@ window.updateGuestbookCard = updateGuestbookCard;
 window.loadNeighborPosts = loadNeighborPosts;
 window.navigateToNeighborPost = navigateToNeighborPost;
 window.updateNeighborPostsCard = updateNeighborPostsCard;
+
+// === 최근 게시물 ===
+window.loadRecentPosts = loadRecentPosts;
+window.updateRecentPostsCard = updateRecentPostsCard;
+window.navigateToPost = navigateToPost;
 
 console.log('home.js 로드 완료');

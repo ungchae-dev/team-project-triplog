@@ -1,5 +1,67 @@
 /* home.css : 블로그 - 홈 디자인 */
 
+/* 홈 페이지 방명록/이웃 최신글 공통 스타일 */
+.home-entry-item {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+.home-profile-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.home-profile-image {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1.5px solid #d7bfae;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #f9f9f9;
+}
+
+.home-content {
+    flex: 1;
+    min-width: 0; /* 텍스트 오버플로우 방지 */
+    word-wrap: break-word;
+    max-width: 50ch;   /* 최대 50 글자 너비 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* 프로필 이미지 로딩 실패 시 기본 스타일 */
+.home-profile-image:not([src]),
+.home-profile-image[src=""],
+.home-profile-image[src="/images/default_profile.png"] {
+    background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+}
+
+/* 프로필 이미지 호버 효과 */
+.home-profile-image:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+/* 반응형 디자인 - 작은 화면에서 */
+@media (max-width: 768px) {
+    .home-profile-image {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .home-profile-container {
+        gap: 6px;
+    }
+    
+    .guestbook-list, .neighbor-list {
+        font-size: 13px;
+    }
+}
+
 /* 기본 reset 및 body 스타일 */
 body, html {
     width: 100vw;
@@ -350,10 +412,12 @@ body, html {
     list-style: none;
     padding: 0;
     margin: 0;
-    font-size: 15px;
+    font-size: 14px;
     color: #222;
-    line-height: 2;
+    line-height: 1.8;
 }
+
+
 
 /* 방명록 카드 인터랙션 개선 */
 #guestbook-card {
@@ -424,6 +488,7 @@ body, html {
     align-items: center;
 }
 
+/* 최근 게시물 카드 호버 효과 개선 */
 .photo-card {
     background: rgba(247, 244, 239, 0.98);
     border: 1.5px solid #c2b7a8;
@@ -435,6 +500,25 @@ body, html {
     align-items: center;
     box-shadow: 0 2px 10px #e8d0b899;
     overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    user-select: none; /* 텍스트 선택 방지 */
+}
+
+.photo-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 클릭 가능함을 명확히 표시 */
+.photo-card:hover .caption {
+    color: #b865a4;
+    font-weight: bold;
+}
+
+.photo-card:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .photo-card .photo {
@@ -460,12 +544,19 @@ body, html {
 }
 
 .photo-card img {
-    max-width: 100%;
-    max-height: 100%;
+    /* 이미지 로드 실패 처리 개선 */
+    transition: opacity 0.2s ease, filter 0.2s ease, transform 0.2s ease;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+    /*
+    max-width: 100%;
+    max-height: 100%;
+    */
 }
 
+/*
 .photo-card img[src*="via.placeholder.com"]:before {
     content: "📷";
     display: flex;
@@ -476,10 +567,44 @@ body, html {
     width: 100%;
     height: 100%;
 }
+*/
+
+/* 기본 게시물 이미지 스타일 */
+.photo-card img[src="/images/default_post.png"] {
+    opacity: 0.8;
+    filter: grayscale(20%);
+}
+
+.photo-card:hover img[src="/images/default_post.png"] {
+    opacity: 1;
+    filter: grayscale(0%);
+}
+
 
 .photo-card img:not([src]),
-.photo-card img[src=""] {
-    display: none;
+.photo-card img[src=""],
+.photo-card img[src="undefined"] {
+    content: url('/images/default_post.png');
+    opacity: 0.8;
+    /* display: none; */
+}
+
+/* 빈 최근 게시물 메시지 스타일 */
+.empty-posts-message {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    background: rgba(247, 244, 239, 0.5);
+    border: 2px dashed #d7bfae;
+    border-radius: 12px;
+    color: #999;
+    font-style: italic;
+    text-align: center;
+    line-height: 1.6;
+    font-size: 15px;
+    padding: 20px;
 }
 
 .photo-card .caption {

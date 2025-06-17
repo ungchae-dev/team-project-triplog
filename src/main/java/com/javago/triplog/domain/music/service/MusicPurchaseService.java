@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.javago.constant.ItemType;
 import com.javago.triplog.domain.member.entity.Member;
@@ -16,7 +17,6 @@ import com.javago.triplog.domain.music.dto.MusicPurchaseResponse;
 import com.javago.triplog.domain.music.entity.Music;
 import com.javago.triplog.domain.music.repository.MusicRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -119,6 +119,7 @@ public class MusicPurchaseService {
   }
 
   // 닉네임 기반 보유 음악 조회 추가
+    @Transactional(readOnly = true)
     public List<MusicDto> getOwnedMusicByNickname(String nickname) {
     Member member = memberRepository.findByNickname(nickname);
     
