@@ -137,7 +137,7 @@ public class Post {
     //대표 이미지 가져오기
     public Post_Image getThumbnailImage() {
         return this.postImage.stream()
-                .filter(img -> "Y".equals(img.getIsThumbnail()))
+                .filter(img -> "Y".equals(img.getIsThumbnail().name())) // IsThumbnail.Y 확인
                 .findFirst()
                 .orElse(null);
     }

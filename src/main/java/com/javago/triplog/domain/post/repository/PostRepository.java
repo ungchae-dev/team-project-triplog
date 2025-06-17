@@ -1,5 +1,7 @@
 package com.javago.triplog.domain.post.repository;
 
+import com.javago.constant.Visibility;
+import com.javago.triplog.domain.blog.entity.Blog;
 import com.javago.triplog.domain.post.entity.Post;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,5 +46,20 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p.content FROM Post p WHERE p.postId = :id")
     Optional<String> findContentById(@Param("id") Long id);
+
+    // 블로그 홈 - 최근 게시물 관련 메서드 추가
+    // 특정 블로그의 공개 게시물을 최신순으로 조회 (썸네일 이미지 포함)
+    @Query("""
+        SELECT DISTINCT p FROM Post p 
+        LEFT JOIN FETCH p.postImage i 
+        WHERE p.blog = :blog 
+        AND p.visibility = :visibility 
+        ORDER BY p.updatedAt DESC
+    """)
+    List<Post> findByBlogAndVisibilityOrderByUpdatedAtDesc(
+        @Param("blog") Blog blog, 
+        @Param("visibility") Visibility visibility, 
+        Pageable pageable
+    );
 
 }
