@@ -57,7 +57,7 @@
     // 최초 1회 페이지 자동새로고침 
     if (!sessionStorage.getItem('acornTabReloaded')) {
     sessionStorage.setItem('acornTabReloaded', 'true');
-    location.reload();
+    renderAcornList();
     return; // 이 뒤 코드는 실행 안 함
   } 
     
@@ -595,6 +595,10 @@ async function renderMusicList(Page = 1, genreId = currentMusicGenreId) {
         }
         
         console.log('상점 페이지 초기화 완료');
+         // 네비게이션에서 'shop' 버튼을 활성화
+        if (typeof window.setActiveNavButton === 'function') {
+            window.setActiveNavButton('shop');
+        }
     }
 
     // === 외부에서 호출 가능한 함수들 (SPA 네비게이션 연동용) ===
