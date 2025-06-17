@@ -94,7 +94,7 @@
                   <option value="N">전체 공개</option>
                   <option value="Y">비공개</option>
                 </select>
-                <button id="submitComment" class="comment-btn">댓글 달기</button>
+                <button id="submitComment" class="comment-btn" onclick="addComment()">댓글 달기</button>
                 <!-- 댓글 리스트 -->
                 <ul class="comment-list" id="detail-comments">
                   <!-- 댓글들이 동적으로 추가됩니다 -->
@@ -187,7 +187,8 @@
     
 
     // 댓글 등록
-    document.getElementById('submitComment').addEventListener('click', function () {
+    let submitComment = document.getElementById('submitComment');
+    function addComment() {
       const content = document.getElementById('comment-input').value.trim();
       const isSecret = document.getElementById('is_secret').value;
 
@@ -211,16 +212,16 @@
           isSecret: isSecret
         })
       })
-        .then(res => {
-          if (!res.ok) throw new Error('댓글 등록 실패');
-          return res.json();
-        })
-        .then(data => {
-          fetchComments(id);
-          document.getElementById('comment-input').value = '';
-        })
-        .catch(err => alert(err.message));
-    });
+      .then(res => {
+        if (!res.ok) throw new Error('댓글 등록 실패');
+        return res.json();
+      })
+      .then(data => {
+        fetchComments(id);
+        document.getElementById('comment-input').value = '';
+      })
+      .catch(err => alert(err.message));
+    }
 
     // 댓글 수정
     function editComment(commentId) {
@@ -518,6 +519,7 @@
       addLikeBtn = document.getElementById('addPostLike');
       delLikeBtn = document.getElementById('delPostLike');
       deleteBtn = document.getElementById("delete-btn");
+      submitComment = document.getElementById('submitComment');
 
       // 댓글 리스트 초기화
       const commentList = document.getElementById('detail-comments');
@@ -529,6 +531,7 @@
       fetchComments(id);
       // 좋아요 초기화 등 필요한 것들 이곳에 추가
     }
+    
 
   </script>
 
