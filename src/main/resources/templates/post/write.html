@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="/css/post.css" />
   <link rel="stylesheet" href="/css/jukebox.css" />
   <link rel="stylesheet" href="/css/guestbook.css" />
-  
+  <link rel="stylesheet" href="/css/neighbor.css" />
   <style>
     /*
     #title {
@@ -236,7 +236,7 @@
       selection.addRange(range);
     }
 
-
+/*
     // 이미지 삭제 버튼(x) 위치 고정
     editor.addEventListener('click', function (e) {
       if (e.target.tagName === 'IMG') {
@@ -259,42 +259,93 @@
         currentImage = null;
       }
     });
+*/
+    const hashtagInput = document.getElementById('hashtagInput');
+    const addedHashtagsDiv = document.createElement('div');
+    addedHashtagsDiv.id = 'addedHashtags';
+    document.querySelector('.hashtags').appendChild(addedHashtagsDiv);
 
+document.querySelectorAll('input[name="tag"]').forEach(checkbox => {
+  checkbox.addEventListener('change', function () {
+    const tagValue = this.value;
+    const tagLabel = this.nextElementSibling?.textContent || tagValue;
 
-  // 인원 태그 선택 시 화면에 출력
-  function addHashtag(tag) {
-    tag = tag.trim();
-    if (!tag) return;
-    if (!tag.startsWith('#')) tag = '#' + tag;
+    if (this.checked) {
+      // 이미 화면에 존재하는지 확인
+      const exists = Array.from(addedHashtagsDiv.children).some(el => el.dataset.tagId === tagValue);
+      if (exists) return;
 
-    // 중복 체크
-    const existingTags = Array.from(addedHashtagsDiv.children).map(el => el.textContent);
-    if (existingTags.includes(tag)) {
-      alert('이미 추가된 해시태그입니다.');
-      return;
+      const tagElem = document.createElement('span');
+      tagElem.textContent = '#' + tagLabel;
+      tagElem.classList.add('user-hashtag');
+      tagElem.dataset.tagId = tagValue;
+
+      tagElem.style.backgroundColor = '#a86c44';
+      tagElem.style.color = 'white';
+      tagElem.style.padding = '2px 8px';
+      tagElem.style.borderRadius = '12px';
+      tagElem.style.fontSize = '13px';
+      tagElem.style.cursor = 'pointer';
+
+      // 삭제 기능 (체크도 해제)
+      tagElem.addEventListener('click', () => {
+        if (confirm(`해시태그 "${tagLabel}"를 삭제하시겠습니까?`)) {
+          addedHashtagsDiv.removeChild(tagElem);
+          checkbox.checked = false;
+        }
+      });
+
+      addedHashtagsDiv.appendChild(tagElem);
+    } else {
+      // 체크 해제 시 span도 삭제
+      const toRemove = addedHashtagsDiv.querySelector(`[data-tag-id="${tagValue}"]`);
+      if (toRemove) addedHashtagsDiv.removeChild(toRemove);
     }
+  });
+});
 
-    const tagElem = document.createElement('span');
-    tagElem.textContent = tag;
-    tagElem.classList.add('user-hashtag');  // 여기서 클래스 추가
-
-    tagElem.style.backgroundColor = '#a86c44';
-    tagElem.style.color = 'white';
-    tagElem.style.padding = '2px 8px';
-    tagElem.style.borderRadius = '12px';
-    tagElem.style.fontSize = '13px';
-    tagElem.style.cursor = 'default';
-
-    // 삭제 기능
-    tagElem.addEventListener('click', () => {
-      if (confirm(`해시태그 "${tag}"를 삭제하시겠습니까?`)) {
-        addedHashtagsDiv.removeChild(tagElem);
-      }
-    });
-
-    addedHashtagsDiv.appendChild(tagElem);
-    hashtagInput.value = '';
+  hashtagInput.addEventListener('keypress', function (e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    addHashtag(this.value);
   }
+});
+
+function addHashtag(tag) {
+  tag = tag.trim();
+  if (!tag) return;
+
+  // 저장용 값 (# 제거)
+  const cleanTag = tag.startsWith('#') ? tag.slice(1) : tag;
+
+  // 중복 방지
+  const existingTags = Array.from(addedHashtagsDiv.children).map(el => el.dataset.tag);
+  if (existingTags.includes(cleanTag)) {
+    alert('이미 추가된 해시태그입니다.');
+    return;
+  }
+
+  const tagElem = document.createElement('span');
+  tagElem.textContent = `#${cleanTag}`; // 사용자 표시용
+  tagElem.dataset.tag = cleanTag;       // 저장용 (dataset에 보존)
+  tagElem.classList.add('user-hashtag');
+
+  tagElem.style.backgroundColor = '#a86c44';
+  tagElem.style.color = 'white';
+  tagElem.style.padding = '2px 8px';
+  tagElem.style.borderRadius = '12px';
+  tagElem.style.fontSize = '13px';
+  tagElem.style.cursor = 'default';
+
+  tagElem.addEventListener('click', () => {
+    if (confirm(`해시태그 "${cleanTag}"를 삭제하시겠습니까?`)) {
+      addedHashtagsDiv.removeChild(tagElem);
+    }
+  });
+
+  addedHashtagsDiv.appendChild(tagElem);
+  hashtagInput.value = '';
+}
 
   // 작성 버튼 이벤트
   document.getElementById('write-form').addEventListener('submit', async function (e) {
@@ -309,7 +360,9 @@
     const checkedHashtags = Array.from(document.querySelectorAll('input[name="tag"]:checked')).map(el => el.value);
     //const newHashtag = document.getElementById('hashtagInput').value.trim();
     const hashtags = document.querySelectorAll('.user-hashtag');
-    const newHashtag = Array.from(hashtags).map(el => el.textContent);
+    const newHashtag = Array.from(document.querySelectorAll('.user-hashtag'))
+        .map(el => el.dataset.tag?.trim())   // trim()으로 양쪽 공백 제거
+        .filter(tag => tag && tag.length > 0); // null, 빈 문자열 제거
 
     if (!title){
       alert("제목을 입력해주세요");
@@ -370,6 +423,12 @@
       alert('작성 실패');
     }
   });
+
+  window.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('input[name="tag"]:checked').forEach(checkbox => {
+    checkbox.dispatchEvent(new Event('change'));
+  });
+});
 </script>
 <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
 <script src="/js/layout.js"></script>
@@ -379,7 +438,7 @@
 <script src="/js/post.js"></script>
 <script src="/js/jukebox.js"></script>
 <script src="/js/guestbook.js"></script>
-
+<script src="/js/neighbor.js"></script>
 </body>
 
 </html>

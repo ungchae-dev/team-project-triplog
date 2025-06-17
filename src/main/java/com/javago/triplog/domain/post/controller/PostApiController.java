@@ -85,7 +85,7 @@ public class PostApiController {
 
     // 게시글 상세 조회
     @GetMapping("/api/posts/{id}")
-    public ResponseEntity<Post> getPost(@PathVariable Long id) {
+    public ResponseEntity<?> getPost(@PathVariable Long id) {
         try {
             Post post = postService.findById(id);
             return ResponseEntity.ok(post);
@@ -149,17 +149,27 @@ public class PostApiController {
     // 게시글 좋아요 추가
     @PostMapping("/api/{id}/like")
     public ResponseEntity<?> likePost(@PathVariable("id") Long postId, @RequestBody PostLikeRequest request) {
-        postService.addLike(postId, request.getUserId());
-        Long likeCount = postService.countPostLike(postId);
-        return ResponseEntity.ok().body(Map.of("message", "좋아요 추가됨", "likeCount", likeCount));
+        if(!postService.existPostLike(postId, request.getUserId())){
+            postService.addLike(postId, request.getUserId());
+            Long likeCount = postService.countPostLike(postId);
+            return ResponseEntity.ok().body(Map.of("message", "좋아요 추가됨", "likeCount", likeCount));
+        }else{
+            return ResponseEntity.badRequest().build();
+        }
+        
+        
     }
 
     // 게시글 좋아요 취소
     @DeleteMapping("/api/{id}/like")
     public ResponseEntity<?> unlikePost(@PathVariable("id") Long postId, @RequestBody PostLikeRequest request) {
-        postService.removeLike(postId, request.getUserId());
-        Long likeCount = postService.countPostLike(postId);
-        return ResponseEntity.ok().body(Map.of("message", "좋아요 취소됨", "likeCount", likeCount));
+        if(postService.existPostLike(postId, request.getUserId())){
+            postService.removeLike(postId, request.getUserId());
+            Long likeCount = postService.countPostLike(postId);
+            return ResponseEntity.ok().body(Map.of("message", "좋아요 취소됨", "likeCount", likeCount));
+        }else{
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     // 댓글 작성

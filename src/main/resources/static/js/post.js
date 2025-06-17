@@ -886,7 +886,7 @@ function activatePostUI() {
     }
     
 }
-
+*/
 // 페이지 사이즈 드롭다운 설정 (분리)
 function setupPageSizeDropdown() {
 
@@ -924,7 +924,7 @@ function setupPageSizeDropdown() {
     });
 
 }
-*/
+
 // === 유틸리티 함수들 ===
 
 function getCurrentNickname() {

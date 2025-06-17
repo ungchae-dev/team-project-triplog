@@ -26,6 +26,7 @@ public class CommentDto {
     private List<CommentDto> commentList;
 
     public static List<CommentDto> buildCommentTree(List<Comments> comments, String loginUserId) {
+        comments.sort((a, b) -> a.getCreatedAt().compareTo(b.getCreatedAt()));
         Map<Long, CommentDto> map = new HashMap<>();
         List<CommentDto> roots = new ArrayList<>();
 
