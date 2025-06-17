@@ -837,18 +837,14 @@ async function updateGuestbookCard(guestbookEntries) {
         const listItem = document.createElement('li');
         listItem.className = 'home-entry-item'; // 스타일링용 클래스 추가
         
-        // 비밀글 처리
-        const isSecret = entry.isSecret || entry.secret || false;
-        let displayContent = entry.content;
-        
-        // 비밀글인데 내용이 숨겨진 경우
-        if (isSecret && displayContent === '(비밀글입니다)') {
-            displayContent = '🔒 비밀글입니다';
-        }
-        
-        // 내용이 너무 길면 자르기 (홈 카드용)
-        if (displayContent.length > 30) {
-            displayContent = displayContent.substring(0, 30) + '...';
+        // 방명록 내용 처리
+        let htmlContent  = entry.content;
+       
+        if (entry.isSecret || entry.secret) {
+        // 비밀글일 때
+        htmlContent = (htmlContent === '(비밀글입니다)') 
+            ? '🔒 비밀글입니다'
+            : htmlContent;
         }
 
         // 프로필 이미지 URL 처리
@@ -862,7 +858,7 @@ async function updateGuestbookCard(guestbookEntries) {
                      alt="${entry.nickname}의 프로필" 
                      loading="lazy" />
                 <div class="home-content">
-                    <b>${entry.nickname}</b>: ${displayContent}
+                    <b>${entry.nickname}</b>: ${htmlContent}
                 </div>
             </div>
         `;
