@@ -170,7 +170,14 @@
                 const newUrl = new URL(window.location.href);
                 newUrl.searchParams.set('size', size);
                 newUrl.searchParams.set('page', '1'); // 페이지 초기화
-                window.location.href = newUrl.toString();
+                
+                const blogPrefix = `/blog/@${getCurrentNickname()}/`;
+                let relativePath = newUrl.pathname + newUrl.search;
+
+                if (relativePath.startsWith(blogPrefix)) {
+                    relativePath = relativePath.slice(blogPrefix.length);
+                }
+                window.navigateToPageWithAuth(relativePath);
             });
         });
 

@@ -908,8 +908,8 @@ function navigateToPage(page) {
     }
 
     console.log(`페이지 이동 시작: ${page}`);
-
-    const basePage = page.split('/')[0]; // post/123 → post
+    const cleanPage = page.split('?')[0];
+    const basePage = cleanPage.split('/')[0]; // post/123 → post
     setActiveNavButton(basePage); // base만 버튼 활성화
     setPageTitleImmediately(basePage);
 
@@ -1205,7 +1205,10 @@ function setPageTitleByUrl() {
         pageKey = 'home';
     }
 
-    let pageTitle = PAGE_TITLES[pageKey];
+    const cleanKey = pageKey.split('?')[0];
+    const baseKey = cleanKey.split('/')[0];
+
+    let pageTitle = PAGE_TITLES[baseKey];
     if (!pageTitle && pageKey.includes('/')) {
         const parentKey = pageKey.split('/')[0];
         pageTitle = PAGE_TITLES[parentKey];
