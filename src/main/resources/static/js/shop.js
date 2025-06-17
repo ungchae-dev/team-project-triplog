@@ -329,6 +329,12 @@ async function renderMusicList(Page = 1, genreId = currentMusicGenreId) {
           const result = await response.json();
           alert(result.message + '\n남은 도토리: ' + result.remainingAcorn);
           
+                    // 1) 주크박스 prefetch 캐시 무효화
+          window._jukeboxPrefetch = null;
+
+          // 2) 주크박스가 다시 데이터를 불러오도록 커스텀 이벤트 발행
+          window.dispatchEvent(new Event('music:purchased'));
+
           await fetchUserAcorn() 
           renderMusicList(Page, genreId); // 현재 페이지 & 장르 유지
           loadOwnedMusic(); // 구매 후 음악 목록 갱신
