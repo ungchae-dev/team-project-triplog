@@ -171,7 +171,8 @@
                 newUrl.searchParams.set('size', size);
                 newUrl.searchParams.set('page', '1'); // 페이지 초기화
                 
-                const blogPrefix = `/blog/@${getCurrentNickname()}/`;
+                const encodedNickname = encodeURIComponent(window.getCurrentNickname());
+                const blogPrefix = `/blog/@${encodedNickname}/`;
                 let relativePath = newUrl.pathname + newUrl.search;
 
                 if (relativePath.startsWith(blogPrefix)) {

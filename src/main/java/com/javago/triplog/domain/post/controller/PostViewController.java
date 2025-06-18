@@ -98,7 +98,7 @@ public class PostViewController {
             model.addAttribute("currentSize", size);
             model.addAttribute("currentSort", sortBy);
             model.addAttribute("currentDir", direction);
-            model.addAttribute("nickname", nickname);
+            model.addAttribute("nickname", decodedNickname);
             model.addAttribute("loginNickname", loginNickname);
 
             System.out.println("게시판 접근 허용: " + decodedNickname + " (로그인 사용자: " + loginNickname + ")");
@@ -120,6 +120,10 @@ public class PostViewController {
             System.out.println("게시글 상세보기 접근 거부: 로그인 필요");
             return "redirect:/member/login";
         }
+
+        // 닉네임 디코딩 처리
+            String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
+
         
         try {
             Post post = postService.findById(id);
@@ -128,7 +132,7 @@ public class PostViewController {
             
             model.addAttribute("post", post);
             model.addAttribute("hashtagList", post.getPostHashtagPeople());
-            model.addAttribute("nickname", nickname);
+            model.addAttribute("nickname", decodedNickname);
             model.addAttribute("userId", customUserDetails.getMember().getMemberId());
             model.addAttribute("loginNickname", customUserDetails.getMember().getNickname());
             model.addAttribute("exist", exist);
@@ -168,7 +172,7 @@ public class PostViewController {
 
             model.addAttribute("post", new Post());
             model.addAttribute("hashtagList", postService.hashtagList());
-            model.addAttribute("nickname", nickname);
+            model.addAttribute("nickname", decodedNickname);
             model.addAttribute("blogId", blog.getBlogId());
 
             System.out.println("글 작성 접근 허용: " + decodedNickname);
@@ -189,6 +193,9 @@ public class PostViewController {
             return "redirect:/member/login";
         }
 
+        // 닉네임 디코딩 처리
+        String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
+
         try {
             CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
             Post post = postService.findtoUpdate(id);
@@ -205,7 +212,7 @@ public class PostViewController {
             model.addAttribute("post", new Post(post));
             model.addAttribute("hashtagList", postService.hashtagList());
             model.addAttribute("postHashtagList", post.getPostHashtagPeople());
-            model.addAttribute("nickname", nickname);
+            model.addAttribute("nickname", decodedNickname);
             model.addAttribute("userId", customUserDetails.getMember().getMemberId());
             
             System.out.println("글 수정 접근 허용: " + post.getTitle());
