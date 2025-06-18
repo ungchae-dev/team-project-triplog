@@ -110,11 +110,12 @@
                 </span>
               </div>
               <!-- 해시태그 입력 -->
-              <div class="hashtags" style="margin-bottom:5px; display:flex; align-items:center; gap:10px;">
+              <div class="hashtags" style="margin-bottom:10px;  align-items:center; gap:10px;">
                 <input type="text" id="hashtagInput" name="hashtags" placeholder="'#' + '해시태그'를 입력 후 Enter를 눌러주세요."
-                  style="flex-grow:1;" />
+                  style="flex-grow:1; width: 70%; height: 20px; font-size: 15px; padding: 8px;" />
                 <span id="ttag-result" style="color:#a86c44; font-size:14px; min-width:60px;">&nbsp;</span>
               </div>
+              <div id="addedHashtags" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;"></div>
 
               <!-- 지역-T-TAG 선택 -->
               <!--<small style="display:block;margin:7px 0 4px 2px;color:#b39967;font-size:13px;">
@@ -254,7 +255,8 @@ function initPostWritePage() {
 
   // 해시태그 기능
   const hashtagInput = document.getElementById('hashtagInput');
-  const addedHashtagsDiv = document.createElement('div');
+  //const addedHashtagsDiv = document.createElement('div');
+  const addedHashtagsDiv = document.getElementById('addedHashtags');
   addedHashtagsDiv.id = 'addedHashtags';
   document.querySelector('.hashtags')?.appendChild(addedHashtagsDiv);
 
@@ -310,6 +312,11 @@ function initPostWritePage() {
     const existingTags = Array.from(addedHashtagsDiv.children).map(el => el.dataset.tag);
     if (existingTags.includes(cleanTag)) {
       alert('이미 추가된 해시태그입니다.');
+      return;
+    }
+
+    if(Array.from(addedHashtagsDiv.children).length === 30){
+      alert('해시태그는 최대 30개까지 입력할 수 있습니다.');
       return;
     }
 
