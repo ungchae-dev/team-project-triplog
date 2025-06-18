@@ -1,5 +1,8 @@
 /* home.css : 블로그 - 홈 디자인 */
 
+/* 에스코어드림 폰트 사용을 위한 import */
+@import url('https://webfontworld.github.io/SCoreDream/SCoreDream.css');
+
 /* 홈 페이지 방명록/이웃 최신글 공통 스타일 */
 .home-entry-item {
     margin-bottom: 8px;
@@ -158,6 +161,7 @@ body, html {
     overflow: visible; /* 추가 (for 이웃 파도타기) */
 }
 
+/* 2. 왼쪽 사이드바의 방문자 수 카운터 */
 .counter-banner {
     background: #f0f0f0;
     font-weight: bold;
@@ -166,7 +170,8 @@ body, html {
     font-size: 18px;
     margin-bottom: 9px;
     text-align: center;
-    color: #222;
+    color: #c18c7e;
+    font-family: 'S-Core Dream', 'Malgun Gothic', 'Noto Sans KR', sans-serif; /* S-Core Dream 폰트 적용 */
 }
 
 .mood-banner {
@@ -325,13 +330,15 @@ body, html {
     box-sizing: border-box;
 }
 
+/* 1. 상단 헤더의 페이지 제목 (h2 태그) */
 .header-handle h2 {
     font-size: 27px;
     font-weight: bold;
-    color: #222;
+    color: #c18c7e;
     flex: 1;
     margin: 0;
     text-align: center;
+    font-family: 'S-Core Dream', 'Malgun Gothic', 'Noto Sans KR', sans-serif; /* S-Core Dream 폰트 적용 */
 }
 
 .music-widget {
