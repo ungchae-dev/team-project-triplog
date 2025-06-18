@@ -942,7 +942,8 @@ document.addEventListener('click', function (e) {
     if (!currentNickname) return;
 
     // 내부 블로그 링크 정규식: /blog/@nickname/...
-    const blogLinkPrefix = `/blog/@${currentNickname}`;
+    const encodedNickname = encodeURIComponent(currentNickname); // ✅ 인코딩 적용
+    const blogLinkPrefix = `/blog/@${encodedNickname}`;
     if (href.startsWith(blogLinkPrefix)) {
         e.preventDefault();
 
@@ -1219,6 +1220,17 @@ function setPageTitleByUrl() {
     setPageTitle(pageTitle);
 }
 
+function sanitizePagePath(page, nickname) {
+    const encodedNickname = encodeURIComponent(nickname);
+    const blogPrefix = `/blog/@${encodedNickname}/`;
+
+    if (page.startsWith(blogPrefix)) {
+        return page.slice(blogPrefix.length).replace(/^\/+/, '');
+    }
+
+    return page.replace(/^\/+/, '');
+}
+
 // 페이지 컨텐츠 동적 로드 (수정됨)
 async function loadPageContent(page, nickname) {
     const mainContent = document.querySelector('.main-content');
@@ -1228,7 +1240,8 @@ async function loadPageContent(page, nickname) {
         mainContent.innerHTML = '<div style="text-align: center; padding: 50px; color: #666;">로딩 중...</div>';
 
         const encodedNickname = encodeURIComponent(nickname);
-        const [path, queryString] = page.split('?');
+        const cleanPage = sanitizePagePath(page, nickname);
+        const [path, queryString] = cleanPage.split('?');
 
         const cleanPath = path.split('?')[0]; // 쿼리스트링 제거
         const pathParts = cleanPath.split('/');
@@ -1469,6 +1482,7 @@ window.setPageTitle = setPageTitle;
 window.navigateToPage = navigateToPage;
 window.maintainDefaultSkinForInactiveUsers = maintainDefaultSkinForInactiveUsers;
 window.navigateToProfileEdit = navigateToProfileEdit;
+window.getCurrentNickname = getCurrentNickname;
 window.getCurrentUserId = getCurrentUserId;
 window.getCurrentUserNickname = getCurrentUserNickname;
 window.getCurrentUserInfo = getCurrentUserInfo;
