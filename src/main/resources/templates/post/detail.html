@@ -345,6 +345,8 @@
               <div class="comment-button">
                 ${isAuthor ? `
                     <button onclick="editComment('${comment.commentId}')" style="color:#b865a4;">수정</button>
+                ` : ''}
+                ${isAuthor || isPostAuthor ? `
                     <button onclick="deleteComment('${comment.commentId}')" style="color:#b865a4;">삭제</button>
                 ` : ''}
                 ${comment.liked ?
