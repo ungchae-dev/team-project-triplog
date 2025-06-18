@@ -111,13 +111,13 @@
               </div>
               <!-- 해시태그 입력 -->
               <div class="hashtags" style="margin-bottom:5px; display:flex; align-items:center; gap:10px;">
-                <input type="text" id="hashtagInput" name="hashtags" placeholder="'#' + '해시태그'를 입력해주세요."
+                <input type="text" id="hashtagInput" name="hashtags" placeholder="'#' + '해시태그'를 입력 후 Enter를 눌러주세요."
                   style="flex-grow:1;" />
                 <span id="ttag-result" style="color:#a86c44; font-size:14px; min-width:60px;">&nbsp;</span>
               </div>
 
               <!-- 지역-T-TAG 선택 -->
-              <small style="display:block;margin:7px 0 4px 2px;color:#b39967;font-size:13px;">
+              <!--<small style="display:block;margin:7px 0 4px 2px;color:#b39967;font-size:13px;">
                 행사·관광·맛집 관련 <b>지역-타이틀태그(T-TAG)</b> 선택
               </small>
               <div class="ttag-select-row" style="display:flex;gap:14px;align-items:center;margin-bottom:10px;">
@@ -131,12 +131,12 @@
                 <select id="ttag-select" disabled>
                   <option value="">T-TAG 선택</option>
                 </select>
-
+              -->
                 <!-- 선택된 T-TAG 해시태그 표시 영역 -->
-                <div id="ttag-tags" style="margin-left:12px; display:flex; gap:8px; flex-wrap: wrap;"></div>
+                <!--<div id="ttag-tags" style="margin-left:12px; display:flex; gap:8px; flex-wrap: wrap;"></div>
               </div>
               <input type="text" id="location-input" name="location" placeholder="장소 입력 (예: 제주 한림)" />
-
+              -->
               <div class="options" style="margin-bottom:13px;">
                 <label>공개 설정:
                   <input type="radio" name="visibility" value="PUBLIC"
@@ -145,7 +145,7 @@
                     th:attr="checked=${post.visibility != null and post.visibility.name == 'PRIVATE'}">비공개
                 </label>
               </div>
-
+            
               <button type="submit" class="submit-btn">작성</button>
               <button type="button" class="back-btn" onclick="navigateToPage('post')">글 목록</button>
             </form>
@@ -157,278 +157,246 @@
     </div>
   </div>
 
-  <script>
-    const editor = document.getElementById('editor');
-    const imageInput = document.getElementById('imageInput');
-    const deleteBtn = document.getElementById('deleteBtn');
-    let currentImage = null;
+<script>
 
-    imageInput.addEventListener('change', async () => {
-      const file = imageInput.files[0];
-      if (!file) return;
+function initPostWritePage() {
+  console.log('✅ initPostWritePage 호출됨');
 
-      // 이미지 사이즈 제한 (예: 2MB)
-      if (file.size > 2 * 1024 * 1024) {
-        alert('이미지 크기는 최대 2MB까지 가능합니다.');
-        imageInput.value = '';
-        return;
-      }
+  const editor = document.getElementById('editor');
+  const imageInput = document.getElementById('imageInput');
+  const deleteBtn = document.getElementById('deleteBtn');
+  let currentImage = null;
 
-      // 서버로 업로드
-      const formData = new FormData();
-      formData.append('image', file);
+  // 이미지 업로드 처리
+  imageInput?.addEventListener('change', async () => {
+    const file = imageInput.files[0];
+    if (!file) return;
 
-      try {
-        const res = await fetch('/api/upload-image', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (!res.ok) {
-          throw new Error('이미지 업로드 실패');
-        }
-
-        const result = await res.json(); // 예: { imageUrl: "/uploads/image123.jpg" }
-
-
-        const img = document.createElement('img');
-        img.src = result.imageUrl;
-        img.style.maxWidth = '600px';
-        img.style.height = 'auto';
-
-
-        const br = document.createElement('br');
-        insertAtCursor(br);
-        insertAtCursor(img);
-        insertAtCursor(document.createElement('br'));
-
-        imageInput.value = '';
-      } catch (error) {
-        console.error(error);
-        alert('이미지 업로드 중 오류가 발생했습니다.');
-      }
-    });
-
-    // 커서 위치에 이미지 생성
-    function insertAtCursor(node) {
-      const editor = document.getElementById('editor');
-      const selection = window.getSelection();
-
-      if (!selection.rangeCount) {
-        editor.appendChild(node);
-        return;
-      }
-
-      const range = selection.getRangeAt(0);
-      const container = range.commonAncestorContainer;
-
-      // 커서가 editor 내부가 아니면 맨 끝에 삽입
-      if (!editor.contains(container)) {
-        editor.appendChild(node);
-        return;
-      }
-
-      range.deleteContents();
-      range.insertNode(node);
-      range.setStartAfter(node);
-      range.setEndAfter(node);
-      selection.removeAllRanges();
-      selection.addRange(range);
+    if (file.size > 5 * 1024 * 1024) {
+      alert('이미지 크기는 최대 5MB까지 가능합니다.');
+      imageInput.value = '';
+      return;
     }
 
-/*
-    // 이미지 삭제 버튼(x) 위치 고정
-    editor.addEventListener('click', function (e) {
-      if (e.target.tagName === 'IMG') {
-        currentImage = e.target;
-        const rect = e.target.getBoundingClientRect();
-        deleteBtn.style.top = `${rect.top + window.scrollY}px`;
-        deleteBtn.style.left = `${rect.left + rect.width - 10 + window.scrollX}px`;
-        deleteBtn.style.display = 'block';
-      } else {
-        deleteBtn.style.display = 'none';
-        currentImage = null;
-      }
-    });
+    const formData = new FormData();
+    formData.append('image', file);
 
-    // 이미지 삭제 버튼 이벤트
-    deleteBtn.addEventListener('click', function () {
-      if (currentImage) {
-        currentImage.remove();
-        deleteBtn.style.display = 'none';
-        currentImage = null;
-      }
-    });
-*/
-    const hashtagInput = document.getElementById('hashtagInput');
-    const addedHashtagsDiv = document.createElement('div');
-    addedHashtagsDiv.id = 'addedHashtags';
-    document.querySelector('.hashtags').appendChild(addedHashtagsDiv);
-
-document.querySelectorAll('input[name="tag"]').forEach(checkbox => {
-  checkbox.addEventListener('change', function () {
-    const tagValue = this.value;
-    const tagLabel = this.nextElementSibling?.textContent || tagValue;
-
-    if (this.checked) {
-      // 이미 화면에 존재하는지 확인
-      const exists = Array.from(addedHashtagsDiv.children).some(el => el.dataset.tagId === tagValue);
-      if (exists) return;
-
-      const tagElem = document.createElement('span');
-      tagElem.textContent = '#' + tagLabel;
-      tagElem.classList.add('user-hashtag');
-      tagElem.dataset.tagId = tagValue;
-
-      tagElem.style.backgroundColor = '#a86c44';
-      tagElem.style.color = 'white';
-      tagElem.style.padding = '2px 8px';
-      tagElem.style.borderRadius = '12px';
-      tagElem.style.fontSize = '13px';
-      tagElem.style.cursor = 'pointer';
-
-      // 삭제 기능 (체크도 해제)
-      tagElem.addEventListener('click', () => {
-        if (confirm(`해시태그 "${tagLabel}"를 삭제하시겠습니까?`)) {
-          addedHashtagsDiv.removeChild(tagElem);
-          checkbox.checked = false;
-        }
+    try {
+      const res = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData
       });
 
-      addedHashtagsDiv.appendChild(tagElem);
+      if (!res.ok) throw new Error('이미지 업로드 실패');
+
+      const result = await res.json(); // { imageUrl: "/uploads/img.jpg" }
+
+      const img = document.createElement('img');
+      img.src = result.imageUrl;
+      img.style.maxWidth = '600px';
+      img.style.height = 'auto';
+
+      const br = document.createElement('br');
+      insertAtCursor(br);
+      insertAtCursor(img);
+      insertAtCursor(document.createElement('br'));
+
+      imageInput.value = '';
+    } catch (e) {
+      console.error(e);
+      alert('이미지 업로드 중 오류 발생');
+    }
+  });
+
+  // 커서 위치 삽입
+  function insertAtCursor(node) {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) {
+      editor.appendChild(node);
+      return;
+    }
+    const range = selection.getRangeAt(0);
+    const container = range.commonAncestorContainer;
+    if (!editor.contains(container)) {
+      editor.appendChild(node);
+      return;
+    }
+    range.deleteContents();
+    range.insertNode(node);
+    range.setStartAfter(node);
+    range.setEndAfter(node);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+
+  // 이미지 삭제 버튼(x) 위치 고정
+  editor.addEventListener('click', function (e) {
+    if (e.target.tagName === 'IMG') {
+      currentImage = e.target;
+      const rect = e.target.getBoundingClientRect();
+      deleteBtn.style.top = `${rect.top + window.scrollY}px`;
+      deleteBtn.style.left = `${rect.left + rect.width - 10 + window.scrollX}px`;
+      deleteBtn.style.display = 'block';
     } else {
-      // 체크 해제 시 span도 삭제
-      const toRemove = addedHashtagsDiv.querySelector(`[data-tag-id="${tagValue}"]`);
-      if (toRemove) addedHashtagsDiv.removeChild(toRemove);
-    }
-  });
-});
-
-  hashtagInput.addEventListener('keypress', function (e) {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    addHashtag(this.value);
-  }
-});
-
-function addHashtag(tag) {
-  tag = tag.trim();
-  if (!tag) return;
-
-  // 저장용 값 (# 제거)
-  const cleanTag = tag.startsWith('#') ? tag.slice(1) : tag;
-
-  // 중복 방지
-  const existingTags = Array.from(addedHashtagsDiv.children).map(el => el.dataset.tag);
-  if (existingTags.includes(cleanTag)) {
-    alert('이미 추가된 해시태그입니다.');
-    return;
-  }
-
-  const tagElem = document.createElement('span');
-  tagElem.textContent = `#${cleanTag}`; // 사용자 표시용
-  tagElem.dataset.tag = cleanTag;       // 저장용 (dataset에 보존)
-  tagElem.classList.add('user-hashtag');
-
-  tagElem.style.backgroundColor = '#a86c44';
-  tagElem.style.color = 'white';
-  tagElem.style.padding = '2px 8px';
-  tagElem.style.borderRadius = '12px';
-  tagElem.style.fontSize = '13px';
-  tagElem.style.cursor = 'default';
-
-  tagElem.addEventListener('click', () => {
-    if (confirm(`해시태그 "${cleanTag}"를 삭제하시겠습니까?`)) {
-      addedHashtagsDiv.removeChild(tagElem);
+      deleteBtn.style.display = 'none';
+      currentImage = null;
     }
   });
 
-  addedHashtagsDiv.appendChild(tagElem);
-  hashtagInput.value = '';
-}
+  // 이미지 삭제 버튼 이벤트
+  deleteBtn.addEventListener('click', function () {
+    if (currentImage) {
+      currentImage.remove();
+      deleteBtn.style.display = 'none';
+      currentImage = null;
+    }
+  });
 
-  // 작성 버튼 이벤트
-  document.getElementById('write-form').addEventListener('submit', async function (e) {
+  // 해시태그 기능
+  const hashtagInput = document.getElementById('hashtagInput');
+  const addedHashtagsDiv = document.createElement('div');
+  addedHashtagsDiv.id = 'addedHashtags';
+  document.querySelector('.hashtags')?.appendChild(addedHashtagsDiv);
+
+  document.querySelectorAll('input[name="tag"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function () {
+      const tagValue = this.value;
+      const tagLabel = this.nextElementSibling?.textContent || tagValue;
+
+      if (this.checked) {
+        const exists = Array.from(addedHashtagsDiv.children).some(el => el.dataset.tagId === tagValue);
+        if (exists) return;
+
+        const tagElem = document.createElement('span');
+        tagElem.textContent = '#' + tagLabel;
+        tagElem.classList.add('user-hashtag');
+        tagElem.dataset.tagId = tagValue;
+        Object.assign(tagElem.style, {
+          backgroundColor: '#a86c44',
+          color: 'white',
+          padding: '2px 8px',
+          borderRadius: '12px',
+          fontSize: '13px',
+          cursor: 'pointer'
+        });
+
+        tagElem.addEventListener('click', () => {
+          if (confirm(`"${tagLabel}" 해시태그를 삭제할까요?`)) {
+            addedHashtagsDiv.removeChild(tagElem);
+            checkbox.checked = false;
+          }
+        });
+
+        addedHashtagsDiv.appendChild(tagElem);
+      } else {
+        const toRemove = addedHashtagsDiv.querySelector(`[data-tag-id="${tagValue}"]`);
+        if (toRemove) addedHashtagsDiv.removeChild(toRemove);
+      }
+    });
+  });
+
+  hashtagInput?.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addHashtag(this.value);
+    }
+  });
+
+  function addHashtag(tag) {
+    tag = tag.trim();
+    if (!tag) return;
+    const cleanTag = tag.startsWith('#') ? tag.slice(1) : tag;
+
+    const existingTags = Array.from(addedHashtagsDiv.children).map(el => el.dataset.tag);
+    if (existingTags.includes(cleanTag)) {
+      alert('이미 추가된 해시태그입니다.');
+      return;
+    }
+
+    const tagElem = document.createElement('span');
+    tagElem.textContent = `#${cleanTag}`;
+    tagElem.dataset.tag = cleanTag;
+    tagElem.classList.add('user-hashtag');
+
+    Object.assign(tagElem.style, {
+      backgroundColor: '#a86c44',
+      color: 'white',
+      padding: '2px 8px',
+      borderRadius: '12px',
+      fontSize: '13px',
+      cursor: 'default'
+    });
+
+    tagElem.addEventListener('click', () => {
+      if (confirm(`"${cleanTag}" 해시태그를 삭제할까요?`)) {
+        addedHashtagsDiv.removeChild(tagElem);
+      }
+    });
+
+    addedHashtagsDiv.appendChild(tagElem);
+    hashtagInput.value = '';
+  }
+
+  // 폼 제출
+  const form = document.getElementById('write-form');
+  form?.addEventListener('submit', async function (e) {
     e.preventDefault();
+
     const blogId = document.getElementById('blogInfo').dataset.blogId;
     const nickname = document.getElementById('blogInfo').dataset.nickname;
     const title = document.getElementById('title').innerText.trim();
     const content = editor.innerHTML;
     const text = editor.innerText.trim();
     const visibilityInput = document.querySelector('input[name="visibility"]:checked');
-    const visibility = visibilityInput.value;
+    const visibility = visibilityInput?.value;
+
     const checkedHashtags = Array.from(document.querySelectorAll('input[name="tag"]:checked')).map(el => el.value);
-    //const newHashtag = document.getElementById('hashtagInput').value.trim();
-    const hashtags = document.querySelectorAll('.user-hashtag');
     const newHashtag = Array.from(document.querySelectorAll('.user-hashtag'))
-        .map(el => el.dataset.tag?.trim())   // trim()으로 양쪽 공백 제거
-        .filter(tag => tag && tag.length > 0); // null, 빈 문자열 제거
+      .map(el => el.dataset.tag?.trim())
+      .filter(tag => tag && tag.length > 0);
 
-    if (!title){
-      alert("제목을 입력해주세요");
-      return;
-    }
+    if (!title) return alert("제목을 입력해주세요.");
+    if (!text) return alert("내용을 입력해주세요.");
+    if (checkedHashtags.length === 0) return alert("해시태그를 하나 이상 선택해주세요.");
+    if (!visibilityInput) return alert("공개 여부를 선택해주세요.");
 
-      if (!text) {
-        alert("내용을 입력해주세요");
-        return;
-      }
+    const data = {
+      title,
+      content,
+      visibility,
+      tagIdList: checkedHashtags,
+      newHashtag,
+      blogId
+    };
 
+    const postId = form.dataset.id;
+    const isModify = !!postId;
 
-      if (checkedHashtags.length === 0) {
-        alert("해시태그를 하나 이상 선택해주세요");
-        return;
-      }
+    const res = await fetch(isModify ? `/api/write/${postId}` : `/api/write`, {
+      method: isModify ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
 
-
-    if (checkedHashtags.length === 0) {
-      alert("인원수 태그를 하나 이상 선택해주세요");
-      return;
-    }
-
-      if (visibilityInput == null) {
-        alert("공개 여부를 설정해주세요");
-        return;
-      }
-
-
-      const data = {
-        title,
-        content,
-        visibility,
-        tagIdList: checkedHashtags,
-        newHashtag,
-        blogId: blogId
-      };
-
-      const postForm = document.getElementById("write-form");
-      const postId = postForm.dataset.id;
-      const isModify = !!postId;
-
-      const res = await fetch(isModify ? `/api/write/${postId}` : `/api/write`, {
-        method: isModify ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      if (res.ok) {
-        alert(isModify ? '글 수정 완료' : '글 작성 완료');
-        if (isModify) {
-          location.replace(`/blog/@${nickname}/post/${postId}`);
-        } else {
-          navigateToPage('post');
-        }
-       
-      } else {
-      alert('작성 실패');
+    if (res.ok) {
+      alert(isModify ? '글 수정 완료' : '글 작성 완료');
+      isModify
+        ? window.navigateToPageWithAuth(`post/${postId}`)
+        : window.navigateToPageWithAuth(`post`);
+    } else {
+      alert("작성 실패");
     }
   });
 
-  window.addEventListener('DOMContentLoaded', () => {
+  // 초기 체크된 태그 시각화
   document.querySelectorAll('input[name="tag"]:checked').forEach(checkbox => {
     checkbox.dispatchEvent(new Event('change'));
   });
-});
+}
+
+// 전역에 등록
+window.initPostWritePage = initPostWritePage;
+
 </script>
 <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-마이로그-방명록) 홈에서 로드 -->
 <script src="/js/layout.js"></script>

@@ -150,4 +150,9 @@
     renderTrackLists();
   });
 
+  window.addEventListener('music:purchased', () => {
+  console.log('🎧 구매 완료 감지, 주크박스 다시 로드');
+  loadAndRender();
+ });
+
 })();

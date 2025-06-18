@@ -39,7 +39,6 @@
                             <div class="board-left-controls">
 
                                 <a th:href="@{/blog/@{nickname}/post/write(nickname=${nickname})}"><button class="write-btn" th:if="${nickname == loginNickname}"
-                                    
                                     type="button">글 작성</button>
                                 </a>
 
@@ -125,91 +124,73 @@
             <div id="right-container"></div>
         </div>
     </div>
-    <script>
-        window.addEventListener("DOMContentLoaded", function () {
-            const url = new URL(window.location.href);
-            const params = url.searchParams;
+<script>
+    function setupPostFeatures() {
+        const url = new URL(window.location.href);
+        const params = url.searchParams;
 
-            // 현재 URL이 /post로 끝나고, 쿼리 파라미터가 없으면 리다이렉트
-            const pathname = url.pathname;
-            const isPostPage = pathname.endsWith('/post') || pathname.match(/\/post\/?$/);
-            const hasParams = params.has('page') || params.has('size') || params.has('sort') || params.has('dir');
+        // URL이 /post로 끝나고 파라미터가 없으면 기본 값으로 리다이렉트
+        const pathname = url.pathname;
+        const isPostPage = pathname.endsWith('/post') || pathname.match(/\/post\/?$/);
+        const hasParams = params.has('page') || params.has('size') || params.has('sort') || params.has('dir');
+/*
+        if (isPostPage && !hasParams) {
+            const nickname = document.body.getAttribute('data-nickname');
+            const redirectUrl = new URL(`${window.location.origin}/blog/${nickname}/post`);
+            redirectUrl.searchParams.set('page', '1');
+            redirectUrl.searchParams.set('size', '5');
+            redirectUrl.searchParams.set('sort', 'updatedAt');
+            redirectUrl.searchParams.set('dir', 'desc');
+            window.location.replace(redirectUrl.toString());
+            return; // 아래 코드 실행하지 않도록 return
+        }
+*/
+        // 정렬 버튼 및 페이지 사이즈 UI 초기화
+        const pageSizeBtn = document.querySelector('.page-size-dropdown .dropdown-btn');
+        const dropdownMenu = document.querySelector('.page-size-dropdown .dropdown-menu');
+        const menuItems = dropdownMenu.querySelectorAll('.dropdown-item');
+        const currentSize = url.searchParams.get('size') || '5';
+        pageSizeBtn.textContent = `${currentSize}개씩 ▼`;
 
-            if (isPostPage && !hasParams) {
-                const nickname = document.body.getAttribute('data-nickname');
-                const redirectUrl = new URL(`${window.location.origin}/blog/${nickname}/post`);
-                redirectUrl.searchParams.set('page', '1');
-                redirectUrl.searchParams.set('size', '5');
-                redirectUrl.searchParams.set('sort', 'updatedAt');
-                redirectUrl.searchParams.set('dir', 'desc');
-                window.location.replace(redirectUrl.toString());
-            }
+        menuItems.forEach(item => {
+            item.classList.toggle('active', item.getAttribute('data-size') === currentSize);
         });
-    </script>
 
-    <script>
-        // 페이지 로드 시 현재 sort 값에 맞춰 active 클래스 토글
-        window.addEventListener('DOMContentLoaded', () => {
-            const sortMap = {
-                latest: 'updatedAt',
-                likes: 'likeCount',
-                comments: 'commentCount'
-            };
-
-            // 현재 사이즈 표시
-            const pageSizeBtn = document.querySelector('.page-size-dropdown .dropdown-btn');
-            const currentSize = new URL(window.location.href).searchParams.get('size') || '5';
-            pageSizeBtn.textContent = `${currentSize}개씩 ▼`;
-
-            document.querySelectorAll('.page-size-dropdown .dropdown-item').forEach(item => {
-                item.classList.toggle('active', item.getAttribute('data-size') === currentSize);
-            });
-
-
-            // 🔥 페이지 사이즈 드롭다운 이벤트 추가
-
-            const dropdownBtn = document.querySelector('.dropdown-btn');
-            const dropdownMenu = document.querySelector('.dropdown-menu');
-
-            // 드롭다운 토글
-            dropdownBtn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
-            });
-
-            // 드롭다운 메뉴 아이템 클릭 이벤트
-            const menuItems = dropdownMenu.querySelectorAll('.dropdown-item');
-            menuItems.forEach(item => {
-                item.addEventListener('click', function () {
-                    const newSize = parseInt(this.getAttribute('data-size'));
-                    changePageSize(newSize);
-                    dropdownMenu.style.display = 'none';
-
-                    // active 상태 변경
-                    menuItems.forEach(i => i.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-
-            // 외부 클릭 시 드롭다운 닫기
-            document.addEventListener('click', function () {
-                dropdownMenu.style.display = 'none';
-            });
-
-
-            // 드롭다운 클릭 시 페이지 크기 변경
-            document.querySelectorAll('.page-size-dropdown .dropdown-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    const size = item.getAttribute('data-size');
-                    const currentUrl = new URL(window.location.href);
-                    currentUrl.searchParams.set('size', size);
-                    currentUrl.searchParams.set('page', 1);
-                    window.location.href = currentUrl.toString();
-                });
-            });
-
+        // 드롭다운 열기/닫기
+        pageSizeBtn.addEventListener('click', function (e) {
+            console.log('드롭다운 버튼 클릭됨'); // ✅ 확인 로그 추가
+            e.stopPropagation();
+            dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
         });
-    </script>
+
+        // 드롭다운 메뉴 항목 클릭 시 페이지 리로딩
+        menuItems.forEach(item => {
+            item.addEventListener('click', function () {
+                const size = item.getAttribute('data-size');
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('size', size);
+                newUrl.searchParams.set('page', '1'); // 페이지 초기화
+                
+                const blogPrefix = `/blog/@${getCurrentNickname()}/`;
+                let relativePath = newUrl.pathname + newUrl.search;
+
+                if (relativePath.startsWith(blogPrefix)) {
+                    relativePath = relativePath.slice(blogPrefix.length);
+                }
+                window.navigateToPageWithAuth(relativePath);
+            });
+        });
+
+        // 드롭다운 외부 클릭 시 닫기
+        document.addEventListener('click', function () {
+            dropdownMenu.style.display = 'none';
+        });
+    }
+
+    // 전역 함수로 노출 (필요 시 window에서 호출 가능)
+    window.setupPostFeatures = setupPostFeatures;
+</script>
+
 
 
     <!-- 레이아웃 + 블로그 페이지 js 전체(7, 홈-상점-프로필-게시판-주크박스-방명록) 홈에서 로드 -->
