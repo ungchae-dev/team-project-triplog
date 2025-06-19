@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             postCard.innerHTML = `
             <!-- 썸네일 -->
-            <a href="/blog/@${post.nickname}/post" class="post-thumbnail">
+            <a onclick="openpost('/blog/@${post.nickname}/post')" class="post-thumbnail">
                     <img src="${thumbnail}"onerror="this.onerror=null;this.src='/images/page/default_IsThumbnail.png';" alt="대표 이미지"/>
             </a>
                 
@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
 
                 <!-- 제목 -->
-                <a href="/blog/@${post.nickname}/post" class="post-title">${post.title}</a>
+                <a onclick="openpost('/blog/@${post.nickname}/post')" class="post-title">${post.title}</a>
 
                 <!-- 닉네임 + 날짜 -->
                 <div class="post-meta">
