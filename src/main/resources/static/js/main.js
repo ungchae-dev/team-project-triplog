@@ -144,3 +144,46 @@ function openAdmin(){
     // 새 창에서 블로그 열기
     window.open('/admin', 'myBlogWrite', options);
 }
+
+// 내 블로그 새 창에서 열기
+function openpost(url) {
+    console.log('내 블로그 열기 시도');
+
+    // 새 창 크기 설정(메인보다 작은 사이즈로)
+    const width = 1350; // 폭
+    const height = 900; // 높이
+    const left = (screen.width - width) / 2; // 화면 중앙
+    const top = (screen.height - height) / 2; // 화면 중앙
+
+    // 새 창 옵션
+    const options = `
+        width=${width}, 
+        height=${height}, 
+        left=${left}, 
+        top=${top}, 
+        resizable=yes,
+        toolbar=no, 
+        menubar=no, 
+        location=no, 
+        status=no
+    `;
+
+
+
+    // 바로 새 창에서 블로그 열기 (새 창임을 알리는 파라미터 추가)
+    const blogWindow = window.open(url, 'postcontent', options);
+
+    try{
+        if (blogWindow) {
+            console.log('새 창 열기 완료');
+            blogWindow.focus();
+        } else {
+            console.error('새 창 열기 실패 (팝업 차단?)');
+            alert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.');
+        }
+    } catch (error) {
+        console.error('새 창 열기 중 오류:', error);
+        alert('블로그를 열 수 없습니다. 잠시 후 다시 시도해주세요.');
+    }
+
+}
